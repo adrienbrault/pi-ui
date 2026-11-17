@@ -38,7 +38,7 @@ import {
 } from "./fixtures-data.ts";
 
 export type Variant = "base" | "open-tui" | "pi-code" | "ours";
-export type Group = "session" | "transcript" | "tools" | "thinking" | "groups" | "scenarios";
+export type Group = "session" | "transcript" | "tools" | "thinking" | "groups" | "glyphs" | "scenarios";
 
 export interface RenderCtx {
   pi: PiInstall;
@@ -1107,7 +1107,179 @@ const sessionEntries: EntryDef[] = [
   },
 ];
 
-export const ENTRIES: EntryDef[] = [...sessionEntries, ...baseEntries, ...oursEntries, ...scenarioEntries];
+// ---------------------------------------------------------------------------
+// Glyph studies: what a block icon could be, and how a running one moves
+// ---------------------------------------------------------------------------
+
+interface IconOption {
+  label: string;
+  note: string;
+  icons: Array<{ name: string; icon: string }>;
+}
+
+const ICON_OPTIONS: Record<string, IconOption> = {
+  shapes: {
+    label: "Shape-coded",
+    note: "Each taxonomy gets its own silhouette: the icon says what kind of work this is.",
+    icons: [
+      { name: "read", icon: "◔" },
+      { name: "search", icon: "⌕" },
+      { name: "write", icon: "✚" },
+      { name: "edit", icon: "✎" },
+      { name: "bash", icon: "❯" },
+      { name: "web", icon: "⌁" },
+      { name: "memory/search", icon: "⬡" },
+      { name: "generic", icon: "◇" },
+    ],
+  },
+  rings: {
+    label: "Status rings",
+    note: "The icon reports outcome, not kind: one vocabulary for every tool, read at a glance.",
+    icons: [
+      { name: "pending · queued", icon: "○" },
+      { name: "running · in flight", icon: "◐" },
+      { name: "success · done", icon: "●" },
+      { name: "expanded · pinned", icon: "◉" },
+      { name: "error · failed", icon: "✕" },
+      { name: "group · folded", icon: "▸" },
+    ],
+  },
+  nerd: {
+    label: "Nerd font",
+    note: "Powerline glyphs if the terminal font ships them; falls back to tofu elsewhere.",
+    icons: [
+      { name: "read", icon: "󰈔" },
+      { name: "search", icon: "󰍉" },
+      { name: "write", icon: "󰏫" },
+      { name: "edit", icon: "󰏬" },
+      { name: "bash", icon: "󰆍" },
+      { name: "web", icon: "󰖟" },
+      { name: "memory/search", icon: "󰒍" },
+      { name: "generic", icon: "󰇙" },
+    ],
+  },
+  marker: {
+    label: "Single marker",
+    note: "What ships today: one dot for every tool, kind and outcome live in the words.",
+    icons: [
+      { name: "read", icon: "●" },
+      { name: "search", icon: "●" },
+      { name: "edit", icon: "●" },
+      { name: "bash", icon: "●" },
+      { name: "web", icon: "●" },
+      { name: "memory/search", icon: "●" },
+      { name: "pending", icon: "○" },
+      { name: "error", icon: "✗" },
+    ],
+  },
+};
+
+function iconSheet(ctx: RenderCtx, option: IconOption): string[] {
+  return option.icons.map(({ name, icon }) => {
+    const head = `${ctx.theme.fg("accent", icon)} ${ctx.theme.fg("toolTitle", name)}`;
+    const tail = ctx.theme.fg("dim", "· src/core/session.ts · 64 lines · 0.2s");
+    return ctx.kit.truncateToWidth(`${head} ${tail}`, ctx.width, "…");
+  });
+}
+
+interface MotionOption {
+  label: string;
+  note: string;
+  frames: string[];
+}
+
+const MOTION_OPTIONS: Record<string, MotionOption> = {
+  braille: {
+    label: "Braille orbit",
+    note: "Ships today: ten frames, smooth on every mono font.",
+    frames: [...glyphsFor("unicode").spinner],
+  },
+  quarter: {
+    label: "Quarter circle",
+    note: "Four frames: the crispest geometric sweep, no dot noise.",
+    frames: ["◜", "◝", "◞", "◟"],
+  },
+  blocks: {
+    label: "Rising blocks",
+    note: "Eight frames: reads as work accumulating rather than spinning.",
+    frames: ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"],
+  },
+  orbit: {
+    label: "Orbit pulse",
+    note: "Four frames: a bead circling into and out of view.",
+    frames: ["·", "•", "●", "•"],
+  },
+  arrows: {
+    label: "Compass",
+    note: "Eight frames: direction of travel, good for long-running tools.",
+    frames: ["←", "↖", "↑", "↗", "→", "↘", "↓", "↙"],
+  },
+  moon: {
+    label: "Moon phases",
+    note: "Eight frames: calm, but emoji width can break the column.",
+    frames: ["🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘"],
+  },
+  nerd: {
+    label: "Nerd spinner",
+    note: "Four frames from the nerd-font set; needs the patched font.",
+    frames: [...glyphsFor("nerd").spinner],
+  },
+};
+
+function motionSheet(ctx: RenderCtx, option: MotionOption, frame: number): string[] {
+  const glyph = option.frames[frame % option.frames.length] ?? "";
+  const think = `${ctx.theme.fg("accent", glyph)} ${ctx.theme.fg("toolTitle", "think")}`;
+  const thought = ctx.theme.italic(ctx.theme.fg("thinkingText", "  Watching the tail while the output still arrives."));
+  const tool = `${ctx.theme.fg("accent", glyph)} ${ctx.theme.fg("toolTitle", "bash")} ${ctx.theme.fg("dim", "· bun test · running")}`;
+  return [
+    think,
+    thought,
+    "",
+    tool,
+    ctx.theme.fg("toolOutput", "  $ bun test --watch"),
+    ctx.theme.fg("dim", "  waiting for the first failure"),
+  ].map((line) => ctx.kit.truncateToWidth(line, ctx.width, "…"));
+}
+
+const glyphEntries: EntryDef[] = [
+  {
+    id: "glyph.icons",
+    title: "Icon sets",
+    group: "glyphs",
+    variant: "ours",
+    description:
+      "Four candidates for the block icon: shape-coded by taxonomy, status rings, nerd font, or today's single marker. Chips switch candidate.",
+    states: Object.entries(ICON_OPTIONS).map(([id, option]) => ({
+      id,
+      label: option.label,
+      note: option.note,
+      render: (ctx) => iconSheet(ctx, option),
+    })),
+  },
+  {
+    id: "glyph.motion",
+    title: "Animations",
+    group: "glyphs",
+    variant: "ours",
+    description:
+      "Seven spinners for a running block. Motion is on: each candidate animates in place, so compare them side by side.",
+    states: Object.entries(MOTION_OPTIONS).map(([id, option]) => ({
+      id,
+      label: option.label,
+      note: option.note,
+      frames: option.frames.length,
+      render: (ctx, frame) => motionSheet(ctx, option, frame),
+    })),
+  },
+];
+
+export const ENTRIES: EntryDef[] = [
+  ...sessionEntries,
+  ...baseEntries,
+  ...oursEntries,
+  ...glyphEntries,
+  ...scenarioEntries,
+];
 
 export const WIDTHS = [40, 60, 80, 100, 120] as const;
 export const GLYPH_MODES: GlyphMode[] = ["unicode", "ascii"];

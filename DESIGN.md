@@ -60,7 +60,9 @@ Rules:
   member shows its header, then roughly five body rows with a "show all" cue,
   then the whole body; the next click folds it back. Any block with a truncated
   body (a kept tool row, a one-line thinking run) opens the same way, and the
-  pin holds until the next turn.
+  pin holds until the next turn. In the session the row under the pointer says
+  what the click will do — `click · expand`, `click · show all`,
+  `click · collapse` — in an inverted chip at its right edge.
 
 ## Width and glyphs
 

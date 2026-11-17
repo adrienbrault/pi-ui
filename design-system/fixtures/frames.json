@@ -9107,6 +9107,2330 @@
       ]
     }
   },
+  "glyph.icons": {
+    "shapes/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m◔\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m⌕\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lin\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m✚\u001b[39m \u001b[38;2;222;224;225mwrite\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 line\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m✎\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m❯\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m⌁\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines \u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m⬡\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts ·\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m◇\u001b[39m \u001b[38;2;222;224;225mgeneric\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 li\u001b[0m…\u001b[0m"
+      ]
+    },
+    "shapes/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m◔\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m⌕\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lin\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m✚\u001b[39m \u001b[38;2;222;224;225mwrite\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 line\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m✎\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m❯\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m⌁\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines \u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m⬡\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts ·\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m◇\u001b[39m \u001b[38;2;222;224;225mgeneric\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 li\u001b[0m…\u001b[0m"
+      ]
+    },
+    "shapes/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m◔\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⌕\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✚\u001b[39m \u001b[38;2;222;224;225mwrite\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✎\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m❯\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⌁\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⬡\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◇\u001b[39m \u001b[38;2;222;224;225mgeneric\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "shapes/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m◔\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⌕\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✚\u001b[39m \u001b[38;2;222;224;225mwrite\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✎\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m❯\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⌁\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⬡\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◇\u001b[39m \u001b[38;2;222;224;225mgeneric\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "shapes/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m◔\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⌕\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✚\u001b[39m \u001b[38;2;222;224;225mwrite\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✎\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m❯\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⌁\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⬡\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◇\u001b[39m \u001b[38;2;222;224;225mgeneric\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "shapes/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m◔\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⌕\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✚\u001b[39m \u001b[38;2;222;224;225mwrite\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✎\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m❯\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⌁\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⬡\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◇\u001b[39m \u001b[38;2;222;224;225mgeneric\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "shapes/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m◔\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⌕\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✚\u001b[39m \u001b[38;2;222;224;225mwrite\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✎\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m❯\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⌁\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⬡\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◇\u001b[39m \u001b[38;2;222;224;225mgeneric\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "shapes/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m◔\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⌕\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✚\u001b[39m \u001b[38;2;222;224;225mwrite\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✎\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m❯\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⌁\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⬡\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◇\u001b[39m \u001b[38;2;222;224;225mgeneric\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "shapes/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m◔\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⌕\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✚\u001b[39m \u001b[38;2;222;224;225mwrite\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✎\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m❯\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⌁\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⬡\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◇\u001b[39m \u001b[38;2;222;224;225mgeneric\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "shapes/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m◔\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⌕\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✚\u001b[39m \u001b[38;2;222;224;225mwrite\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✎\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m❯\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⌁\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m⬡\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◇\u001b[39m \u001b[38;2;222;224;225mgeneric\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "rings/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m○\u001b[39m \u001b[38;2;222;224;225mpending · queued\u001b[39m \u001b[38;2;126;136;142m· src/core/session.t\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m◐\u001b[39m \u001b[38;2;222;224;225mrunning · in flight\u001b[39m \u001b[38;2;126;136;142m· src/core/sessio\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225msuccess · done\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts \u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m◉\u001b[39m \u001b[38;2;222;224;225mexpanded · pinned\u001b[39m \u001b[38;2;126;136;142m· src/core/session.\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m✕\u001b[39m \u001b[38;2;222;224;225merror · failed\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts \u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225mgroup · folded\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts \u001b[0m…\u001b[0m"
+      ]
+    },
+    "rings/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m○\u001b[39m \u001b[38;2;222;224;225mpending · queued\u001b[39m \u001b[38;2;126;136;142m· src/core/session.t\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m◐\u001b[39m \u001b[38;2;222;224;225mrunning · in flight\u001b[39m \u001b[38;2;126;136;142m· src/core/sessio\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225msuccess · done\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts \u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m◉\u001b[39m \u001b[38;2;222;224;225mexpanded · pinned\u001b[39m \u001b[38;2;126;136;142m· src/core/session.\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m✕\u001b[39m \u001b[38;2;222;224;225merror · failed\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts \u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225mgroup · folded\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts \u001b[0m…\u001b[0m"
+      ]
+    },
+    "rings/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m○\u001b[39m \u001b[38;2;222;224;225mpending · queued\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◐\u001b[39m \u001b[38;2;222;224;225mrunning · in flight\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225msuccess · done\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◉\u001b[39m \u001b[38;2;222;224;225mexpanded · pinned\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✕\u001b[39m \u001b[38;2;222;224;225merror · failed\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225mgroup · folded\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "rings/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m○\u001b[39m \u001b[38;2;222;224;225mpending · queued\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◐\u001b[39m \u001b[38;2;222;224;225mrunning · in flight\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225msuccess · done\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◉\u001b[39m \u001b[38;2;222;224;225mexpanded · pinned\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✕\u001b[39m \u001b[38;2;222;224;225merror · failed\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225mgroup · folded\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "rings/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m○\u001b[39m \u001b[38;2;222;224;225mpending · queued\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◐\u001b[39m \u001b[38;2;222;224;225mrunning · in flight\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225msuccess · done\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◉\u001b[39m \u001b[38;2;222;224;225mexpanded · pinned\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✕\u001b[39m \u001b[38;2;222;224;225merror · failed\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225mgroup · folded\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "rings/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m○\u001b[39m \u001b[38;2;222;224;225mpending · queued\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◐\u001b[39m \u001b[38;2;222;224;225mrunning · in flight\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225msuccess · done\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◉\u001b[39m \u001b[38;2;222;224;225mexpanded · pinned\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✕\u001b[39m \u001b[38;2;222;224;225merror · failed\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225mgroup · folded\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "rings/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m○\u001b[39m \u001b[38;2;222;224;225mpending · queued\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◐\u001b[39m \u001b[38;2;222;224;225mrunning · in flight\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225msuccess · done\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◉\u001b[39m \u001b[38;2;222;224;225mexpanded · pinned\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✕\u001b[39m \u001b[38;2;222;224;225merror · failed\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225mgroup · folded\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "rings/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m○\u001b[39m \u001b[38;2;222;224;225mpending · queued\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◐\u001b[39m \u001b[38;2;222;224;225mrunning · in flight\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225msuccess · done\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◉\u001b[39m \u001b[38;2;222;224;225mexpanded · pinned\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✕\u001b[39m \u001b[38;2;222;224;225merror · failed\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225mgroup · folded\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "rings/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m○\u001b[39m \u001b[38;2;222;224;225mpending · queued\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◐\u001b[39m \u001b[38;2;222;224;225mrunning · in flight\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225msuccess · done\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◉\u001b[39m \u001b[38;2;222;224;225mexpanded · pinned\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✕\u001b[39m \u001b[38;2;222;224;225merror · failed\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225mgroup · folded\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "rings/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m○\u001b[39m \u001b[38;2;222;224;225mpending · queued\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◐\u001b[39m \u001b[38;2;222;224;225mrunning · in flight\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225msuccess · done\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m◉\u001b[39m \u001b[38;2;222;224;225mexpanded · pinned\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✕\u001b[39m \u001b[38;2;222;224;225merror · failed\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225mgroup · folded\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "nerd/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m󰈔\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m󰍉\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lin\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m󰏫\u001b[39m \u001b[38;2;222;224;225mwrite\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 line\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m󰏬\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m󰆍\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m󰖟\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines \u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m󰒍\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts ·\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m󰇙\u001b[39m \u001b[38;2;222;224;225mgeneric\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 li\u001b[0m…\u001b[0m"
+      ]
+    },
+    "nerd/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m󰈔\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m󰍉\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lin\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m󰏫\u001b[39m \u001b[38;2;222;224;225mwrite\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 line\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m󰏬\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m󰆍\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m󰖟\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines \u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m󰒍\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts ·\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m󰇙\u001b[39m \u001b[38;2;222;224;225mgeneric\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 li\u001b[0m…\u001b[0m"
+      ]
+    },
+    "nerd/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m󰈔\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰍉\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰏫\u001b[39m \u001b[38;2;222;224;225mwrite\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰏬\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰆍\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰖟\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰒍\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰇙\u001b[39m \u001b[38;2;222;224;225mgeneric\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "nerd/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m󰈔\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰍉\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰏫\u001b[39m \u001b[38;2;222;224;225mwrite\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰏬\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰆍\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰖟\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰒍\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰇙\u001b[39m \u001b[38;2;222;224;225mgeneric\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "nerd/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m󰈔\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰍉\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰏫\u001b[39m \u001b[38;2;222;224;225mwrite\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰏬\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰆍\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰖟\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰒍\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰇙\u001b[39m \u001b[38;2;222;224;225mgeneric\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "nerd/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m󰈔\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰍉\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰏫\u001b[39m \u001b[38;2;222;224;225mwrite\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰏬\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰆍\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰖟\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰒍\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰇙\u001b[39m \u001b[38;2;222;224;225mgeneric\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "nerd/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m󰈔\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰍉\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰏫\u001b[39m \u001b[38;2;222;224;225mwrite\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰏬\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰆍\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰖟\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰒍\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰇙\u001b[39m \u001b[38;2;222;224;225mgeneric\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "nerd/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m󰈔\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰍉\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰏫\u001b[39m \u001b[38;2;222;224;225mwrite\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰏬\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰆍\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰖟\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰒍\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰇙\u001b[39m \u001b[38;2;222;224;225mgeneric\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "nerd/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m󰈔\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰍉\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰏫\u001b[39m \u001b[38;2;222;224;225mwrite\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰏬\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰆍\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰖟\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰒍\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰇙\u001b[39m \u001b[38;2;222;224;225mgeneric\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "nerd/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m󰈔\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰍉\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰏫\u001b[39m \u001b[38;2;222;224;225mwrite\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰏬\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰆍\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰖟\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰒍\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m󰇙\u001b[39m \u001b[38;2;222;224;225mgeneric\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "marker/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lin\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines \u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts ·\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m○\u001b[39m \u001b[38;2;222;224;225mpending\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 li\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m✗\u001b[39m \u001b[38;2;222;224;225merror\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 line\u001b[0m…\u001b[0m"
+      ]
+    },
+    "marker/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lin\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines \u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts ·\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m○\u001b[39m \u001b[38;2;222;224;225mpending\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 li\u001b[0m…\u001b[0m",
+        "\u001b[38;2;167;152;215m✗\u001b[39m \u001b[38;2;222;224;225merror\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 line\u001b[0m…\u001b[0m"
+      ]
+    },
+    "marker/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m○\u001b[39m \u001b[38;2;222;224;225mpending\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✗\u001b[39m \u001b[38;2;222;224;225merror\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "marker/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m○\u001b[39m \u001b[38;2;222;224;225mpending\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✗\u001b[39m \u001b[38;2;222;224;225merror\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "marker/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m○\u001b[39m \u001b[38;2;222;224;225mpending\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✗\u001b[39m \u001b[38;2;222;224;225merror\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "marker/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m○\u001b[39m \u001b[38;2;222;224;225mpending\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✗\u001b[39m \u001b[38;2;222;224;225merror\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "marker/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m○\u001b[39m \u001b[38;2;222;224;225mpending\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✗\u001b[39m \u001b[38;2;222;224;225merror\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "marker/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m○\u001b[39m \u001b[38;2;222;224;225mpending\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✗\u001b[39m \u001b[38;2;222;224;225merror\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "marker/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m○\u001b[39m \u001b[38;2;222;224;225mpending\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✗\u001b[39m \u001b[38;2;222;224;225merror\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "marker/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mread\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225msearch\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225medit\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mweb\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;222;224;225mmemory/search\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m○\u001b[39m \u001b[38;2;222;224;225mpending\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;167;152;215m✗\u001b[39m \u001b[38;2;222;224;225merror\u001b[39m \u001b[38;2;126;136;142m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "shapes/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m◔\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m⌕\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lin\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m✚\u001b[39m \u001b[38;2;59;63;65mwrite\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 line\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m✎\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m❯\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m⌁\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines \u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m⬡\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts ·\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m◇\u001b[39m \u001b[38;2;59;63;65mgeneric\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 li\u001b[0m…\u001b[0m"
+      ]
+    },
+    "shapes/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m◔\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m⌕\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lin\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m✚\u001b[39m \u001b[38;2;59;63;65mwrite\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 line\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m✎\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m❯\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m⌁\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines \u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m⬡\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts ·\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m◇\u001b[39m \u001b[38;2;59;63;65mgeneric\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 li\u001b[0m…\u001b[0m"
+      ]
+    },
+    "shapes/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m◔\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⌕\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✚\u001b[39m \u001b[38;2;59;63;65mwrite\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✎\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m❯\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⌁\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⬡\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◇\u001b[39m \u001b[38;2;59;63;65mgeneric\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "shapes/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m◔\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⌕\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✚\u001b[39m \u001b[38;2;59;63;65mwrite\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✎\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m❯\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⌁\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⬡\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◇\u001b[39m \u001b[38;2;59;63;65mgeneric\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "shapes/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m◔\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⌕\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✚\u001b[39m \u001b[38;2;59;63;65mwrite\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✎\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m❯\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⌁\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⬡\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◇\u001b[39m \u001b[38;2;59;63;65mgeneric\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "shapes/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m◔\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⌕\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✚\u001b[39m \u001b[38;2;59;63;65mwrite\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✎\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m❯\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⌁\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⬡\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◇\u001b[39m \u001b[38;2;59;63;65mgeneric\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "shapes/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m◔\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⌕\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✚\u001b[39m \u001b[38;2;59;63;65mwrite\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✎\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m❯\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⌁\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⬡\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◇\u001b[39m \u001b[38;2;59;63;65mgeneric\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "shapes/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m◔\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⌕\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✚\u001b[39m \u001b[38;2;59;63;65mwrite\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✎\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m❯\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⌁\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⬡\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◇\u001b[39m \u001b[38;2;59;63;65mgeneric\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "shapes/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m◔\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⌕\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✚\u001b[39m \u001b[38;2;59;63;65mwrite\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✎\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m❯\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⌁\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⬡\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◇\u001b[39m \u001b[38;2;59;63;65mgeneric\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "shapes/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m◔\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⌕\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✚\u001b[39m \u001b[38;2;59;63;65mwrite\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✎\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m❯\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⌁\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m⬡\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◇\u001b[39m \u001b[38;2;59;63;65mgeneric\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "rings/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m○\u001b[39m \u001b[38;2;59;63;65mpending · queued\u001b[39m \u001b[38;2;135;144;149m· src/core/session.t\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m◐\u001b[39m \u001b[38;2;59;63;65mrunning · in flight\u001b[39m \u001b[38;2;135;144;149m· src/core/sessio\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65msuccess · done\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts \u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m◉\u001b[39m \u001b[38;2;59;63;65mexpanded · pinned\u001b[39m \u001b[38;2;135;144;149m· src/core/session.\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m✕\u001b[39m \u001b[38;2;59;63;65merror · failed\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts \u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65mgroup · folded\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts \u001b[0m…\u001b[0m"
+      ]
+    },
+    "rings/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m○\u001b[39m \u001b[38;2;59;63;65mpending · queued\u001b[39m \u001b[38;2;135;144;149m· src/core/session.t\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m◐\u001b[39m \u001b[38;2;59;63;65mrunning · in flight\u001b[39m \u001b[38;2;135;144;149m· src/core/sessio\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65msuccess · done\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts \u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m◉\u001b[39m \u001b[38;2;59;63;65mexpanded · pinned\u001b[39m \u001b[38;2;135;144;149m· src/core/session.\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m✕\u001b[39m \u001b[38;2;59;63;65merror · failed\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts \u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65mgroup · folded\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts \u001b[0m…\u001b[0m"
+      ]
+    },
+    "rings/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m○\u001b[39m \u001b[38;2;59;63;65mpending · queued\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◐\u001b[39m \u001b[38;2;59;63;65mrunning · in flight\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65msuccess · done\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◉\u001b[39m \u001b[38;2;59;63;65mexpanded · pinned\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✕\u001b[39m \u001b[38;2;59;63;65merror · failed\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65mgroup · folded\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "rings/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m○\u001b[39m \u001b[38;2;59;63;65mpending · queued\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◐\u001b[39m \u001b[38;2;59;63;65mrunning · in flight\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65msuccess · done\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◉\u001b[39m \u001b[38;2;59;63;65mexpanded · pinned\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✕\u001b[39m \u001b[38;2;59;63;65merror · failed\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65mgroup · folded\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "rings/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m○\u001b[39m \u001b[38;2;59;63;65mpending · queued\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◐\u001b[39m \u001b[38;2;59;63;65mrunning · in flight\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65msuccess · done\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◉\u001b[39m \u001b[38;2;59;63;65mexpanded · pinned\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✕\u001b[39m \u001b[38;2;59;63;65merror · failed\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65mgroup · folded\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "rings/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m○\u001b[39m \u001b[38;2;59;63;65mpending · queued\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◐\u001b[39m \u001b[38;2;59;63;65mrunning · in flight\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65msuccess · done\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◉\u001b[39m \u001b[38;2;59;63;65mexpanded · pinned\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✕\u001b[39m \u001b[38;2;59;63;65merror · failed\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65mgroup · folded\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "rings/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m○\u001b[39m \u001b[38;2;59;63;65mpending · queued\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◐\u001b[39m \u001b[38;2;59;63;65mrunning · in flight\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65msuccess · done\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◉\u001b[39m \u001b[38;2;59;63;65mexpanded · pinned\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✕\u001b[39m \u001b[38;2;59;63;65merror · failed\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65mgroup · folded\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "rings/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m○\u001b[39m \u001b[38;2;59;63;65mpending · queued\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◐\u001b[39m \u001b[38;2;59;63;65mrunning · in flight\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65msuccess · done\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◉\u001b[39m \u001b[38;2;59;63;65mexpanded · pinned\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✕\u001b[39m \u001b[38;2;59;63;65merror · failed\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65mgroup · folded\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "rings/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m○\u001b[39m \u001b[38;2;59;63;65mpending · queued\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◐\u001b[39m \u001b[38;2;59;63;65mrunning · in flight\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65msuccess · done\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◉\u001b[39m \u001b[38;2;59;63;65mexpanded · pinned\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✕\u001b[39m \u001b[38;2;59;63;65merror · failed\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65mgroup · folded\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "rings/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m○\u001b[39m \u001b[38;2;59;63;65mpending · queued\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◐\u001b[39m \u001b[38;2;59;63;65mrunning · in flight\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65msuccess · done\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m◉\u001b[39m \u001b[38;2;59;63;65mexpanded · pinned\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✕\u001b[39m \u001b[38;2;59;63;65merror · failed\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65mgroup · folded\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "nerd/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m󰈔\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m󰍉\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lin\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m󰏫\u001b[39m \u001b[38;2;59;63;65mwrite\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 line\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m󰏬\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m󰆍\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m󰖟\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines \u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m󰒍\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts ·\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m󰇙\u001b[39m \u001b[38;2;59;63;65mgeneric\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 li\u001b[0m…\u001b[0m"
+      ]
+    },
+    "nerd/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m󰈔\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m󰍉\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lin\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m󰏫\u001b[39m \u001b[38;2;59;63;65mwrite\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 line\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m󰏬\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m󰆍\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m󰖟\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines \u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m󰒍\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts ·\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m󰇙\u001b[39m \u001b[38;2;59;63;65mgeneric\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 li\u001b[0m…\u001b[0m"
+      ]
+    },
+    "nerd/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m󰈔\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰍉\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰏫\u001b[39m \u001b[38;2;59;63;65mwrite\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰏬\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰆍\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰖟\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰒍\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰇙\u001b[39m \u001b[38;2;59;63;65mgeneric\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "nerd/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m󰈔\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰍉\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰏫\u001b[39m \u001b[38;2;59;63;65mwrite\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰏬\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰆍\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰖟\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰒍\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰇙\u001b[39m \u001b[38;2;59;63;65mgeneric\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "nerd/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m󰈔\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰍉\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰏫\u001b[39m \u001b[38;2;59;63;65mwrite\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰏬\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰆍\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰖟\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰒍\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰇙\u001b[39m \u001b[38;2;59;63;65mgeneric\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "nerd/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m󰈔\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰍉\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰏫\u001b[39m \u001b[38;2;59;63;65mwrite\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰏬\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰆍\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰖟\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰒍\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰇙\u001b[39m \u001b[38;2;59;63;65mgeneric\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "nerd/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m󰈔\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰍉\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰏫\u001b[39m \u001b[38;2;59;63;65mwrite\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰏬\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰆍\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰖟\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰒍\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰇙\u001b[39m \u001b[38;2;59;63;65mgeneric\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "nerd/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m󰈔\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰍉\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰏫\u001b[39m \u001b[38;2;59;63;65mwrite\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰏬\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰆍\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰖟\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰒍\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰇙\u001b[39m \u001b[38;2;59;63;65mgeneric\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "nerd/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m󰈔\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰍉\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰏫\u001b[39m \u001b[38;2;59;63;65mwrite\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰏬\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰆍\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰖟\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰒍\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰇙\u001b[39m \u001b[38;2;59;63;65mgeneric\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "nerd/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m󰈔\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰍉\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰏫\u001b[39m \u001b[38;2;59;63;65mwrite\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰏬\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰆍\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰖟\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰒍\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m󰇙\u001b[39m \u001b[38;2;59;63;65mgeneric\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "marker/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lin\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines \u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts ·\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m○\u001b[39m \u001b[38;2;59;63;65mpending\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 li\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m✗\u001b[39m \u001b[38;2;59;63;65merror\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 line\u001b[0m…\u001b[0m"
+      ]
+    },
+    "marker/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lin\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines \u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts ·\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m○\u001b[39m \u001b[38;2;59;63;65mpending\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 li\u001b[0m…\u001b[0m",
+        "\u001b[38;2;116;89;180m✗\u001b[39m \u001b[38;2;59;63;65merror\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 line\u001b[0m…\u001b[0m"
+      ]
+    },
+    "marker/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m○\u001b[39m \u001b[38;2;59;63;65mpending\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✗\u001b[39m \u001b[38;2;59;63;65merror\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "marker/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m○\u001b[39m \u001b[38;2;59;63;65mpending\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✗\u001b[39m \u001b[38;2;59;63;65merror\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "marker/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m○\u001b[39m \u001b[38;2;59;63;65mpending\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✗\u001b[39m \u001b[38;2;59;63;65merror\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "marker/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m○\u001b[39m \u001b[38;2;59;63;65mpending\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✗\u001b[39m \u001b[38;2;59;63;65merror\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "marker/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m○\u001b[39m \u001b[38;2;59;63;65mpending\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✗\u001b[39m \u001b[38;2;59;63;65merror\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "marker/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m○\u001b[39m \u001b[38;2;59;63;65mpending\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✗\u001b[39m \u001b[38;2;59;63;65merror\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "marker/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m○\u001b[39m \u001b[38;2;59;63;65mpending\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✗\u001b[39m \u001b[38;2;59;63;65merror\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    },
+    "marker/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mread\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65msearch\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65medit\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mweb\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;59;63;65mmemory/search\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m○\u001b[39m \u001b[38;2;59;63;65mpending\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m",
+        "\u001b[38;2;116;89;180m✗\u001b[39m \u001b[38;2;59;63;65merror\u001b[39m \u001b[38;2;135;144;149m· src/core/session.ts · 64 lines · 0.2s\u001b[39m"
+      ]
+    }
+  },
+  "glyph.motion": {
+    "braille/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "braille/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "braille/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "braille/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "braille/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "braille/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "braille/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "braille/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "braille/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "braille/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "quarter/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m◜\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;167;152;215m◜\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "quarter/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m◜\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;167;152;215m◜\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "quarter/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m◜\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m◜\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "quarter/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m◜\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m◜\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "quarter/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m◜\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m◜\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "quarter/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m◜\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m◜\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "quarter/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m◜\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m◜\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "quarter/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m◜\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m◜\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "quarter/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m◜\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m◜\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "quarter/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m◜\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m◜\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "blocks/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▁\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;167;152;215m▁\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "blocks/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▁\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;167;152;215m▁\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "blocks/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▁\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m▁\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "blocks/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▁\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m▁\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "blocks/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▁\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m▁\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "blocks/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▁\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m▁\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "blocks/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▁\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m▁\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "blocks/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▁\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m▁\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "blocks/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▁\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m▁\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "blocks/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▁\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m▁\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "orbit/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m·\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;167;152;215m·\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "orbit/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m·\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;167;152;215m·\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "orbit/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m·\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m·\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "orbit/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m·\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m·\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "orbit/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m·\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m·\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "orbit/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m·\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m·\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "orbit/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m·\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m·\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "orbit/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m·\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m·\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "orbit/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m·\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m·\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "orbit/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m·\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m·\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "arrows/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m←\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;167;152;215m←\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "arrows/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m←\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;167;152;215m←\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "arrows/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m←\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m←\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "arrows/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m←\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m←\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "arrows/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m←\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m←\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "arrows/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m←\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m←\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "arrows/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m←\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m←\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "arrows/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m←\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m←\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "arrows/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m←\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m←\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "arrows/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m←\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m←\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "moon/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m🌑\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;167;152;215m🌑\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "moon/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m🌑\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;167;152;215m🌑\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "moon/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m🌑\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m🌑\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "moon/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m🌑\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m🌑\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "moon/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m🌑\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m🌑\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "moon/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m🌑\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m🌑\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "moon/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m🌑\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m🌑\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "moon/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m🌑\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m🌑\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "moon/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m🌑\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m🌑\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "moon/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m🌑\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m🌑\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "nerd/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m󰪚\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;167;152;215m󰪚\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "nerd/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m󰪚\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;167;152;215m󰪚\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "nerd/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m󰪚\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m󰪚\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "nerd/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m󰪚\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m󰪚\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "nerd/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m󰪚\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m󰪚\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "nerd/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m󰪚\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m󰪚\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "nerd/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m󰪚\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m󰪚\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "nerd/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m󰪚\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m󰪚\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "nerd/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m󰪚\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m󰪚\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "nerd/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m󰪚\u001b[39m \u001b[38;2;222;224;225mthink\u001b[39m",
+        "\u001b[38;2;150;160;164m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;167;152;215m󰪚\u001b[39m \u001b[38;2;222;224;225mbash\u001b[39m \u001b[38;2;126;136;142m· bun test · running\u001b[39m",
+        "\u001b[38;2;157;165;169m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;126;136;142m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "braille/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "braille/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "braille/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "braille/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "braille/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "braille/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "braille/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "braille/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "braille/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "braille/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "quarter/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m◜\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;116;89;180m◜\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "quarter/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m◜\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;116;89;180m◜\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "quarter/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m◜\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m◜\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "quarter/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m◜\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m◜\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "quarter/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m◜\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m◜\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "quarter/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m◜\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m◜\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "quarter/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m◜\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m◜\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "quarter/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m◜\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m◜\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "quarter/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m◜\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m◜\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "quarter/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m◜\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m◜\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "blocks/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▁\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;116;89;180m▁\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "blocks/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▁\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;116;89;180m▁\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "blocks/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▁\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m▁\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "blocks/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▁\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m▁\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "blocks/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▁\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m▁\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "blocks/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▁\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m▁\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "blocks/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▁\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m▁\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "blocks/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▁\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m▁\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "blocks/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▁\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m▁\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "blocks/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▁\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m▁\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "orbit/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m·\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;116;89;180m·\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "orbit/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m·\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;116;89;180m·\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "orbit/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m·\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m·\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "orbit/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m·\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m·\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "orbit/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m·\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m·\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "orbit/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m·\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m·\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "orbit/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m·\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m·\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "orbit/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m·\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m·\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "orbit/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m·\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m·\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "orbit/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m·\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m·\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "arrows/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m←\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;116;89;180m←\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "arrows/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m←\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;116;89;180m←\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "arrows/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m←\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m←\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "arrows/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m←\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m←\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "arrows/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m←\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m←\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "arrows/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m←\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m←\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "arrows/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m←\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m←\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "arrows/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m←\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m←\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "arrows/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m←\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m←\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "arrows/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m←\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m←\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "moon/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m🌑\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;116;89;180m🌑\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "moon/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m🌑\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;116;89;180m🌑\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "moon/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m🌑\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m🌑\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "moon/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m🌑\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m🌑\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "moon/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m🌑\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m🌑\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "moon/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m🌑\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m🌑\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "moon/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m🌑\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m🌑\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "moon/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m🌑\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m🌑\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "moon/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m🌑\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m🌑\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "moon/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m🌑\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m🌑\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "nerd/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m󰪚\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;116;89;180m󰪚\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "nerd/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m󰪚\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output st\u001b[0m…\u001b[0m",
+        "",
+        "\u001b[38;2;116;89;180m󰪚\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "nerd/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m󰪚\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m󰪚\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "nerd/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m󰪚\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m󰪚\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "nerd/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m󰪚\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m󰪚\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "nerd/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m󰪚\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m󰪚\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "nerd/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m󰪚\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m󰪚\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "nerd/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m󰪚\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m󰪚\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "nerd/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m󰪚\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m󰪚\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    },
+    "nerd/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m󰪚\u001b[39m \u001b[38;2;59;63;65mthink\u001b[39m",
+        "\u001b[38;2;124;134;140m  Watching the tail while the output still arrives.\u001b[39m",
+        "",
+        "\u001b[38;2;116;89;180m󰪚\u001b[39m \u001b[38;2;59;63;65mbash\u001b[39m \u001b[38;2;135;144;149m· bun test · running\u001b[39m",
+        "\u001b[38;2;103;113;118m  $ bun test --watch\u001b[39m",
+        "\u001b[38;2;135;144;149m  waiting for the first failure\u001b[39m"
+      ]
+    }
+  },
   "scenario.decay": {
     "d0/dark/40/unicode": {
       "lines": [
