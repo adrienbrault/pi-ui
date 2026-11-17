@@ -59,11 +59,25 @@ export interface StateDef {
   render: (ctx: RenderCtx, frame: number) => string[];
   /** Folded groups, split into header + member blocks a click can toggle. */
   reveal?: (ctx: RenderCtx, frame: number) => RevealGroup[];
+  /** Blocks outside groups whose full body a click can restore. */
+  toggles?: (ctx: RenderCtx, frame: number) => ToggleSpec[];
+}
+
+/** A collapsed block plus the rows that replace it once opened. */
+export interface ToggleSpec {
+  row: number;
+  count: number;
+  lines: string[];
+  key: string;
 }
 
 /** A revealed group: its header row plus member blocks in two states. */
 export interface RevealMember {
+  /** Header row only. */
   collapsed: string[];
+  /** Header plus a taste of the body, ending in a "show all" cue. */
+  preview: string[];
+  /** The whole body, the same view the live tail gets. */
   expanded: string[];
 }
 
@@ -770,10 +784,15 @@ function decayReveal(ctx: RenderCtx, offset: number): RevealGroup[] {
   return [
     {
       header: renderGroupRow(ours(ctx), { segments, expanded: true }).render(ctx.width),
-      members: folded.map(({ row }) => ({
-        collapsed: renderToolLine(ours(ctx), row).render(ctx.width),
-        expanded: renderToolRow(ours(ctx), { ...row, level: 3 }).render(ctx.width),
-      })),
+      members: folded.map(({ row }) => {
+        const preview = renderToolRow(ours(ctx), { ...row, level: 4 }).render(ctx.width);
+        const expanded = renderToolRow(ours(ctx), { ...row, expanded: true }).render(ctx.width);
+        return {
+          collapsed: renderToolLine(ours(ctx), row).render(ctx.width),
+          preview: [...preview, ours(ctx).theme.fg("dim", `▸ show all ${expanded.length} lines`)],
+          expanded,
+        };
+      }),
     },
   ];
 }
@@ -868,14 +887,22 @@ function sessionBase(ctx: RenderCtx, frameIndex: number): string[] {
 }
 
 /** Ours: the same events, aged by distance from the tail, streaming as they land. */
-function sessionOurs(ctx: RenderCtx, frameIndex: number): string[] {
+interface SessionPiece {
+  lines: string[];
+  full?: string[];
+  key?: string;
+}
+
+function sessionPieces(ctx: RenderCtx, frameIndex: number): SessionPiece[] {
   const frame = PLAYBACK[frameIndex];
   if (!frame) throw new Error(`session frame ${frameIndex} out of range`);
   const steps = SESSION_STEPS.slice(0, frame.step + 1);
   const plan = planTranscript(steps.map((step, index) => stepShape(step, index, frame)));
 
-  const components = plan.map((item) => {
-    if (item.kind === "group") return renderGroupRow(ours(ctx), { segments: item.segments });
+  return plan.map((item) => {
+    if (item.kind === "group") {
+      return { lines: renderGroupRow(ours(ctx), { segments: item.segments }).render(SESSION_WIDTH) };
+    }
 
     const step = steps[item.index];
     if (!step) throw new Error(`session frame ${frameIndex}: missing step ${item.index}`);
@@ -884,27 +911,46 @@ function sessionOurs(ctx: RenderCtx, frameIndex: number): string[] {
 
     switch (step.kind) {
       case "user":
-        return new ctx.pi.modules.coding.UserMessageComponent(
-          partialText(step.text, progress.chars),
-          ctx.pi.modules.coding.getMarkdownTheme(),
-          1,
-        );
+        return {
+          lines: new ctx.pi.modules.coding.UserMessageComponent(
+            partialText(step.text, progress.chars),
+            ctx.pi.modules.coding.getMarkdownTheme(),
+            1,
+          ).render(SESSION_WIDTH),
+        };
       case "text":
-        return baseAssistant(ctx.pi, [{ type: "text", text: partialText(step.text, progress.chars) }], false);
-      case "thinking":
-        return thinkingBlock(
-          ctx,
-          thinkingLabel(ours(ctx), {
-            phase: live ? "thinking" : "done",
-            level: item.level,
-            text: partialText(step.text, progress.chars),
+        return {
+          lines: baseAssistant(ctx.pi, [{ type: "text", text: partialText(step.text, progress.chars) }], false).render(
+            SESSION_WIDTH,
+          ),
+        };
+      case "thinking": {
+        const text = partialText(step.text, progress.chars);
+        const label = thinkingLabel(ours(ctx), {
+          phase: live ? "thinking" : "done",
+          level: item.level,
+          text,
+          width: SESSION_WIDTH,
+          durationMs: live ? undefined : 1200,
+          frame: frameIndex % 10,
+        });
+        const piece: SessionPiece = { lines: thinkingBlock(ctx, label).render(SESSION_WIDTH) };
+        if (!live) {
+          piece.full = thinkingLabel(ours(ctx), {
+            phase: "done",
+            level: 0,
+            text,
             width: SESSION_WIDTH,
-            durationMs: live ? undefined : 1200,
+            durationMs: 1200,
             frame: frameIndex % 10,
-          }),
-        );
-      case "tool":
-        return renderToolRow(ours(ctx), {
+            expanded: true,
+          }).split("\n");
+          piece.key = `think:${item.index}`;
+        }
+        return piece;
+      }
+      case "tool": {
+        const input: ToolRowInput = {
           name: step.tool.name,
           args: step.tool.args,
           status: progress.partial ? "running" : step.tool.failed ? "error" : "success",
@@ -914,11 +960,39 @@ function sessionOurs(ctx: RenderCtx, frameIndex: number): string[] {
           output: partialLines(step.tool.output ?? "", progress.lines),
           durationMs: progress.partial ? undefined : step.tool.durationMs,
           frame: frameIndex % 10,
-        });
+        };
+        const piece: SessionPiece = { lines: renderToolRow(ours(ctx), input).render(SESSION_WIDTH) };
+        if (!progress.partial) {
+          piece.full = renderToolRow(ours(ctx), { ...input, expanded: true }).render(SESSION_WIDTH);
+          piece.key = `tool:${item.index}`;
+        }
+        return piece;
+      }
     }
   });
+}
 
-  return stack(SESSION_WIDTH, components, 1);
+/** Lay pieces out like the transcript: one blank row between blocks. */
+function arrangePieces(pieces: SessionPiece[], gap = 1): { lines: string[]; toggles: ToggleSpec[] } {
+  const lines: string[] = [];
+  const toggles: ToggleSpec[] = [];
+  pieces.forEach((piece, index) => {
+    if (index > 0) for (let row = 0; row < gap; row++) lines.push("");
+    const row = lines.length;
+    lines.push(...piece.lines);
+    if (piece.full && piece.key) {
+      toggles.push({ row, count: piece.lines.length, lines: piece.full, key: piece.key });
+    }
+  });
+  return { lines, toggles };
+}
+
+function sessionOurs(ctx: RenderCtx, frameIndex: number): string[] {
+  return arrangePieces(sessionPieces(ctx, frameIndex)).lines;
+}
+
+function sessionToggles(ctx: RenderCtx, frameIndex: number): ToggleSpec[] {
+  return arrangePieces(sessionPieces(ctx, frameIndex)).toggles;
 }
 
 /**
@@ -945,12 +1019,15 @@ function sessionReveal(ctx: RenderCtx, frameIndex: number): RevealGroup[] {
         summary: step.tool.summary,
         output: step.tool.output,
         durationMs: step.tool.durationMs,
-        level: 3,
+        level: 4,
       };
+      const preview = renderToolRow(ours(ctx), input).render(SESSION_WIDTH);
+      const expanded = renderToolRow(ours(ctx), { ...input, expanded: true }).render(SESSION_WIDTH);
       return [
         {
           collapsed: renderToolLine(ours(ctx), input).render(SESSION_WIDTH),
-          expanded: renderToolRow(ours(ctx), input).render(SESSION_WIDTH),
+          preview: [...preview, ours(ctx).theme.fg("dim", `▸ show all ${expanded.length} lines`)],
+          expanded,
         },
       ];
     });
@@ -992,6 +1069,7 @@ const sessionEntries: EntryDef[] = [
         frames: PLAYBACK.length,
         render: sessionOurs,
         reveal: sessionReveal,
+        toggles: sessionToggles,
       },
     ],
   },

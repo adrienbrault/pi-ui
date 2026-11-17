@@ -3,10 +3,16 @@
 /** Frames are HTML strings, or a row pool shared by many frames. */
 export type CellData = string[] | { rows: string[]; frames: number[][] };
 
-/** A revealed group: header rows, plus members in collapsed/expanded states. */
+/** A revealed group: header rows, plus members in collapsed/preview/full states. */
 export interface RevealCellHtml {
   header: string;
-  members: Array<{ collapsed: string; expanded: string }>;
+  members: Array<{ collapsed: string; preview: string; expanded: string }>;
+}
+
+/** Blocks outside a group: the collapsed span and the body that replaces it. */
+export interface BlockCellHtml {
+  pool: Record<string, string>;
+  frames: Array<Array<{ row: number; count: number; key: string }>>;
 }
 
 export interface PagePayload {
@@ -30,6 +36,7 @@ export interface PagePayload {
     states: Array<{ id: string; label: string; note?: string; frames: number }>;
     data: Record<string, Record<string, CellData>>;
     reveal?: Record<string, Record<string, RevealCellHtml[][]>>;
+    blocks?: Record<string, Record<string, BlockCellHtml>>;
     sync?: string;
     stage?: string;
     frameLabels?: string[];
@@ -162,8 +169,8 @@ section.group > h2 { margin: 8px 0 0; font-family: var(--mono); font-size: 11px;
 .stage-lanes .chips, .stage-lanes p.desc, .stage-lanes .card-foot { display: none; }
 .term .reveal-members .ansi-line { padding-left: 2ch; }
 .term .reveal-members .ansi-line:hover { background: rgba(255, 255, 255, 0.03); }
-.term [data-expand], .term [data-turn], .term [data-collapse] { cursor: pointer; }
-.term [data-expand]:hover, .term [data-turn]:hover, .term [data-collapse]:hover { outline: 1px dashed var(--accent); outline-offset: -1px; }
+.term [data-expand], .term [data-turn], .term [data-collapse], .term [data-block] { cursor: pointer; }
+.term [data-expand]:hover, .term [data-turn]:hover, .term [data-block]:hover, .term [data-collapse]:hover { outline: 1px dashed var(--accent); outline-offset: -1px; }
 .stage-lanes .term { font-size: 10.5px; line-height: 1.5; padding: 8px 10px; height: 560px; overflow-y: auto; }
 
 .empty-note { border: 1px dashed var(--border); border-radius: 10px; padding: 14px 16px; color: var(--muted); font-size: 12.5px; }
@@ -219,6 +226,9 @@ function revealFor(entry, stateId) {
   var frames = ((entry.reveal || {})[stateId] || {})[frameKey(entry)];
   return frames || [];
 }
+function blocksFor(entry, stateId) {
+  return ((entry.blocks || {})[stateId] || {})[frameKey(entry)] || null;
+}
 function frameIndex(entry) {
   if (entry.sync) return syncIdx[entry.sync] || 0;
   return frameIdx[entry.id] || 0;
@@ -255,28 +265,43 @@ function paintStage(sync) {
 
 var tailDirty = false;
 var revealOpenState = {};
+var blockOpenState = {};
 
-// Expand in place: the rest of the transcript stays, only the group row is swapped
-// for its header plus members, each member collapsible on its own.
-function composeReveal(entryId, idx, groups, frameHtml) {
-  var prefix = entryId + ':' + idx;
+// Members cycle: header only, then a taste with a "show all" cue, then the body.
+function memberHtml(prefix, group, gi) {
+  var members = '';
+  group.members.forEach(function (member, mi) {
+    var st = revealOpenState[prefix + ':' + gi + ':' + mi] || 0;
+    members += st === 2 ? member.expanded : st === 1 ? member.preview : member.collapsed;
+  });
+  return group.header + '<div class="reveal-members">' + members + '</div>';
+}
+
+// Compose in place: rows keep their position, only the rows a click owns are
+// swapped. Replacements run back to front so earlier indices stay valid.
+function composeFrame(entry, idx, frameHtml, stateId, expanded) {
+  var prefix = entry.id + ':' + idx;
   var rows = frameHtml.split(/(?=<div class="ansi-line")/);
-  return rows
-    .map(function (row) {
+  var ops = [];
+  var groups = revealFor(entry, stateId)[idx] || [];
+  if (expanded) {
+    rows.forEach(function (row, index) {
       var match = row.match(/data-expand="(\\d+)"/);
-      if (!match) return row;
-      var gi = Number(match[1]);
-      var group = groups[gi];
-      if (!group) return row;
-      var members = '';
-      group.members.forEach(function (member, mi) {
-        var open = revealOpenState[prefix + ':' + gi + ':' + mi] !== false;
-        members += open ? member.expanded : member.collapsed;
-      });
-      // Members sit one indent under their summary row: nesting is visible.
-      return group.header + '<div class="reveal-members">' + members + '</div>';
-    })
-    .join('');
+      var group = match ? groups[Number(match[1])] : null;
+      if (group) ops.push({ from: index, count: 1, html: memberHtml(prefix, group, Number(match[1])) });
+    });
+  }
+  var blocks = blocksFor(entry, stateId);
+  if (blocks) {
+    (blocks.frames[idx] || []).forEach(function (spec) {
+      if (blockOpenState[prefix + ':' + spec.key]) {
+        ops.push({ from: spec.row, count: spec.count, html: blocks.pool[spec.key] });
+      }
+    });
+  }
+  ops.sort(function (a, b) { return b.from - a.from; });
+  ops.forEach(function (op) { rows.splice(op.from, op.count, op.html); });
+  return rows.join('');
 }
 var tailTimer = 0;
 var tailCache = {};
@@ -347,15 +372,9 @@ function paintCard(card) {
   var frames = framesFor(entry, stateId);
   var idx = frameIndex(entry) % frames.length;
   var term = card.querySelector('[data-term]');
-  var open = term && term.getAttribute('data-expanded') === '1';
-  var groups = open ? revealFor(entry, stateId)[idx] : null;
   if (term) {
-    if (groups && groups.length) {
-      term.innerHTML = composeReveal(entry.id, idx, groups, frames[idx] || '');
-    } else {
-      term.removeAttribute('data-expanded');
-      term.innerHTML = frames[idx] || '';
-    }
+    var expanded = term.getAttribute('data-expanded') === '1';
+    term.innerHTML = composeFrame(entry, idx, frames[idx] || '', stateId, expanded);
   }
   var note = card.querySelector('[data-note]');
   if (note) note.textContent = def.note || '';
@@ -476,30 +495,39 @@ function onTermClick(event) {
   var card = term.closest('[data-card]');
   var entry = card ? byId(card.getAttribute('data-entry')) : null;
   if (!entry) return;
-
-  // Open: each member toggles on its own; the header folds the whole group back.
-  if (term.getAttribute('data-expanded') === '1') {
-    var turn = event.target.closest('[data-turn]');
-    if (turn) {
-      var key = entry.id + ':' + frameIndex(entry) + ':' + turn.getAttribute('data-turn');
-      revealOpenState[key] = revealOpenState[key] === false;
-      paintCard(card);
-      return;
-    }
-    if (event.target.closest('[data-collapse]')) {
-      term.removeAttribute('data-expanded');
-      paintCard(card);
-    }
-    return;
+  var prefix = entry.id + ':' + frameIndex(entry);
+  function hold() {
+    if (entry.sync && playback[entry.sync]) playback[entry.sync].playing = false;
   }
 
+  var turn = event.target.closest('[data-turn]');
+  if (turn) {
+    var memberKey = prefix + ':' + turn.getAttribute('data-turn');
+    var st = revealOpenState[memberKey] || 0;
+    revealOpenState[memberKey] = st === 0 ? 1 : st === 1 ? 2 : 0;
+    hold();
+    paintCard(card);
+    return;
+  }
+  if (event.target.closest('[data-collapse]')) {
+    term.removeAttribute('data-expanded');
+    paintCard(card);
+    return;
+  }
+  var block = event.target.closest('[data-block]');
+  if (block) {
+    var blockKey = prefix + ':' + block.getAttribute('data-block');
+    blockOpenState[blockKey] = !blockOpenState[blockKey];
+    hold();
+    paintCard(card);
+    return;
+  }
   var row = event.target.closest('[data-expand]');
   if (!row) return;
   var stateId = active[entry.id] || entry.states[0].id;
   var groups = revealFor(entry, stateId)[frameIndex(entry)] || [];
   if (!groups.length) return;
-  // A reveal must hold: stop the shared playhead if this card rides one.
-  if (entry.sync && playback[entry.sync]) playback[entry.sync].playing = false;
+  hold();
   term.setAttribute('data-expanded', '1');
   paintCard(card);
 }

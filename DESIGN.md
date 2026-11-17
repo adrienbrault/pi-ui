@@ -56,7 +56,11 @@ Rules:
 - Errors and the live block keep their own rows; a failure never joins a group.
 - Recompute on structural events only; never per token.
 - Hysteresis: two consecutive recomputes must agree before a level changes.
-- A click pins a block at its expanded form until the next turn.
+- A click opens a block, and what it opens is graded like the tail: a folded
+  member shows its header, then roughly five body rows with a "show all" cue,
+  then the whole body; the next click folds it back. Any block with a truncated
+  body (a kept tool row, a one-line thinking run) opens the same way, and the
+  pin holds until the next turn.
 
 ## Width and glyphs
 
