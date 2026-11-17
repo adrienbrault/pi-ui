@@ -49,20 +49,22 @@ export function thinkingLabel(api: ThinkingApi, input: ThinkingLabelInput): stri
   const last = squeeze(tail.at(-1) ?? "");
 
   const marker = `${glyphs.thinking} ${MARKER}`;
-  const indent = " ".repeat(kit.visibleWidth(marker) + 1);
 
-  // One-line form: aged L3 and anything past it.
-  if (input.level >= 3 && !(input.expanded ?? false)) {
+  // Body rows sit flush left like every other block: the marker is a header,
+  // not a hanging indent.
+
+  // One-line form: only at the floor, so the ladder sheds a row at a time.
+  if (input.level >= 6 && !(input.expanded ?? false)) {
     const label = input.phase === "thinking" ? `${marker} ${frameAt(glyphs, input.frame ?? 0)}` : marker;
     const suffix = last ? ` ${glyphs.dot} ${last}` : "";
     return clampLine(kit, `${label}${suffix}`, input.width);
   }
 
-  const budget = input.expanded ? 16 : bodyLinesFor(input.level);
+  const budget = Math.max(1, input.expanded ? 16 : bodyLinesFor(input.level));
   const spinner = input.phase === "thinking" ? ` ${frameAt(glyphs, input.frame ?? 0)}` : "";
   const head = `${marker}${spinner} ${seconds(input.durationMs)}`.trimEnd();
 
-  const rows = tail.slice(-budget).map((line, index) => (index === 0 ? `${head} ${line}` : `${indent}${line}`));
-  if (rows.length === 0) return clampLine(kit, head, input.width);
-  return rows.map((row) => clampLine(kit, row, input.width)).join("\n");
+  // One row of the budget is the header; the rest is tail, unindented.
+  const rows = tail.slice(-(budget - 1));
+  return [head, ...rows].map((row) => clampLine(kit, row, input.width)).join("\n");
 }

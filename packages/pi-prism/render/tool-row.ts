@@ -142,8 +142,6 @@ function body(api: RenderApi, input: ToolRowInput, width: number): string[] {
 
 export function renderToolRow(api: RenderApi, input: ToolRowInput): ComponentLike {
   return api.kit.component((width) => {
-    // Folded rows disappear; a failure is never allowed to vanish into a group.
-    if (input.level === 4 && !(input.expanded ?? false) && input.status !== "error") return [];
     return [header(api, input, width), ...body(api, input, width)];
   });
 }

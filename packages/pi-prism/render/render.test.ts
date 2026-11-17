@@ -1,10 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { BODY_LINES, bodyLinesFor, detailFor, maxRowsFor, settleLevel } from "./detail.ts";
+import { DEFAULT_TAIL_LINES, bodyLinesFor, detailFor, maxRowsFor, setTailLines, settleLevel } from "./detail.ts";
 import { groupVerb, mcpLabel, toolMeta, groupNoun } from "./tools.ts";
 import { headLines, omittedCount, tailLines } from "./text.ts";
 import { renderToolRow } from "./tool-row.ts";
 import { thinkingLabel } from "./thinking.ts";
 import { glyphsFor } from "./glyphs.ts";
+import { planTranscript, type BlockShape } from "./layout.ts";
 import type { RenderKit, RenderTheme } from "./kit.ts";
 
 /** Plain-text stand-ins: the assertions are about row counts, not styling. */
@@ -27,18 +28,30 @@ const OUTPUT = Array.from({ length: 40 }, (_, index) => `line ${index + 1}`).joi
 
 describe("detail ladder", () => {
   test("distance maps to levels and saturates", () => {
-    expect([0, 1, 2, 3, 4, 9].map(detailFor)).toEqual([0, 1, 2, 3, 4, 4]);
+    expect([0, 1, 2, 3, 4, 5, 6, 9].map(detailFor)).toEqual([0, 1, 2, 3, 4, 5, 6, 6]);
     expect(detailFor(-1)).toBe(0);
   });
 
   test("row budgets shrink monotonically and never exceed the live cap", () => {
-    const rows = ([0, 1, 2, 3, 4] as const).map((level) => maxRowsFor(level));
-    expect(rows).toEqual([7, 5, 3, 1, 1]);
-    expect(bodyLinesFor(0)).toBe(BODY_LINES[0]);
+    const rows = ([0, 1, 2, 3, 4, 5, 6] as const).map((level) => maxRowsFor(level));
+    expect(rows).toEqual([8, 7, 6, 5, 4, 3, 2]);
+    expect(bodyLinesFor(0)).toBe(DEFAULT_TAIL_LINES);
   });
 
-  test("errors keep a row at level 4", () => {
-    expect(renderToolRow(api, { name: "bash", status: "error", level: 4, error: "exit 2" }).render(80)).toHaveLength(1);
+  test("errors keep their own rows at the bottom of the ladder", () => {
+    // Header plus the error notice: a failure never collapses into a group.
+    expect(renderToolRow(api, { name: "bash", status: "error", level: 6, error: "exit 2" }).render(80)).toHaveLength(2);
+  });
+});
+
+describe("tail budget", () => {
+  test("the slider changes every level at once and the ladder still sheds one row", () => {
+    setTailLines(11);
+    try {
+      expect(([0, 1, 2, 3, 4, 5, 6] as const).map((level) => bodyLinesFor(level))).toEqual([11, 10, 9, 8, 7, 6, 5]);
+    } finally {
+      setTailLines(DEFAULT_TAIL_LINES);
+    }
   });
 });
 
@@ -66,32 +79,27 @@ describe("tail and head", () => {
 });
 
 describe("tool row heights", () => {
-  test("level 0 renders six body rows plus a header", () => {
+  test("level 0 renders seven body rows plus a header", () => {
     const lines = renderToolRow(api, { name: "bash", status: "success", level: 0, output: OUTPUT }).render(80);
-    expect(lines).toHaveLength(7);
+    expect(lines).toHaveLength(8);
   });
 
-  test("levels 1 and 2 shrink the body", () => {
-    expect(renderToolRow(api, { name: "bash", status: "success", level: 1, output: OUTPUT }).render(80)).toHaveLength(
-      5,
+  test("every level sheds exactly one row", () => {
+    const rows = ([0, 1, 2, 3, 4, 5, 6] as const).map(
+      (level) => renderToolRow(api, { name: "bash", status: "success", level, output: OUTPUT }).render(80).length,
     );
-    expect(renderToolRow(api, { name: "bash", status: "success", level: 2, output: OUTPUT }).render(80)).toHaveLength(
-      3,
-    );
+    expect(rows).toEqual([8, 7, 6, 5, 4, 3, 2]);
   });
 
-  test("level 3 is a single line", () => {
-    expect(renderToolRow(api, { name: "bash", status: "success", level: 3, output: OUTPUT }).render(80)).toHaveLength(
-      1,
-    );
+  test("level 6 keeps a single output line under the header", () => {
+    const lines = renderToolRow(api, { name: "bash", status: "success", level: 6, output: OUTPUT }).render(80);
+    expect(lines).toHaveLength(2);
+    expect(lines[1]).toContain("line 40");
   });
 
-  test("level 4 is folded away unless pinned", () => {
-    expect(renderToolRow(api, { name: "bash", status: "success", level: 4, output: OUTPUT }).render(80)).toHaveLength(
-      0,
-    );
+  test("a pinned row outgrows the ladder but stays finite", () => {
     expect(
-      renderToolRow(api, { name: "bash", status: "success", level: 4, expanded: true, output: OUTPUT }).render(80),
+      renderToolRow(api, { name: "bash", status: "success", level: 6, expanded: true, output: OUTPUT }).render(80),
     ).toHaveLength(17);
   });
 
@@ -119,8 +127,8 @@ describe("thinking labels", () => {
     expect(label.split("\n").length).toBeLessThanOrEqual(7);
   });
 
-  test("aged level 3 is exactly one line and keeps the last thought", () => {
-    const label = thinkingLabel(api, { phase: "aged", level: 3, text: OUTPUT, width: 80, durationMs: 12400 });
+  test("aged level 6 is exactly one line and keeps the last thought", () => {
+    const label = thinkingLabel(api, { phase: "aged", level: 6, text: OUTPUT, width: 80, durationMs: 12400 });
     expect(label.split("\n")).toHaveLength(1);
     expect(label).toContain("line 40");
   });
@@ -197,5 +205,63 @@ describe("header budget", () => {
       80,
     );
     expect(head.match(/memory\/search/g)).toHaveLength(1);
+  });
+});
+
+const shapes = (n: number, cls: "read" | "prose" | "thinking" = "read") => Array.from({ length: n }, () => ({ cls }));
+
+describe("transcript plan", () => {
+  test("a folded run becomes one group before the surviving rows", () => {
+    const plan = planTranscript(shapes(10));
+    expect(plan[0]).toEqual({ kind: "group", segments: [{ cls: "read", count: 2 }] });
+    expect(plan.slice(1)).toEqual([
+      { kind: "block", index: 2, level: 6 },
+      { kind: "block", index: 3, level: 6 },
+      { kind: "block", index: 4, level: 5 },
+      { kind: "block", index: 5, level: 4 },
+      { kind: "block", index: 6, level: 3 },
+      { kind: "block", index: 7, level: 2 },
+      { kind: "block", index: 8, level: 1 },
+      { kind: "block", index: 9, level: 0 },
+    ]);
+  });
+
+  test("the last body line holds until the run needs the room", () => {
+    // Nine blocks: only the oldest is past the fold distance.
+    const plan = planTranscript(shapes(9));
+    expect(plan[0]).toEqual({ kind: "group", segments: [{ cls: "read", count: 1 }] });
+    expect(plan[1]).toEqual({ kind: "block", index: 1, level: 6 });
+    expect(plan[2]).toEqual({ kind: "block", index: 2, level: 6 });
+    expect(plan[3]).toEqual({ kind: "block", index: 3, level: 5 });
+  });
+
+  test("a failure keeps its own line and splits the group", () => {
+    const blocks: BlockShape[] = shapes(6);
+    blocks[1] = { cls: "edit", failed: true };
+    const plan = planTranscript(blocks);
+    expect(plan).toEqual([
+      { kind: "block", index: 0, level: 5 },
+      { kind: "block", index: 1, level: 4 },
+      { kind: "block", index: 2, level: 3 },
+      { kind: "block", index: 3, level: 2 },
+      { kind: "block", index: 4, level: 1 },
+      { kind: "block", index: 5, level: 0 },
+    ]);
+  });
+
+  test("prose never decays and thinking bottoms out at one line", () => {
+    const plan = planTranscript([...shapes(2, "thinking"), ...shapes(3, "prose")]);
+    expect(plan.map((item) => (item.kind === "block" ? item.level : "group"))).toEqual([4, 3, 0, 0, 0]);
+  });
+
+  test("groups merge counts by class in encounter order", () => {
+    const plan = planTranscript([...shapes(9, "read"), { cls: "edit" }, ...shapes(9, "read")]);
+    expect(plan[0]).toEqual({
+      kind: "group",
+      segments: [
+        { cls: "read", count: 10 },
+        { cls: "edit", count: 1 },
+      ],
+    });
   });
 });
