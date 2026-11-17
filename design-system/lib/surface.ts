@@ -133,14 +133,16 @@ function escapeAttribute(text: string): string {
   return text.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+export function toRows(pi: PiInstall, lines: string[]): string[] {
+  return lines.map((line) => {
+    const row = lineToHtml(pi, line);
+    const style = row.background ? ` style="background-color:${row.background}"` : "";
+    return `<div class="ansi-line"${style}>${row.html || "&nbsp;"}</div>`;
+  });
+}
+
 export function toHtml(pi: PiInstall, lines: string[]): string {
-  return lines
-    .map((line) => {
-      const row = lineToHtml(pi, line);
-      const style = row.background ? ` style="background-color:${row.background}"` : "";
-      return `<div class="ansi-line"${style}>${row.html || "&nbsp;"}</div>`;
-    })
-    .join("");
+  return toRows(pi, lines).join("");
 }
 
 /**

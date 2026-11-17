@@ -16,7 +16,7 @@ export interface BlockShape {
 
 export type TranscriptItem =
   | { kind: "block"; index: number; level: DetailLevel }
-  | { kind: "group"; segments: GroupSegment[] };
+  | { kind: "group"; segments: GroupSegment[]; indices: number[] };
 
 /** Only tool calls fold into summaries; prose anchors and thinking keep a line. */
 function groupable(cls: BlockClass): cls is ToolClass {
@@ -36,14 +36,18 @@ function levelFor(cls: BlockClass, distance: number): DetailLevel {
 export function planTranscript(blocks: BlockShape[]): TranscriptItem[] {
   const items: TranscriptItem[] = [];
   let folded: BlockShape[] = [];
+  let foldedIndices: number[] = [];
 
   const flush = () => {
     if (folded.length === 0) return;
     items.push({
       kind: "group",
       segments: groupSegments(folded.map((block) => ({ cls: block.cls as ToolClass, failed: block.failed }))),
+      // The members a click can reveal: interaction needs the real indices.
+      indices: foldedIndices,
     });
     folded = [];
+    foldedIndices = [];
   };
 
   blocks.forEach((block, index) => {
@@ -51,6 +55,7 @@ export function planTranscript(blocks: BlockShape[]): TranscriptItem[] {
     const level = levelFor(block.cls, distance);
     if (distance >= FOLD_DISTANCE && groupable(block.cls) && !block.failed) {
       folded.push(block);
+      foldedIndices.push(index);
       return;
     }
     // A failure or a prose anchor ends the run, so the group keeps its place.

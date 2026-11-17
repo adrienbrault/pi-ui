@@ -1,5 +1,8 @@
 /** The generated gallery page. Static HTML, no runtime dependencies. */
 
+/** Frames are HTML strings, or a row pool shared by many frames. */
+export type CellData = string[] | { rows: string[]; frames: number[][] };
+
 export interface PagePayload {
   meta: {
     piVersion: string;
@@ -19,10 +22,12 @@ export interface PagePayload {
     variant: string;
     description: string;
     states: Array<{ id: string; label: string; note?: string; frames: number }>;
-    data: Record<string, Record<string, string[]>>;
+    data: Record<string, Record<string, CellData>>;
+    expanded?: Record<string, Record<string, CellData>>;
     sync?: string;
     stage?: string;
     frameLabels?: string[];
+    frameCosts?: number[];
     fixedWidth?: number;
   }>;
 }
@@ -149,6 +154,8 @@ section.group > h2 { margin: 8px 0 0; font-family: var(--mono); font-size: 11px;
 .stage-lanes { display: grid; grid-template-columns: 1fr; gap: 14px; align-items: start; }
 .stage-lanes .card { padding: 10px 12px 8px; }
 .stage-lanes .chips, .stage-lanes p.desc, .stage-lanes .card-foot { display: none; }
+.term [data-expand] { cursor: pointer; }
+.term [data-expand]:hover { outline: 1px dashed var(--accent); outline-offset: -1px; }
 .stage-lanes .term { font-size: 10.5px; line-height: 1.5; padding: 8px 10px; height: 560px; overflow-y: auto; }
 
 .empty-note { border: 1px dashed var(--border); border-radius: 10px; padding: 14px 16px; color: var(--muted); font-size: 12.5px; }
@@ -184,9 +191,24 @@ function stateOf(entry, id) {
   return entry.states[0];
 }
 function frameKey(entry) { return (entry.fixedWidth || state.width) + '/' + state.theme + '/' + state.glyph; }
+function decodeCell(cell) {
+  if (!cell) return null;
+  if (Array.isArray(cell)) return cell;
+  if (cell.frames && cell.rows) {
+    if (!cell.decoded) {
+      cell.decoded = cell.frames.map(function (idx) {
+        return idx.map(function (i) { return cell.rows[i]; }).join('');
+      });
+    }
+    return cell.decoded;
+  }
+  return null;
+}
 function framesFor(entry, stateId) {
-  var cell = (entry.data[stateId] || {})[frameKey(entry)];
-  return cell || [''];
+  return decodeCell((entry.data[stateId] || {})[frameKey(entry)]) || [''];
+}
+function expandedFramesFor(entry, stateId) {
+  return decodeCell(((entry.expanded || {})[stateId] || {})[frameKey(entry)]) || [];
 }
 function frameIndex(entry) {
   if (entry.sync) return syncIdx[entry.sync] || 0;
@@ -283,6 +305,8 @@ function applyTheme() {
 }
 
 function paintCard(card) {
+  // Hidden lanes keep their DOM but skip repaint: playback should cost one lane.
+  if (card.style.display === 'none') return;
   var entry = byId(card.getAttribute('data-entry'));
   if (!entry) return;
   var stateId = active[entry.id] || entry.states[0].id;
@@ -290,7 +314,13 @@ function paintCard(card) {
   var frames = framesFor(entry, stateId);
   var idx = frameIndex(entry) % frames.length;
   var term = card.querySelector('[data-term]');
-  if (term) term.innerHTML = frames[idx] || '';
+  var open = term && term.getAttribute('data-expanded') === '1';
+  var revealed = open ? expandedFramesFor(entry, stateId) : [];
+  if (term) {
+    term.innerHTML = (revealed.length ? revealed[idx % revealed.length] : frames[idx]) || '';
+    if (revealed.length) term.setAttribute('data-expanded', '1');
+    else term.removeAttribute('data-expanded');
+  }
   var note = card.querySelector('[data-note]');
   if (note) note.textContent = def.note || '';
   var frame = card.querySelector('[data-frame]');
@@ -357,24 +387,40 @@ function playbackTick(now) {
   Object.keys(playback).forEach(function (sync) {
     var st = playback[sync];
     if (!st.playing) return;
-    if (!st.last) { st.last = now; return; }
-    if (now - st.last < st.interval) return;
-    st.last = now;
     var stage = document.querySelector('[data-stage][data-sync="' + sync + '"]');
     if (!stage) return;
     var card = stage.querySelector('[data-card]');
     var entry = card ? byId(card.getAttribute('data-entry')) : null;
     if (!entry) return;
     var frames = framesFor(entry, entry.states[0].id).length;
-    syncIdx[sync] = Math.min((syncIdx[sync] || 0) + 1, frames - 1);
-    if (syncIdx[sync] >= frames - 1) st.playing = false;
-    paintStage(sync);
+    var idx = syncIdx[sync] || 0;
+    if (idx >= frames - 1) { st.playing = false; return; }
+    if (!st.last) { st.last = now; return; }
+    // Tokens arrive at 100 tok/s; paint whenever enough time has accumulated.
+    st.acc = (st.acc || 0) + (now - st.last);
+    st.last = now;
+    var costs = entry.frameCosts || [];
+    var advanced = false;
+    while (idx < frames - 1) {
+      var cost = (costs[idx] || 10) / (st.rate || 1);
+      if (st.acc < cost) break;
+      st.acc -= cost;
+      idx += 1;
+      advanced = true;
+    }
+    syncIdx[sync] = idx;
+    if (idx >= frames - 1) st.playing = false;
+    if (advanced) paintStage(sync);
   });
 }
 
+var lastMotion = 0;
 function tick() {
-  playbackTick(Date.now());
+  var now = Date.now();
+  playbackTick(now);
   if (!state.motion) return;
+  if (now - lastMotion < 120) return;
+  lastMotion = now;
   document.querySelectorAll('[data-card]').forEach(function (card) {
     if (card.offsetParent === null) return;
     var entry = byId(card.getAttribute('data-entry'));
@@ -387,6 +433,29 @@ function tick() {
     frameIdx[entry.id] = (frameIdx[entry.id] || 0) + 1;
     paintCard(card);
   });
+}
+
+function onTermClick(event) {
+  var term = event.currentTarget;
+  var card = term.closest('[data-card]');
+  var entry = card ? byId(card.getAttribute('data-entry')) : null;
+  if (!entry) return;
+  var stateId = active[entry.id] || entry.states[0].id;
+
+  // Already open: a click anywhere folds the members back into one row.
+  if (term.getAttribute('data-expanded') === '1') {
+    term.removeAttribute('data-expanded');
+    paintCard(card);
+    return;
+  }
+  var row = event.target.closest('[data-expand]');
+  if (!row) return;
+  var revealed = expandedFramesFor(entry, stateId);
+  if (!revealed.length) return;
+  // A reveal must hold: stop the shared playhead if this card rides one.
+  if (entry.sync && playback[entry.sync]) playback[entry.sync].playing = false;
+  term.setAttribute('data-expanded', '1');
+  paintCard(card);
 }
 
 function bind() {
@@ -427,6 +496,9 @@ function bind() {
     state.lane = state.lane === 'base' ? 'ours' : 'base';
     paintAll();
   });
+  document.querySelectorAll('[data-term]').forEach(function (term) {
+    term.addEventListener('click', onTermClick);
+  });
   document.querySelectorAll('[data-state]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var card = btn.closest('[data-card]');
@@ -453,7 +525,7 @@ function bind() {
 
   document.querySelectorAll('[data-stage]').forEach(function (stage) {
     var sync = stage.getAttribute('data-sync');
-    playback[sync] = { playing: false, interval: 150, last: 0, played: false };
+    playback[sync] = { playing: false, rate: 1, acc: 0, last: 0, played: false };
     var play = stage.querySelector('[data-play]');
     if (play) play.addEventListener('click', function () {
       var st = playback[sync];
@@ -463,6 +535,7 @@ function bind() {
       if ((syncIdx[sync] || 0) >= frames - 1) syncIdx[sync] = 0;
       st.playing = !st.playing;
       st.last = 0;
+      st.acc = 0;
       paintStage(sync);
     });
     var reset = stage.querySelector('[data-reset]');
@@ -474,8 +547,8 @@ function bind() {
     var speed = stage.querySelector('[data-speed]');
     if (speed) speed.addEventListener('click', function () {
       var st = playback[sync];
-      st.interval = st.interval === 150 ? 75 : 150;
-      speed.textContent = st.interval === 150 ? '1×' : '2×';
+      st.rate = st.rate === 1 ? 2 : 1;
+      speed.textContent = st.rate * 100 + ' tok/s';
       st.last = 0;
     });
     var scrub = stage.querySelector('[data-scrub]');
@@ -493,6 +566,7 @@ function bind() {
         st.played = true;
         st.playing = true;
         st.last = 0;
+        st.acc = 0;
         paintStage(sync);
         io.disconnect();
       }, { threshold: 0.3 });
@@ -504,7 +578,7 @@ function bind() {
 applyTheme();
 bind();
 paintAll();
-setInterval(tick, 140);
+setInterval(tick, 8);
 `;
 
 function esc(text: string): string {
@@ -574,11 +648,11 @@ export function renderPage(payload: PagePayload): string {
 <div class="stage" id="stage-${esc(stage)}" data-stage="${esc(stage)}" data-sync="${esc(first?.sync ?? stage)}">
   <div class="stage-head">
     <h3>Session replay</h3>
-    <p class="desc">One script, ${frames} frames, one playhead: thinking tokens, tool arguments and output all stream. Toggle the lane above to swap renderers without losing your place.</p>
+    <p class="desc">One script, ${frames} frames, one playhead: thinking tokens at 100 tok/s, tool arguments and output all stream. Toggle the lane above to swap renderers without losing your place.</p>
     <div class="stage-controls">
       <button data-play>▶ play</button>
       <button data-reset>↻ reset</button>
-      <button data-speed>1×</button>
+      <button data-speed>100 tok/s</button>
       <input type="range" data-scrub min="0" max="${frames - 1}" value="0">
       <span class="step" data-step>frame 1/${frames} · ${esc(labels[0] ?? "")}</span>
       <span class="rows" data-rows>base · ours rows</span>

@@ -32,6 +32,9 @@ export interface ThinkingLabelInput {
 
 const MARKER = "think";
 
+/** Body rows share the tool-row indent so blocks line up down the left edge. */
+const INDENT = "  ";
+
 function seconds(durationMs: number | undefined): string {
   if (durationMs === undefined) return "";
   const value = durationMs / 1000;
@@ -43,28 +46,30 @@ function clampLine(kit: RenderKit, line: string, width: number): string {
 }
 
 export function thinkingLabel(api: ThinkingApi, input: ThinkingLabelInput): string {
-  const { kit, glyphs } = api;
+  const { kit, theme, glyphs } = api;
   const cleaned = cleanThinking(input.text);
   const tail = tailLines(cleaned, 16);
   const last = squeeze(tail.at(-1) ?? "");
 
-  const marker = `${glyphs.thinking} ${MARKER}`;
-
-  // Body rows sit flush left like every other block: the marker is a header,
-  // not a hanging indent.
+  // The marker reads like a tool status glyph: coloured, never grey. The title
+  // uses the same token as every other block header, so it sits at full contrast.
+  const marker = `${theme.fg("accent", glyphs.thinking)} ${theme.fg("toolTitle", MARKER)}`;
+  const dot = theme.fg("dim", glyphs.dot);
+  const body = (row: string) => theme.italic(theme.fg("thinkingText", INDENT + row));
 
   // One-line form: only at the floor, so the ladder sheds a row at a time.
   if (input.level >= 6 && !(input.expanded ?? false)) {
-    const label = input.phase === "thinking" ? `${marker} ${frameAt(glyphs, input.frame ?? 0)}` : marker;
-    const suffix = last ? ` ${glyphs.dot} ${last}` : "";
-    return clampLine(kit, `${label}${suffix}`, input.width);
+    const spinner = input.phase === "thinking" ? ` ${theme.fg("accent", frameAt(glyphs, input.frame ?? 0))}` : "";
+    const suffix = last ? ` ${dot} ${theme.fg("thinkingText", last)}` : "";
+    return clampLine(kit, `${marker}${spinner}${suffix}`, input.width);
   }
 
   const budget = Math.max(1, input.expanded ? 16 : bodyLinesFor(input.level));
-  const spinner = input.phase === "thinking" ? ` ${frameAt(glyphs, input.frame ?? 0)}` : "";
-  const head = `${marker}${spinner} ${seconds(input.durationMs)}`.trimEnd();
+  const spinner = input.phase === "thinking" ? ` ${theme.fg("accent", frameAt(glyphs, input.frame ?? 0))}` : "";
+  const duration = seconds(input.durationMs);
+  const head = duration ? `${marker}${spinner} ${theme.fg("dim", duration)}` : `${marker}${spinner}`;
 
-  // One row of the budget is the header; the rest is tail, unindented.
-  const rows = tail.slice(-(budget - 1));
+  // One row of the budget is the header; the rest is tail at body indent.
+  const rows = tail.slice(-(budget - 1)).map(body);
   return [head, ...rows].map((row) => clampLine(kit, row, input.width)).join("\n");
 }

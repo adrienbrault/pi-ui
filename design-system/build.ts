@@ -10,7 +10,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { ENTRIES, GLYPH_MODES, THEME_NAMES, WIDTHS, type EntryDef } from "./registry.ts";
 import { resolvePi, type PiInstall } from "./lib/pi.ts";
-import { createKit, toHtml } from "./lib/surface.ts";
+import { createKit, toRows } from "./lib/surface.ts";
 import { installTheme, loadThemeJson } from "./lib/theme.ts";
 import { glyphsFor, type GlyphMode } from "../packages/pi-prism/render/glyphs.ts";
 import { bodyLinesMap, setTailLines } from "../packages/pi-prism/render/detail.ts";
@@ -23,6 +23,54 @@ type CellKey = string; // `${width}/${theme}/${glyph}`
 
 interface EntryData {
   states: Record<string, Record<CellKey, string[]>>;
+}
+
+// oxlint-disable-next-line no-control-regex -- escape sequences are the input domain
+const ANSI = /\x1b\[[\d;]*m/g;
+const GROUP_VERB = /^(Read|Searched|Wrote|Edited|Ran|Fetched|Called)\b/;
+
+/** Rows a click can open: the collapsed group lines in a rendered block. */
+function groupRowIndices(lines: string[], marker: string): number[] {
+  const indices: number[] = [];
+  lines.forEach((line, index) => {
+    const text = line.replace(ANSI, "").trimStart();
+    const marked = marker !== "" && text.startsWith(marker);
+    if (marked || GROUP_VERB.test(text)) indices.push(index);
+  });
+  return indices;
+}
+
+/** Tag those rows so the gallery knows what is interactive without parsing text. */
+function markRows(rows: string[], indices: number[]): string[] {
+  if (indices.length === 0) return rows;
+  const wanted = new Set(indices);
+  return rows.map((row, index) =>
+    wanted.has(index) ? row.replace('<div class="ansi-line"', '<div class="ansi-line" data-expand="1"') : row,
+  );
+}
+
+/** Frames above this size share rows through a pool instead of repeating HTML. */
+const POOL_FRAME_THRESHOLD = 16;
+
+interface PooledCell {
+  rows: string[];
+  frames: number[][];
+}
+
+function pooled(frames: string[][]): PooledCell {
+  const rows: string[] = [];
+  const index = new Map<string, number>();
+  const encoded = frames.map((frame) =>
+    frame.map((row) => {
+      const known = index.get(row);
+      if (known !== undefined) return known;
+      const next = rows.length;
+      rows.push(row);
+      index.set(row, next);
+      return next;
+    }),
+  );
+  return { rows, frames: encoded };
 }
 
 function cellKey(width: number, theme: string, glyph: string): CellKey {
@@ -39,6 +87,7 @@ function short(entry: EntryDef) {
     ...(entry.sync ? { sync: entry.sync } : {}),
     ...(entry.stage ? { stage: entry.stage } : {}),
     ...(entry.frameLabels ? { frameLabels: entry.frameLabels } : {}),
+    ...(entry.frameCosts ? { frameCosts: entry.frameCosts } : {}),
     ...(entry.fixedWidth ? { fixedWidth: entry.fixedWidth } : {}),
     states: entry.states.map((s) => ({
       id: s.id,
@@ -93,6 +142,7 @@ export async function renderGallery(scope: RenderScope = {}): Promise<GalleryRen
   const entries = scope.entries ?? ENTRIES;
   const themeNames = scope.themes ?? THEME_NAMES;
   const data = new Map<string, EntryData>();
+  const expandedData = new Map<string, Record<string, Record<CellKey, string[]>>>();
   const fixtures = new Map<string, Record<string, { lines: string[] }>>();
   const themes: PagePayload["themes"] = {};
 
@@ -114,6 +164,7 @@ export async function renderGallery(scope: RenderScope = {}): Promise<GalleryRen
 
     for (const entry of entries) {
       const entryData: EntryData = data.get(entry.id) ?? { states: {} };
+      const expandedEntry: Record<string, Record<CellKey, string[]>> = expandedData.get(entry.id) ?? {};
       const fixtureEntry: Record<string, { lines: string[] }> = fixtures.get(entry.id) ?? {};
 
       for (const state of entry.states) {
@@ -129,16 +180,27 @@ export async function renderGallery(scope: RenderScope = {}): Promise<GalleryRen
               width,
               themeName,
             };
-            const frames: string[] = [];
             const frameCount = state.frames ?? 1;
+            const frameRows: string[][] = [];
+            const expandedRows: string[][] = [];
             for (let frame = 0; frame < frameCount; frame++) {
               const lines = state.render(ctx, frame);
-              frames.push(toHtml(pi, lines));
+              const rows = toRows(pi, lines);
+              frameRows.push(state.expand ? markRows(rows, groupRowIndices(lines, ctx.glyphs.collapsed)) : rows);
+              if (state.expand) expandedRows.push(toRows(pi, state.expand(ctx, frame)));
               if (frame === 0 && entry.fixture !== false) {
                 fixtureEntry[`${state.id}/${themeName}/${width}/${glyphMode}`] = { lines };
               }
             }
-            byCell[cellKey(width, themeName, glyphMode)] = frames;
+            const key = cellKey(width, themeName, glyphMode);
+            const pool = frameCount > POOL_FRAME_THRESHOLD;
+            byCell[key] = pool ? (pooled(frameRows) as unknown as string[]) : frameRows.map((rows) => rows.join(""));
+            if (state.expand) {
+              expandedEntry[state.id] = {
+                ...expandedEntry[state.id],
+                [key]: pool ? (pooled(expandedRows) as unknown as string[]) : expandedRows.map((rows) => rows.join("")),
+              };
+            }
           }
         }
         // Merge: each theme contributes its own cell keys to the same state.
@@ -146,6 +208,8 @@ export async function renderGallery(scope: RenderScope = {}): Promise<GalleryRen
       }
 
       data.set(entry.id, entryData);
+      if (expandedData.has(entry.id) || Object.keys(expandedEntry).length > 0)
+        expandedData.set(entry.id, expandedEntry);
       if (entry.fixture !== false) fixtures.set(entry.id, fixtureEntry);
     }
   }
@@ -156,9 +220,13 @@ export async function renderGallery(scope: RenderScope = {}): Promise<GalleryRen
       for (const themeName of themeNames) {
         for (const width of widthsFor(entry, scope)) {
           for (const glyphMode of glyphsForScope(scope)) {
-            const cell = data.get(entry.id)?.states[state.id]?.[cellKey(width, themeName, glyphMode)];
+            const cell = data.get(entry.id)?.states[state.id]?.[cellKey(width, themeName, glyphMode)] as
+              | string[]
+              | PooledCell
+              | undefined;
             const expected = state.frames ?? 1;
-            if (!cell || cell.length !== expected) {
+            const actual = cell && Array.isArray(cell) ? cell.length : cell?.frames.length;
+            if (!cell || actual !== expected) {
               throw new Error(`missing cell for ${entry.id}/${state.id} at ${cellKey(width, themeName, glyphMode)}`);
             }
           }
@@ -182,6 +250,7 @@ export async function renderGallery(scope: RenderScope = {}): Promise<GalleryRen
     entries: entries.map((entry) => ({
       ...short(entry),
       data: data.get(entry.id)?.states ?? {},
+      ...(expandedData.get(entry.id) ? { expanded: expandedData.get(entry.id) } : {}),
     })),
   };
 

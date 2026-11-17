@@ -57,6 +57,8 @@ export interface StateDef {
   /** Render this many animation frames instead of one still. */
   frames?: number;
   render: (ctx: RenderCtx, frame: number) => string[];
+  /** The same frames with folded groups revealed: what a click opens. */
+  expand?: (ctx: RenderCtx, frame: number) => string[];
 }
 
 export interface EntryDef {
@@ -72,6 +74,8 @@ export interface EntryDef {
   stage?: string;
   /** Per-frame captions, shown by the stage control bar. */
   frameLabels?: string[];
+  /** Per-frame duration in ms at 100 tok/s, so playback keeps real pacing. */
+  frameCosts?: number[];
   /** Render at this width regardless of the gallery width control. */
   fixedWidth?: number;
   /** Skip in fixtures/frames.json: scenarios, not golden rows. */
@@ -188,14 +192,9 @@ function baseAssistant(pi: PiInstall, content: unknown[], hideThinking: boolean,
 }
 
 /** Mimic pi's hidden-thinking Text so a scenario stack can show the label. */
+/** The label paints its own rows: header at full contrast, body muted italic. */
 function thinkingBlock(ctx: RenderCtx, label: string) {
-  return ctx.kit.component((width) => {
-    const rows: string[] = [];
-    for (const line of label.split("\n")) {
-      rows.push(ctx.kit.truncateToWidth(ctx.theme.italic(ctx.theme.fg("thinkingText", line)), width, "…"));
-    }
-    return rows;
-  });
+  return ctx.kit.component((width) => label.split("\n").map((line) => ctx.kit.truncateToWidth(line, width, "…")));
 }
 
 const readRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
@@ -702,7 +701,7 @@ const decayRows: ScenarioRow[] = [
   { ...mcpRow({ title: "memory/search" }), key: "mcp-1" },
 ];
 
-function decayStack(ctx: RenderCtx, offset: number): string[] {
+function decayStack(ctx: RenderCtx, offset: number, expandGroups = false): string[] {
   const components: Array<{ render(width: number): string[] }> = [];
   const rows = decayRows.map((row, index) => ({
     row,
@@ -718,6 +717,10 @@ function decayStack(ctx: RenderCtx, offset: number): string[] {
   for (const { row, distance } of rows) {
     const level = detailFor(distance);
     if (distance >= FOLD_DISTANCE) {
+      if (expandGroups) {
+        components.push(renderToolRow(ours(ctx), { ...row, level: 3 }));
+        continue;
+      }
       if (!groupRendered) {
         components.push(renderGroupRow(ours(ctx), { segments }));
         groupRendered = true;
@@ -755,6 +758,7 @@ const scenarioEntries: EntryDef[] = [
       id: `d${offset}`,
       label: `distance ${offset}`,
       render: (ctx) => decayStack(ctx, offset),
+      expand: (ctx) => decayStack(ctx, offset, true),
     })),
   },
 ];
@@ -832,14 +836,33 @@ function sessionBase(ctx: RenderCtx, frameIndex: number): string[] {
 }
 
 /** Ours: the same events, aged by distance from the tail, streaming as they land. */
-function sessionOurs(ctx: RenderCtx, frameIndex: number): string[] {
+function sessionOurs(ctx: RenderCtx, frameIndex: number, expandGroups = false): string[] {
   const frame = PLAYBACK[frameIndex];
   if (!frame) throw new Error(`session frame ${frameIndex} out of range`);
   const steps = SESSION_STEPS.slice(0, frame.step + 1);
   const plan = planTranscript(steps.map((step, index) => stepShape(step, index, frame)));
 
-  const components = plan.map((item) => {
-    if (item.kind === "group") return renderGroupRow(ours(ctx), { segments: item.segments });
+  const components = plan.flatMap((item) => {
+    if (item.kind === "group") {
+      if (!expandGroups) return [renderGroupRow(ours(ctx), { segments: item.segments })];
+      // A pinned group shows its members: each folded row gets a compact body.
+      return item.indices.flatMap((index) => {
+        const member = steps[index];
+        if (!member || member.kind !== "tool") return [];
+        return [
+          renderToolRow(ours(ctx), {
+            name: member.tool.name,
+            args: member.tool.args,
+            status: member.tool.failed ? "error" : "success",
+            level: 3,
+            title: member.tool.title,
+            summary: member.tool.summary,
+            output: member.tool.output,
+            durationMs: member.tool.durationMs,
+          }),
+        ];
+      });
+    }
 
     const step = steps[item.index];
     if (!step) throw new Error(`session frame ${frameIndex}: missing step ${item.index}`);
@@ -895,6 +918,7 @@ const sessionEntries: EntryDef[] = [
     sync: "session",
     stage: "session",
     frameLabels: FRAME_LABELS,
+    frameCosts: PLAYBACK.map((frame) => frame.ms),
     fixedWidth: SESSION_WIDTH,
     fixture: false,
     states: [{ id: "default", label: "replay", frames: PLAYBACK.length, render: sessionBase }],
@@ -908,9 +932,18 @@ const sessionEntries: EntryDef[] = [
     sync: "session",
     stage: "session",
     frameLabels: FRAME_LABELS,
+    frameCosts: PLAYBACK.map((frame) => frame.ms),
     fixedWidth: SESSION_WIDTH,
     fixture: false,
-    states: [{ id: "default", label: "replay", frames: PLAYBACK.length, render: sessionOurs }],
+    states: [
+      {
+        id: "default",
+        label: "replay",
+        frames: PLAYBACK.length,
+        render: sessionOurs,
+        expand: (ctx, frame) => sessionOurs(ctx, frame, true),
+      },
+    ],
   },
 ];
 

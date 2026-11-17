@@ -162,66 +162,83 @@ export interface PlaybackFrame {
   lines: number;
   /** Still streaming: spinner and running status. */
   partial: boolean;
+  /** How long this frame is on screen, in ms, at 100 tokens/second. */
+  ms: number;
 }
 
-function revealPoints(length: number, count: number): number[] {
-  if (count <= 0) return [];
-  return Array.from({ length: count }, (_, index) => Math.max(1, Math.round((length * (index + 1)) / count)));
+/**
+ * Streaming is chunked, not batched: sizes vary the way tokens arrive, so the
+ * tail visibly grows instead of jumping a line at a time. One chunk is about one
+ * token, and at 100 tok/s a token frame costs 10ms.
+ */
+const TOKEN_MS = 10;
+const OUTPUT_LINE_MS = 10;
+const CHUNK_SIZES = [3, 5, 4, 7, 2, 6, 3, 4] as const;
+
+function chunkEnds(length: number): number[] {
+  const ends: number[] = [];
+  let at = 0;
+  for (let i = 0; at < length; i++) {
+    at = Math.min(length, at + (CHUNK_SIZES[i % CHUNK_SIZES.length] ?? 4));
+    ends.push(at);
+  }
+  return ends;
 }
 
 function thinkingFrames(step: number, label: string, text: string): PlaybackFrame[] {
-  const points = revealPoints(text.length, 5);
+  const ends = chunkEnds(text.length);
   return [
-    ...points.map((chars, index) => ({
+    ...ends.map((chars, index) => ({
       step,
-      label: `${label} · thinking ${Math.round(((index + 1) / points.length) * 100)}%`,
+      label: `${label} · thinking ${Math.round(((index + 1) / ends.length) * 100)}%`,
       chars,
       lines: 0,
       partial: true,
+      ms: TOKEN_MS,
     })),
-    { step, label, chars: text.length, lines: 0, partial: false },
+    { step, label, chars: text.length, lines: 0, partial: false, ms: TOKEN_MS },
   ];
 }
 
 function textFrames(step: number, label: string, text: string): PlaybackFrame[] {
-  const points = revealPoints(text.length, 3);
-  return points.map((chars, index) => ({
+  const ends = chunkEnds(text.length);
+  return ends.map((chars, index) => ({
     step,
-    label: `${label}${index < points.length - 1 ? " · streaming" : ""}`,
+    label: index < ends.length - 1 ? `${label} · streaming` : label,
     chars,
     lines: 0,
-    partial: index < points.length - 1,
+    partial: index < ends.length - 1,
+    ms: TOKEN_MS,
   }));
 }
 
 function toolFrames(step: number, label: string, tool: SessionTool): PlaybackFrame[] {
   const title = tool.title ?? "";
   const outputLines = (tool.output ?? "").split("\n").length;
-  const frames: PlaybackFrame[] = [
-    // Arguments arrive first: the path or command appears as it is composed.
-    { step, label: `${label} · call`, chars: Math.max(1, Math.round(title.length * 0.5)), lines: 0, partial: true },
-    { step, label: `${label} · call`, chars: title.length, lines: 0, partial: true },
-  ];
-  // Then output streams; a long preview keeps representative steps.
-  const points = outputLines <= 3 ? revealPoints(outputLines, outputLines) : [1, 2, 3, outputLines];
-  for (const lines of new Set(points)) {
+  const frames: PlaybackFrame[] = [];
+  // Arguments arrive character by character: the path or command is composed live.
+  for (const chars of chunkEnds(title.length)) {
+    frames.push({ step, label: `${label} · call`, chars, lines: 0, partial: true, ms: TOKEN_MS });
+  }
+  // Output arrives line by line, not in one batch.
+  for (let lines = 1; lines <= outputLines; lines++) {
     frames.push({
       step,
       label: `${label} · output ${lines}/${outputLines}`,
       chars: title.length,
       lines,
       partial: true,
+      ms: OUTPUT_LINE_MS,
     });
-    if (lines === outputLines) break;
   }
-  frames.push({ step, label, chars: title.length, lines: outputLines, partial: false });
+  frames.push({ step, label, chars: title.length, lines: outputLines, partial: false, ms: OUTPUT_LINE_MS });
   return frames;
 }
 
 function framesForStep(step: SessionStep, index: number): PlaybackFrame[] {
   switch (step.kind) {
     case "user":
-      return [{ step: index, label: step.label, chars: step.text.length, lines: 0, partial: false }];
+      return [{ step: index, label: step.label, chars: step.text.length, lines: 0, partial: false, ms: TOKEN_MS }];
     case "thinking":
       return thinkingFrames(index, step.label, step.text);
     case "text":

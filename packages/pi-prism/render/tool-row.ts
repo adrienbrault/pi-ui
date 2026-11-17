@@ -35,6 +35,18 @@ export interface ToolRowInput {
 
 const INDENT = "  ";
 
+/** Diff lines keep their meaning under decay: additions green, removals red. */
+function diffTone(line: string, cls: string): "success" | "error" | "accent" | "dim" | undefined {
+  if (cls !== "edit" && cls !== "write") return undefined;
+  if (line.startsWith("+++") || line.startsWith("---") || line.startsWith("diff --git") || line.startsWith("index ")) {
+    return "dim";
+  }
+  if (line.startsWith("@@")) return "accent";
+  if (line.startsWith("+")) return "success";
+  if (line.startsWith("-")) return "error";
+  return undefined;
+}
+
 function statusGlyph(api: RenderApi, input: ToolRowInput): string {
   const { theme, glyphs } = api;
   switch (input.status) {
@@ -128,7 +140,8 @@ function body(api: RenderApi, input: ToolRowInput, width: number): string[] {
 
   const rows = source.map((line) => {
     const content = kit.truncateToWidth(line, Math.max(1, width - INDENT.length), "…");
-    return INDENT + theme.fg("toolOutput", content);
+    const tone = diffTone(line, meta.cls);
+    return INDENT + (tone ? theme.fg(tone, content) : theme.fg("toolOutput", content));
   });
 
   if (expanded && present > show) {

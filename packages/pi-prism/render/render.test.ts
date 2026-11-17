@@ -213,7 +213,7 @@ const shapes = (n: number, cls: "read" | "prose" | "thinking" = "read") => Array
 describe("transcript plan", () => {
   test("a folded run becomes one group before the surviving rows", () => {
     const plan = planTranscript(shapes(10));
-    expect(plan[0]).toEqual({ kind: "group", segments: [{ cls: "read", count: 2 }] });
+    expect(plan[0]).toEqual({ kind: "group", segments: [{ cls: "read", count: 2 }], indices: [0, 1] });
     expect(plan.slice(1)).toEqual([
       { kind: "block", index: 2, level: 6 },
       { kind: "block", index: 3, level: 6 },
@@ -229,7 +229,7 @@ describe("transcript plan", () => {
   test("the last body line holds until the run needs the room", () => {
     // Nine blocks: only the oldest is past the fold distance.
     const plan = planTranscript(shapes(9));
-    expect(plan[0]).toEqual({ kind: "group", segments: [{ cls: "read", count: 1 }] });
+    expect(plan[0]).toEqual({ kind: "group", segments: [{ cls: "read", count: 1 }], indices: [0] });
     expect(plan[1]).toEqual({ kind: "block", index: 1, level: 6 });
     expect(plan[2]).toEqual({ kind: "block", index: 2, level: 6 });
     expect(plan[3]).toEqual({ kind: "block", index: 3, level: 5 });
@@ -262,6 +262,7 @@ describe("transcript plan", () => {
         { cls: "read", count: 10 },
         { cls: "edit", count: 1 },
       ],
+      indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
     });
   });
 });
