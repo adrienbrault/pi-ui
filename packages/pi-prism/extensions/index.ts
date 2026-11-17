@@ -21,6 +21,7 @@ import { renderToolRow, type ToolRowInput, type ToolStatus } from "../render/too
  */
 interface Theme {
   fg(token: string, text: string): string;
+  bg(token: string, text: string): string;
   bold(text: string): string;
   italic(text: string): string;
   style(text: string, options: { fg?: unknown; bg?: unknown; bold?: boolean }): string;
@@ -174,8 +175,16 @@ function headerLines<TArgs>(
 ): string[] {
   const state = stateOf(ctx);
   const api = { kit: KIT, theme: theme as unknown as RenderTheme, glyphs: GLYPHS };
-  const header = renderToolRow(api, inputFor(name, args, ctx, state.output ?? "")).render(width)[0] ?? "";
-  if (!state.hover) return [header];
+  const line = renderToolRow(api, inputFor(name, args, ctx, state.output ?? "")).render(width)[0] ?? "";
+  if (!state.hover) return [line];
+  // The header itself lights up, tinted by the outcome it reports.
+  const tone =
+    statusOf(ctx, state.output ?? "") === "error"
+      ? "toolErrorBg"
+      : statusOf(ctx, state.output ?? "") === "success"
+        ? "toolSuccessBg"
+        : "toolPendingBg";
+  const header = theme.bg(tone, line);
 
   const hint = hintFor(state.expansion, nonEmptyLineCount(state.output ?? ""));
   if (hint === null) return [header];

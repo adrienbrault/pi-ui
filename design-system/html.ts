@@ -151,6 +151,10 @@ section.group > h2 { margin: 8px 0 0; font-family: var(--mono); font-size: 11px;
 .term .ansi-line { display: block; white-space: pre; min-height: 1.5em; }
 /* Hover hint: the chip says what a click will do, at the row it applies to. */
 .term [data-hint] { position: relative; }
+/* The header row lights up; the chip is the action, the tint is the target. */
+.term .ansi-line.hot {
+  background-image: linear-gradient(color-mix(in srgb, var(--accent) 16%, transparent), color-mix(in srgb, var(--accent) 16%, transparent));
+}
 /* Pinned to the block's header row: brackets and a background colour, no chrome. */
 .term [data-hint].hot::after {
   content: "[ " attr(data-hint) " ]";

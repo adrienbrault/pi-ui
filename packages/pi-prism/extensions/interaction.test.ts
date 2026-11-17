@@ -6,6 +6,7 @@ const theme = {
   fg: (_token: string, text: string) => text,
   bold: (text: string) => text,
   italic: (text: string) => text,
+  bg: (_token: string, text: string) => text,
   style: (text: string) => text,
   colors: { accent: "accent", toolPendingBg: "bg" },
 };
