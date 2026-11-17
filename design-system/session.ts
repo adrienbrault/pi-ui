@@ -165,6 +165,8 @@ export interface PlaybackFrame {
   lines: number;
   /** Still streaming: spinner and running status. */
   partial: boolean;
+  /** Wall time already spent inside the running tool, for a live timer. */
+  elapsedMs?: number;
   /** How long this frame is on screen, in ms, at 100 tokens/second. */
   ms: number;
 }
@@ -229,7 +231,7 @@ function toolFrames(step: number, label: string, tool: SessionTool): PlaybackFra
   }
   // A tool that ran for seconds spends those seconds on screen before output.
   if (tool.durationMs && tool.durationMs >= 1000) {
-    frames.push(...waitFrames(step, label, tool.durationMs));
+    frames.push(...waitFrames(step, label, title, tool.durationMs));
   }
   // Output arrives line by line, not in one batch.
   for (let lines = 1; lines <= outputLines; lines++) {
@@ -239,6 +241,7 @@ function toolFrames(step: number, label: string, tool: SessionTool): PlaybackFra
       chars: title.length,
       lines,
       partial: true,
+      elapsedMs: tool.durationMs,
       ms: OUTPUT_LINE_MS,
     });
   }
@@ -259,14 +262,16 @@ function prefillFrames(step: number, label: string, tokens: number): PlaybackFra
   }));
 }
 
-function waitFrames(step: number, label: string, durationMs: number): PlaybackFrame[] {
+function waitFrames(step: number, label: string, title: string, durationMs: number): PlaybackFrame[] {
   const parts = Math.max(1, Math.round(durationMs / WAIT_FRAME_MS));
   return Array.from({ length: parts }, (_, index) => ({
     step,
     label: `${label} · waiting ${(((index + 1) * (durationMs / parts)) / 1000).toFixed(1)}s`,
-    chars: 0,
+    // The call is already parsed; only the result is missing while it runs.
+    chars: title.length,
     lines: 0,
     partial: true,
+    elapsedMs: ((index + 1) * durationMs) / parts,
     ms: durationMs / parts,
   }));
 }

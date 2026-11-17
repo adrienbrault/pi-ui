@@ -972,7 +972,7 @@ function sessionPieces(ctx: RenderCtx, frameIndex: number): SessionPiece[] {
           title: partialText(step.tool.title ?? "", progress.chars),
           summary: progress.partial ? "" : step.tool.summary,
           output: partialLines(step.tool.output ?? "", progress.lines),
-          durationMs: progress.partial ? undefined : step.tool.durationMs,
+          durationMs: progress.partial ? frame.elapsedMs : step.tool.durationMs,
           frame: frameIndex % 10,
         };
         const piece: SessionPiece = { lines: renderToolRow(ours(ctx), input).render(SESSION_WIDTH) };

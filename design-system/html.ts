@@ -151,8 +151,8 @@ section.group > h2 { margin: 8px 0 0; font-family: var(--mono); font-size: 11px;
 .term .ansi-line { display: block; white-space: pre; min-height: 1.5em; }
 /* Hover hint: the chip says what a click will do, at the row it applies to. */
 .term [data-hint] { position: relative; }
-/* The header row lights up; the chip is the action, the tint is the target. */
-.term .ansi-line.hot {
+/* The header's text lights up; the chip is the action, the tint is the target. */
+.term .ansi-line.hot .lamp {
   background-image: linear-gradient(color-mix(in srgb, var(--accent) 16%, transparent), color-mix(in srgb, var(--accent) 16%, transparent));
 }
 /* Pinned to the block's header row: brackets and a background colour, no chrome. */
@@ -298,6 +298,7 @@ function paintStage(sync) {
 
 var tailDirty = false;
 var revealOpenState = {};
+var groupOpenState = {};
 var blockOpenState = {};
 
 // Members cycle: header only, then a taste with a "show all" cue, then the body.
@@ -312,18 +313,19 @@ function memberHtml(prefix, group, gi) {
 
 // Compose in place: rows keep their position, only the rows a click owns are
 // swapped. Replacements run back to front so earlier indices stay valid.
-function composeFrame(entry, idx, frameHtml, stateId, expanded) {
+function composeFrame(entry, idx, frameHtml, stateId) {
   var prefix = entry.id + ':' + idx;
   var rows = frameHtml.split(/(?=<div class="ansi-line")/);
   var ops = [];
   var groups = revealFor(entry, stateId)[idx] || [];
-  if (expanded) {
-    rows.forEach(function (row, index) {
-      var match = row.match(/data-expand="(\\d+)"/);
-      var group = match ? groups[Number(match[1])] : null;
-      if (group) ops.push({ from: index, count: 1, html: memberHtml(prefix, group, Number(match[1])) });
-    });
-  }
+  rows.forEach(function (row, index) {
+    var match = row.match(/data-expand="(\\d+)"/);
+    if (!match) return;
+    var gi = Number(match[1]);
+    if (!groupOpenState[prefix + ':' + gi]) return;
+    var group = groups[gi];
+    if (group) ops.push({ from: index, count: 1, html: memberHtml(prefix, group, gi) });
+  });
   var blocks = blocksFor(entry, stateId);
   if (blocks) {
     (blocks.frames[idx] || []).forEach(function (spec) {
@@ -397,15 +399,23 @@ function applyTheme() {
 }
 
 // Say what a click does, on the row it applies to: open, preview, show all, fold.
+// One inline wrapper: the tint covers the text, never the row's remaining width.
+function lamp(row) {
+  if (row.querySelector(':scope > .lamp')) return;
+  row.innerHTML = '<span class="lamp">' + row.innerHTML + '</span>';
+}
+
 function annotateHints(term, entry, idx, stateId) {
   var prefix = entry.id + ':' + idx;
   var rows = [].slice.call(term.querySelectorAll('.ansi-line'));
 
   term.querySelectorAll('[data-expand]').forEach(function (row) {
     row.setAttribute('data-hint', 'click · open group');
+    lamp(row);
   });
   term.querySelectorAll('[data-collapse]').forEach(function (row) {
     row.setAttribute('data-hint', 'click · fold group');
+    lamp(row);
   });
 
   // A member's hint lives on its header; its body points the hover back there.
@@ -420,8 +430,10 @@ function annotateHints(term, entry, idx, stateId) {
     var st = revealOpenState[prefix + ':' + key] || 0;
     var hint = st === 0 ? 'click · preview' : st === 1 ? 'click · show all' : 'click · collapse';
     turnGroups[key].forEach(function (row, order) {
-      if (order === 0) row.setAttribute('data-hint', hint);
-      else row.setAttribute('data-anchor', 'turn:' + key);
+      if (order === 0) {
+        row.setAttribute('data-hint', hint);
+        lamp(row);
+      } else row.setAttribute('data-anchor', 'turn:' + key);
     });
   });
 
@@ -433,6 +445,7 @@ function annotateHints(term, entry, idx, stateId) {
     if (!header) return;
     var st = blockOpenState[prefix + ':' + spec.id] || 0;
     header.setAttribute('data-hint', st === 0 ? 'click · expand' : st < spec.keys.length ? 'click · show all' : 'click · collapse');
+    lamp(header);
     owned.forEach(function (row) {
       if (row !== header) row.setAttribute('data-anchor', 'block:' + spec.id);
     });
@@ -450,8 +463,7 @@ function paintCard(card) {
   var idx = frameIndex(entry) % frames.length;
   var term = card.querySelector('[data-term]');
   if (term) {
-    var expanded = term.getAttribute('data-expanded') === '1';
-    term.innerHTML = composeFrame(entry, idx, frames[idx] || '', stateId, expanded);
+    term.innerHTML = composeFrame(entry, idx, frames[idx] || '', stateId);
     annotateHints(term, entry, idx, stateId);
   }
   var note = card.querySelector('[data-note]');
@@ -590,7 +602,8 @@ function onTermClick(event) {
     return;
   }
   if (event.target.closest('[data-collapse]')) {
-    term.removeAttribute('data-expanded');
+    var folded = event.target.closest('[data-collapse]').getAttribute('data-collapse');
+    delete groupOpenState[prefix + ':' + folded];
     paintCard(card);
     return;
   }
@@ -611,7 +624,7 @@ function onTermClick(event) {
   var groups = revealFor(entry, stateId)[idx] || [];
   if (!groups.length) return;
   hold();
-  term.setAttribute('data-expanded', '1');
+  groupOpenState[prefix + ':' + row.getAttribute('data-expand')] = true;
   paintCard(card);
 }
 

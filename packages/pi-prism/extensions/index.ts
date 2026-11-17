@@ -105,6 +105,23 @@ export function hintFor(expansion: Expansion, present: number): string | null {
   return expansion === 0 ? "click · expand" : "click · show all";
 }
 
+/**
+ * Tie a background to the text itself. Styling the whole line would paint the
+ * empty remainder of the row, so the band is reopened per text run and closed
+ * with a background-only reset (\x1b[49m) which leaves colour and weight alone.
+ */
+function tintText(theme: Theme, token: string, line: string): string {
+  // oxlint-disable-next-line no-control-regex -- escape sequences are the input domain
+  const open = /^\x1b\[[0-9;]*m/.exec(theme.bg(token, ""))?.[0];
+  if (!open) return line;
+  // oxlint-disable-next-line no-control-regex -- splitting styled runs from SGR codes
+  return line.replace(/(\x1b\[[0-9;]*m)|([^\x1b]+)/g, (run, sgr: string | undefined, text: string | undefined) => {
+    if (sgr) return sgr;
+    if (!text || text.trim() === "") return text ?? "";
+    return `${open}${text}\x1b[49m`;
+  });
+}
+
 /** Streaming paint: the glyph moves while the tool still reports partial results. */
 function frame(): number {
   return Math.floor(Date.now() / 100) % GLYPHS.spinner.length;
@@ -184,7 +201,7 @@ function headerLines<TArgs>(
       : statusOf(ctx, state.output ?? "") === "success"
         ? "toolSuccessBg"
         : "toolPendingBg";
-  const header = theme.bg(tone, line);
+  const header = tintText(theme, tone, line);
 
   const hint = hintFor(state.expansion, nonEmptyLineCount(state.output ?? ""));
   if (hint === null) return [header];
