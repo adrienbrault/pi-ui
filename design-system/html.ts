@@ -20,6 +20,10 @@ export interface PagePayload {
     description: string;
     states: Array<{ id: string; label: string; note?: string; frames: number }>;
     data: Record<string, Record<string, string[]>>;
+    sync?: string;
+    stage?: string;
+    frameLabels?: string[];
+    fixedWidth?: number;
   }>;
 }
 
@@ -133,6 +137,20 @@ section.group > h2 { margin: 8px 0 0; font-family: var(--mono); font-size: 11px;
 .card-foot .note { font-family: var(--mono); font-size: 11px; color: var(--muted); }
 .card-foot .frame { font-family: var(--mono); font-size: 11px; color: var(--muted); }
 
+
+.stage { border: 1px solid var(--border); background: var(--panel); border-radius: 12px; padding: 16px; margin-bottom: 18px; }
+.stage-head { display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+.stage-head h3 { margin: 0; font-size: 14px; font-weight: 600; }
+.stage-head p.desc { margin: 0; color: var(--muted); font-size: 12.5px; flex: 1 1 420px; }
+.stage-controls { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.stage-controls input[type="range"] { width: 220px; accent-color: var(--accent); }
+.stage-controls .step { min-width: 24ch; }
+.stage-controls .rows { min-width: 16ch; margin-left: auto; }
+.stage-lanes { display: grid; grid-template-columns: 1fr; gap: 14px; align-items: start; }
+.stage-lanes .card { padding: 10px 12px 8px; }
+.stage-lanes .chips, .stage-lanes p.desc, .stage-lanes .card-foot { display: none; }
+.stage-lanes .term { font-size: 10.5px; line-height: 1.5; padding: 8px 10px; height: 560px; overflow-y: auto; }
+
 .empty-note { border: 1px dashed var(--border); border-radius: 10px; padding: 14px 16px; color: var(--muted); font-size: 12.5px; }
 
 @media (max-width: 860px) {
@@ -148,9 +166,11 @@ section.group > h2 { margin: 8px 0 0; font-family: var(--mono); font-size: 11px;
 
 const JS = `
 var DS = JSON.parse(document.getElementById('ds-data').textContent);
-var state = { width: 80, theme: 'dark', glyph: 'unicode', motion: true };
+var state = { width: 80, theme: 'dark', glyph: 'unicode', motion: true, lane: 'ours', query: '', tail: 7 };
 var active = {};
 var frameIdx = {};
+var syncIdx = {};
+var playback = {};
 var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 if (reduce) state.motion = false;
 
@@ -163,9 +183,88 @@ function stateOf(entry, id) {
   for (var i = 0; i < entry.states.length; i++) if (entry.states[i].id === id) return entry.states[i];
   return entry.states[0];
 }
+function frameKey(entry) { return (entry.fixedWidth || state.width) + '/' + state.theme + '/' + state.glyph; }
 function framesFor(entry, stateId) {
-  var cell = (entry.data[stateId] || {})[key()];
+  var cell = (entry.data[stateId] || {})[frameKey(entry)];
   return cell || [''];
+}
+function frameIndex(entry) {
+  if (entry.sync) return syncIdx[entry.sync] || 0;
+  return frameIdx[entry.id] || 0;
+}
+function paintStage(sync) {
+  document.querySelectorAll('[data-stage]').forEach(function (stage) {
+    if (stage.getAttribute('data-sync') !== sync) return;
+    stage.querySelectorAll('[data-card]').forEach(paintCard);
+    var card = stage.querySelector('[data-card]');
+    if (!card) return;
+    var entry = byId(card.getAttribute('data-entry'));
+    if (!entry) return;
+    var frames = framesFor(entry, entry.states[0].id).length;
+    var idx = Math.min(syncIdx[sync] || 0, frames - 1);
+    var step = stage.querySelector('[data-step]');
+    if (step) step.textContent = 'frame ' + (idx + 1) + '/' + frames + ' · ' + ((entry.frameLabels || [])[idx] || '');
+    var scrub = stage.querySelector('[data-scrub]');
+    if (scrub) scrub.value = String(idx);
+    var play = stage.querySelector('[data-play]');
+    var st = playback[sync];
+    if (play) play.textContent = st && st.playing ? '⏸ pause' : idx >= frames - 1 ? '↻ replay' : '▶ play';
+    // Row accounting stays visible even when a lane is hidden: that is the diff.
+    var lanes = stage.querySelectorAll('[data-term]');
+    var counts = [];
+    lanes.forEach(function (term) { counts.push(term.querySelectorAll('.ansi-line').length); });
+    var rows = stage.querySelector('[data-rows]');
+    if (rows) rows.textContent = 'base ' + counts[0] + ' · ours ' + counts[1] + ' rows';
+    // A live transcript follows the tail; a scrubbed one stays where it was put.
+    if (st && st.playing) {
+      stage.querySelectorAll('[data-term]').forEach(function (term) { term.scrollTop = term.scrollHeight; });
+    }
+  });
+}
+
+var tailDirty = false;
+var tailTimer = 0;
+var tailCache = {};
+
+function applyTail(res) {
+  var meta = res.meta || {};
+  var cellKey = meta.cell;
+  res.entries.forEach(function (incoming) {
+    var entry = byId(incoming.id);
+    if (!entry) return;
+    Object.keys(incoming.data).forEach(function (stateId) {
+      entry.data[stateId] = entry.data[stateId] || {};
+      var cells = incoming.data[stateId];
+      Object.keys(cells).forEach(function (key) {
+        entry.data[stateId][key] = cells[key];
+      });
+    });
+  });
+  if (meta.bodyLines) DS.meta.bodyLines = meta.bodyLines;
+  paintAll();
+}
+
+function setTailStatus(text) {
+  var label = document.getElementById('tail-value');
+  if (label) label.title = text;
+}
+
+function loadTail(tail) {
+  var key = tail + '/' + state.theme + '/' + state.glyph;
+  if (tailCache[key]) return applyTail(tailCache[key]);
+  var url = '/api/cells?tail=' + tail + '&theme=' + state.theme + '&glyph=' + state.glyph;
+  fetch(url)
+    .then(function (res) {
+      if (!res.ok) throw new Error('status ' + res.status);
+      return res.json();
+    })
+    .then(function (body) {
+      tailCache[key] = body;
+      applyTail(body);
+    })
+    .catch(function () {
+      setTailStatus('live tail needs bun run dev');
+    });
 }
 
 function applyTheme() {
@@ -189,7 +288,7 @@ function paintCard(card) {
   var stateId = active[entry.id] || entry.states[0].id;
   var def = stateOf(entry, stateId);
   var frames = framesFor(entry, stateId);
-  var idx = (frameIdx[entry.id] || 0) % frames.length;
+  var idx = frameIndex(entry) % frames.length;
   var term = card.querySelector('[data-term]');
   if (term) term.innerHTML = frames[idx] || '';
   var note = card.querySelector('[data-note]');
@@ -207,57 +306,126 @@ function paintChips(card) {
   });
 }
 
+function refreshVisibility() {
+  var q = state.query;
+  document.querySelectorAll('[data-card]').forEach(function (card) {
+    var entry = byId(card.getAttribute('data-entry'));
+    if (!entry) return;
+    var laneOk = !entry.stage || entry.variant === state.lane;
+    var hay = (entry.title + ' ' + entry.description + ' ' + entry.variant + ' ' + entry.group).toLowerCase();
+    var searchOk = !q || hay.indexOf(q) !== -1;
+    card.style.display = laneOk && searchOk ? '' : 'none';
+  });
+}
+
+function paintLadder() {
+  var el = document.getElementById('ladder');
+  if (!el) return;
+  var bl = DS.meta.bodyLines || {};
+  var rungs = Object.keys(bl).toSorted(function (a, b) { return Number(a) - Number(b); }).map(function (level) {
+    return '<span>L' + level + ' <b>' + (1 + bl[level]) + ' rows</b></span>';
+  });
+  rungs.push('<span>L8+ <b>group summary</b></span>');
+  el.innerHTML = rungs.join('');
+}
+
 function paintAll() {
   document.querySelectorAll('[data-card]').forEach(function (card) {
     paintChips(card);
     paintCard(card);
   });
+  document.querySelectorAll('[data-stage]').forEach(function (stage) {
+    paintStage(stage.getAttribute('data-sync'));
+  });
+  refreshVisibility();
+  paintLadder();
   var w = document.getElementById('width');
   if (w) w.value = String(state.width);
   var g = document.getElementById('glyph');
   if (g) g.value = state.glyph;
   var b = document.getElementById('theme-btn');
   if (b) b.textContent = 'theme: ' + state.theme;
+  var lane = document.getElementById('lane-btn');
+  if (lane) lane.textContent = 'lane: ' + (state.lane === 'base' ? 'bare pi' : 'pi-prism');
   var m = document.getElementById('motion-btn');
   if (m) m.textContent = state.motion ? 'motion: on' : 'motion: paused';
   var meta = document.getElementById('meta');
   if (meta) meta.textContent = 'pi ' + DS.meta.piVersion + ' (' + DS.meta.source + ') · ' + DS.entries.length + ' entries · generated ' + DS.meta.generatedAt.slice(0, 16).replace('T', ' ');
 }
 
+function playbackTick(now) {
+  Object.keys(playback).forEach(function (sync) {
+    var st = playback[sync];
+    if (!st.playing) return;
+    if (!st.last) { st.last = now; return; }
+    if (now - st.last < st.interval) return;
+    st.last = now;
+    var stage = document.querySelector('[data-stage][data-sync="' + sync + '"]');
+    if (!stage) return;
+    var card = stage.querySelector('[data-card]');
+    var entry = card ? byId(card.getAttribute('data-entry')) : null;
+    if (!entry) return;
+    var frames = framesFor(entry, entry.states[0].id).length;
+    syncIdx[sync] = Math.min((syncIdx[sync] || 0) + 1, frames - 1);
+    if (syncIdx[sync] >= frames - 1) st.playing = false;
+    paintStage(sync);
+  });
+}
+
 function tick() {
+  playbackTick(Date.now());
   if (!state.motion) return;
-  var changed = false;
   document.querySelectorAll('[data-card]').forEach(function (card) {
     if (card.offsetParent === null) return;
     var entry = byId(card.getAttribute('data-entry'));
     if (!entry) return;
+    // Session lanes ride their own playhead; motion must not double-drive them.
+    if (entry.sync) return;
     var stateId = active[entry.id] || entry.states[0].id;
     var frames = framesFor(entry, stateId);
     if (frames.length <= 1) return;
     frameIdx[entry.id] = (frameIdx[entry.id] || 0) + 1;
     paintCard(card);
-    changed = true;
   });
-  if (!changed) return;
 }
 
 function bind() {
   var width = document.getElementById('width');
   if (width) width.addEventListener('change', function (e) { state.width = Number(e.target.value); paintAll(); });
   var glyph = document.getElementById('glyph');
-  if (glyph) glyph.addEventListener('change', function (e) { state.glyph = e.target.value; paintAll(); });
+  if (glyph) glyph.addEventListener('change', function (e) {
+    state.glyph = e.target.value;
+    paintAll();
+    if (tailDirty) loadTail(state.tail);
+  });
   var themeBtn = document.getElementById('theme-btn');
-  if (themeBtn) themeBtn.addEventListener('click', function () { state.theme = state.theme === 'dark' ? 'light' : 'dark'; applyTheme(); paintAll(); });
+  if (themeBtn) themeBtn.addEventListener('click', function () {
+    state.theme = state.theme === 'dark' ? 'light' : 'dark';
+    applyTheme();
+    paintAll();
+    if (tailDirty) loadTail(state.tail);
+  });
   var motionBtn = document.getElementById('motion-btn');
   if (motionBtn) motionBtn.addEventListener('click', function () { state.motion = !state.motion; paintAll(); });
   var search = document.getElementById('search');
   if (search) search.addEventListener('input', function (e) {
-    var q = e.target.value.trim().toLowerCase();
-    document.querySelectorAll('[data-card]').forEach(function (card) {
-      var entry = byId(card.getAttribute('data-entry'));
-      var hay = (entry.title + ' ' + entry.description + ' ' + entry.variant + ' ' + entry.group).toLowerCase();
-      card.style.display = !q || hay.indexOf(q) !== -1 ? '' : 'none';
-    });
+    state.query = e.target.value.trim().toLowerCase();
+    refreshVisibility();
+  });
+  var tail = document.getElementById('tail');
+  if (tail) state.tail = Number(tail.value) || 7;
+  if (tail) tail.addEventListener('input', function (e) {
+    state.tail = Number(e.target.value);
+    tailDirty = true;
+    var label = document.getElementById('tail-value');
+    if (label) label.textContent = String(state.tail);
+    clearTimeout(tailTimer);
+    tailTimer = setTimeout(function () { loadTail(state.tail); }, 80);
+  });
+  var laneBtn = document.getElementById('lane-btn');
+  if (laneBtn) laneBtn.addEventListener('click', function () {
+    state.lane = state.lane === 'base' ? 'ours' : 'base';
+    paintAll();
   });
   document.querySelectorAll('[data-state]').forEach(function (btn) {
     btn.addEventListener('click', function () {
@@ -282,6 +450,55 @@ function bind() {
       paintCard(card);
     });
   });
+
+  document.querySelectorAll('[data-stage]').forEach(function (stage) {
+    var sync = stage.getAttribute('data-sync');
+    playback[sync] = { playing: false, interval: 150, last: 0, played: false };
+    var play = stage.querySelector('[data-play]');
+    if (play) play.addEventListener('click', function () {
+      var st = playback[sync];
+      var card = stage.querySelector('[data-card]');
+      var entry = byId(card.getAttribute('data-entry'));
+      var frames = framesFor(entry, entry.states[0].id).length;
+      if ((syncIdx[sync] || 0) >= frames - 1) syncIdx[sync] = 0;
+      st.playing = !st.playing;
+      st.last = 0;
+      paintStage(sync);
+    });
+    var reset = stage.querySelector('[data-reset]');
+    if (reset) reset.addEventListener('click', function () {
+      syncIdx[sync] = 0;
+      playback[sync].playing = false;
+      paintStage(sync);
+    });
+    var speed = stage.querySelector('[data-speed]');
+    if (speed) speed.addEventListener('click', function () {
+      var st = playback[sync];
+      st.interval = st.interval === 150 ? 75 : 150;
+      speed.textContent = st.interval === 150 ? '1×' : '2×';
+      st.last = 0;
+    });
+    var scrub = stage.querySelector('[data-scrub]');
+    if (scrub) scrub.addEventListener('input', function () {
+      syncIdx[sync] = Number(scrub.value);
+      playback[sync].playing = false;
+      paintStage(sync);
+    });
+    // Play once when the stage is actually on screen; reduced motion stays still.
+    if (!reduce && 'IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (records) {
+        if (!records.some(function (record) { return record.isIntersecting; })) return;
+        var st = playback[sync];
+        if (st.played) return;
+        st.played = true;
+        st.playing = true;
+        st.last = 0;
+        paintStage(sync);
+        io.disconnect();
+      }, { threshold: 0.3 });
+      io.observe(stage);
+    }
+  });
 }
 
 applyTheme();
@@ -295,6 +512,7 @@ function esc(text: string): string {
 }
 
 const GROUP_LABEL: Record<string, string> = {
+  session: "Session",
   transcript: "Transcript",
   tools: "Tool rows",
   thinking: "Thinking",
@@ -310,20 +528,11 @@ const VARIANT_STATUS: Record<string, "ready" | "pending"> = {
 };
 
 function ladder(bodyLines: Record<string, number>): string {
-  const levels: Array<[string, string]> = [
-    ["L0", "live"],
-    ["L1", ""],
-    ["L2", ""],
-    ["L3", "one line"],
-    ["L4", "group summary"],
-  ];
-  return levels
-    .map(([level, note], index) => {
-      const rows = bodyLines[String(index)] ?? 0;
-      const label = note ? `${level} <b>${note}</b>` : `${level} <b>${1 + rows} rows</b>`;
-      return `<span>${label}</span>`;
-    })
-    .join("");
+  const rungs = Object.keys(bodyLines)
+    .toSorted((a, b) => Number(a) - Number(b))
+    .map((level) => `<span>L${level} <b>${1 + (bodyLines[level] ?? 0)} rows</b></span>`);
+  rungs.push("<span>L8+ <b>group summary</b></span>");
+  return rungs.join("");
 }
 
 export function renderPage(payload: PagePayload): string {
@@ -341,19 +550,13 @@ export function renderPage(payload: PagePayload): string {
     })
     .join("");
 
-  const cards = groups
-    .map((group) => {
-      const entries = payload.entries
-        .filter((entry) => entry.group === group)
-        .map((entry) => {
-          const useRange = entry.states.length > 6;
-          const chips = useRange
-            ? `<div class="range"><input type="range" data-range min="0" max="${entry.states.length - 1}" value="0"><span data-range-label>${esc(entry.states[0]?.label ?? "")}</span></div>`
-            : entry.states
-                .map((state) => `<button data-state="${esc(state.id)}">${esc(state.label)}</button>`)
-                .join("");
-          const status = VARIANT_STATUS[entry.variant] ?? "ready";
-          return `
+  const cardMarkup = (entry: (typeof payload.entries)[number]): string => {
+    const useRange = entry.states.length > 6;
+    const chips = useRange
+      ? `<div class="range"><input type="range" data-range min="0" max="${entry.states.length - 1}" value="0"><span data-range-label>${esc(entry.states[0]?.label ?? "")}</span></div>`
+      : entry.states.map((state) => `<button data-state="${esc(state.id)}">${esc(state.label)}</button>`).join("");
+    const status = VARIANT_STATUS[entry.variant] ?? "ready";
+    return `
 <section class="card" id="${esc(entry.id)}" data-card data-entry="${esc(entry.id)}">
   <div class="card-head"><h3>${esc(entry.title)}</h3><span class="badge ${esc(entry.variant)}">${esc(entry.variant)}</span><span class="badge">${status}</span></div>
   <p class="desc">${esc(entry.description)}</p>
@@ -361,9 +564,57 @@ export function renderPage(payload: PagePayload): string {
   <div class="term" data-term></div>
   <div class="card-foot"><span class="note" data-note></span><span class="frame" data-frame></span></div>
 </section>`;
-        })
-        .join("");
-      return `<section class="group"><h2>${esc(GROUP_LABEL[group] ?? group)}</h2>${entries}</section>`;
+  };
+
+  const stageMarkup = (stage: string, lanes: string[]): string => {
+    const first = payload.entries.find((entry) => entry.stage === stage);
+    const frames = first?.states[0]?.frames ?? 1;
+    const labels = first?.frameLabels ?? [];
+    return `
+<div class="stage" id="stage-${esc(stage)}" data-stage="${esc(stage)}" data-sync="${esc(first?.sync ?? stage)}">
+  <div class="stage-head">
+    <h3>Session replay</h3>
+    <p class="desc">One script, ${frames} frames, one playhead: thinking tokens, tool arguments and output all stream. Toggle the lane above to swap renderers without losing your place.</p>
+    <div class="stage-controls">
+      <button data-play>▶ play</button>
+      <button data-reset>↻ reset</button>
+      <button data-speed>1×</button>
+      <input type="range" data-scrub min="0" max="${frames - 1}" value="0">
+      <span class="step" data-step>frame 1/${frames} · ${esc(labels[0] ?? "")}</span>
+      <span class="rows" data-rows>base · ours rows</span>
+    </div>
+  </div>
+  <div class="stage-lanes">${lanes.join("")}</div>
+</div>`;
+  };
+
+  const cards = groups
+    .map((group) => {
+      const groupEntries = payload.entries.filter((entry) => entry.group === group);
+      const merged: string[] = [];
+      let openStage: string | undefined;
+      let stageCards: string[] = [];
+      const flushStage = () => {
+        if (openStage === undefined) return;
+        merged.push(stageMarkup(openStage, stageCards));
+        openStage = undefined;
+        stageCards = [];
+      };
+      for (const entry of groupEntries) {
+        if (entry.stage) {
+          if (openStage !== entry.stage) {
+            flushStage();
+            openStage = entry.stage;
+          }
+          stageCards.push(cardMarkup(entry));
+          continue;
+        }
+        flushStage();
+        merged.push(cardMarkup(entry));
+      }
+      flushStage();
+
+      return `<section class="group"><h2>${esc(GROUP_LABEL[group] ?? group)}</h2>${merged.join("")}</section>`;
     })
     .join("");
 
@@ -399,9 +650,10 @@ export function renderPage(payload: PagePayload): string {
   <div class="controls">
     <label class="control">width <select id="width">${payload.meta.widths.map((width) => `<option value="${width}"${width === 80 ? " selected" : ""}>${width}</option>`).join("")}</select></label>
     <label class="control">glyphs <select id="glyph">${payload.meta.glyphs.map((glyph) => `<option value="${esc(glyph)}"${glyph === "unicode" ? " selected" : ""}>${esc(glyph)}</option>`).join("")}</select></label>
+    <label class="control">tail <input type="range" id="tail" min="3" max="12" step="1" value="${payload.meta.bodyLines["0"]}"><b id="tail-value">${payload.meta.bodyLines["0"]}</b></label>
     <label class="control"><input type="text" id="search" placeholder="filter cards" size="16"></label>
+    <button id="lane-btn">lane: pi-prism</button>
     <button id="theme-btn">theme: dark</button>
-    <button id="motion-btn">motion: on</button>
   </div>
 </header>
 <div class="layout">
@@ -410,7 +662,7 @@ export function renderPage(payload: PagePayload): string {
     <div class="intro">
       <h2>The rule</h2>
       <p>Every card is real output: base pi components from the install recorded below, ours from the renderers the extension ships. If a card looks wrong, the product looks wrong. Switch width, theme and glyph set to check the edges.</p>
-      <div class="ladder">${ladder(payload.meta.bodyLines)}</div>
+      <div class="ladder" id="ladder">${ladder(payload.meta.bodyLines)}</div>
       <div class="variants">${variants}</div>
     </div>
     ${cards}

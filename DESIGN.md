@@ -36,17 +36,24 @@ A card is therefore a fixture, not an illustration. If the implementation change
 ## Detail model
 
 ```
-L0 live      ≤7 lines, streaming
-L1           ≤5 lines
-L2           ≤3 lines
-L3           1 line + counts
-L4           folded into a group summary
+L0 live      7 rows, streaming
+L1           6 rows
+…            one fewer per turn
+L6           1 row
+distance ≥ 8 folded into a group summary
 ```
+
+The tail budget (7 above) is configurable: `setTailLines()` moves the whole
+ladder, and the gallery exposes it as a live slider (`/api/cells`).
 
 Rules:
 
 - Distance counts within the current run.
-- Errors and the live block never get folded past L3.
+- One-line blocks hold their line until the fold distance: they do not vanish
+  the turn after they shrink.
+- Thinking sheds one row per turn and bottoms out at one inline line; it never
+  folds into a group.
+- Errors and the live block keep their own rows; a failure never joins a group.
 - Recompute on structural events only; never per token.
 - Hysteresis: two consecutive recomputes must agree before a level changes.
 - A click pins a block at its expanded form until the next turn.

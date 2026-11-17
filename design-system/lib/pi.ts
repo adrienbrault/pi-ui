@@ -79,7 +79,14 @@ async function imp(path: string): Promise<any> {
   return import(pathToFileURL(path).href);
 }
 
+let cached: Promise<PiInstall> | undefined;
+
 export async function resolvePi(): Promise<PiInstall> {
+  cached ??= loadPi();
+  return cached;
+}
+
+async function loadPi(): Promise<PiInstall> {
   const { root, source } = resolveRoot();
   const tuiRoot = resolveTuiRoot(root);
   const modules: PiModules = {

@@ -1,16 +1,19 @@
 /**
  * Build the gallery: render every registry cell against the live pi install,
  * then emit index.html, spec.json and ANSI fixtures.
+ *
+ * `renderGallery` is exported so the dev server can re-render a slice at another
+ * tail budget without duplicating the render path.
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { ENTRIES, GLYPH_MODES, THEME_NAMES, WIDTHS, type EntryDef } from "./registry.ts";
-import { resolvePi } from "./lib/pi.ts";
+import { resolvePi, type PiInstall } from "./lib/pi.ts";
 import { createKit, toHtml } from "./lib/surface.ts";
 import { installTheme, loadThemeJson } from "./lib/theme.ts";
-import { glyphsFor } from "../packages/pi-prism/render/glyphs.ts";
-import { BODY_LINES } from "../packages/pi-prism/render/detail.ts";
+import { glyphsFor, type GlyphMode } from "../packages/pi-prism/render/glyphs.ts";
+import { bodyLinesMap, setTailLines } from "../packages/pi-prism/render/detail.ts";
 import { renderPage, type PagePayload } from "./html.ts";
 
 const OUT = join(process.cwd(), "design-system", "web");
@@ -33,6 +36,10 @@ function short(entry: EntryDef) {
     group: entry.group,
     variant: entry.variant,
     description: entry.description,
+    ...(entry.sync ? { sync: entry.sync } : {}),
+    ...(entry.stage ? { stage: entry.stage } : {}),
+    ...(entry.frameLabels ? { frameLabels: entry.frameLabels } : {}),
+    ...(entry.fixedWidth ? { fixedWidth: entry.fixedWidth } : {}),
     states: entry.states.map((s) => ({
       id: s.id,
       label: s.label,
@@ -42,16 +49,54 @@ function short(entry: EntryDef) {
   };
 }
 
-async function main(): Promise<void> {
-  const pi = await resolvePi();
-  console.log(`pi ${pi.version} (${pi.source}) · tui ${pi.tuiVersion}`);
+const widthsFor = (entry: EntryDef, scope: RenderScope): readonly number[] =>
+  scope.widths ?? (entry.fixedWidth ? [entry.fixedWidth] : WIDTHS);
 
-  const entries = ENTRIES.map(short);
+const glyphsForScope = (scope: RenderScope): readonly GlyphMode[] => scope.glyphModes ?? GLYPH_MODES;
+
+/**
+ * Render a slice of the gallery. `tailLines` moves the decay knob; the other
+ * fields restrict the matrix so a live request stays small.
+ */
+type ThemeName = (typeof THEME_NAMES)[number];
+
+export interface RenderScope {
+  tailLines?: number;
+  themes?: readonly ThemeName[];
+  widths?: readonly number[];
+  glyphModes?: readonly GlyphMode[];
+  entries?: readonly EntryDef[];
+}
+
+export interface GalleryRender {
+  payload: PagePayload;
+  fixtures: Map<string, Record<string, { lines: string[] }>>;
+  pi: PiInstall;
+}
+
+function cellCount(entries: readonly EntryDef[], scope: RenderScope): number {
+  return entries.reduce(
+    (sum, entry) =>
+      sum +
+      entry.states.length *
+        widthsFor(entry, scope).length *
+        glyphsForScope(scope).length *
+        (scope.themes ?? THEME_NAMES).length,
+    0,
+  );
+}
+
+export async function renderGallery(scope: RenderScope = {}): Promise<GalleryRender> {
+  if (scope.tailLines !== undefined) setTailLines(scope.tailLines);
+
+  const pi = await resolvePi();
+  const entries = scope.entries ?? ENTRIES;
+  const themeNames = scope.themes ?? THEME_NAMES;
   const data = new Map<string, EntryData>();
   const fixtures = new Map<string, Record<string, { lines: string[] }>>();
   const themes: PagePayload["themes"] = {};
 
-  for (const themeName of THEME_NAMES) {
+  for (const themeName of themeNames) {
     const installed = installTheme(pi, loadThemeJson(pi, themeName));
     const themeModule = pi.modules.theme;
     const palette = themeModule.getResolvedThemeColors(themeName) as Record<string, string>;
@@ -67,14 +112,14 @@ async function main(): Promise<void> {
 
     const kit = createKit(pi);
 
-    for (const entry of ENTRIES) {
+    for (const entry of entries) {
       const entryData: EntryData = data.get(entry.id) ?? { states: {} };
       const fixtureEntry: Record<string, { lines: string[] }> = fixtures.get(entry.id) ?? {};
 
       for (const state of entry.states) {
         const byCell: Record<CellKey, string[]> = {};
-        for (const width of WIDTHS) {
-          for (const glyphMode of GLYPH_MODES) {
+        for (const width of widthsFor(entry, scope)) {
+          for (const glyphMode of glyphsForScope(scope)) {
             const ctx = {
               pi,
               kit,
@@ -89,7 +134,7 @@ async function main(): Promise<void> {
             for (let frame = 0; frame < frameCount; frame++) {
               const lines = state.render(ctx, frame);
               frames.push(toHtml(pi, lines));
-              if (frame === 0) {
+              if (frame === 0 && entry.fixture !== false) {
                 fixtureEntry[`${state.id}/${themeName}/${width}/${glyphMode}`] = { lines };
               }
             }
@@ -101,16 +146,16 @@ async function main(): Promise<void> {
       }
 
       data.set(entry.id, entryData);
-      fixtures.set(entry.id, fixtureEntry);
+      if (entry.fixture !== false) fixtures.set(entry.id, fixtureEntry);
     }
   }
 
   // Fail loudly if any cell is missing: a silent hole is how the gallery shipped empty once.
-  for (const entry of ENTRIES) {
+  for (const entry of entries) {
     for (const state of entry.states) {
-      for (const themeName of THEME_NAMES) {
-        for (const width of WIDTHS) {
-          for (const glyphMode of GLYPH_MODES) {
+      for (const themeName of themeNames) {
+        for (const width of widthsFor(entry, scope)) {
+          for (const glyphMode of glyphsForScope(scope)) {
             const cell = data.get(entry.id)?.states[state.id]?.[cellKey(width, themeName, glyphMode)];
             const expected = state.frames ?? 1;
             if (!cell || cell.length !== expected) {
@@ -131,14 +176,23 @@ async function main(): Promise<void> {
       widths: [...WIDTHS],
       glyphs: [...GLYPH_MODES],
       themes: [...THEME_NAMES],
-      bodyLines: BODY_LINES,
+      bodyLines: bodyLinesMap(),
     },
     themes,
     entries: entries.map((entry) => ({
-      ...entry,
+      ...short(entry),
       data: data.get(entry.id)?.states ?? {},
     })),
   };
+
+  return { payload, fixtures, pi };
+}
+
+const scopeOfMain: RenderScope = {};
+
+async function main(): Promise<void> {
+  const { payload, fixtures, pi } = await renderGallery(scopeOfMain);
+  console.log(`pi ${pi.version} (${pi.source}) · tui ${pi.tuiVersion}`);
 
   const framesJson = JSON.stringify(Object.fromEntries(fixtures), null, 2);
 
@@ -158,11 +212,7 @@ async function main(): Promise<void> {
       process.exitCode = 1;
       return;
     }
-    const cells = entries.reduce(
-      (sum, entry) => sum + entry.states.length * WIDTHS.length * GLYPH_MODES.length * THEME_NAMES.length,
-      0,
-    );
-    console.log(`fixtures current: ${cells} cells across ${entries.length} entries`);
+    console.log(`fixtures current: ${cellCount(ENTRIES, scopeOfMain)} cells across ${payload.entries.length} entries`);
     return;
   }
 
@@ -170,18 +220,20 @@ async function main(): Promise<void> {
   mkdirSync(FIXTURES, { recursive: true });
 
   writeFileSync(join(OUT, "index.html"), renderPage(payload));
-  writeFileSync(join(OUT, "spec.json"), JSON.stringify({ meta: payload.meta, entries }, null, 2));
+  writeFileSync(join(OUT, "spec.json"), JSON.stringify({ meta: payload.meta, entries: payload.entries }, null, 2));
   writeFileSync(join(FIXTURES, "frames.json"), framesJson);
 
-  const cells = entries.reduce(
-    (sum, entry) => sum + entry.states.length * WIDTHS.length * GLYPH_MODES.length * THEME_NAMES.length,
-    0,
-  );
-  console.log(`rendered ${cells} cells across ${entries.length} entries`);
+  console.log(`rendered ${cellCount(ENTRIES, scopeOfMain)} cells across ${payload.entries.length} entries`);
   console.log(`wrote ${join(OUT, "index.html")}`);
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+if (import.meta.main) {
+  // pi's imported modules leave handles open; exit explicitly so scripts finish.
+  main().then(
+    () => process.exit(process.exitCode ?? 0),
+    (error) => {
+      console.error(error);
+      process.exit(1);
+    },
+  );
+}

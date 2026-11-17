@@ -10,6 +10,17 @@ import type { RenderKit } from "../packages/pi-prism/render/kit.ts";
 import type { DetailLevel } from "../packages/pi-prism/render/detail.ts";
 import { detailFor } from "../packages/pi-prism/render/detail.ts";
 import { thinkingLabel } from "../packages/pi-prism/render/thinking.ts";
+import { planTranscript, type BlockShape } from "../packages/pi-prism/render/layout.ts";
+import {
+  FRAME_LABELS,
+  PLAYBACK,
+  SESSION_STEPS,
+  partialLines,
+  partialText,
+  streamingArgKey,
+  type PlaybackFrame,
+  type SessionStep,
+} from "./session.ts";
 import { renderToolRow, type ToolRowInput } from "../packages/pi-prism/render/tool-row.ts";
 import { toolMeta } from "../packages/pi-prism/render/tools.ts";
 import type { PiInstall } from "./lib/pi.ts";
@@ -27,7 +38,7 @@ import {
 } from "./fixtures-data.ts";
 
 export type Variant = "base" | "open-tui" | "pi-code" | "ours";
-export type Group = "transcript" | "tools" | "thinking" | "groups" | "scenarios";
+export type Group = "session" | "transcript" | "tools" | "thinking" | "groups" | "scenarios";
 
 export interface RenderCtx {
   pi: PiInstall;
@@ -55,6 +66,16 @@ export interface EntryDef {
   variant: Variant;
   description: string;
   states: StateDef[];
+  /** Cards sharing a sync key share one playhead (session lanes). */
+  sync?: string;
+  /** Cards sharing a stage key render side by side under one control bar. */
+  stage?: string;
+  /** Per-frame captions, shown by the stage control bar. */
+  frameLabels?: string[];
+  /** Render at this width regardless of the gallery width control. */
+  fixedWidth?: number;
+  /** Skip in fixtures/frames.json: scenarios, not golden rows. */
+  fixture?: false;
 }
 
 /** A duck-typed TUI stub: tool rows only need requestRender. */
@@ -123,6 +144,36 @@ function baseTool(
   component.markExecutionStarted();
   component.updateResult(result, options.partial ?? false);
   if (options.expanded) component.setExpanded(true);
+  return component;
+}
+
+/**
+ * A tool call captured mid-flight: arguments may still be arriving and the
+ * output may be partial, exactly the states pi renders while streaming.
+ */
+function baseToolStreaming(
+  pi: PiInstall,
+  name: string,
+  args: Record<string, unknown>,
+  output: string,
+  options: { argsComplete: boolean; partial: boolean; isError: boolean },
+): any {
+  const component = new pi.modules.coding.ToolExecutionComponent(
+    name,
+    "call-1",
+    args,
+    { outputPad: 1, showImages: true },
+    definitionFor(pi, name),
+    STUB_TUI,
+    cwd,
+  );
+  component.updateArgs(args);
+  if (options.argsComplete) component.setArgsComplete();
+  component.markExecutionStarted();
+  component.updateResult(
+    { content: [{ type: "text", text: output }], details: {}, isError: options.isError },
+    options.partial,
+  );
   return component;
 }
 
@@ -708,7 +759,162 @@ const scenarioEntries: EntryDef[] = [
   },
 ];
 
-export const ENTRIES: EntryDef[] = [...baseEntries, ...oursEntries, ...scenarioEntries];
+// ---------------------------------------------------------------------------
+// Session replay: one script, two renderers, one playhead
+// ---------------------------------------------------------------------------
+
+/** Session lanes render at a fixed width and height so the eye can stay put. */
+const SESSION_WIDTH = 80;
+
+/** A step's shape as the planner sees it; a partial failure is not final yet. */
+function stepShape(step: SessionStep, index: number, frame: PlaybackFrame): BlockShape {
+  if (step.kind === "thinking") return { cls: "thinking" };
+  if (step.kind === "tool") {
+    const failed = index === frame.step ? !frame.partial && step.tool.failed : step.tool.failed;
+    return { cls: toolMeta(step.tool.name).cls, failed };
+  }
+  return { cls: "prose" };
+}
+
+/** What a step shows at this frame: complete for past steps, streamed for the live one. */
+function stepProgress(step: SessionStep, index: number, frame: PlaybackFrame) {
+  const live = index === frame.step;
+  if (step.kind === "tool") {
+    const outputLines = (step.tool.output ?? "").split("\n").length;
+    return {
+      live,
+      chars: live ? frame.chars : (step.tool.title ?? "").length,
+      lines: live ? frame.lines : outputLines,
+      partial: live ? frame.partial : false,
+    };
+  }
+  return {
+    live,
+    chars: live ? frame.chars : step.text.length,
+    lines: 0,
+    partial: live ? frame.partial : false,
+  };
+}
+
+/** Bare pi: append everything, preview caps only, thinking collapses on completion. */
+function sessionBase(ctx: RenderCtx, frameIndex: number): string[] {
+  const frame = PLAYBACK[frameIndex];
+  if (!frame) throw new Error(`session frame ${frameIndex} out of range`);
+  const steps = SESSION_STEPS.slice(0, frame.step + 1);
+  const components = steps.map((step, index) => {
+    const progress = stepProgress(step, index, frame);
+    switch (step.kind) {
+      case "user":
+        return new ctx.pi.modules.coding.UserMessageComponent(
+          partialText(step.text, progress.chars),
+          ctx.pi.modules.coding.getMarkdownTheme(),
+          1,
+        );
+      case "thinking":
+        return baseAssistant(ctx.pi, [{ type: "thinking", thinking: partialText(step.text, progress.chars) }], true);
+      case "text":
+        return baseAssistant(ctx.pi, [{ type: "text", text: partialText(step.text, progress.chars) }], false);
+      case "tool": {
+        const key = streamingArgKey(step.tool.name);
+        const fullArg = String(step.tool.args[key] ?? "");
+        const streamedArgs = { ...step.tool.args };
+        if (progress.partial && progress.chars < fullArg.length) streamedArgs[key] = fullArg.slice(0, progress.chars);
+        const output = partialLines(step.tool.output ?? "", progress.lines);
+        return baseToolStreaming(ctx.pi, step.tool.name, streamedArgs, output, {
+          argsComplete: progress.chars >= fullArg.length,
+          partial: progress.partial,
+          isError: !progress.partial && (step.tool.failed ?? false),
+        });
+      }
+    }
+  });
+  return stack(SESSION_WIDTH, components);
+}
+
+/** Ours: the same events, aged by distance from the tail, streaming as they land. */
+function sessionOurs(ctx: RenderCtx, frameIndex: number): string[] {
+  const frame = PLAYBACK[frameIndex];
+  if (!frame) throw new Error(`session frame ${frameIndex} out of range`);
+  const steps = SESSION_STEPS.slice(0, frame.step + 1);
+  const plan = planTranscript(steps.map((step, index) => stepShape(step, index, frame)));
+
+  const components = plan.map((item) => {
+    if (item.kind === "group") return renderGroupRow(ours(ctx), { segments: item.segments });
+
+    const step = steps[item.index];
+    if (!step) throw new Error(`session frame ${frameIndex}: missing step ${item.index}`);
+    const progress = stepProgress(step, item.index, frame);
+    const live = progress.partial && progress.live;
+
+    switch (step.kind) {
+      case "user":
+        return new ctx.pi.modules.coding.UserMessageComponent(
+          partialText(step.text, progress.chars),
+          ctx.pi.modules.coding.getMarkdownTheme(),
+          1,
+        );
+      case "text":
+        return baseAssistant(ctx.pi, [{ type: "text", text: partialText(step.text, progress.chars) }], false);
+      case "thinking":
+        return thinkingBlock(
+          ctx,
+          thinkingLabel(ours(ctx), {
+            phase: live ? "thinking" : "done",
+            level: item.level,
+            text: partialText(step.text, progress.chars),
+            width: SESSION_WIDTH,
+            durationMs: live ? undefined : 1200,
+            frame: frameIndex % 10,
+          }),
+        );
+      case "tool":
+        return renderToolRow(ours(ctx), {
+          name: step.tool.name,
+          args: step.tool.args,
+          status: progress.partial ? "running" : step.tool.failed ? "error" : "success",
+          level: item.level,
+          title: partialText(step.tool.title ?? "", progress.chars),
+          summary: progress.partial ? "" : step.tool.summary,
+          output: partialLines(step.tool.output ?? "", progress.lines),
+          durationMs: progress.partial ? undefined : step.tool.durationMs,
+          frame: frameIndex % 10,
+        });
+    }
+  });
+
+  return stack(SESSION_WIDTH, components);
+}
+
+const sessionEntries: EntryDef[] = [
+  {
+    id: "session.base",
+    title: "Bare pi",
+    group: "session",
+    variant: "base",
+    description: "Thinking collapses to one label; every tool block keeps its full preview, and the box padding stays.",
+    sync: "session",
+    stage: "session",
+    frameLabels: FRAME_LABELS,
+    fixedWidth: SESSION_WIDTH,
+    fixture: false,
+    states: [{ id: "default", label: "replay", frames: PLAYBACK.length, render: sessionBase }],
+  },
+  {
+    id: "session.ours",
+    title: "pi-prism",
+    group: "session",
+    variant: "ours",
+    description: "The same frames graded by distance: bodies shrink, runs fold, failures keep their own line.",
+    sync: "session",
+    stage: "session",
+    frameLabels: FRAME_LABELS,
+    fixedWidth: SESSION_WIDTH,
+    fixture: false,
+    states: [{ id: "default", label: "replay", frames: PLAYBACK.length, render: sessionOurs }],
+  },
+];
+
+export const ENTRIES: EntryDef[] = [...sessionEntries, ...baseEntries, ...oursEntries, ...scenarioEntries];
 
 export const WIDTHS = [40, 60, 80, 100, 120] as const;
 export const GLYPH_MODES: GlyphMode[] = ["unicode", "ascii"];

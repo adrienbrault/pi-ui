@@ -20,6 +20,8 @@ bun run dev          # gallery server + rebuild on change (localhost:4173)
 | `design-system/registry.ts` | Every card and scenario, declared once. |
 | `design-system/lib/` | Resolving the pi install, theme init, component → lines → HTML. |
 | `design-system/build.ts` | Renders every cell, writes the gallery and fixtures. `--check` guards drift. |
+| `design-system/api.ts` | Live re-render of ours-cards at another tail budget, for the slider. |
+| `design-system/session.ts` | One scripted session expanded into playback frames (streaming tokens/args/output). |
 | `design-system/fixtures/` | Golden ANSI snapshots. Tracked. Never hand-edit. |
 | `design-system/web/` | Generated gallery. Not tracked; rebuild it. |
 | `docs/PLAN.md` | Decisions, architecture, phases P0–P5, risks. |
