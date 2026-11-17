@@ -160,6 +160,8 @@ section.group > h2 { margin: 8px 0 0; font-family: var(--mono); font-size: 11px;
 .stage-lanes { display: grid; grid-template-columns: 1fr; gap: 14px; align-items: start; }
 .stage-lanes .card { padding: 10px 12px 8px; }
 .stage-lanes .chips, .stage-lanes p.desc, .stage-lanes .card-foot { display: none; }
+.term .reveal-members .ansi-line { padding-left: 2ch; }
+.term .reveal-members .ansi-line:hover { background: rgba(255, 255, 255, 0.03); }
 .term [data-expand], .term [data-turn], .term [data-collapse] { cursor: pointer; }
 .term [data-expand]:hover, .term [data-turn]:hover, .term [data-collapse]:hover { outline: 1px dashed var(--accent); outline-offset: -1px; }
 .stage-lanes .term { font-size: 10.5px; line-height: 1.5; padding: 8px 10px; height: 560px; overflow-y: auto; }
@@ -266,12 +268,13 @@ function composeReveal(entryId, idx, groups, frameHtml) {
       var gi = Number(match[1]);
       var group = groups[gi];
       if (!group) return row;
-      var html = group.header;
+      var members = '';
       group.members.forEach(function (member, mi) {
         var open = revealOpenState[prefix + ':' + gi + ':' + mi] !== false;
-        html += open ? member.expanded : member.collapsed;
+        members += open ? member.expanded : member.collapsed;
       });
-      return html;
+      // Members sit one indent under their summary row: nesting is visible.
+      return group.header + '<div class="reveal-members">' + members + '</div>';
     })
     .join('');
 }
