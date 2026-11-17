@@ -149,6 +149,26 @@ section.group > h2 { margin: 8px 0 0; font-family: var(--mono); font-size: 11px;
   min-height: 3.2em;
 }
 .term .ansi-line { display: block; white-space: pre; min-height: 1.5em; }
+/* Hover hint: the chip says what a click will do, at the row it applies to. */
+.term [data-hint] { position: relative; }
+.term [data-hint].hot { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.term [data-hint].hot::after {
+  content: attr(data-hint);
+  position: absolute;
+  right: 1ch;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  pointer-events: none;
+  padding: 1px 7px;
+  border-radius: 3px;
+  background: var(--accent);
+  color: var(--bg);
+  font: 600 10px/1.5 ui-monospace, "SF Mono", Menlo, monospace;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
 .term:empty::after { content: "(no rows)"; color: var(--muted); }
 
 .card-foot { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; }
@@ -170,7 +190,7 @@ section.group > h2 { margin: 8px 0 0; font-family: var(--mono); font-size: 11px;
 .term .reveal-members .ansi-line { padding-left: 2ch; }
 .term .reveal-members .ansi-line:hover { background: rgba(255, 255, 255, 0.03); }
 .term [data-expand], .term [data-turn], .term [data-collapse], .term [data-block] { cursor: pointer; }
-.term [data-expand]:hover, .term [data-turn]:hover, .term [data-block]:hover, .term [data-collapse]:hover { outline: 1px dashed var(--accent); outline-offset: -1px; }
+
 .stage-lanes .term { font-size: 10.5px; line-height: 1.5; padding: 8px 10px; height: 560px; overflow-y: auto; }
 
 .empty-note { border: 1px dashed var(--border); border-radius: 10px; padding: 14px 16px; color: var(--muted); font-size: 12.5px; }
@@ -363,6 +383,30 @@ function applyTheme() {
   root.style.setProperty('--ok', t.palette.success || '#6fbf9a');
 }
 
+// Say what a click does, on the row it applies to: open, preview, show all, fold.
+function annotateHints(term, entry, idx, stateId) {
+  var prefix = entry.id + ':' + idx;
+  term.querySelectorAll('[data-expand]').forEach(function (row) {
+    row.setAttribute('data-hint', 'click · open group');
+  });
+  term.querySelectorAll('[data-collapse]').forEach(function (row) {
+    row.setAttribute('data-hint', 'click · fold group');
+  });
+  term.querySelectorAll('[data-turn]').forEach(function (row) {
+    var st = revealOpenState[prefix + ':' + row.getAttribute('data-turn')] || 0;
+    row.setAttribute('data-hint', st === 0 ? 'click · preview' : st === 1 ? 'click · show all' : 'click · collapse');
+  });
+  var cell = blocksFor(entry, stateId);
+  term.querySelectorAll('[data-block]').forEach(function (row) {
+    var id = row.getAttribute('data-block');
+    var spec = cell ? (cell.frames[idx] || []).filter(function (s) { return s.id === id; })[0] : null;
+    var steps = spec ? spec.keys.length : 0;
+    var st = blockOpenState[prefix + ':' + id] || 0;
+    var hint = st === 0 ? 'click · expand' : st < steps ? 'click · show all' : 'click · collapse';
+    row.setAttribute('data-hint', hint);
+  });
+}
+
 function paintCard(card) {
   // Hidden lanes keep their DOM but skip repaint: playback should cost one lane.
   if (card.style.display === 'none') return;
@@ -376,6 +420,7 @@ function paintCard(card) {
   if (term) {
     var expanded = term.getAttribute('data-expanded') === '1';
     term.innerHTML = composeFrame(entry, idx, frames[idx] || '', stateId, expanded);
+    annotateHints(term, entry, idx, stateId);
   }
   var note = card.querySelector('[data-note]');
   if (note) note.textContent = def.note || '';
@@ -578,6 +623,15 @@ function bind() {
   });
   document.querySelectorAll('[data-term]').forEach(function (term) {
     term.addEventListener('click', onTermClick);
+    // Hover is explicit: any interaction hint belongs to the row under the cursor.
+    term.addEventListener('mouseover', function (event) {
+      var row = event.target.closest('[data-hint]');
+      term.querySelectorAll('.ansi-line.hot').forEach(function (old) { old.classList.remove('hot'); });
+      if (row) row.classList.add('hot');
+    });
+    term.addEventListener('mouseleave', function () {
+      term.querySelectorAll('.ansi-line.hot').forEach(function (old) { old.classList.remove('hot'); });
+    });
   });
   document.querySelectorAll('[data-state]').forEach(function (btn) {
     btn.addEventListener('click', function () {
