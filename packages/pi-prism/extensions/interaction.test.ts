@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { TuiMouseEvent } from "@earendil-works/pi-tui";
-import prism, { hintFor, nextExpansion } from "./index.ts";
+import prism, { actionFor, hintFor } from "./index.ts";
 
 const theme = {
   fg: (_token: string, text: string) => text,
@@ -58,15 +58,22 @@ function resolver(): (name: string, next: () => unknown) => Renderers | unknown 
 }
 
 describe("expansion cycle", () => {
-  test("three states wrap", () => {
-    expect([nextExpansion(0), nextExpansion(1), nextExpansion(2)]).toEqual([1, 2, 0]);
+  test("nothing to reveal means no step", () => {
+    expect(actionFor(0, 4)).toBeNull();
+    expect(hintFor(0, 4)).toBeNull();
   });
 
   test("hints name the next action", () => {
-    expect(hintFor(0, true)).toBe("click · expand");
-    expect(hintFor(1, true)).toBe("click · show all");
-    expect(hintFor(1, false)).toBe("click · collapse");
-    expect(hintFor(2, true)).toBe("click · collapse");
+    expect(hintFor(0, 40)).toBe("click · expand");
+    expect(hintFor(1, 40)).toBe("click · show all");
+    expect(hintFor(1, 12)).toBe("click · collapse");
+    expect(hintFor(2, 40)).toBe("click · collapse");
+  });
+
+  test("clicks follow the action, not a blind cycle", () => {
+    expect(actionFor(0, 40)).toBe(1);
+    expect(actionFor(1, 12)).toBe(0);
+    expect(actionFor(2, 12)).toBe(0);
   });
 });
 

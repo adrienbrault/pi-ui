@@ -97,6 +97,36 @@ describe("tool row heights", () => {
     expect(lines[1]).toContain("line 40");
   });
 
+  test("reads truncate in the middle, keeping head and tail", () => {
+    const lines = renderToolRow(api, { name: "read", status: "success", level: 3, output: OUTPUT }).render(80);
+    const body = lines.slice(1);
+    expect(body[0]).toContain("line 1");
+    expect(body.join("\n")).toContain("< ");
+    expect(body.at(-1)).toContain("line 40");
+  });
+
+  test("diffs drop context lines before they hide changes", () => {
+    const diff = [
+      "diff --git a/detail.ts b/detail.ts",
+      "index 51aa02f..c4e9b71 100644",
+      "@@ -1,6 +1,10 @@",
+      " unchanged context one",
+      " unchanged context two",
+      "-export type DetailLevel = 0 | 1 | 2 | 3 | 4;",
+      "+export type DetailLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6;",
+      " unchanged context three",
+      "@@ -40,5 +51,9 @@",
+      "+export const FOLD_DISTANCE = 8;",
+    ].join("\n");
+    const body = renderToolRow(api, { name: "edit", status: "success", level: 1, output: diff }).render(80).slice(1);
+    const text = body.join("\n");
+    expect(text).toContain("DetailLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6");
+    expect(text).toContain("FOLD_DISTANCE = 8");
+    expect(text).toContain("context lines hidden");
+    expect(text).not.toContain("unchanged context one");
+    expect(text.startsWith("/**") || text.includes("< ")).toBe(true);
+  });
+
   test("a pinned row outgrows the ladder but stays finite", () => {
     expect(
       renderToolRow(api, { name: "bash", status: "success", level: 6, expanded: true, output: OUTPUT }).render(80),

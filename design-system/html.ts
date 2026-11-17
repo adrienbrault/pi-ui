@@ -269,7 +269,20 @@ function paintStage(sync) {
     // Row accounting stays visible even when a lane is hidden: that is the diff.
     var lanes = stage.querySelectorAll('[data-term]');
     var counts = [];
-    lanes.forEach(function (term) { counts.push(term.querySelectorAll('.ansi-line').length); });
+    lanes.forEach(function (term) {
+      var rows = term.querySelectorAll('.ansi-line').length;
+      // A hidden lane is not repainted; count its frame instead of its empty DOM.
+      if (!rows) {
+        var card = term.closest('[data-card]');
+        var lane = card ? byId(card.getAttribute('data-entry')) : null;
+        if (lane) {
+          var laneFrames = framesFor(lane, lane.states[0].id);
+          var at = frameIndex(lane) % laneFrames.length;
+          rows = (laneFrames[at].match(/class="ansi-line"/g) || []).length;
+        }
+      }
+      counts.push(rows);
+    });
     var rows = stage.querySelector('[data-rows]');
     if (rows) rows.textContent = 'base ' + counts[0] + ' · ours ' + counts[1] + ' rows';
     // A live transcript follows the tail; a scrubbed one stays where it was put.
@@ -408,17 +421,17 @@ function annotateHints(term, entry, idx, stateId) {
     });
   });
 
-  // Blocks: same rule — chip on the header row, body rows anchor to it.
+  // Blocks: the header owns the chip whether the body is open or closed.
   var cell = blocksFor(entry, stateId);
   (cell ? cell.frames[idx] || [] : []).forEach(function (spec) {
+    var owned = [].slice.call(term.querySelectorAll('[data-block="' + spec.id + '"]'));
+    var header = owned[0];
+    if (!header) return;
     var st = blockOpenState[prefix + ':' + spec.id] || 0;
-    var hint = st === 0 ? 'click · expand' : st < spec.keys.length ? 'click · show all' : 'click · collapse';
-    for (var offset = 0; offset < spec.count; offset++) {
-      var row = rows[spec.row + offset];
-      if (!row) continue;
-      if (offset === 0) row.setAttribute('data-hint', hint);
-      else row.setAttribute('data-anchor', 'block:' + spec.id);
-    }
+    header.setAttribute('data-hint', st === 0 ? 'click · expand' : st < spec.keys.length ? 'click · show all' : 'click · collapse');
+    owned.forEach(function (row) {
+      if (row !== header) row.setAttribute('data-anchor', 'block:' + spec.id);
+    });
   });
 }
 
@@ -807,7 +820,7 @@ export function renderPage(payload: PagePayload): string {
 <div class="stage" id="stage-${esc(stage)}" data-stage="${esc(stage)}" data-sync="${esc(first?.sync ?? stage)}">
   <div class="stage-head">
     <h3>Session replay</h3>
-    <p class="desc">One script, ${frames} frames, one playhead: thinking tokens at 100 tok/s, tool arguments and output all stream. Toggle the lane above to swap renderers without losing your place.</p>
+    <p class="desc">One script, ${frames} frames, one playhead: prefill lands at 4000 tok/s, thinking streams at 100 tok/s, and slow tools visibly wait before output. Toggle the lane above to swap renderers without losing your place.</p>
     <div class="stage-controls">
       <button data-play>▶ play</button>
       <button data-reset>↻ reset</button>

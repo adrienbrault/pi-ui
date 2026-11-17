@@ -35,11 +35,14 @@ export interface SessionTool {
 
 export type SessionStep =
   | { kind: "user" | "thinking" | "text"; label: string; text: string }
-  | { kind: "tool"; label: string; tool: SessionTool };
+  | { kind: "tool"; label: string; tool: SessionTool }
+  /** Context the model ingests before it can answer; it draws nothing. */
+  | { kind: "prefill"; label: string; tokens: number };
 
 const BASH = "bash";
 
 export const SESSION_STEPS: SessionStep[] = [
+  { kind: "prefill", label: "prefill", tokens: 12_400 },
   {
     kind: "user",
     label: "prompt",
@@ -173,6 +176,10 @@ export interface PlaybackFrame {
  */
 const TOKEN_MS = 10;
 const OUTPUT_LINE_MS = 10;
+/** Prefill is not generation: prompt context lands at thousands of tokens a second. */
+const PREFILL_TOKENS_PER_SECOND = 4000;
+/** A tool that takes seconds should look like it: waiting is a visible phase. */
+const WAIT_FRAME_MS = 350;
 const CHUNK_SIZES = [3, 5, 4, 7, 2, 6, 3, 4] as const;
 
 function chunkEnds(length: number): number[] {
@@ -220,6 +227,10 @@ function toolFrames(step: number, label: string, tool: SessionTool): PlaybackFra
   for (const chars of chunkEnds(title.length)) {
     frames.push({ step, label: `${label} · call`, chars, lines: 0, partial: true, ms: TOKEN_MS });
   }
+  // A tool that ran for seconds spends those seconds on screen before output.
+  if (tool.durationMs && tool.durationMs >= 1000) {
+    frames.push(...waitFrames(step, label, tool.durationMs));
+  }
   // Output arrives line by line, not in one batch.
   for (let lines = 1; lines <= outputLines; lines++) {
     frames.push({
@@ -235,8 +246,35 @@ function toolFrames(step: number, label: string, tool: SessionTool): PlaybackFra
   return frames;
 }
 
+function prefillFrames(step: number, label: string, tokens: number): PlaybackFrame[] {
+  const totalMs = (tokens / PREFILL_TOKENS_PER_SECOND) * 1000;
+  const parts = Math.max(1, Math.round(totalMs / WAIT_FRAME_MS));
+  return Array.from({ length: parts }, (_, index) => ({
+    step,
+    label: `${label} · ${Math.round(((index + 1) / parts) * tokens).toLocaleString("en-US")} tok · ${PREFILL_TOKENS_PER_SECOND} tok/s`,
+    chars: 0,
+    lines: 0,
+    partial: false,
+    ms: totalMs / parts,
+  }));
+}
+
+function waitFrames(step: number, label: string, durationMs: number): PlaybackFrame[] {
+  const parts = Math.max(1, Math.round(durationMs / WAIT_FRAME_MS));
+  return Array.from({ length: parts }, (_, index) => ({
+    step,
+    label: `${label} · waiting ${(((index + 1) * (durationMs / parts)) / 1000).toFixed(1)}s`,
+    chars: 0,
+    lines: 0,
+    partial: true,
+    ms: durationMs / parts,
+  }));
+}
+
 function framesForStep(step: SessionStep, index: number): PlaybackFrame[] {
   switch (step.kind) {
+    case "prefill":
+      return prefillFrames(index, step.label, step.tokens);
     case "user":
       return [{ step: index, label: step.label, chars: step.text.length, lines: 0, partial: false, ms: TOKEN_MS }];
     case "thinking":

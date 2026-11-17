@@ -9,6 +9,7 @@
 
 import { MouseRegion, truncateToWidth, visibleWidth, type Component, type TuiMouseEvent } from "@earendil-works/pi-tui";
 import type { ExtensionAPI, ToolRendererResolver, ToolRenderResultOptions } from "@earendil-works/pi-coding-agent";
+import { bodyLinesFor } from "../render/detail.ts";
 import { glyphsFor } from "../render/glyphs.ts";
 import type { RenderKit, RenderTheme } from "../render/kit.ts";
 import { nonEmptyLineCount } from "../render/text.ts";
@@ -82,21 +83,25 @@ function outputText(result: { content: Array<{ type: string; text?: string }> })
     .join("\n");
 }
 
-/** Bodies long enough that one opening still hides rows deserve a second step. */
-function hasDeeper(output: string): boolean {
-  return nonEmptyLineCount(output) > 16;
+const SHOWN = bodyLinesFor(0);
+const CAPPED = bodyLinesFor(0, true);
+
+/**
+ * The click must change something. A row that already shows its whole body has
+ * no expand step; collapsing always has one. `null` means the row is inert.
+ */
+export function actionFor(expansion: Expansion, present: number): Expansion | null {
+  if (expansion === 2) return 0;
+  if (expansion === 1) return present > CAPPED ? 2 : 0;
+  return present > SHOWN ? 1 : null;
 }
 
-/** What the next click does, in the row's own terms. */
-export function hintFor(expansion: Expansion, deeper: boolean): string {
-  if (expansion === 0) return "click · expand";
-  if (expansion === 1) return deeper ? "click · show all" : "click · collapse";
-  return "click · collapse";
-}
-
-/** Three states, wrapping: as shown → capped → whole body → as shown. */
-export function nextExpansion(expansion: Expansion): Expansion {
-  return ((expansion + 1) % 3) as Expansion;
+/** What the next click does, in the row's own terms; nothing if nothing changes. */
+export function hintFor(expansion: Expansion, present: number): string | null {
+  const action = actionFor(expansion, present);
+  if (action === null) return null;
+  if (action === 0) return "click · collapse";
+  return expansion === 0 ? "click · expand" : "click · show all";
 }
 
 /** Streaming paint: the glyph moves while the tool still reports partial results. */
@@ -145,7 +150,9 @@ function onMouse<TArgs>(ctx: ToolRenderContext<RowState, TArgs>, event: TuiMouse
     return { render: true } as const;
   }
   if (event.type === "click" && event.button === "left") {
-    state.expansion = nextExpansion(state.expansion);
+    const action = actionFor(state.expansion, nonEmptyLineCount(state.output ?? ""));
+    if (action === null) return undefined;
+    state.expansion = action;
     state.hover = true;
     ctx.invalidate();
     return { handled: true, render: true } as const;
@@ -170,7 +177,8 @@ function headerLines<TArgs>(
   const header = renderToolRow(api, inputFor(name, args, ctx, state.output ?? "")).render(width)[0] ?? "";
   if (!state.hover) return [header];
 
-  const hint = hintFor(state.expansion, hasDeeper(state.output ?? ""));
+  const hint = hintFor(state.expansion, nonEmptyLineCount(state.output ?? ""));
+  if (hint === null) return [header];
   // Brackets and a background colour: the chip reads like the rest of the rows.
   const chip = theme.style(`[ ${hint} ]`, {
     bg: theme.colors.accent,

@@ -240,11 +240,19 @@ export async function renderGallery(scope: RenderScope = {}): Promise<GalleryRen
                 sharedReveal.push(
                   state.reveal(ctx, frame).map((group, gi) => ({
                     header: tagRows(toRows(pi, group.header), "data-collapse", String(gi)).join(""),
-                    members: group.members.map((member, mi) => ({
-                      collapsed: tagRows(toRows(pi, member.collapsed), "data-turn", `${gi}:${mi}`).join(""),
-                      preview: tagRows(toRows(pi, member.preview), "data-turn", `${gi}:${mi}`).join(""),
-                      expanded: tagRows(toRows(pi, member.expanded), "data-turn", `${gi}:${mi}`).join(""),
-                    })),
+                    members: group.members.map((member, mi) => {
+                      const collapsed = toRows(pi, member.collapsed);
+                      const tag = `${gi}:${mi}`;
+                      // Nothing hidden: the row stays inert, no hint, no cursor.
+                      const inert = collapsed.length >= toRows(pi, member.expanded).length;
+                      const mark = (part: string[]) =>
+                        inert ? part.join("") : tagRows(part, "data-turn", tag).join("");
+                      return {
+                        collapsed: mark(collapsed),
+                        preview: mark(toRows(pi, member.preview)),
+                        expanded: mark(toRows(pi, member.expanded)),
+                      };
+                    }),
                   })),
                 );
               }

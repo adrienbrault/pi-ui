@@ -786,11 +786,16 @@ function decayReveal(ctx: RenderCtx, offset: number): RevealGroup[] {
     {
       header: renderGroupRow(ours(ctx), { segments, expanded: true }).render(ctx.width),
       members: folded.map(({ row }) => {
+        const collapsed = renderToolLine(ours(ctx), row).render(ctx.width);
         const preview = renderToolRow(ours(ctx), { ...row, level: 4 }).render(ctx.width);
         const expanded = renderToolRow(ours(ctx), { ...row, expanded: true }).render(ctx.width);
         return {
-          collapsed: renderToolLine(ours(ctx), row).render(ctx.width),
-          preview: [...preview, ours(ctx).theme.fg("dim", `▸ show all ${expanded.length} lines`)],
+          collapsed,
+          // A member with nothing hidden offers no opening at all.
+          preview:
+            expanded.length > preview.length
+              ? [...preview, ours(ctx).theme.fg("dim", `▸ show all ${expanded.length} lines`)]
+              : collapsed,
           expanded,
         };
       }),
@@ -835,6 +840,9 @@ function stepShape(step: SessionStep, index: number, frame: PlaybackFrame): Bloc
 /** What a step shows at this frame: complete for past steps, streamed for the live one. */
 function stepProgress(step: SessionStep, index: number, frame: PlaybackFrame) {
   const live = index === frame.step;
+  if (step.kind === "prefill") {
+    return { live, chars: 0, lines: 0, partial: false };
+  }
   if (step.kind === "tool") {
     const outputLines = (step.tool.output ?? "").split("\n").length;
     return {
@@ -860,6 +868,8 @@ function sessionBase(ctx: RenderCtx, frameIndex: number): string[] {
   const components = steps.map((step, index) => {
     const progress = stepProgress(step, index, frame);
     switch (step.kind) {
+      case "prefill":
+        return ctx.kit.component(() => []);
       case "user":
         return new ctx.pi.modules.coding.UserMessageComponent(
           partialText(step.text, progress.chars),
@@ -911,6 +921,8 @@ function sessionPieces(ctx: RenderCtx, frameIndex: number): SessionPiece[] {
     const live = progress.partial && progress.live;
 
     switch (step.kind) {
+      case "prefill":
+        return { lines: [] };
       case "user":
         return {
           lines: new ctx.pi.modules.coding.UserMessageComponent(
@@ -937,19 +949,18 @@ function sessionPieces(ctx: RenderCtx, frameIndex: number): SessionPiece[] {
         });
         const piece: SessionPiece = { lines: thinkingBlock(ctx, label).render(SESSION_WIDTH) };
         if (!live) {
-          piece.opens = [
-            thinkingLabel(ours(ctx), {
-              phase: "done",
-              level: 0,
-              text,
-              width: SESSION_WIDTH,
-              durationMs: 1200,
-              frame: frameIndex % 10,
-              expanded: true,
-            }).split("\n"),
-          ];
-          piece.key = `think:${item.index}`;
+          const expandedLines = thinkingLabel(ours(ctx), {
+            phase: "done",
+            level: 0,
+            text,
+            width: SESSION_WIDTH,
+            durationMs: 1200,
+            frame: frameIndex % 10,
+            expanded: true,
+          }).split("\n");
+          if (expandedLines.length > piece.lines.length) piece.opens = [expandedLines];
         }
+        if (piece.opens) piece.key = `think:${item.index}`;
         return piece;
       }
       case "tool": {
@@ -968,9 +979,11 @@ function sessionPieces(ctx: RenderCtx, frameIndex: number): SessionPiece[] {
         if (!progress.partial) {
           const capped = renderToolRow(ours(ctx), { ...input, expanded: true }).render(SESSION_WIDTH);
           const whole = renderToolRow(ours(ctx), { ...input, full: true }).render(SESSION_WIDTH);
-          // Only offer a second step when opening once still hides rows.
-          piece.opens = whole.length > capped.length ? [capped, whole] : [capped];
-          piece.key = `tool:${item.index}`;
+          // A row only offers opening when opening reveals rows it is hiding.
+          if (capped.length > piece.lines.length) {
+            piece.opens = whole.length > capped.length ? [capped, whole] : [capped];
+            piece.key = `tool:${item.index}`;
+          }
         }
         return piece;
       }
@@ -1053,12 +1066,16 @@ function sessionReveal(ctx: RenderCtx, frameIndex: number): RevealGroup[] {
         durationMs: step.tool.durationMs,
         level: 4,
       };
+      const collapsed = renderToolLine(ours(ctx), input).render(SESSION_WIDTH);
       const preview = renderToolRow(ours(ctx), input).render(SESSION_WIDTH);
       const expanded = renderToolRow(ours(ctx), { ...input, expanded: true }).render(SESSION_WIDTH);
       return [
         {
-          collapsed: renderToolLine(ours(ctx), input).render(SESSION_WIDTH),
-          preview: [...preview, ours(ctx).theme.fg("dim", `▸ show all ${expanded.length} lines`)],
+          collapsed,
+          preview:
+            expanded.length > preview.length
+              ? [...preview, ours(ctx).theme.fg("dim", `▸ show all ${expanded.length} lines`)]
+              : collapsed,
           expanded,
         },
       ];

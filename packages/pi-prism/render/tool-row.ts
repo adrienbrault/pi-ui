@@ -6,7 +6,7 @@
 import { bodyLinesFor, type DetailLevel } from "./detail.ts";
 import { frameAt, type GlyphSet } from "./glyphs.ts";
 import type { ComponentLike, RenderKit, RenderTheme } from "./kit.ts";
-import { headLines, nonEmptyLineCount, tailLines } from "./text.ts";
+import { logicalLines, nonEmptyLineCount } from "./text.ts";
 import { describeCall, summarizeOutput, toolMeta } from "./tools.ts";
 
 export interface RenderApi {
@@ -126,6 +126,69 @@ function header(api: RenderApi, input: ToolRowInput, width: number): string {
   return kit.truncateToWidth(compose(pieces), width, "…");
 }
 
+interface Selected {
+  line: string;
+  /** A notice row rather than a body row. */
+  notice?: boolean;
+}
+
+/** Diff metadata and unchanged context are the first rows to go. */
+const DIFF_NOISE = /^(diff --git|index |new file|deleted file|similarity |rename |--- |\+\+\+ )/;
+const isDiffContext = (line: string): boolean => DIFF_NOISE.test(line) || line.startsWith(" ");
+
+const notice = (text: string): Selected => ({ line: `< ${text} >`, notice: true });
+
+/**
+ * Diffs keep what changed. Before hiding any hunk, drop the unchanged context
+ * lines: the +/- rows carry the evidence, context is what a reader can infer.
+ */
+function selectDiff(lines: string[], show: number): Selected[] {
+  if (lines.length <= show) return lines.map((line) => ({ line }));
+
+  const essential = lines.filter((line) => !isDiffContext(line));
+  const contextHidden = lines.length - essential.length;
+  if (essential.length + 1 <= show) {
+    return [...essential.map((line) => ({ line })), notice(`${contextHidden} context lines hidden`)];
+  }
+
+  // Still too long: read the evidence in order, and say how much is left.
+  const kept = show - 1;
+  const hidden = essential.length - kept;
+  return [...essential.slice(0, kept).map((line) => ({ line })), notice(`${hidden} more lines`)];
+}
+
+/** Reads keep their opening and their end; the middle is usually boilerplate. */
+function selectHead(lines: string[], show: number): Selected[] {
+  if (lines.length <= show) return lines.map((line) => ({ line }));
+  const room = show - 1;
+  const head = Math.ceil(room / 2);
+  const tail = room - head;
+  const hidden = lines.length - head - tail;
+  return [
+    ...lines.slice(0, head).map((line) => ({ line })),
+    notice(`${hidden} more lines`),
+    ...lines.slice(-tail).map((line) => ({ line })),
+  ];
+}
+
+/** Logs keep the end: the last line is the one that explains the run. */
+function selectTail(lines: string[], show: number): Selected[] {
+  if (lines.length <= show) return lines.map((line) => ({ line }));
+  // The newest line always survives: one row of budget is never spent on a notice.
+  if (show <= 1) return lines.slice(-1).map((line) => ({ line }));
+  const kept = show - 1;
+  return [notice(`${lines.length - kept} earlier lines`), ...lines.slice(-kept).map((line) => ({ line }))];
+}
+
+const DIFF_HINT = /^(diff --git|@@ )/m;
+
+function select(text: string, name: string, trend: "head" | "tail", show: number): Selected[] {
+  const lines = logicalLines(text).filter((line) => line.trim() !== "");
+  const cls = toolMeta(name).cls;
+  if ((cls === "edit" || cls === "write") && DIFF_HINT.test(text)) return selectDiff(lines, show);
+  return trend === "tail" ? selectTail(lines, show) : selectHead(lines, show);
+}
+
 function body(api: RenderApi, input: ToolRowInput, width: number): string[] {
   const { theme, kit } = api;
   // A "full" read is allowed to be long, just not unbounded.
@@ -136,26 +199,17 @@ function body(api: RenderApi, input: ToolRowInput, width: number): string[] {
   const present = nonEmptyLineCount(text);
   if (present === 0) return [];
 
-  const expanded = (input.expanded ?? false) && !input.full;
-  // Expanded views cap their *total* body rows: the notice takes one of them.
-  const show = expanded && present > budget ? budget - 1 : Math.min(budget, present);
-
   const meta = toolMeta(input.name);
-  const source = meta.trend === "tail" ? tailLines(text, show) : headLines(text, show);
+  // A notice counts against the budget: total body rows never exceed it.
+  const show = Math.min(budget, present);
+  const selected = select(text, input.name, meta.trend, show);
 
-  const rows = source.map((line) => {
+  return selected.map(({ line, notice: isNotice }) => {
     const content = kit.truncateToWidth(line, Math.max(1, width - INDENT.length), "…");
+    if (isNotice) return INDENT + theme.fg("dim", content);
     const tone = diffTone(line, meta.cls);
     return INDENT + (tone ? theme.fg(tone, content) : theme.fg("toolOutput", content));
   });
-
-  if (expanded && present > show) {
-    const hidden = present - show;
-    const note = kit.truncateToWidth(`… ${hidden} more line${hidden === 1 ? "" : "s"}`, width, "…");
-    rows.push(INDENT + theme.fg("dim", note));
-  }
-
-  return rows;
 }
 
 export function renderToolRow(api: RenderApi, input: ToolRowInput): ComponentLike {

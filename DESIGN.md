@@ -56,6 +56,9 @@ Rules:
 - Errors and the live block keep their own rows; a failure never joins a group.
 - Recompute on structural events only; never per token.
 - Hysteresis: two consecutive recomputes must agree before a level changes.
+- Bodies spend their budget on evidence: diffs shed unchanged context lines
+  before hiding any hunk, reads keep their opening and their end with a
+  `< N more lines >` notice between, and logs keep the newest lines.
 - A click opens a block, and what it opens is graded like the tail: a folded
   member shows its header, then roughly five body rows with a "show all" cue,
   then the whole body; the next click folds it back. Any block with a truncated
