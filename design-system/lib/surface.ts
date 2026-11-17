@@ -143,9 +143,15 @@ export function toHtml(pi: PiInstall, lines: string[]): string {
     .join("");
 }
 
-/** Concatenate rendered components into one transcript-like stack. */
-export function stack(width: number, components: Array<{ render(width: number): string[] }>): string[] {
+/**
+ * Concatenate rendered components into one transcript-like stack. `gap` inserts
+ * that many blank rows between neighbours: blocks breathe, their bodies don't.
+ */
+export function stack(width: number, components: Array<{ render(width: number): string[] }>, gap = 0): string[] {
   const lines: string[] = [];
-  for (const component of components) lines.push(...component.render(width));
+  components.forEach((component, index) => {
+    if (index > 0) for (let row = 0; row < gap; row++) lines.push("");
+    lines.push(...component.render(width));
+  });
   return lines;
 }

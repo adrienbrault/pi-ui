@@ -8,7 +8,7 @@ import { glyphsFor } from "../packages/pi-prism/render/glyphs.ts";
 import { groupSegments, renderGroupRow } from "../packages/pi-prism/render/group-row.ts";
 import type { RenderKit } from "../packages/pi-prism/render/kit.ts";
 import type { DetailLevel } from "../packages/pi-prism/render/detail.ts";
-import { detailFor } from "../packages/pi-prism/render/detail.ts";
+import { FOLD_DISTANCE, detailFor } from "../packages/pi-prism/render/detail.ts";
 import { thinkingLabel } from "../packages/pi-prism/render/thinking.ts";
 import { planTranscript, type BlockShape } from "../packages/pi-prism/render/layout.ts";
 import {
@@ -709,7 +709,7 @@ function decayStack(ctx: RenderCtx, offset: number): string[] {
     distance: offset + (decayRows.length - 1 - index),
   }));
 
-  const folded = rows.filter(({ distance }) => detailFor(distance) === 4);
+  const folded = rows.filter(({ distance }) => distance >= FOLD_DISTANCE);
   const segments = groupSegments(
     folded.map(({ row }) => ({ cls: toolMeta(row.name).cls, failed: row.status === "error" })),
   );
@@ -717,7 +717,7 @@ function decayStack(ctx: RenderCtx, offset: number): string[] {
   let groupRendered = false;
   for (const { row, distance } of rows) {
     const level = detailFor(distance);
-    if (level === 4) {
+    if (distance >= FOLD_DISTANCE) {
       if (!groupRendered) {
         components.push(renderGroupRow(ours(ctx), { segments }));
         groupRendered = true;
@@ -740,7 +740,7 @@ function decayStack(ctx: RenderCtx, offset: number): string[] {
     ),
   );
 
-  return stack(ctx.width, components);
+  return stack(ctx.width, components, 1);
 }
 
 const scenarioEntries: EntryDef[] = [
@@ -882,7 +882,7 @@ function sessionOurs(ctx: RenderCtx, frameIndex: number): string[] {
     }
   });
 
-  return stack(SESSION_WIDTH, components);
+  return stack(SESSION_WIDTH, components, 1);
 }
 
 const sessionEntries: EntryDef[] = [
