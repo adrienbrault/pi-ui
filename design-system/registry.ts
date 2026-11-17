@@ -1,0 +1,719 @@
+/**
+ * Component registry: every card is a render function over real components.
+ * The gallery, spec.json and fixtures all derive from this file.
+ */
+
+import type { GlyphSet, GlyphMode } from "../packages/pi-prism/render/glyphs.ts";
+import { glyphsFor } from "../packages/pi-prism/render/glyphs.ts";
+import { groupSegments, renderGroupRow } from "../packages/pi-prism/render/group-row.ts";
+import type { RenderKit } from "../packages/pi-prism/render/kit.ts";
+import type { DetailLevel } from "../packages/pi-prism/render/detail.ts";
+import { detailFor } from "../packages/pi-prism/render/detail.ts";
+import { thinkingLabel } from "../packages/pi-prism/render/thinking.ts";
+import { renderToolRow, type ToolRowInput } from "../packages/pi-prism/render/tool-row.ts";
+import { toolMeta } from "../packages/pi-prism/render/tools.ts";
+import type { PiInstall } from "./lib/pi.ts";
+import { stack } from "./lib/surface.ts";
+import {
+  EDIT_DIFF,
+  FILE_TEXT,
+  MCP_OUTPUT,
+  SHELL_OK,
+  SHELL_OUTPUT,
+  THINKING_TEXT,
+  cwd,
+  editPath,
+  readPath,
+} from "./fixtures-data.ts";
+
+export type Variant = "base" | "open-tui" | "pi-code" | "ours";
+export type Group = "transcript" | "tools" | "thinking" | "groups" | "scenarios";
+
+export interface RenderCtx {
+  pi: PiInstall;
+  kit: RenderKit;
+  theme: any;
+  glyphs: GlyphSet;
+  glyphMode: GlyphMode;
+  width: number;
+  themeName: string;
+}
+
+export interface StateDef {
+  id: string;
+  label: string;
+  note?: string;
+  /** Render this many animation frames instead of one still. */
+  frames?: number;
+  render: (ctx: RenderCtx, frame: number) => string[];
+}
+
+export interface EntryDef {
+  id: string;
+  title: string;
+  group: Group;
+  variant: Variant;
+  description: string;
+  states: StateDef[];
+}
+
+/** A duck-typed TUI stub: tool rows only need requestRender. */
+const STUB_TUI = { requestRender: () => {} };
+
+function definitionFor(pi: PiInstall, name: string): any {
+  const factory = {
+    read: "createReadToolDefinition",
+    bash: "createBashToolDefinition",
+    edit: "createEditToolDefinition",
+    write: "createWriteToolDefinition",
+    grep: "createGrepToolDefinition",
+    find: "createFindToolDefinition",
+    ls: "createLsToolDefinition",
+  }[name];
+  return factory ? pi.modules.coding[factory]?.(cwd) : undefined;
+}
+
+function usage() {
+  return {
+    input: 0,
+    output: 0,
+    cacheRead: 0,
+    cacheWrite: 0,
+    totalTokens: 0,
+    cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 },
+  };
+}
+
+function assistantMessage(content: unknown[]) {
+  return {
+    role: "assistant",
+    api: "anthropic",
+    provider: "anthropic",
+    model: "claude-sonnet-5",
+    content,
+    usage: usage(),
+    stopReason: "toolUse",
+    timestamp: Date.now(),
+  };
+}
+
+interface BaseToolOptions {
+  expanded?: boolean;
+  partial?: boolean;
+}
+
+function baseTool(
+  pi: PiInstall,
+  name: string,
+  args: Record<string, unknown>,
+  result: { content: Array<{ type: string; text?: string }>; details?: unknown; isError: boolean },
+  options: BaseToolOptions = {},
+): any {
+  const component = new pi.modules.coding.ToolExecutionComponent(
+    name,
+    "call-1",
+    args,
+    { outputPad: 1, showImages: true },
+    definitionFor(pi, name),
+    STUB_TUI,
+    cwd,
+  );
+  component.updateArgs(args);
+  component.setArgsComplete();
+  component.markExecutionStarted();
+  component.updateResult(result, options.partial ?? false);
+  if (options.expanded) component.setExpanded(true);
+  return component;
+}
+
+function baseAssistant(pi: PiInstall, content: unknown[], hideThinking: boolean, label = "Thinking..."): any {
+  return new pi.modules.coding.AssistantMessageComponent(
+    assistantMessage(content),
+    hideThinking,
+    pi.modules.coding.getMarkdownTheme(),
+    label,
+    1,
+  );
+}
+
+/** Mimic pi's hidden-thinking Text so a scenario stack can show the label. */
+function thinkingBlock(ctx: RenderCtx, label: string) {
+  return ctx.kit.component((width) => {
+    const rows: string[] = [];
+    for (const line of label.split("\n")) {
+      rows.push(ctx.kit.truncateToWidth(ctx.theme.italic(ctx.theme.fg("thinkingText", line)), width, "…"));
+    }
+    return rows;
+  });
+}
+
+const readRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
+  name: "read",
+  args: { path: readPath },
+  status: "success",
+  level: 0,
+  title: readPath,
+  summary: "42 lines",
+  output: FILE_TEXT,
+  durationMs: 380,
+  ...overrides,
+});
+
+const bashRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
+  name: "bash",
+  args: { command: "bun run typecheck" },
+  status: "success",
+  level: 0,
+  title: "bun run typecheck",
+  output: SHELL_OK,
+  durationMs: 1240,
+  ...overrides,
+});
+
+const editRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
+  name: "edit",
+  args: { path: editPath },
+  status: "success",
+  level: 0,
+  title: editPath,
+  summary: "+8 −2",
+  output: EDIT_DIFF,
+  durationMs: 210,
+  ...overrides,
+});
+
+const mcpRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
+  name: "mcp__memory__search",
+  args: { query: "recency grading" },
+  status: "success",
+  level: 0,
+  title: "memory/search",
+  summary: "3 facts",
+  output: MCP_OUTPUT,
+  durationMs: 95,
+  ...overrides,
+});
+
+const ours = (ctx: RenderCtx) => ({
+  kit: ctx.kit,
+  theme: ctx.theme,
+  glyphs: ctx.glyphs,
+});
+
+// ---------------------------------------------------------------------------
+// Base pi
+// ---------------------------------------------------------------------------
+
+const baseEntries: EntryDef[] = [
+  {
+    id: "base.user",
+    title: "User message",
+    group: "transcript",
+    variant: "base",
+    description: "The bubble pi draws for a submitted prompt.",
+    states: [
+      {
+        id: "default",
+        label: "default",
+        render: (ctx) =>
+          new ctx.pi.modules.coding.UserMessageComponent(
+            "Let's make long sessions readable: keep the live detail, fold the rest.",
+            ctx.pi.modules.coding.getMarkdownTheme(),
+            1,
+          ).render(ctx.width),
+      },
+    ],
+  },
+  {
+    id: "base.assistant.thinking",
+    title: "Assistant + thinking (visible)",
+    group: "transcript",
+    variant: "base",
+    description: "Thinking blocks render as Markdown when pi's hide toggle is off.",
+    states: [
+      {
+        id: "visible",
+        label: "thinking visible",
+        render: (ctx) => {
+          const content = [
+            { type: "thinking", thinking: THINKING_TEXT },
+            { type: "text", text: "Reading the layout root, then wrapping each child render." },
+          ];
+          return baseAssistant(ctx.pi, content, false).render(ctx.width);
+        },
+      },
+    ],
+  },
+  {
+    id: "base.assistant.hidden",
+    title: "Assistant + thinking (hidden)",
+    group: "transcript",
+    variant: "base",
+    description: "The shipped collapsed form: one global label, no per-turn detail.",
+    states: [
+      {
+        id: "hidden",
+        label: "thinking hidden",
+        render: (ctx) => {
+          const content = [
+            { type: "thinking", thinking: THINKING_TEXT },
+            { type: "text", text: "Reading the layout root, then wrapping each child render." },
+          ];
+          return baseAssistant(ctx.pi, content, true).render(ctx.width);
+        },
+      },
+    ],
+  },
+  {
+    id: "base.tool.read",
+    title: "read (base pi)",
+    group: "tools",
+    variant: "base",
+    description: "Built-in read renderer: path, line range, preview.",
+    states: [
+      {
+        id: "success",
+        label: "success",
+        render: (ctx) =>
+          baseTool(
+            ctx.pi,
+            "read",
+            { path: readPath },
+            {
+              content: [{ type: "text", text: FILE_TEXT }],
+              details: {},
+              isError: false,
+            },
+          ).render(ctx.width),
+      },
+      {
+        id: "expanded",
+        label: "expanded",
+        render: (ctx) =>
+          baseTool(
+            ctx.pi,
+            "read",
+            { path: readPath },
+            { content: [{ type: "text", text: FILE_TEXT }], details: {}, isError: false },
+            { expanded: true },
+          ).render(ctx.width),
+      },
+    ],
+  },
+  {
+    id: "base.tool.bash",
+    title: "bash (base pi)",
+    group: "tools",
+    variant: "base",
+    description: "Shell output with pi's preview cap and expand hint.",
+    states: [
+      {
+        id: "success",
+        label: "success",
+        render: (ctx) =>
+          baseTool(
+            ctx.pi,
+            "bash",
+            { command: "bun run typecheck" },
+            {
+              content: [{ type: "text", text: SHELL_OK }],
+              details: {},
+              isError: false,
+            },
+          ).render(ctx.width),
+      },
+      {
+        id: "error",
+        label: "error",
+        render: (ctx) =>
+          baseTool(
+            ctx.pi,
+            "bash",
+            { command: "bun run typecheck" },
+            {
+              content: [{ type: "text", text: SHELL_OUTPUT }],
+              details: {},
+              isError: true,
+            },
+          ).render(ctx.width),
+      },
+    ],
+  },
+  {
+    id: "base.tool.edit",
+    title: "edit (base pi)",
+    group: "tools",
+    variant: "base",
+    description: "Diff stats, then the diff itself when expanded.",
+    states: [
+      {
+        id: "success",
+        label: "collapsed",
+        render: (ctx) =>
+          baseTool(
+            ctx.pi,
+            "edit",
+            { path: editPath },
+            {
+              content: [{ type: "text", text: "Updated the render kit." }],
+              details: { diff: EDIT_DIFF, patch: "" },
+              isError: false,
+            },
+          ).render(ctx.width),
+      },
+      {
+        id: "expanded",
+        label: "expanded",
+        render: (ctx) =>
+          baseTool(
+            ctx.pi,
+            "edit",
+            { path: editPath },
+            {
+              content: [{ type: "text", text: "Updated the render kit." }],
+              details: { diff: EDIT_DIFF, patch: "" },
+              isError: false,
+            },
+            { expanded: true },
+          ).render(ctx.width),
+      },
+    ],
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Ours
+// ---------------------------------------------------------------------------
+
+const levelState = (
+  id: string,
+  label: string,
+  level: DetailLevel,
+  build: (ctx: RenderCtx) => ToolRowInput,
+  note?: string,
+): StateDef => ({
+  id,
+  label,
+  note,
+  render: (ctx) => renderToolRow(ours(ctx), { ...build(ctx), level }).render(ctx.width),
+});
+
+const oursEntries: EntryDef[] = [
+  {
+    id: "ours.thinking",
+    title: "Thinking label",
+    group: "thinking",
+    variant: "ours",
+    description:
+      "What can actually ship: a multi-line label on pi's hidden thinking block. Marker + tail, folding with distance.",
+    states: [
+      {
+        id: "streaming",
+        label: "streaming L0",
+        note: "spinner + up to 6 tail lines",
+        frames: 10,
+        render: (ctx, frame) => {
+          const label = thinkingLabel(ours(ctx), {
+            phase: "thinking",
+            level: 0,
+            text: THINKING_TEXT,
+            width: ctx.width,
+            frame,
+          });
+          return baseAssistant(ctx.pi, [{ type: "thinking", thinking: THINKING_TEXT }], true, label).render(ctx.width);
+        },
+      },
+      {
+        id: "done",
+        label: "done L1",
+        render: (ctx) => {
+          const label = thinkingLabel(ours(ctx), {
+            phase: "done",
+            level: 1,
+            text: THINKING_TEXT,
+            width: ctx.width,
+            durationMs: 12400,
+          });
+          return baseAssistant(ctx.pi, [{ type: "thinking", thinking: THINKING_TEXT }], true, label).render(ctx.width);
+        },
+      },
+      {
+        id: "aged1",
+        label: "aged L1",
+        render: (ctx) =>
+          baseAssistant(
+            ctx.pi,
+            [{ type: "thinking", thinking: THINKING_TEXT }],
+            true,
+            thinkingLabel(ours(ctx), {
+              phase: "aged",
+              level: 1,
+              text: THINKING_TEXT,
+              width: ctx.width,
+              durationMs: 12400,
+            }),
+          ).render(ctx.width),
+      },
+      {
+        id: "aged2",
+        label: "aged L2",
+        render: (ctx) =>
+          baseAssistant(
+            ctx.pi,
+            [{ type: "thinking", thinking: THINKING_TEXT }],
+            true,
+            thinkingLabel(ours(ctx), {
+              phase: "aged",
+              level: 2,
+              text: THINKING_TEXT,
+              width: ctx.width,
+              durationMs: 12400,
+            }),
+          ).render(ctx.width),
+      },
+      {
+        id: "aged3",
+        label: "aged L3",
+        note: "one line, keeps the last thought",
+        render: (ctx) =>
+          baseAssistant(
+            ctx.pi,
+            [{ type: "thinking", thinking: THINKING_TEXT }],
+            true,
+            thinkingLabel(ours(ctx), {
+              phase: "aged",
+              level: 3,
+              text: THINKING_TEXT,
+              width: ctx.width,
+              durationMs: 12400,
+            }),
+          ).render(ctx.width),
+      },
+    ],
+  },
+  {
+    id: "ours.read",
+    title: "read row",
+    group: "tools",
+    variant: "ours",
+    description: "Header + bounded body. Level decides how many rows survive; errors stay legible.",
+    states: [
+      levelState("pending", "pending", 0, () => readRow({ status: "pending", output: "" })),
+      {
+        id: "running",
+        label: "running L0",
+        frames: 10,
+        render: (ctx, frame) =>
+          renderToolRow(ours(ctx), readRow({ status: "running", output: FILE_TEXT, level: 0, frame })).render(
+            ctx.width,
+          ),
+      },
+      levelState("l0", "success L0", 0, () => readRow()),
+      levelState("l1", "aged L1", 1, () => readRow()),
+      levelState("l2", "aged L2", 2, () => readRow()),
+      levelState("l3", "aged L3", 3, () => readRow()),
+      levelState("error", "error", 0, () =>
+        readRow({ status: "error", error: "ENOENT: no such file", output: "", summary: "" }),
+      ),
+    ],
+  },
+  {
+    id: "ours.bash",
+    title: "bash row",
+    group: "tools",
+    variant: "ours",
+    description: "Shell rows trend on the tail: the latest frames are what matter.",
+    states: [
+      {
+        id: "running",
+        label: "running L0",
+        note: "latest output while streaming",
+        frames: 10,
+        render: (ctx, frame) =>
+          renderToolRow(
+            ours(ctx),
+            bashRow({
+              status: "running",
+              title: "bun run typecheck",
+              output: SHELL_OUTPUT,
+              level: 0,
+              durationMs: undefined,
+              frame,
+            }),
+          ).render(ctx.width),
+      },
+      levelState("l0", "success L0", 0, () => bashRow()),
+      levelState("l1", "aged L1", 1, () => bashRow()),
+      levelState("l3", "aged L3", 3, () => bashRow()),
+      levelState("error", "failed", 0, () =>
+        bashRow({ status: "error", output: SHELL_OUTPUT, summary: "", error: "exit 2" }),
+      ),
+    ],
+  },
+  {
+    id: "ours.edit",
+    title: "edit row",
+    group: "tools",
+    variant: "ours",
+    description: "Diff stat in the header; diff rows trend on the head.",
+    states: [
+      levelState("l0", "success L0", 0, () => editRow()),
+      levelState("l1", "aged L1", 1, () => editRow()),
+      levelState("l3", "aged L3", 3, () => editRow()),
+      levelState("error", "error", 0, () =>
+        editRow({ status: "error", error: "old_string not found", output: "", summary: "" }),
+      ),
+    ],
+  },
+  {
+    id: "ours.mcp",
+    title: "MCP row",
+    group: "tools",
+    variant: "ours",
+    description: "mcp__server__tool becomes server/tool, with a generic or tool-specific summary.",
+    states: [levelState("l0", "success L0", 0, () => mcpRow()), levelState("l3", "aged L3", 3, () => mcpRow())],
+  },
+  {
+    id: "ours.group",
+    title: "Group summary",
+    group: "groups",
+    variant: "ours",
+    description: "Contiguous collapsed rows of one class become one line. Failures keep their own count.",
+    states: [
+      {
+        id: "collapsed",
+        label: "collapsed",
+        render: (ctx) =>
+          renderGroupRow(ours(ctx), {
+            segments: groupSegments([
+              { cls: "read" },
+              { cls: "read" },
+              { cls: "read" },
+              { cls: "read" },
+              { cls: "shell" },
+              { cls: "shell" },
+              { cls: "edit" },
+            ]),
+          }).render(ctx.width),
+      },
+      {
+        id: "expanded",
+        label: "expanded",
+        render: (ctx) =>
+          renderGroupRow(ours(ctx), {
+            segments: groupSegments([
+              { cls: "read" },
+              { cls: "read" },
+              { cls: "read" },
+              { cls: "read" },
+              { cls: "shell" },
+              { cls: "shell" },
+            ]),
+            expanded: true,
+          }).render(ctx.width),
+      },
+      {
+        id: "failed",
+        label: "with failure",
+        render: (ctx) =>
+          renderGroupRow(ours(ctx), {
+            segments: groupSegments([
+              { cls: "shell" },
+              { cls: "shell", failed: true },
+              { cls: "read" },
+              { cls: "read" },
+            ]),
+          }).render(ctx.width),
+      },
+    ],
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Scenarios
+// ---------------------------------------------------------------------------
+
+interface ScenarioRow extends ToolRowInput {
+  key: string;
+}
+
+const decayRows: ScenarioRow[] = [
+  { ...readRow({ title: "src/core/session.ts", summary: "312 lines" }), key: "read-1" },
+  { ...readRow({ title: "src/modes/interactive/interactive-mode.js", summary: "6107 lines" }), key: "read-2" },
+  { ...bashRow({ title: "rg -n 'registerToolRenderer' src", output: SHELL_OK }), key: "bash-1" },
+  { ...editRow({ title: "extensions/prism/decorator.ts", summary: "+42 −7" }), key: "edit-1" },
+  {
+    ...readRow({ title: "src/modes/interactive/components/assistant-message.js", summary: "181 lines" }),
+    key: "read-3",
+  },
+  { ...editRow({ title: "extensions/prism/thinking.ts", summary: "+18 −3" }), key: "edit-2" },
+  { ...bashRow({ title: "bun test", output: SHELL_OK, durationMs: 8100 }), key: "bash-2" },
+  { ...mcpRow({ title: "memory/search" }), key: "mcp-1" },
+];
+
+function decayStack(ctx: RenderCtx, offset: number): string[] {
+  const components: Array<{ render(width: number): string[] }> = [];
+  const rows = decayRows.map((row, index) => ({
+    row,
+    distance: offset + (decayRows.length - 1 - index),
+  }));
+
+  const folded = rows.filter(({ distance }) => detailFor(distance) === 4);
+  const segments = groupSegments(
+    folded.map(({ row }) => ({ cls: toolMeta(row.name).cls, failed: row.status === "error" })),
+  );
+
+  let groupRendered = false;
+  for (const { row, distance } of rows) {
+    const level = detailFor(distance);
+    if (level === 4) {
+      if (!groupRendered) {
+        components.push(renderGroupRow(ours(ctx), { segments }));
+        groupRendered = true;
+      }
+      continue;
+    }
+    components.push(renderToolRow(ours(ctx), { ...row, level }));
+  }
+
+  components.push(
+    thinkingBlock(
+      ctx,
+      thinkingLabel(ours(ctx), {
+        phase: "thinking",
+        level: 0,
+        text: THINKING_TEXT,
+        width: ctx.width,
+        frame: 0,
+      }),
+    ),
+  );
+
+  return stack(ctx.width, components);
+}
+
+const scenarioEntries: EntryDef[] = [
+  {
+    id: "scenario.decay",
+    title: "Decay ladder",
+    group: "scenarios",
+    variant: "ours",
+    description:
+      "One run, eight rows. Scrub the distance to watch bodies shrink from 6 rows to 1, then fold into a group. The live thinking block stays pinned.",
+    states: Array.from({ length: 9 }, (_, offset) => ({
+      id: `d${offset}`,
+      label: `distance ${offset}`,
+      render: (ctx) => decayStack(ctx, offset),
+    })),
+  },
+];
+
+export const ENTRIES: EntryDef[] = [...baseEntries, ...oursEntries, ...scenarioEntries];
+
+export const WIDTHS = [40, 60, 80, 100, 120] as const;
+export const GLYPH_MODES: GlyphMode[] = ["unicode", "ascii"];
+export const THEME_NAMES = ["dark", "light"] as const;
+
+export function glyphsForCtx(mode: GlyphMode): GlyphSet {
+  return glyphsFor(mode);
+}
