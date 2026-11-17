@@ -63,11 +63,12 @@ export interface StateDef {
   toggles?: (ctx: RenderCtx, frame: number) => ToggleSpec[];
 }
 
-/** A collapsed block plus the rows that replace it once opened. */
+/** A collapsed block plus the bodies successive clicks swap in. */
 export interface ToggleSpec {
   row: number;
   count: number;
-  lines: string[];
+  /** Opening steps: the capped body, then the whole body. */
+  opens: string[][];
   key: string;
 }
 
@@ -889,7 +890,7 @@ function sessionBase(ctx: RenderCtx, frameIndex: number): string[] {
 /** Ours: the same events, aged by distance from the tail, streaming as they land. */
 interface SessionPiece {
   lines: string[];
-  full?: string[];
+  opens?: string[][];
   key?: string;
 }
 
@@ -936,15 +937,17 @@ function sessionPieces(ctx: RenderCtx, frameIndex: number): SessionPiece[] {
         });
         const piece: SessionPiece = { lines: thinkingBlock(ctx, label).render(SESSION_WIDTH) };
         if (!live) {
-          piece.full = thinkingLabel(ours(ctx), {
-            phase: "done",
-            level: 0,
-            text,
-            width: SESSION_WIDTH,
-            durationMs: 1200,
-            frame: frameIndex % 10,
-            expanded: true,
-          }).split("\n");
+          piece.opens = [
+            thinkingLabel(ours(ctx), {
+              phase: "done",
+              level: 0,
+              text,
+              width: SESSION_WIDTH,
+              durationMs: 1200,
+              frame: frameIndex % 10,
+              expanded: true,
+            }).split("\n"),
+          ];
           piece.key = `think:${item.index}`;
         }
         return piece;
@@ -963,7 +966,10 @@ function sessionPieces(ctx: RenderCtx, frameIndex: number): SessionPiece[] {
         };
         const piece: SessionPiece = { lines: renderToolRow(ours(ctx), input).render(SESSION_WIDTH) };
         if (!progress.partial) {
-          piece.full = renderToolRow(ours(ctx), { ...input, expanded: true }).render(SESSION_WIDTH);
+          const capped = renderToolRow(ours(ctx), { ...input, expanded: true }).render(SESSION_WIDTH);
+          const whole = renderToolRow(ours(ctx), { ...input, full: true }).render(SESSION_WIDTH);
+          // Only offer a second step when opening once still hides rows.
+          piece.opens = whole.length > capped.length ? [capped, whole] : [capped];
           piece.key = `tool:${item.index}`;
         }
         return piece;
@@ -980,8 +986,8 @@ function arrangePieces(pieces: SessionPiece[], gap = 1): { lines: string[]; togg
     if (index > 0) for (let row = 0; row < gap; row++) lines.push("");
     const row = lines.length;
     lines.push(...piece.lines);
-    if (piece.full && piece.key) {
-      toggles.push({ row, count: piece.lines.length, lines: piece.full, key: piece.key });
+    if (piece.opens && piece.key) {
+      toggles.push({ row, count: piece.lines.length, opens: piece.opens, key: piece.key });
     }
   });
   return { lines, toggles };

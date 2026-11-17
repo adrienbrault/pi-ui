@@ -30,8 +30,8 @@ interface RevealCell {
 interface BlockCell {
   /** Full bodies, deduplicated by content. */
   pool: Record<string, string>;
-  /** Per frame: which rows a click opens, and the pool key to swap in. */
-  frames: Array<Array<{ row: number; count: number; key: string }>>;
+  /** Per frame: which rows a click opens, the pool keys per click, and its id. */
+  frames: Array<Array<{ row: number; count: number; id: string; keys: string[] }>>;
 }
 
 /** Content hash: identical bodies share one pool entry across frames. */
@@ -219,16 +219,19 @@ export async function renderGallery(scope: RenderScope = {}): Promise<GalleryRen
               const rows = toRows(pi, lines);
               // Blocks outside a group: a click swaps the span for its full body.
               const opened = (state.toggles ? state.toggles(ctx, frame) : []).map((spec) => {
-                const body = toRows(pi, spec.lines);
-                const key = contentKey(body.join(""));
-                blockPool[key] ??= tagRows(body, "data-block", key).join("");
-                return { row: spec.row, count: spec.count, key };
+                const keys = spec.opens.map((bodyLines) => {
+                  const body = toRows(pi, bodyLines);
+                  const key = contentKey(body.join(""));
+                  blockPool[key] ??= tagRows(body, "data-block", spec.key).join("");
+                  return key;
+                });
+                return { row: spec.row, count: spec.count, id: spec.key, keys };
               });
-              opened.forEach(({ row, count, key }) => {
+              opened.forEach(({ row, count, id }) => {
                 for (let at = row; at < row + count; at++) {
                   const line = rows[at];
                   if (line === undefined) continue;
-                  rows[at] = line.replace('<div class="ansi-line"', `<div class="ansi-line" data-block="${key}"`);
+                  rows[at] = line.replace('<div class="ansi-line"', `<div class="ansi-line" data-block="${id}"`);
                 }
               });
               blockFrames.push(opened);

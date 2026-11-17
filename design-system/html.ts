@@ -12,7 +12,7 @@ export interface RevealCellHtml {
 /** Blocks outside a group: the collapsed span and the body that replaces it. */
 export interface BlockCellHtml {
   pool: Record<string, string>;
-  frames: Array<Array<{ row: number; count: number; key: string }>>;
+  frames: Array<Array<{ row: number; count: number; id: string; keys: string[] }>>;
 }
 
 export interface PagePayload {
@@ -294,8 +294,9 @@ function composeFrame(entry, idx, frameHtml, stateId, expanded) {
   var blocks = blocksFor(entry, stateId);
   if (blocks) {
     (blocks.frames[idx] || []).forEach(function (spec) {
-      if (blockOpenState[prefix + ':' + spec.key]) {
-        ops.push({ from: spec.row, count: spec.count, html: blocks.pool[spec.key] });
+      var step = blockOpenState[prefix + ':' + spec.id] || 0;
+      if (step > 0) {
+        ops.push({ from: spec.row, count: spec.count, html: blocks.pool[spec.keys[step - 1]] });
       }
     });
   }
@@ -495,7 +496,9 @@ function onTermClick(event) {
   var card = term.closest('[data-card]');
   var entry = card ? byId(card.getAttribute('data-entry')) : null;
   if (!entry) return;
-  var prefix = entry.id + ':' + frameIndex(entry);
+  var idx = frameIndex(entry);
+  var stateId = active[entry.id] || entry.states[0].id;
+  var prefix = entry.id + ':' + idx;
   function hold() {
     if (entry.sync && playback[entry.sync]) playback[entry.sync].playing = false;
   }
@@ -516,16 +519,19 @@ function onTermClick(event) {
   }
   var block = event.target.closest('[data-block]');
   if (block) {
-    var blockKey = prefix + ':' + block.getAttribute('data-block');
-    blockOpenState[blockKey] = !blockOpenState[blockKey];
+    var id = block.getAttribute('data-block');
+    var cell = blocksFor(entry, stateId);
+    var spec = cell ? (cell.frames[idx] || []).filter(function (s) { return s.id === id; })[0] : null;
+    var steps = spec ? spec.keys.length : 0;
+    var blockKey = prefix + ':' + id;
+    blockOpenState[blockKey] = ((blockOpenState[blockKey] || 0) + 1) % (steps + 1);
     hold();
     paintCard(card);
     return;
   }
   var row = event.target.closest('[data-expand]');
   if (!row) return;
-  var stateId = active[entry.id] || entry.states[0].id;
-  var groups = revealFor(entry, stateId)[frameIndex(entry)] || [];
+  var groups = revealFor(entry, stateId)[idx] || [];
   if (!groups.length) return;
   hold();
   term.setAttribute('data-expanded', '1');

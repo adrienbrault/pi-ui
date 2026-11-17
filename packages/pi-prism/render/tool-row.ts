@@ -23,6 +23,8 @@ export interface ToolRowInput {
   status: ToolStatus;
   level: DetailLevel;
   expanded?: boolean;
+  /** Read the whole body: no budget, no "more lines" cue. */
+  full?: boolean;
   /** Override the derived path/command/query. */
   title?: string;
   /** Override the derived count, e.g. "42 lines" or "+8/−2". */
@@ -34,6 +36,8 @@ export interface ToolRowInput {
 }
 
 const INDENT = "  ";
+/** Opening a block twice is meant to end the hunt: past this, the log wins. */
+const MAX_FULL_LINES = 400;
 
 /** Diff lines keep their meaning under decay: additions green, removals red. */
 function diffTone(line: string, cls: string): "success" | "error" | "accent" | "dim" | undefined {
@@ -124,14 +128,15 @@ function header(api: RenderApi, input: ToolRowInput, width: number): string {
 
 function body(api: RenderApi, input: ToolRowInput, width: number): string[] {
   const { theme, kit } = api;
-  const budget = bodyLinesFor(input.level, input.expanded ?? false);
+  // A "full" read is allowed to be long, just not unbounded.
+  const budget = input.full ? MAX_FULL_LINES : bodyLinesFor(input.level, input.expanded ?? false);
   if (budget <= 0) return [];
 
   const text = input.error || input.output || "";
   const present = nonEmptyLineCount(text);
   if (present === 0) return [];
 
-  const expanded = input.expanded ?? false;
+  const expanded = (input.expanded ?? false) && !input.full;
   // Expanded views cap their *total* body rows: the notice takes one of them.
   const show = expanded && present > budget ? budget - 1 : Math.min(budget, present);
 
