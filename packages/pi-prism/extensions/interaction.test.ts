@@ -6,7 +6,8 @@ const theme = {
   fg: (_token: string, text: string) => text,
   bold: (text: string) => text,
   italic: (text: string) => text,
-  inverse: (text: string) => text,
+  style: (text: string) => text,
+  colors: { accent: "accent", toolPendingBg: "bg" },
 };
 
 const ctx = {
@@ -69,10 +70,23 @@ describe("expansion cycle", () => {
   });
 });
 
+const move = (): TuiMouseEvent => ({ ...click(), type: "move", button: "none" });
+
 describe("tool renderers", () => {
   test("leaves unowned tools to the next resolver", () => {
     const base = { renderShell: "default" };
     expect(resolver()("todo", () => base)).toBe(base);
+  });
+
+  test("body hover pins the chip on the header row", () => {
+    const renderers = resolver()("bash", () => undefined) as Renderers;
+    const header = renderers.renderCall(ctx.args, theme, ctx);
+    const body = renderers.renderResult(result, {}, theme, ctx);
+
+    expect(header.render(80)[0]).not.toContain("[ click");
+    body.handleMouse?.(move());
+    const line = header.render(80)[0] ?? "";
+    expect(line).toContain("[ click · expand ]");
   });
 
   test("owned tools claim the row and grow the body on click", () => {

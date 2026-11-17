@@ -22,7 +22,8 @@ interface Theme {
   fg(token: string, text: string): string;
   bold(text: string): string;
   italic(text: string): string;
-  inverse(text: string): string;
+  style(text: string, options: { fg?: unknown; bg?: unknown; bold?: boolean }): string;
+  colors: Record<string, unknown>;
 }
 
 interface ToolRenderContext<State = unknown, Args = unknown> {
@@ -170,7 +171,12 @@ function headerLines<TArgs>(
   if (!state.hover) return [header];
 
   const hint = hintFor(state.expansion, hasDeeper(state.output ?? ""));
-  const chip = theme.inverse(theme.bold(` ${hint} `));
+  // Brackets and a background colour: the chip reads like the rest of the rows.
+  const chip = theme.style(`[ ${hint} ]`, {
+    bg: theme.colors.accent,
+    fg: theme.colors.toolPendingBg,
+    bold: true,
+  });
   const chipWidth = visibleWidth(chip);
   const left = truncateToWidth(header, Math.max(0, width - chipWidth - 1), "…");
   const gap = Math.max(0, width - visibleWidth(left) - chipWidth);

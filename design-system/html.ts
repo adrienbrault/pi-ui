@@ -151,22 +151,18 @@ section.group > h2 { margin: 8px 0 0; font-family: var(--mono); font-size: 11px;
 .term .ansi-line { display: block; white-space: pre; min-height: 1.5em; }
 /* Hover hint: the chip says what a click will do, at the row it applies to. */
 .term [data-hint] { position: relative; }
-.term [data-hint].hot { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+/* Pinned to the block's header row: brackets and a background colour, no chrome. */
 .term [data-hint].hot::after {
-  content: attr(data-hint);
+  content: "[ " attr(data-hint) " ]";
   position: absolute;
-  right: 1ch;
+  right: 0;
   top: 50%;
   transform: translateY(-50%);
   z-index: 4;
   pointer-events: none;
-  padding: 1px 7px;
-  border-radius: 3px;
   background: var(--accent);
   color: var(--bg);
-  font: 600 10px/1.5 ui-monospace, "SF Mono", Menlo, monospace;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font: inherit;
   white-space: nowrap;
 }
 .term:empty::after { content: "(no rows)"; color: var(--muted); }
@@ -386,24 +382,43 @@ function applyTheme() {
 // Say what a click does, on the row it applies to: open, preview, show all, fold.
 function annotateHints(term, entry, idx, stateId) {
   var prefix = entry.id + ':' + idx;
+  var rows = [].slice.call(term.querySelectorAll('.ansi-line'));
+
   term.querySelectorAll('[data-expand]').forEach(function (row) {
     row.setAttribute('data-hint', 'click · open group');
   });
   term.querySelectorAll('[data-collapse]').forEach(function (row) {
     row.setAttribute('data-hint', 'click · fold group');
   });
-  term.querySelectorAll('[data-turn]').forEach(function (row) {
-    var st = revealOpenState[prefix + ':' + row.getAttribute('data-turn')] || 0;
-    row.setAttribute('data-hint', st === 0 ? 'click · preview' : st === 1 ? 'click · show all' : 'click · collapse');
+
+  // A member's hint lives on its header; its body points the hover back there.
+  var turnGroups = {};
+  rows.forEach(function (row) {
+    var key = row.getAttribute('data-turn');
+    if (!key) return;
+    turnGroups[key] = turnGroups[key] || [];
+    turnGroups[key].push(row);
   });
+  Object.keys(turnGroups).forEach(function (key) {
+    var st = revealOpenState[prefix + ':' + key] || 0;
+    var hint = st === 0 ? 'click · preview' : st === 1 ? 'click · show all' : 'click · collapse';
+    turnGroups[key].forEach(function (row, order) {
+      if (order === 0) row.setAttribute('data-hint', hint);
+      else row.setAttribute('data-anchor', 'turn:' + key);
+    });
+  });
+
+  // Blocks: same rule — chip on the header row, body rows anchor to it.
   var cell = blocksFor(entry, stateId);
-  term.querySelectorAll('[data-block]').forEach(function (row) {
-    var id = row.getAttribute('data-block');
-    var spec = cell ? (cell.frames[idx] || []).filter(function (s) { return s.id === id; })[0] : null;
-    var steps = spec ? spec.keys.length : 0;
-    var st = blockOpenState[prefix + ':' + id] || 0;
-    var hint = st === 0 ? 'click · expand' : st < steps ? 'click · show all' : 'click · collapse';
-    row.setAttribute('data-hint', hint);
+  (cell ? cell.frames[idx] || [] : []).forEach(function (spec) {
+    var st = blockOpenState[prefix + ':' + spec.id] || 0;
+    var hint = st === 0 ? 'click · expand' : st < spec.keys.length ? 'click · show all' : 'click · collapse';
+    for (var offset = 0; offset < spec.count; offset++) {
+      var row = rows[spec.row + offset];
+      if (!row) continue;
+      if (offset === 0) row.setAttribute('data-hint', hint);
+      else row.setAttribute('data-anchor', 'block:' + spec.id);
+    }
   });
 }
 
@@ -626,6 +641,15 @@ function bind() {
     // Hover is explicit: any interaction hint belongs to the row under the cursor.
     term.addEventListener('mouseover', function (event) {
       var row = event.target.closest('[data-hint]');
+      if (!row) {
+        // Hovering a block's details still lights its header: one chip per block.
+        var anchor = event.target.closest('[data-anchor]');
+        if (anchor) {
+          var key = anchor.getAttribute('data-anchor');
+          var id = key.slice(key.indexOf(':') + 1);
+          row = key.indexOf('turn:') === 0 ? term.querySelector('[data-turn="' + id + '"]') : term.querySelector('[data-block="' + id + '"]');
+        }
+      }
       term.querySelectorAll('.ansi-line.hot').forEach(function (old) { old.classList.remove('hot'); });
       if (row) row.classList.add('hot');
     });
