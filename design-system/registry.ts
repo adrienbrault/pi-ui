@@ -21,7 +21,7 @@ import {
   type PlaybackFrame,
   type SessionStep,
 } from "./session.ts";
-import { renderToolRow, type ToolRowInput } from "../packages/pi-prism/render/tool-row.ts";
+import { renderToolLine, renderToolRow, type ToolRowInput } from "../packages/pi-prism/render/tool-row.ts";
 import { toolMeta } from "../packages/pi-prism/render/tools.ts";
 import type { PiInstall } from "./lib/pi.ts";
 import { stack } from "./lib/surface.ts";
@@ -57,8 +57,19 @@ export interface StateDef {
   /** Render this many animation frames instead of one still. */
   frames?: number;
   render: (ctx: RenderCtx, frame: number) => string[];
-  /** The same frames with folded groups revealed: what a click opens. */
-  expand?: (ctx: RenderCtx, frame: number) => string[];
+  /** Folded groups, split into header + member blocks a click can toggle. */
+  reveal?: (ctx: RenderCtx, frame: number) => RevealGroup[];
+}
+
+/** A revealed group: its header row plus member blocks in two states. */
+export interface RevealMember {
+  collapsed: string[];
+  expanded: string[];
+}
+
+export interface RevealGroup {
+  header: string[];
+  members: RevealMember[];
 }
 
 export interface EntryDef {
@@ -701,7 +712,7 @@ const decayRows: ScenarioRow[] = [
   { ...mcpRow({ title: "memory/search" }), key: "mcp-1" },
 ];
 
-function decayStack(ctx: RenderCtx, offset: number, expandGroups = false): string[] {
+function decayStack(ctx: RenderCtx, offset: number): string[] {
   const components: Array<{ render(width: number): string[] }> = [];
   const rows = decayRows.map((row, index) => ({
     row,
@@ -717,10 +728,6 @@ function decayStack(ctx: RenderCtx, offset: number, expandGroups = false): strin
   for (const { row, distance } of rows) {
     const level = detailFor(distance);
     if (distance >= FOLD_DISTANCE) {
-      if (expandGroups) {
-        components.push(renderToolRow(ours(ctx), { ...row, level: 3 }));
-        continue;
-      }
       if (!groupRendered) {
         components.push(renderGroupRow(ours(ctx), { segments }));
         groupRendered = true;
@@ -746,6 +753,31 @@ function decayStack(ctx: RenderCtx, offset: number, expandGroups = false): strin
   return stack(ctx.width, components, 1);
 }
 
+/**
+ * What a click on the decay group opens: the same folded rows, but split into a
+ * toggleable header and per-member blocks. Collapsed = header only.
+ */
+function decayReveal(ctx: RenderCtx, offset: number): RevealGroup[] {
+  const rows = decayRows.map((row, index) => ({
+    row,
+    distance: offset + (decayRows.length - 1 - index),
+  }));
+  const folded = rows.filter(({ distance }) => distance >= FOLD_DISTANCE);
+  if (folded.length === 0) return [];
+  const segments = groupSegments(
+    folded.map(({ row }) => ({ cls: toolMeta(row.name).cls, failed: row.status === "error" })),
+  );
+  return [
+    {
+      header: renderGroupRow(ours(ctx), { segments, expanded: true }).render(ctx.width),
+      members: folded.map(({ row }) => ({
+        collapsed: renderToolLine(ours(ctx), row).render(ctx.width),
+        expanded: renderToolRow(ours(ctx), { ...row, level: 3 }).render(ctx.width),
+      })),
+    },
+  ];
+}
+
 const scenarioEntries: EntryDef[] = [
   {
     id: "scenario.decay",
@@ -758,7 +790,7 @@ const scenarioEntries: EntryDef[] = [
       id: `d${offset}`,
       label: `distance ${offset}`,
       render: (ctx) => decayStack(ctx, offset),
-      expand: (ctx) => decayStack(ctx, offset, true),
+      reveal: (ctx) => decayReveal(ctx, offset),
     })),
   },
 ];
@@ -836,33 +868,14 @@ function sessionBase(ctx: RenderCtx, frameIndex: number): string[] {
 }
 
 /** Ours: the same events, aged by distance from the tail, streaming as they land. */
-function sessionOurs(ctx: RenderCtx, frameIndex: number, expandGroups = false): string[] {
+function sessionOurs(ctx: RenderCtx, frameIndex: number): string[] {
   const frame = PLAYBACK[frameIndex];
   if (!frame) throw new Error(`session frame ${frameIndex} out of range`);
   const steps = SESSION_STEPS.slice(0, frame.step + 1);
   const plan = planTranscript(steps.map((step, index) => stepShape(step, index, frame)));
 
-  const components = plan.flatMap((item) => {
-    if (item.kind === "group") {
-      if (!expandGroups) return [renderGroupRow(ours(ctx), { segments: item.segments })];
-      // A pinned group shows its members: each folded row gets a compact body.
-      return item.indices.flatMap((index) => {
-        const member = steps[index];
-        if (!member || member.kind !== "tool") return [];
-        return [
-          renderToolRow(ours(ctx), {
-            name: member.tool.name,
-            args: member.tool.args,
-            status: member.tool.failed ? "error" : "success",
-            level: 3,
-            title: member.tool.title,
-            summary: member.tool.summary,
-            output: member.tool.output,
-            durationMs: member.tool.durationMs,
-          }),
-        ];
-      });
-    }
+  const components = plan.map((item) => {
+    if (item.kind === "group") return renderGroupRow(ours(ctx), { segments: item.segments });
 
     const step = steps[item.index];
     if (!step) throw new Error(`session frame ${frameIndex}: missing step ${item.index}`);
@@ -908,6 +921,43 @@ function sessionOurs(ctx: RenderCtx, frameIndex: number, expandGroups = false): 
   return stack(SESSION_WIDTH, components, 1);
 }
 
+/**
+ * What a click on a folded run opens: a header row plus every member as a block
+ * that can itself be expanded (body) or collapsed (header only).
+ */
+function sessionReveal(ctx: RenderCtx, frameIndex: number): RevealGroup[] {
+  const frame = PLAYBACK[frameIndex];
+  if (!frame) throw new Error(`session frame ${frameIndex} out of range`);
+  const steps = SESSION_STEPS.slice(0, frame.step + 1);
+  const plan = planTranscript(steps.map((step, index) => stepShape(step, index, frame)));
+
+  return plan.flatMap((item) => {
+    if (item.kind !== "group") return [];
+    const header = renderGroupRow(ours(ctx), { segments: item.segments, expanded: true }).render(SESSION_WIDTH);
+    const members: RevealMember[] = item.indices.flatMap((index) => {
+      const step = steps[index];
+      if (!step || step.kind !== "tool") return [];
+      const input: ToolRowInput = {
+        name: step.tool.name,
+        args: step.tool.args,
+        status: step.tool.failed ? "error" : "success",
+        title: step.tool.title,
+        summary: step.tool.summary,
+        output: step.tool.output,
+        durationMs: step.tool.durationMs,
+        level: 3,
+      };
+      return [
+        {
+          collapsed: renderToolLine(ours(ctx), input).render(SESSION_WIDTH),
+          expanded: renderToolRow(ours(ctx), input).render(SESSION_WIDTH),
+        },
+      ];
+    });
+    return [{ header, members }];
+  });
+}
+
 const sessionEntries: EntryDef[] = [
   {
     id: "session.base",
@@ -941,7 +991,7 @@ const sessionEntries: EntryDef[] = [
         label: "replay",
         frames: PLAYBACK.length,
         render: sessionOurs,
-        expand: (ctx, frame) => sessionOurs(ctx, frame, true),
+        reveal: sessionReveal,
       },
     ],
   },

@@ -21,6 +21,11 @@ const FIXTURES = join(process.cwd(), "design-system", "fixtures");
 
 type CellKey = string; // `${width}/${theme}/${glyph}`
 
+interface RevealCell {
+  header: string;
+  members: Array<{ collapsed: string; expanded: string }>;
+}
+
 interface EntryData {
   states: Record<string, Record<CellKey, string[]>>;
 }
@@ -40,13 +45,20 @@ function groupRowIndices(lines: string[], marker: string): number[] {
   return indices;
 }
 
-/** Tag those rows so the gallery knows what is interactive without parsing text. */
+/** Tag group rows with their reveal index so a click knows which group it opens. */
 function markRows(rows: string[], indices: number[]): string[] {
   if (indices.length === 0) return rows;
-  const wanted = new Set(indices);
-  return rows.map((row, index) =>
-    wanted.has(index) ? row.replace('<div class="ansi-line"', '<div class="ansi-line" data-expand="1"') : row,
-  );
+  const byRow = new Map(indices.map((row, order) => [row, order]));
+  return rows.map((row, index) => {
+    const order = byRow.get(index);
+    if (order === undefined) return row;
+    return row.replace('<div class="ansi-line"', `<div class="ansi-line" data-expand="${order}"`);
+  });
+}
+
+/** Tag every row of a member block, and every row of a revealed header. */
+function tagRows(rows: string[], name: string, value: string): string[] {
+  return rows.map((row) => row.replace('<div class="ansi-line"', `<div class="ansi-line" ${name}="${value}"`));
 }
 
 /** Frames above this size share rows through a pool instead of repeating HTML. */
@@ -142,7 +154,7 @@ export async function renderGallery(scope: RenderScope = {}): Promise<GalleryRen
   const entries = scope.entries ?? ENTRIES;
   const themeNames = scope.themes ?? THEME_NAMES;
   const data = new Map<string, EntryData>();
-  const expandedData = new Map<string, Record<string, Record<CellKey, string[]>>>();
+  const revealData = new Map<string, Record<string, Record<CellKey, RevealCell[][]>>>();
   const fixtures = new Map<string, Record<string, { lines: string[] }>>();
   const themes: PagePayload["themes"] = {};
 
@@ -164,7 +176,7 @@ export async function renderGallery(scope: RenderScope = {}): Promise<GalleryRen
 
     for (const entry of entries) {
       const entryData: EntryData = data.get(entry.id) ?? { states: {} };
-      const expandedEntry: Record<string, Record<CellKey, string[]>> = expandedData.get(entry.id) ?? {};
+      const revealEntry: Record<string, Record<CellKey, RevealCell[][]>> = revealData.get(entry.id) ?? {};
       const fixtureEntry: Record<string, { lines: string[] }> = fixtures.get(entry.id) ?? {};
 
       for (const state of entry.states) {
@@ -182,12 +194,22 @@ export async function renderGallery(scope: RenderScope = {}): Promise<GalleryRen
             };
             const frameCount = state.frames ?? 1;
             const frameRows: string[][] = [];
-            const expandedRows: string[][] = [];
+            const sharedReveal: RevealCell[][] = [];
             for (let frame = 0; frame < frameCount; frame++) {
               const lines = state.render(ctx, frame);
               const rows = toRows(pi, lines);
-              frameRows.push(state.expand ? markRows(rows, groupRowIndices(lines, ctx.glyphs.collapsed)) : rows);
-              if (state.expand) expandedRows.push(toRows(pi, state.expand(ctx, frame)));
+              frameRows.push(state.reveal ? markRows(rows, groupRowIndices(lines, ctx.glyphs.collapsed)) : rows);
+              if (state.reveal) {
+                sharedReveal.push(
+                  state.reveal(ctx, frame).map((group, gi) => ({
+                    header: tagRows(toRows(pi, group.header), "data-collapse", String(gi)).join(""),
+                    members: group.members.map((member, mi) => ({
+                      collapsed: tagRows(toRows(pi, member.collapsed), "data-turn", `${gi}:${mi}`).join(""),
+                      expanded: tagRows(toRows(pi, member.expanded), "data-turn", `${gi}:${mi}`).join(""),
+                    })),
+                  })),
+                );
+              }
               if (frame === 0 && entry.fixture !== false) {
                 fixtureEntry[`${state.id}/${themeName}/${width}/${glyphMode}`] = { lines };
               }
@@ -195,11 +217,8 @@ export async function renderGallery(scope: RenderScope = {}): Promise<GalleryRen
             const key = cellKey(width, themeName, glyphMode);
             const pool = frameCount > POOL_FRAME_THRESHOLD;
             byCell[key] = pool ? (pooled(frameRows) as unknown as string[]) : frameRows.map((rows) => rows.join(""));
-            if (state.expand) {
-              expandedEntry[state.id] = {
-                ...expandedEntry[state.id],
-                [key]: pool ? (pooled(expandedRows) as unknown as string[]) : expandedRows.map((rows) => rows.join("")),
-              };
+            if (state.reveal) {
+              revealEntry[state.id] = { ...revealEntry[state.id], [key]: sharedReveal };
             }
           }
         }
@@ -208,8 +227,7 @@ export async function renderGallery(scope: RenderScope = {}): Promise<GalleryRen
       }
 
       data.set(entry.id, entryData);
-      if (expandedData.has(entry.id) || Object.keys(expandedEntry).length > 0)
-        expandedData.set(entry.id, expandedEntry);
+      if (Object.keys(revealEntry).length > 0) revealData.set(entry.id, revealEntry);
       if (entry.fixture !== false) fixtures.set(entry.id, fixtureEntry);
     }
   }
@@ -250,7 +268,7 @@ export async function renderGallery(scope: RenderScope = {}): Promise<GalleryRen
     entries: entries.map((entry) => ({
       ...short(entry),
       data: data.get(entry.id)?.states ?? {},
-      ...(expandedData.get(entry.id) ? { expanded: expandedData.get(entry.id) } : {}),
+      ...(revealData.get(entry.id) ? { reveal: revealData.get(entry.id) } : {}),
     })),
   };
 
