@@ -978,16 +978,42 @@ function sessionPieces(ctx: RenderCtx, frameIndex: number): SessionPiece[] {
   });
 }
 
+/** Strip SGR and OSC to ask the only question a gap cares about: is there text? */
+// oxlint-disable-next-line no-control-regex -- escape sequences are the input domain
+const ANSI_ONLY = /\x1b\[[\d;]*m|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)/g;
+// oxlint-disable-next-line no-control-regex -- same domain: detecting marker rows
+const ESCAPE = /\x1b/g;
+const visibleText = (line: string): string => line.replace(ANSI_ONLY, "").trim();
+const hasText = (line: string): boolean => visibleText(line) !== "";
+
+/**
+ * Pi pads its components and emits OSC 133 prompt markers on rows of their own.
+ * Both show up as blank rows here: drop the marker rows, trim the padding, and
+ * leave the one gap the transcript itself adds.
+ */
+function trimEdgeBlanks(lines: string[]): string[] {
+  const kept = lines.filter((line) => !(visibleText(line) === "" && ESCAPE.test(line)));
+  let start = 0;
+  let end = kept.length;
+  while (start < end && !hasText(kept[start] ?? "")) start++;
+  while (end > start && !hasText(kept[end - 1] ?? "")) end--;
+  return kept.slice(start, end);
+}
+
 /** Lay pieces out like the transcript: one blank row between blocks. */
 function arrangePieces(pieces: SessionPiece[], gap = 1): { lines: string[]; toggles: ToggleSpec[] } {
   const lines: string[] = [];
   const toggles: ToggleSpec[] = [];
-  pieces.forEach((piece, index) => {
+  // An empty piece (a text delta with no characters yet) must not claim a gap.
+  const visible = pieces
+    .map((piece) => ({ piece, body: trimEdgeBlanks(piece.lines) }))
+    .filter(({ body }) => body.length > 0);
+  visible.forEach(({ piece, body }, index) => {
     if (index > 0) for (let row = 0; row < gap; row++) lines.push("");
     const row = lines.length;
-    lines.push(...piece.lines);
+    lines.push(...body);
     if (piece.opens && piece.key) {
-      toggles.push({ row, count: piece.lines.length, opens: piece.opens, key: piece.key });
+      toggles.push({ row, count: body.length, opens: piece.opens, key: piece.key });
     }
   });
   return { lines, toggles };

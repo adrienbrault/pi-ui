@@ -51,23 +51,23 @@ export function thinkingLabel(api: ThinkingApi, input: ThinkingLabelInput): stri
   const tail = tailLines(cleaned, 16);
   const last = squeeze(tail.at(-1) ?? "");
 
-  // The marker reads like a tool status glyph: coloured, never grey. The title
-  // uses the same token as every other block header, so it sits at full contrast.
-  const marker = `${theme.fg("accent", glyphs.thinking)} ${theme.fg("toolTitle", MARKER)}`;
+  // The marker reads like a tool status glyph: coloured, never grey. While text
+  // is still arriving it is the thing that spins — no second indicator needed.
+  // The title uses the same token as every other header, so it stays full contrast.
+  const glyph = input.phase === "thinking" ? frameAt(glyphs, input.frame ?? 0) : glyphs.thinking;
+  const marker = `${theme.fg("accent", glyph)} ${theme.fg("toolTitle", MARKER)}`;
   const dot = theme.fg("dim", glyphs.dot);
   const body = (row: string) => theme.italic(theme.fg("thinkingText", INDENT + row));
 
   // One-line form: only at the floor, so the ladder sheds a row at a time.
   if (input.level >= 6 && !(input.expanded ?? false)) {
-    const spinner = input.phase === "thinking" ? ` ${theme.fg("accent", frameAt(glyphs, input.frame ?? 0))}` : "";
     const suffix = last ? ` ${dot} ${theme.fg("thinkingText", last)}` : "";
-    return clampLine(kit, `${marker}${spinner}${suffix}`, input.width);
+    return clampLine(kit, `${marker}${suffix}`, input.width);
   }
 
   const budget = Math.max(1, input.expanded ? 16 : bodyLinesFor(input.level));
-  const spinner = input.phase === "thinking" ? ` ${theme.fg("accent", frameAt(glyphs, input.frame ?? 0))}` : "";
   const duration = seconds(input.durationMs);
-  const head = duration ? `${marker}${spinner} ${theme.fg("dim", duration)}` : `${marker}${spinner}`;
+  const head = duration ? `${marker} ${theme.fg("dim", duration)}` : marker;
 
   // One row of the budget is the header; the rest is tail at body indent.
   const rows = tail.slice(-(budget - 1)).map(body);
