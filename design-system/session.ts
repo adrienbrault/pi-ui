@@ -53,7 +53,7 @@ export const SESSION_STEPS: SessionStep[] = [
       name: "read",
       args: { path: "src/core/session.ts" },
       title: "src/core/session.ts",
-      summary: "10 lines",
+      summary: "64 lines",
       output: SESSION_CODE,
       durationMs: 180,
     },
