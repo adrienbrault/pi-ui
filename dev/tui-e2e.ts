@@ -187,6 +187,48 @@ async function decayScenario(sessionPath: string): Promise<void> {
   assert(!newestHeader.includes("[ click"), `a row showing its whole body must stay inert\n${newestHeader}\n${pane}`);
 }
 
+function thinkingFixture(path: string): void {
+  const now = Date.now();
+  const entries: Entry[] = [];
+  let parentId: string | null = null;
+  const add = (entry: Entry): void => {
+    entries.push(entry);
+    parentId = String(entry.id);
+  };
+  const message = (id: string, timestamp: number, body: Record<string, unknown>): void => {
+    add({ type: "message", id, parentId, timestamp: new Date(timestamp).toISOString(), message: body });
+  };
+  const usage = {
+    input: 100,
+    output: 20,
+    cacheRead: 0,
+    cacheWrite: 0,
+    reasoning: 0,
+    totalTokens: 120,
+    cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0, totalFromProvider: false },
+  };
+
+  add({ type: "session", version: 3, id: crypto.randomUUID(), timestamp: new Date(now).toISOString(), cwd: ROOT });
+  add({ type: "model_change", id: "model", parentId: null, timestamp: new Date(now).toISOString(), provider: "flan", modelId: "deepseek-v4.1-flash-1017" });
+  add({ type: "thinking_level_change", id: "thinking", parentId, timestamp: new Date(now).toISOString(), thinkingLevel: "medium" });
+  message("user", now, { role: "user", content: [{ type: "text", text: "Explain the sky." }], timestamp: now });
+  message("assistant", now + 1000, {
+    role: "assistant",
+    api: "openai-completions",
+    provider: "flan",
+    model: "deepseek-v4.1-flash-1017",
+    stopReason: "stop",
+    timestamp: now + 1000,
+    usage,
+    content: [
+      { type: "thinking", thinking: "Intro words.\nSECRET_MIDDLE_CLAUSE about scattering.\nFinal tail end." },
+      { type: "text", text: "The sky is blue." },
+    ],
+  });
+
+  writeFileSync(path, `${entries.map((entry) => JSON.stringify(entry)).join("\n")}\n`);
+}
+
 async function foldScenario(sessionPath: string): Promise<void> {
   start(sessionPath, 60);
   let pane = await waitFor("All twelve commands finished.");
@@ -226,6 +268,36 @@ async function foldScenario(sessionPath: string): Promise<void> {
   assert(pane.includes("output 0 line A") && pane.includes("output 0 line B"), `member click should reveal its body\n${pane}`);
 }
 
+async function thinkingScenario(sessionPath: string): Promise<void> {
+  start(sessionPath, 40);
+  await waitFor("The sky is blue.");
+  let pane = await waitFor("✻ think", 5_000);
+  assert(!pane.includes("SECRET_MIDDLE_CLAUSE"), `collapsed thinking should keep only its tail\n${pane}`);
+
+  pane = capture();
+  const hoverRow = rowOf(pane, "✻ think");
+  mouse(35, 5, hoverRow);
+  await Bun.sleep(400);
+  pane = capture();
+  assert(lineWith(pane, "✻ think").includes("[ click · expand ]"), `thinking hover should show the expand chip\n${pane}`);
+
+  pane = capture();
+  const expandRow = rowOf(pane, "✻ think");
+  mouse(0, 5, expandRow);
+  mouse(0, 5, expandRow, true);
+  await Bun.sleep(400);
+  pane = capture();
+  assert(pane.includes("SECRET_MIDDLE_CLAUSE"), `click should reveal the full thinking body\n${pane}`);
+
+  pane = capture();
+  const collapseRow = rowOf(pane, "Intro words.");
+  mouse(0, 5, collapseRow);
+  mouse(0, 5, collapseRow, true);
+  await Bun.sleep(400);
+  pane = capture();
+  assert(!pane.includes("SECRET_MIDDLE_CLAUSE"), `second click should collapse thinking again\n${pane}`);
+}
+
 async function main(): Promise<void> {
   const dir = mkdtempSync(join(tmpdir(), "pi-prism-e2e-"));
   try {
@@ -239,6 +311,12 @@ async function main(): Promise<void> {
     fixture(fold, 12);
     await foldScenario(fold);
     console.log("fold ok: 4 old rows became one summary; summary opens members; member body expands");
+
+    tmux("kill-server");
+    const think = join(dir, "thinking.jsonl");
+    thinkingFixture(think);
+    await thinkingScenario(think);
+    console.log("thinking ok: custom label renders; click reveals the full thought; second click collapses");
   } finally {
     try {
       tmux("kill-server");

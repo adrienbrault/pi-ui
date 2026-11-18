@@ -16,6 +16,7 @@ import type { RenderKit, RenderTheme } from "../render/kit.ts";
 import { nonEmptyLineCount } from "../render/text.ts";
 import { toolMeta } from "../render/tools.ts";
 import { renderToolRow, type ToolRowInput, type ToolStatus } from "../render/tool-row.ts";
+import { installThinkingRenderer } from "./thinking.ts";
 
 /**
  * Duck-typed on purpose: pi ships several tui copies, so structural types beat
@@ -600,6 +601,7 @@ const resolver: ToolRendererResolver = (toolName, next) => {
 
 export default function prism(pi: ExtensionAPI): void {
   pi.registerToolRenderer(resolver);
+  installThinkingRenderer(pi);
 
   pi.on("session_start", () => {
     records.clear();
@@ -611,9 +613,11 @@ export default function prism(pi: ExtensionAPI): void {
     planDirty = true;
   });
 
-  // A new turn ends the previous run: everything in it folds into summaries,
-  // and decay starts again from the first block of the new run.
-  pi.on("turn_start", () => {
+  // A run is everything between user messages. A new user message ends the
+  // previous run (it folds into summaries) and restarts the decay ladder;
+  // assistant turns inside one run keep the same ladder.
+  pi.on("message_start", (event) => {
+    if (event.message.role !== "user") return;
     currentRun += 1;
     runSeq = 0;
     aged.length = 0;

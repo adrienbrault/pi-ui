@@ -25,6 +25,8 @@ export interface RenderTheme {
   italic(text: string): string;
   /** pi's Theme.style: colours and weight in one pass, sans chalk. */
   style(text: string, options: { fg?: string; bg?: string; bold?: boolean }): string;
+  /** Resolved palette, when the theme exposes it (pi's Theme does). */
+  colors?: Record<string, string>;
 }
 
 export function indented(prefix: string, text: string, width: number, kit: RenderKit): string {
