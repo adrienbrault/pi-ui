@@ -54,6 +54,7 @@ function resolver(): (name: string, next: () => unknown) => Renderers | unknown 
     registerToolRenderer: (r: unknown) => {
       captured = r;
     },
+    on: () => () => {},
   } as never);
   return captured as (name: string, next: () => unknown) => Renderers | unknown;
 }
