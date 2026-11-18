@@ -16,6 +16,7 @@ import type { RenderKit, RenderTheme } from "../render/kit.ts";
 import { nonEmptyLineCount } from "../render/text.ts";
 import { toolMeta } from "../render/tools.ts";
 import { renderToolRow, type ToolRowInput, type ToolStatus } from "../render/tool-row.ts";
+import { claimHover, releaseHover } from "./hover.ts";
 import { installThinkingRenderer } from "./thinking.ts";
 
 /**
@@ -115,6 +116,7 @@ interface BlockRecord {
   open: boolean;
   hoverSummary: boolean;
   hoverMember: boolean;
+  hoverOwner?: object;
   hoverTimer?: ReturnType<typeof setTimeout>;
 }
 
@@ -354,18 +356,30 @@ function inputFor<TArgs>(
  * Hover is explicit because terminals do not send a "left the row" event: a move
  * lights the row, and a short timer clears it when the pointer stops reporting.
  */
+function claimRowHover<TArgs>(ctx: ToolRenderContext<RowState, TArgs>): RowState {
+  const state = stateOf(ctx);
+  claimHover(state, () => {
+    if (state.hoverTimer) clearTimeout(state.hoverTimer);
+    state.hoverTimer = undefined;
+    state.hover = false;
+    ctx.invalidate();
+  });
+  return state;
+}
+
 function onMouse<TArgs>(ctx: ToolRenderContext<RowState, TArgs>, event: TuiMouseEvent) {
   const state = stateOf(ctx);
   if (event.type === "move") {
-    if (!state.hover) {
-      state.hover = true;
-      ctx.invalidate();
-    }
+    const changed = !state.hover;
+    state.hover = true;
+    claimRowHover(ctx);
     if (state.hoverTimer) clearTimeout(state.hoverTimer);
     state.hoverTimer = setTimeout(() => {
       state.hover = false;
+      releaseHover(state);
       ctx.invalidate();
     }, 1200);
+    if (changed) ctx.invalidate();
     return { render: true } as const;
   }
   if (event.type === "click" && event.button === "left") {
@@ -373,6 +387,7 @@ function onMouse<TArgs>(ctx: ToolRenderContext<RowState, TArgs>, event: TuiMouse
     if (action === null) return undefined;
     state.expansion = action;
     state.hover = true;
+    claimRowHover(ctx);
     ctx.invalidate();
     return { handled: true, render: true } as const;
   }
@@ -523,44 +538,90 @@ function groupLines(record: BlockRecord, theme: Theme, width: number, hits: Memb
 function onGroupMouse(record: BlockRecord, event: TuiMouseEvent, hits: MemberHit[]) {
   const group = record.group;
   if (!group) return undefined;
-  const clearHover = () => {
+  const clearGroup = () => {
     record.hoverSummary = false;
     for (const member of group.members) member.hoverMember = false;
   };
-  const touchHover = () => {
+  const settle = () => {
     if (record.hoverTimer) clearTimeout(record.hoverTimer);
-    record.hoverTimer = setTimeout(() => {
-      clearHover();
+    record.hoverTimer = undefined;
+    clearGroup();
+    record.invalidate();
+  };
+  const show = (owner: object, set: () => void, touch: boolean) => {
+    // Clear this group before re-lighting the row under the pointer.
+    clearGroup();
+    claimHover(owner, () => {
+      if (record.hoverOwner === owner) record.hoverOwner = undefined;
+      settle();
+    });
+    record.hoverOwner = owner;
+    set();
+    if (record.hoverTimer) clearTimeout(record.hoverTimer);
+    if (!touch) {
+      record.hoverTimer = undefined;
       record.invalidate();
+      return;
+    }
+    record.hoverTimer = setTimeout(() => {
+      releaseHover(owner);
+      if (record.hoverOwner === owner) record.hoverOwner = undefined;
+      settle();
     }, 1200);
+    record.invalidate();
+  };
+  const clearCurrent = () => {
+    if (record.hoverOwner) releaseHover(record.hoverOwner);
+    record.hoverOwner = undefined;
+    settle();
   };
 
   if (event.type === "move") {
-    clearHover();
-    if (event.y === 0 || !record.open) record.hoverSummary = true;
-    else {
+    if (event.y === 0 || !record.open) {
+      show(
+        record,
+        () => {
+          record.hoverSummary = true;
+        },
+        true,
+      );
+    } else {
       const hit = hits.find((entry) => event.y >= entry.start && event.y < entry.end);
-      if (hit) hit.member.hoverMember = true;
+      if (hit) {
+        show(
+          hit.member,
+          () => {
+            hit.member.hoverMember = true;
+          },
+          true,
+        );
+      } else clearCurrent();
     }
-    touchHover();
-    record.invalidate();
     return { render: true } as const;
   }
 
   if (event.type === "click" && event.button === "left") {
     if (!record.open || event.y === 0) {
       record.open = !record.open;
-      record.hoverSummary = true;
-      for (const member of group.members) member.hoverMember = false;
-      record.invalidate();
+      show(
+        record,
+        () => {
+          record.hoverSummary = true;
+        },
+        false,
+      );
       return { handled: true, render: true } as const;
     }
     const hit = hits.find((entry) => event.y >= entry.start && event.y < entry.end);
     if (!hit) return undefined;
     cycleMember(hit.member);
-    clearHover();
-    hit.member.hoverMember = true;
-    record.invalidate();
+    show(
+      hit.member,
+      () => {
+        hit.member.hoverMember = true;
+      },
+      false,
+    );
     return { handled: true, render: true } as const;
   }
   return undefined;

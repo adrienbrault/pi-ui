@@ -19,6 +19,7 @@ import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-a
 import { glyphsFor } from "../render/glyphs.ts";
 import type { RenderKit, RenderTheme } from "../render/kit.ts";
 import { thinkingLabel } from "../render/thinking.ts";
+import { claimHover, releaseHover } from "./hover.ts";
 
 const GLYPHS = glyphsFor("unicode");
 const KIT: RenderKit = {
@@ -128,20 +129,30 @@ function tintText(theme: RenderTheme, token: string, line: string): string {
 
 function bindHover(region: HiddenThinkingRegion, component: AssistantLike, state: HoverState): void {
   const original = region.onMouse;
+  const clear = () => {
+    if (state.timer) clearTimeout(state.timer);
+    state.timer = undefined;
+    state.active = false;
+    component.invalidate?.();
+  };
   region.onMouse = (event: MouseEventLike) => {
     let firstMove = false;
     if (event.type === "move") {
       firstMove = !state.active;
       state.active = true;
+      claimHover(state, clear);
       if (state.timer) clearTimeout(state.timer);
       state.timer = setTimeout(() => {
         state.active = false;
+        state.timer = undefined;
+        releaseHover(state);
         component.invalidate?.();
       }, 1200);
       if (firstMove) component.invalidate?.();
     } else if (event.type === "click") {
-      state.active = false;
-      if (state.timer) clearTimeout(state.timer);
+      claimHover(state, clear);
+      clear();
+      releaseHover(state);
     }
     const result = original.call(region, event);
     // The dispatch layer repaints only when a handler asks for it.

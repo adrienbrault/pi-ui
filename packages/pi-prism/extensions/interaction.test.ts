@@ -103,6 +103,31 @@ describe("tool renderers", () => {
     expect(line).toContain("[ click · expand ]");
   });
 
+  test("only one hovered row keeps the chip", () => {
+    const renderers = resolver()("bash", () => undefined) as Renderers;
+    const first = {
+      ...ctx,
+      args: { command: "first" },
+      state: undefined as unknown as { expansion: number; hover: boolean },
+    };
+    const firstHeader = renderers.renderCall(first.args, theme, first);
+    const firstBody = renderers.renderResult(result, {}, theme, first);
+    firstBody.handleMouse?.(move());
+    expect(firstHeader.render(80)[0]).toContain("[ click");
+
+    const second = {
+      ...ctx,
+      args: { command: "second" },
+      state: undefined as unknown as { expansion: number; hover: boolean },
+    };
+    const secondHeader = renderers.renderCall(second.args, theme, second);
+    const secondBody = renderers.renderResult(result, {}, theme, second);
+    secondBody.handleMouse?.(move());
+
+    expect(secondHeader.render(80)[0]).toContain("[ click");
+    expect(firstHeader.render(80)[0]).not.toContain("[ click");
+  });
+
   test("owned tools claim the row and grow the body on click", () => {
     const renderers = resolver()("bash", () => undefined) as Renderers;
     const header = renderers.renderCall(ctx.args, theme, ctx);
