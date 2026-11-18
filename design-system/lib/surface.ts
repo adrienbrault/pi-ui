@@ -133,11 +133,21 @@ function escapeAttribute(text: string): string {
   return text.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+/**
+ * Completion is the common case: thousands of frames repeat the same rows.
+ * Convert each distinct line once and reuse the row HTML.
+ */
+const rowCache = new Map<string, string>();
+
 export function toRows(pi: PiInstall, lines: string[]): string[] {
   return lines.map((line) => {
+    const hit = rowCache.get(line);
+    if (hit !== undefined) return hit;
     const row = lineToHtml(pi, line);
     const style = row.background ? ` style="background-color:${row.background}"` : "";
-    return `<div class="ansi-line"${style}>${row.html || "&nbsp;"}</div>`;
+    const html = `<div class="ansi-line"${style}>${row.html || "&nbsp;"}</div>`;
+    rowCache.set(line, html);
+    return html;
   });
 }
 

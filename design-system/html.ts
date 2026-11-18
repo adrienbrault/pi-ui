@@ -813,7 +813,7 @@ const GROUP_LABEL: Record<string, string> = {
   tools: "Tool rows",
   thinking: "Thinking",
   groups: "Groups",
-  glyphs: "Glyphs & motion",
+  glyphs: "Glyph lab",
   scenarios: "Scenarios",
 };
 

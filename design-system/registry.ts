@@ -852,6 +852,10 @@ function stepShape(step: SessionStep, index: number, frame: PlaybackFrame): Bloc
  */
 const finishedPieces = new Map<string, SessionPiece>();
 const finishedGroups = new Map<string, string[]>();
+const finishedMembers = new Map<string, string[]>();
+let framePieces: { key: string; pieces: SessionPiece[] } | undefined;
+let frameArrangement: { key: string; value: { lines: string[]; toggles: ToggleSpec[] } } | undefined;
+let baseComponents = new Map<string, any>();
 
 /** What a step shows at this frame: complete for past steps, streamed for the live one. */
 function stepProgress(step: SessionStep, index: number, frame: PlaybackFrame) {
@@ -883,32 +887,42 @@ function sessionBase(ctx: RenderCtx, frameIndex: number): string[] {
   const steps = SESSION_STEPS.slice(0, frame.step + 1);
   const components = steps.map((step, index) => {
     const progress = stepProgress(step, index, frame);
-    switch (step.kind) {
-      case "prefill":
-        return ctx.kit.component(() => []);
-      case "user":
-        return new ctx.pi.modules.coding.UserMessageComponent(
-          partialText(step.text, progress.chars),
-          ctx.pi.modules.coding.getMarkdownTheme(),
-          1,
-        );
-      case "thinking":
-        return baseAssistant(ctx.pi, [{ type: "thinking", thinking: partialText(step.text, progress.chars) }], true);
-      case "text":
-        return baseAssistant(ctx.pi, [{ type: "text", text: partialText(step.text, progress.chars) }], false);
-      case "tool": {
-        const key = streamingArgKey(step.tool.name);
-        const fullArg = String(step.tool.args[key] ?? "");
-        const streamedArgs = { ...step.tool.args };
-        if (progress.partial && progress.chars < fullArg.length) streamedArgs[key] = fullArg.slice(0, progress.chars);
-        const output = partialLines(step.tool.output ?? "", progress.lines);
-        return baseToolStreaming(ctx.pi, step.tool.name, streamedArgs, output, {
-          argsComplete: progress.chars >= fullArg.length,
-          partial: progress.partial,
-          isError: !progress.partial && (step.tool.failed ?? false),
-        });
-      }
+    // Completed steps are identical for every later frame: remember the block.
+    const memoKey = `${ctx.themeName}:${ctx.glyphMode}:${ctx.width}:${index}`;
+    if (!progress.partial && !progress.live) {
+      const hit = baseComponents.get(memoKey);
+      if (hit) return hit;
     }
+    const built = (() => {
+      switch (step.kind) {
+        case "prefill":
+          return ctx.kit.component(() => []);
+        case "user":
+          return new ctx.pi.modules.coding.UserMessageComponent(
+            partialText(step.text, progress.chars),
+            ctx.pi.modules.coding.getMarkdownTheme(),
+            1,
+          );
+        case "thinking":
+          return baseAssistant(ctx.pi, [{ type: "thinking", thinking: partialText(step.text, progress.chars) }], true);
+        case "text":
+          return baseAssistant(ctx.pi, [{ type: "text", text: partialText(step.text, progress.chars) }], false);
+        case "tool": {
+          const key = streamingArgKey(step.tool.name);
+          const fullArg = String(step.tool.args[key] ?? "");
+          const streamedArgs = { ...step.tool.args };
+          if (progress.partial && progress.chars < fullArg.length) streamedArgs[key] = fullArg.slice(0, progress.chars);
+          const output = partialLines(step.tool.output ?? "", progress.lines);
+          return baseToolStreaming(ctx.pi, step.tool.name, streamedArgs, output, {
+            argsComplete: progress.chars >= fullArg.length,
+            partial: progress.partial,
+            isError: !progress.partial && (step.tool.failed ?? false),
+          });
+        }
+      }
+    })();
+    if (!progress.partial && !progress.live) baseComponents.set(memoKey, built);
+    return built;
   });
   return stack(SESSION_WIDTH, components);
 }
@@ -923,10 +937,12 @@ interface SessionPiece {
 function sessionPieces(ctx: RenderCtx, frameIndex: number): SessionPiece[] {
   const frame = PLAYBACK[frameIndex];
   if (!frame) throw new Error(`session frame ${frameIndex} out of range`);
+  const frameKey = `${ctx.themeName}:${ctx.glyphMode}:${frameIndex}`;
+  if (framePieces?.key === frameKey) return framePieces.pieces;
   const steps = SESSION_STEPS.slice(0, frame.step + 1);
   const plan = planTranscript(steps.map((step, index) => stepShape(step, index, frame)));
 
-  return plan.map((item) => {
+  const pieces = plan.map((item) => {
     if (item.kind === "group") {
       const groupKey = `${ctx.themeName}:${ctx.glyphMode}:${JSON.stringify(item.segments)}`;
       const memo = finishedGroups.get(groupKey);
@@ -1028,6 +1044,8 @@ function sessionPieces(ctx: RenderCtx, frameIndex: number): SessionPiece[] {
       }
     }
   });
+  framePieces = { key: frameKey, pieces };
+  return pieces;
 }
 
 /** Strip SGR and OSC to ask the only question a gap cares about: is there text? */
@@ -1054,6 +1072,8 @@ function trimEdgeBlanks(lines: string[]): string[] {
 
 /** Lay pieces out like the transcript: one blank row between blocks. */
 function arrangePieces(pieces: SessionPiece[], gap = 1): { lines: string[]; toggles: ToggleSpec[] } {
+  const key = `${pieces.length}:${gap}:${pieces.map((piece) => piece.lines.length).join(",")}`;
+  if (frameArrangement?.key === key) return frameArrangement.value;
   const lines: string[] = [];
   const toggles: ToggleSpec[] = [];
   // An empty piece (a text delta with no characters yet) must not claim a gap.
@@ -1068,7 +1088,9 @@ function arrangePieces(pieces: SessionPiece[], gap = 1): { lines: string[]; togg
       toggles.push({ row, count: body.length, opens: piece.opens, key: piece.key });
     }
   });
-  return { lines, toggles };
+  const value = { lines, toggles };
+  frameArrangement = { key, value };
+  return value;
 }
 
 function sessionOurs(ctx: RenderCtx, frameIndex: number): string[] {
@@ -1113,9 +1135,19 @@ function sessionReveal(ctx: RenderCtx, frameIndex: number): RevealGroup[] {
         durationMs: step.tool.durationMs,
         level: 4,
       };
-      const collapsed = renderToolLine(ours(ctx), input).render(SESSION_WIDTH);
-      const preview = renderToolRow(ours(ctx), input).render(SESSION_WIDTH);
-      const expanded = renderToolRow(ours(ctx), { ...input, expanded: true }).render(SESSION_WIDTH);
+      const memberKey = `${ctx.themeName}:${ctx.glyphMode}:${index}`;
+      let variants = finishedMembers.get(memberKey);
+      if (!variants) {
+        variants = [
+          renderToolLine(ours(ctx), input).render(SESSION_WIDTH).join("\n"),
+          renderToolRow(ours(ctx), input).render(SESSION_WIDTH).join("\n"),
+          renderToolRow(ours(ctx), { ...input, expanded: true })
+            .render(SESSION_WIDTH)
+            .join("\n"),
+        ];
+        finishedMembers.set(memberKey, variants);
+      }
+      const [collapsed = [], preview = [], expanded = []] = variants.map((body) => body.split("\n"));
       return [
         {
           collapsed,
@@ -1222,6 +1254,34 @@ const ICON_OPTIONS: Record<string, IconOption> = {
       { name: "generic", icon: "󰇙" },
     ],
   },
+  ascii: {
+    label: "ASCII safe",
+    note: "Every glyph is a printable ASCII char: identical on any font, any terminal.",
+    icons: [
+      { name: "read", icon: ">" },
+      { name: "search", icon: "?" },
+      { name: "write", icon: "+" },
+      { name: "edit", icon: "*" },
+      { name: "bash", icon: "$" },
+      { name: "web", icon: "@" },
+      { name: "memory/search", icon: "#" },
+      { name: "generic", icon: "%" },
+    ],
+  },
+  geometric: {
+    label: "Geometric",
+    note: "Open shapes for nouns, filled for verbs: reads as a diagram, not an emoji set.",
+    icons: [
+      { name: "read", icon: "▷" },
+      { name: "search", icon: "◌" },
+      { name: "write", icon: "◆" },
+      { name: "edit", icon: "◇" },
+      { name: "bash", icon: "❯" },
+      { name: "web", icon: "◈" },
+      { name: "memory/search", icon: "⬢" },
+      { name: "generic", icon: "▫" },
+    ],
+  },
   marker: {
     label: "Single marker",
     note: "What ships today: one dot for every tool, kind and outcome live in the words.",
@@ -1238,6 +1298,33 @@ const ICON_OPTIONS: Record<string, IconOption> = {
   },
 };
 
+/** All icon candidates in one card: labels, then four icons per row. */
+function iconsAllSheet(ctx: RenderCtx, frame = 0): string[] {
+  const rows: string[] = [];
+  let cell = 0;
+  for (const option of Object.values(ICON_OPTIONS)) {
+    rows.push(ctx.theme.style(option.label, { fg: "toolTitle", bold: true }));
+    const cells = option.icons.map(({ name, icon }) => {
+      const tone = TONES[(cell++ + frame) % TONES.length] ?? "accent";
+      return `${ctx.theme.fg(tone, icon)} ${ctx.theme.fg("toolOutput", name)}`;
+    });
+    for (let at = 0; at < cells.length; at += 4) {
+      rows.push(`  ${cells.slice(at, at + 4).join("   ")}`);
+    }
+  }
+  return rows.map((line) => ctx.kit.truncateToWidth(line, ctx.width, "…"));
+}
+
+/** Every spinner in one card, all animating at once: compare, then pick. */
+function motionsAllSheet(ctx: RenderCtx, frame: number): string[] {
+  return Object.values(MOTION_OPTIONS).flatMap((option) => {
+    const glyph = option.frames[frame % option.frames.length] ?? "";
+    const head = `${ctx.theme.fg(toneAt(option, frame), glyph)} ${ctx.theme.style(option.label, { fg: "toolTitle", bold: true })}`;
+    const tail = ctx.theme.fg("dim", `· ${option.frames.length} frames`);
+    return [ctx.kit.truncateToWidth(`${head} ${tail}`, ctx.width, "…")];
+  });
+}
+
 function iconSheet(ctx: RenderCtx, option: IconOption): string[] {
   return option.icons.map(({ name, icon }) => {
     const head = `${ctx.theme.fg("accent", icon)} ${ctx.theme.fg("toolTitle", name)}`;
@@ -1250,28 +1337,53 @@ interface MotionOption {
   label: string;
   note: string;
   frames: string[];
+  /** Optional per-frame colour: the same glyph can warm up as work advances. */
+  colors?: string[];
 }
+
+/** Colour for a frame, or the calm accent when the option is monochrome. */
+function toneAt(option: MotionOption, frame: number): string {
+  return option.colors?.[frame % option.colors.length] ?? "accent";
+}
+
+/** A colour sweep across a row of icons: the glyphs breathe while motion is on. */
+const TONES = ["accent", "muted", "toolOutput", "success", "warning", "muted"] as const;
 
 const MOTION_OPTIONS: Record<string, MotionOption> = {
   braille: {
     label: "Braille orbit",
     note: "Ships today: ten frames, smooth on every mono font.",
     frames: [...glyphsFor("unicode").spinner],
+    colors: [
+      "accent",
+      "accent",
+      "toolOutput",
+      "success",
+      "success",
+      "toolOutput",
+      "accent",
+      "accent",
+      "accent",
+      "accent",
+    ],
   },
   quarter: {
     label: "Quarter circle",
     note: "Four frames: the crispest geometric sweep, no dot noise.",
     frames: ["◜", "◝", "◞", "◟"],
+    colors: ["accent", "toolOutput", "success", "toolOutput"],
   },
   blocks: {
     label: "Rising blocks",
     note: "Eight frames: reads as work accumulating rather than spinning.",
     frames: ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"],
+    colors: ["dim", "muted", "accent", "toolOutput", "success", "toolOutput", "accent", "muted"],
   },
   orbit: {
     label: "Orbit pulse",
     note: "Four frames: a bead circling into and out of view.",
     frames: ["·", "•", "●", "•"],
+    colors: ["dim", "muted", "accent", "toolOutput"],
   },
   arrows: {
     label: "Compass",
@@ -1282,26 +1394,64 @@ const MOTION_OPTIONS: Record<string, MotionOption> = {
     label: "Shade breathe",
     note: "Six frames of ░▒▓█: reads as pressure building, not rotation (from agents-are-thinking).",
     frames: ["░", "▒", "▓", "█", "▓", "▒"],
+    colors: ["dim", "muted", "accent", "success", "accent", "muted"],
   },
   seesaw: {
     label: "Bar seesaw",
     note: "One column of a bar wave: ▁▃▅▇▅▃ — the repo's BarSeeSaw collapsed to a single cell.",
     frames: ["▁", "▃", "▅", "▇", "▅", "▃"],
+    colors: ["dim", "muted", "accent", "toolOutput", "accent", "muted"],
   },
   square: {
     label: "Square sweep",
     note: "Four quadrants rotating: the repo's Square family as one glyph.",
     frames: ["◰", "◳", "◲", "◱"],
+    colors: ["accent", "toolOutput", "success", "accent"],
   },
   scanner: {
     label: "Scanner",
     note: "A sweep that grows and returns: reads as measuring rather than waiting.",
     frames: ["▏", "▎", "▍", "▌", "▋", "▊", "▉", "█", "▉", "▊", "▋", "▌", "▍", "▎"],
+    colors: [
+      "dim",
+      "muted",
+      "accent",
+      "accent",
+      "toolOutput",
+      "toolOutput",
+      "success",
+      "success",
+      "success",
+      "toolOutput",
+      "accent",
+      "accent",
+      "muted",
+      "dim",
+    ],
   },
   ripple: {
     label: "Ripple",
     note: "A dot opening and closing: the repo's Ripple, reduced to one column.",
     frames: ["·", "○", "◔", "◐", "◕", "●", "◕", "◐", "◔", "○"],
+    colors: ["dim", "muted", "accent", "toolOutput", "success", "success", "toolOutput", "accent", "muted", "dim"],
+  },
+  progress: {
+    label: "Progress tint",
+    note: "The bar rises while its colour warms from dim to success: progress and outcome in one cell.",
+    frames: ["▁", "▃", "▅", "▇", "█", "▇", "▅", "▃"],
+    colors: ["dim", "muted", "accent", "toolOutput", "success", "toolOutput", "accent", "muted"],
+  },
+  glimmer: {
+    label: "Glimmer",
+    note: "A four-point star that catches light: calm enough for long reads, alive while it waits.",
+    frames: ["✦", "✧", "✦", "✧"],
+    colors: ["dim", "accent", "toolOutput", "accent"],
+  },
+  heat: {
+    label: "Heat gauge",
+    note: "One dot carrying the temperature of the run: success, warning, then error when it fails.",
+    frames: ["●", "◉", "●", "◉"],
+    colors: ["success", "warning", "warning", "error"],
   },
   moon: {
     label: "Moon phases",
@@ -1317,9 +1467,12 @@ const MOTION_OPTIONS: Record<string, MotionOption> = {
 
 function motionSheet(ctx: RenderCtx, option: MotionOption, frame: number): string[] {
   const glyph = option.frames[frame % option.frames.length] ?? "";
-  const think = `${ctx.theme.fg("accent", glyph)} ${ctx.theme.fg("toolTitle", "think")}`;
-  const thought = ctx.theme.italic(ctx.theme.fg("thinkingText", "  Watching the tail while the output still arrives."));
-  const tool = `${ctx.theme.fg("accent", glyph)} ${ctx.theme.fg("toolTitle", "bash")} ${ctx.theme.fg("dim", "· bun test · running")}`;
+  const tone = toneAt(option, frame);
+  const think = `${ctx.theme.fg(tone, glyph)} ${ctx.theme.fg("toolTitle", "think")}`;
+  const thought = ctx.theme.italic(
+    ctx.theme.fg(tone === "accent" ? "thinkingText" : tone, "  Watching the tail while the output still arrives."),
+  );
+  const tool = `${ctx.theme.fg(tone, glyph)} ${ctx.theme.fg("toolTitle", "bash")} ${ctx.theme.fg("dim", "· bun test · running")}`;
   return [
     think,
     thought,
@@ -1346,6 +1499,38 @@ const glyphEntries: EntryDef[] = [
     })),
   },
   {
+    id: "lab.icons.all",
+    title: "Every icon candidate",
+    group: "glyphs",
+    variant: "ours",
+    description:
+      "All icon sets at once, four per row. Same sample names, so the only variable is the glyph vocabulary.",
+    states: [
+      {
+        id: "all",
+        label: "all sets",
+        frames: 12,
+        render: (ctx, frame) => iconsAllSheet(ctx, frame),
+      },
+    ],
+  },
+  {
+    id: "lab.motions.all",
+    title: "Every spinner at once",
+    group: "glyphs",
+    variant: "ours",
+    description:
+      "All single-cell animations side by side, each cycling at its own length. Paused with the motion toggle.",
+    states: [
+      {
+        id: "all",
+        label: "all motions",
+        frames: Math.max(...Object.values(MOTION_OPTIONS).map((option) => option.frames.length)),
+        render: (ctx, frame) => motionsAllSheet(ctx, frame),
+      },
+    ],
+  },
+  {
     id: "glyph.motion",
     title: "Animations",
     group: "glyphs",
@@ -1366,8 +1551,8 @@ export const ENTRIES: EntryDef[] = [
   ...sessionEntries,
   ...baseEntries,
   ...oursEntries,
-  ...glyphEntries,
   ...scenarioEntries,
+  ...glyphEntries,
 ];
 
 export const WIDTHS = [40, 60, 80, 100, 120] as const;
