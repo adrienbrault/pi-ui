@@ -69,7 +69,13 @@ export function thinkingLabel(api: ThinkingApi, input: ThinkingLabelInput): stri
   const duration = seconds(input.durationMs);
   const head = duration ? `${marker} ${theme.fg("dim", duration)}` : marker;
 
-  // One row of the budget is the header; the rest is tail at body indent.
-  const rows = tail.slice(-(budget - 1)).map(body);
+  // One row of the budget is the header. Body text wraps instead of ending in
+  // an ellipsis: a terminal row is a layout unit, not a truncation point.
+  const bodyWidth = Math.max(1, input.width - INDENT.length);
+  const wrapped = tail.slice(-(budget - 1)).flatMap((row) => kit.wrap(row, bodyWidth));
+  // Collapsed rows keep the newest terminal rows; expanded rows show the whole
+  // thought (already capped to the last 16 source lines above).
+  const visible = input.expanded ? wrapped : wrapped.slice(-(budget - 1));
+  const rows = visible.map(body);
   return [head, ...rows].map((row) => clampLine(kit, row, input.width)).join("\n");
 }

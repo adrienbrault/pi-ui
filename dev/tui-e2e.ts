@@ -3,13 +3,14 @@
  *
  * Synthetic sessions are restored so no model turn is needed. The pane is read
  * as text and SGR mouse sequences are injected as literal input, which is what
- * a terminal would send. Three scenarios:
+ * a terminal would send. Four scenarios:
  *
  * - 7 calls: the decay ladder, the hover chip, click expansion, inert rows.
  * - 12 calls: rows past FOLD_DISTANCE collapse into one summary; the summary
  *   opens its members; a member then expands its own body.
  * - Thinking followed by work: the thinking run decays on the same ladder, keeps
  *   a tail, and still opens all the way on click.
+ * - Many old thoughts: the folded run becomes one `Thought N times` summary.
  *
  * Run: bun run e2e
  */
@@ -273,6 +274,68 @@ function thinkingFixture(path: string): void {
   writeFileSync(path, `${entries.map((entry) => JSON.stringify(entry)).join("\n")}\n`);
 }
 
+function thinkingFoldFixture(path: string): void {
+  const now = Date.now();
+  const entries: Entry[] = [];
+  let parentId: string | null = null;
+  const add = (entry: Entry): void => {
+    entries.push(entry);
+    parentId = String(entry.id);
+  };
+  const message = (id: string, timestamp: number, body: Record<string, unknown>): void => {
+    add({ type: "message", id, parentId, timestamp: new Date(timestamp).toISOString(), message: body });
+  };
+  const usage = {
+    input: 100,
+    output: 20,
+    cacheRead: 0,
+    cacheWrite: 0,
+    reasoning: 0,
+    totalTokens: 120,
+    cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0, totalFromProvider: false },
+  };
+
+  add({ type: "session", version: 3, id: crypto.randomUUID(), timestamp: new Date(now).toISOString(), cwd: ROOT });
+  add({ type: "model_change", id: "model", parentId: null, timestamp: new Date(now).toISOString(), provider: "flan", modelId: "deepseek-v4.1-flash-1017" });
+  add({ type: "thinking_level_change", id: "thinking", parentId, timestamp: new Date(now).toISOString(), thinkingLevel: "medium" });
+  message("user", now, { role: "user", content: [{ type: "text", text: "Fold the old thoughts." }], timestamp: now });
+
+  for (let index = 0; index < 20; index += 1) {
+    message(`assistant-${index}`, now + 1000 + index, {
+      role: "assistant",
+      api: "openai-completions",
+      provider: "flan",
+      model: "deepseek-v4.1-flash-1017",
+      stopReason: "stop",
+      timestamp: now + 1000 + index,
+      usage,
+      content: [{ type: "thinking", thinking: `thought old-${index}` }],
+    });
+  }
+
+  message("assistant-done", now + 4000, {
+    role: "assistant",
+    api: "openai-completions",
+    provider: "flan",
+    model: "deepseek-v4.1-flash-1017",
+    stopReason: "stop",
+    timestamp: now + 4000,
+    usage,
+    content: [{ type: "text", text: "Fold done." }],
+  });
+
+  writeFileSync(path, `${entries.map((entry) => JSON.stringify(entry)).join("\n")}\n`);
+}
+
+async function thinkingFoldScenario(sessionPath: string): Promise<void> {
+  start(sessionPath, 50);
+  const pane = await waitFor("Fold done.");
+  assert(count(pane, "Thought 12 times") === 1, `old thoughts should fold into one summary\n${pane}`);
+  assert(!pane.includes("thought old-0"), `the oldest folded thought leaked\n${pane}`);
+  assert(!pane.includes("thought old-11"), `the newest folded thought leaked\n${pane}`);
+  assert(pane.includes("thought old-19"), `the newest thought should survive\n${pane}`);
+}
+
 async function foldScenario(sessionPath: string): Promise<void> {
   start(sessionPath, 60);
   let pane = await waitFor("All twelve commands finished.");
@@ -335,14 +398,16 @@ async function thinkingScenario(sessionPath: string): Promise<void> {
   await Bun.sleep(400);
   pane = capture();
   assert(pane.includes("SECRET_MIDDLE_CLAUSE"), `click should reveal the full thinking body\n${pane}`);
+  assert(pane.includes("✻ think"), `expanded thinking must keep its marker\n${pane}`);
 
   pane = capture();
-  const collapseRow = rowOf(pane, "Thought intro.");
+  const collapseRow = rowOf(pane, "thought line 5");
   mouse(0, 5, collapseRow);
   mouse(0, 5, collapseRow, true);
   await Bun.sleep(400);
   pane = capture();
   assert(!pane.includes("SECRET_MIDDLE_CLAUSE"), `second click should collapse thinking again\n${pane}`);
+  assert(pane.includes("✻ think"), `collapsed thinking must keep its marker\n${pane}`);
 }
 
 async function main(): Promise<void> {
@@ -364,6 +429,12 @@ async function main(): Promise<void> {
     thinkingFixture(think);
     await thinkingScenario(think);
     console.log("thinking ok: thinking keeps a decayed tail; click reveals the full thought; second click collapses");
+
+    tmux("kill-server");
+    const thinkFold = join(dir, "thinking-fold.jsonl");
+    thinkingFoldFixture(thinkFold);
+    await thinkingFoldScenario(thinkFold);
+    console.log("thinking fold ok: old thoughts became one summary; newest thought survives");
   } finally {
     try {
       tmux("kill-server");

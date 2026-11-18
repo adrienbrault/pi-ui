@@ -51,8 +51,9 @@ Rules:
 - Distance counts within the current run.
 - One-line blocks hold their line until the fold distance: they do not vanish
   the turn after they shrink.
-- Thinking sheds one row per turn and bottoms out at one inline line; it never
-  folds into a group.
+- Thinking sheds one row per turn and bottoms out at one inline line. Past the
+  fold distance, folded thoughts become one `Thought N times` summary at the
+  oldest folded thought; the newest thought stays inline.
 - Errors and the live block keep their own rows; a failure never joins a group.
 - Recompute on structural events only; never per token.
 - Hysteresis: two consecutive recomputes must agree before a level changes.
@@ -67,9 +68,12 @@ Rules:
   `click · collapse` — in an inverted chip at its right edge.
 - Thinking runs decay on the same visual ladder: the number of blocks that
   follow them in the run sets their level, so an older thought keeps a tail
-  instead of collapsing to one line prematurely. Hover is neutral for thinking
-  and tool rows alike: the chip carries the affordance, the status glyph keeps
-  the outcome colour.
+  instead of collapsing to one line prematurely. Body text wraps instead of
+  ending in an ellipsis; a terminal row is a layout unit, not a truncation
+  point. Hover is neutral for thinking and tool rows alike: the chip carries the
+  affordance, the status glyph keeps the outcome colour.
+- A failed shell puts the exit status in its header and stderr in the body:
+  the outcome stays scannable while the evidence stays readable.
 
 ## Width and glyphs
 

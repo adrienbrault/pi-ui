@@ -4,9 +4,10 @@ import type { ComponentLike, RenderKit } from "../../packages/pi-prism/render/ki
 import type { PiInstall } from "./pi.ts";
 
 export function createKit(pi: PiInstall): RenderKit {
-  const { truncateToWidth, visibleWidth } = pi.modules.tui;
+  const { truncateToWidth, visibleWidth, wrapTextWithAnsi } = pi.modules.tui;
   return {
     truncateToWidth: (line, width, ellipsis) => truncateToWidth(line, width, ellipsis),
+    wrap: (text, width) => wrapTextWithAnsi(text, width),
     visibleWidth: (text) => visibleWidth(text),
     component: (build) =>
       ({

@@ -7,7 +7,14 @@
  * and a move paints the action the click would take.
  */
 
-import { MouseRegion, truncateToWidth, visibleWidth, type Component, type TuiMouseEvent } from "@earendil-works/pi-tui";
+import {
+  MouseRegion,
+  truncateToWidth,
+  visibleWidth,
+  wrapTextWithAnsi,
+  type Component,
+  type TuiMouseEvent,
+} from "@earendil-works/pi-tui";
 import type { ExtensionAPI, ToolRendererResolver, ToolRenderResultOptions } from "@earendil-works/pi-coding-agent";
 import { FOLD_DISTANCE, bodyLinesFor, type DetailLevel } from "../render/detail.ts";
 import { glyphsFor } from "../render/glyphs.ts";
@@ -49,6 +56,7 @@ const GLYPHS = glyphsFor("unicode");
 /** pi-tui's primitives, injected so the renderer stays dependency-free. */
 const KIT: RenderKit = {
   truncateToWidth,
+  wrap: wrapTextWithAnsi,
   visibleWidth,
   component: (build) => ({
     render: build,

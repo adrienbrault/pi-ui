@@ -4396,48 +4396,37 @@
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;150;160;164m\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m\u001b[23m                                ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels    ",
-        " \u001b[3;38;2;150;160;164mdef\u001b[0m…\u001b[0m\u001b[23m                                   ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so   ",
-        " \u001b[3;38;2;150;160;164mgr\u001b[0m…\u001b[0m\u001b[23m                                    ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the  ",
-        " \u001b[3;38;2;150;160;164mt\u001b[0m…\u001b[0m\u001b[23m                                     ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events,     ",
-        " \u001b[3;38;2;150;160;164mneve\u001b[0m…\u001b[0m\u001b[23m                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while    ",
-        " \u001b[3;38;2;150;160;164mstr\u001b[0m…\u001b[0m\u001b[23m                                   ",
+        " \u001b[3;38;2;150;160;164mnever\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                  ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m\u001b[3m\u001b[23m    ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the    ",
-        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3;38;2;150;160;164mnex\u001b[0m…\u001b[0m\u001b[39m\u001b[23m                                   "
+        " \u001b[3;38;2;150;160;164mnext\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                   ",
+        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m                                 "
       ]
     },
     "streaming/dark/40/ascii": {
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;150;160;164m\u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m\u001b[23m                                ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels    ",
-        " \u001b[3;38;2;150;160;164mdef\u001b[0m…\u001b[0m\u001b[23m                                   ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so   ",
-        " \u001b[3;38;2;150;160;164mgr\u001b[0m…\u001b[0m\u001b[23m                                    ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the  ",
-        " \u001b[3;38;2;150;160;164mt\u001b[0m…\u001b[0m\u001b[23m                                     ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events,     ",
-        " \u001b[3;38;2;150;160;164mneve\u001b[0m…\u001b[0m\u001b[23m                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while    ",
-        " \u001b[3;38;2;150;160;164mstr\u001b[0m…\u001b[0m\u001b[23m                                   ",
+        " \u001b[3;38;2;150;160;164mnever\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                  ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m\u001b[3m\u001b[23m    ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the    ",
-        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3;38;2;150;160;164mnex\u001b[0m…\u001b[0m\u001b[39m\u001b[23m                                   "
+        " \u001b[3;38;2;150;160;164mnext\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                   ",
+        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m                                 "
       ]
     },
     "streaming/dark/60/unicode": {
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;150;160;164m\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m\u001b[23m                                                    ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels default to             ",
-        " \u001b[3;38;2;150;160;164m'Thinking...'\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                              ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must         ",
-        " \u001b[3;38;2;150;160;164mneutrali\u001b[0m…\u001b[0m\u001b[23m                                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current  ",
-        " \u001b[3;38;2;150;160;164mr\u001b[0m…\u001b[0m\u001b[23m                                                         ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  neutralise it\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                            ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m\u001b[3m\u001b[23m  ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                                      ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m         ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m              ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m              "
@@ -4447,12 +4436,9 @@
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;150;160;164m\u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m\u001b[23m                                                    ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels default to             ",
-        " \u001b[3;38;2;150;160;164m'Thinking...'\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                              ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must         ",
-        " \u001b[3;38;2;150;160;164mneutrali\u001b[0m…\u001b[0m\u001b[23m                                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current  ",
-        " \u001b[3;38;2;150;160;164mr\u001b[0m…\u001b[0m\u001b[23m                                                         ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  neutralise it\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                            ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m\u001b[3m\u001b[23m  ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                                      ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m         ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m              ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m              "
@@ -4534,42 +4520,32 @@
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;150;160;164m\u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m12s\u001b[39m\u001b[23m                            ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so   ",
-        " \u001b[3;38;2;150;160;164mgr\u001b[0m…\u001b[0m\u001b[23m                                    ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the  ",
-        " \u001b[3;38;2;150;160;164mt\u001b[0m…\u001b[0m\u001b[23m                                     ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events,     ",
-        " \u001b[3;38;2;150;160;164mneve\u001b[0m…\u001b[0m\u001b[23m                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while    ",
-        " \u001b[3;38;2;150;160;164mstr\u001b[0m…\u001b[0m\u001b[23m                                   ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m\u001b[3m\u001b[23m    ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the    ",
-        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3;38;2;150;160;164mnex\u001b[0m…\u001b[0m\u001b[39m\u001b[23m                                   "
+        " \u001b[3;38;2;150;160;164mnext\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                   ",
+        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m                                 "
       ]
     },
     "done/dark/40/ascii": {
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;150;160;164m\u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m12s\u001b[39m\u001b[23m                            ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so   ",
-        " \u001b[3;38;2;150;160;164mgr\u001b[0m…\u001b[0m\u001b[23m                                    ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the  ",
-        " \u001b[3;38;2;150;160;164mt\u001b[0m…\u001b[0m\u001b[23m                                     ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events,     ",
-        " \u001b[3;38;2;150;160;164mneve\u001b[0m…\u001b[0m\u001b[23m                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while    ",
-        " \u001b[3;38;2;150;160;164mstr\u001b[0m…\u001b[0m\u001b[23m                                   ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m\u001b[3m\u001b[23m    ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the    ",
-        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3;38;2;150;160;164mnex\u001b[0m…\u001b[0m\u001b[39m\u001b[23m                                   "
+        " \u001b[3;38;2;150;160;164mnext\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                   ",
+        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m                                 "
       ]
     },
     "done/dark/60/unicode": {
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;150;160;164m\u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m12s\u001b[39m\u001b[23m                                                ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must         ",
-        " \u001b[3;38;2;150;160;164mneutrali\u001b[0m…\u001b[0m\u001b[23m                                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current  ",
-        " \u001b[3;38;2;150;160;164mr\u001b[0m…\u001b[0m\u001b[23m                                                         ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m\u001b[3m\u001b[23m  ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                                      ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m         ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m              ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m              "
@@ -4579,10 +4555,8 @@
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;150;160;164m\u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m12s\u001b[39m\u001b[23m                                                ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must         ",
-        " \u001b[3;38;2;150;160;164mneutrali\u001b[0m…\u001b[0m\u001b[23m                                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current  ",
-        " \u001b[3;38;2;150;160;164mr\u001b[0m…\u001b[0m\u001b[23m                                                         ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m\u001b[3m\u001b[23m  ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                                      ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m         ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m              ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m              "
@@ -4658,42 +4632,32 @@
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;150;160;164m\u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m12s\u001b[39m\u001b[23m                            ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so   ",
-        " \u001b[3;38;2;150;160;164mgr\u001b[0m…\u001b[0m\u001b[23m                                    ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the  ",
-        " \u001b[3;38;2;150;160;164mt\u001b[0m…\u001b[0m\u001b[23m                                     ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events,     ",
-        " \u001b[3;38;2;150;160;164mneve\u001b[0m…\u001b[0m\u001b[23m                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while    ",
-        " \u001b[3;38;2;150;160;164mstr\u001b[0m…\u001b[0m\u001b[23m                                   ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m\u001b[3m\u001b[23m    ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the    ",
-        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3;38;2;150;160;164mnex\u001b[0m…\u001b[0m\u001b[39m\u001b[23m                                   "
+        " \u001b[3;38;2;150;160;164mnext\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                   ",
+        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m                                 "
       ]
     },
     "aged1/dark/40/ascii": {
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;150;160;164m\u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m12s\u001b[39m\u001b[23m                            ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so   ",
-        " \u001b[3;38;2;150;160;164mgr\u001b[0m…\u001b[0m\u001b[23m                                    ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the  ",
-        " \u001b[3;38;2;150;160;164mt\u001b[0m…\u001b[0m\u001b[23m                                     ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events,     ",
-        " \u001b[3;38;2;150;160;164mneve\u001b[0m…\u001b[0m\u001b[23m                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while    ",
-        " \u001b[3;38;2;150;160;164mstr\u001b[0m…\u001b[0m\u001b[23m                                   ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m\u001b[3m\u001b[23m    ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the    ",
-        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3;38;2;150;160;164mnex\u001b[0m…\u001b[0m\u001b[39m\u001b[23m                                   "
+        " \u001b[3;38;2;150;160;164mnext\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                   ",
+        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m                                 "
       ]
     },
     "aged1/dark/60/unicode": {
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;150;160;164m\u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m12s\u001b[39m\u001b[23m                                                ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must         ",
-        " \u001b[3;38;2;150;160;164mneutrali\u001b[0m…\u001b[0m\u001b[23m                                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current  ",
-        " \u001b[3;38;2;150;160;164mr\u001b[0m…\u001b[0m\u001b[23m                                                         ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m\u001b[3m\u001b[23m  ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                                      ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m         ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m              ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m              "
@@ -4703,10 +4667,8 @@
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;150;160;164m\u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m12s\u001b[39m\u001b[23m                                                ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must         ",
-        " \u001b[3;38;2;150;160;164mneutrali\u001b[0m…\u001b[0m\u001b[23m                                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current  ",
-        " \u001b[3;38;2;150;160;164mr\u001b[0m…\u001b[0m\u001b[23m                                                         ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m\u001b[3m\u001b[23m  ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                                      ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m         ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m              ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m              "
@@ -4782,36 +4744,29 @@
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;150;160;164m\u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m12s\u001b[39m\u001b[23m                            ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the  ",
-        " \u001b[3;38;2;150;160;164mt\u001b[0m…\u001b[0m\u001b[23m                                     ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events,     ",
-        " \u001b[3;38;2;150;160;164mneve\u001b[0m…\u001b[0m\u001b[23m                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while    ",
-        " \u001b[3;38;2;150;160;164mstr\u001b[0m…\u001b[0m\u001b[23m                                   ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m\u001b[3m\u001b[23m    ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the    ",
-        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3;38;2;150;160;164mnex\u001b[0m…\u001b[0m\u001b[39m\u001b[23m                                   "
+        " \u001b[3;38;2;150;160;164mnext\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                   ",
+        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m                                 "
       ]
     },
     "aged2/dark/40/ascii": {
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;150;160;164m\u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m12s\u001b[39m\u001b[23m                            ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the  ",
-        " \u001b[3;38;2;150;160;164mt\u001b[0m…\u001b[0m\u001b[23m                                     ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events,     ",
-        " \u001b[3;38;2;150;160;164mneve\u001b[0m…\u001b[0m\u001b[23m                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while    ",
-        " \u001b[3;38;2;150;160;164mstr\u001b[0m…\u001b[0m\u001b[23m                                   ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m\u001b[3m\u001b[23m    ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the    ",
-        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3;38;2;150;160;164mnex\u001b[0m…\u001b[0m\u001b[39m\u001b[23m                                   "
+        " \u001b[3;38;2;150;160;164mnext\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                   ",
+        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m                                 "
       ]
     },
     "aged2/dark/60/unicode": {
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;150;160;164m\u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m12s\u001b[39m\u001b[23m                                                ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current  ",
-        " \u001b[3;38;2;150;160;164mr\u001b[0m…\u001b[0m\u001b[23m                                                         ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                                      ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m         ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m              ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m              "
@@ -4821,8 +4776,7 @@
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;150;160;164m\u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m12s\u001b[39m\u001b[23m                                                ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current  ",
-        " \u001b[3;38;2;150;160;164mr\u001b[0m…\u001b[0m\u001b[23m                                                         ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                                      ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m         ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m              ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m              "
@@ -4892,24 +4846,20 @@
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;150;160;164m\u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m12s\u001b[39m\u001b[23m                            ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events,     ",
-        " \u001b[3;38;2;150;160;164mneve\u001b[0m…\u001b[0m\u001b[23m                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while    ",
-        " \u001b[3;38;2;150;160;164mstr\u001b[0m…\u001b[0m\u001b[23m                                   ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the    ",
-        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3;38;2;150;160;164mnex\u001b[0m…\u001b[0m\u001b[39m\u001b[23m                                   "
+        " \u001b[3;38;2;150;160;164mnext\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                   ",
+        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m                                 "
       ]
     },
     "aged3/dark/40/ascii": {
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;150;160;164m\u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m12s\u001b[39m\u001b[23m                            ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events,     ",
-        " \u001b[3;38;2;150;160;164mneve\u001b[0m…\u001b[0m\u001b[23m                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while    ",
-        " \u001b[3;38;2;150;160;164mstr\u001b[0m…\u001b[0m\u001b[23m                                   ",
+        " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
         " \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the    ",
-        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3;38;2;150;160;164mnex\u001b[0m…\u001b[0m\u001b[39m\u001b[23m                                   "
+        " \u001b[3;38;2;150;160;164mnext\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                   ",
+        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m                                 "
       ]
     },
     "aged3/dark/60/unicode": {
@@ -4988,48 +4938,37 @@
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;124;134;140m\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m\u001b[23m                                ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels    ",
-        " \u001b[3;38;2;124;134;140mdef\u001b[0m…\u001b[0m\u001b[23m                                   ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so   ",
-        " \u001b[3;38;2;124;134;140mgr\u001b[0m…\u001b[0m\u001b[23m                                    ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the  ",
-        " \u001b[3;38;2;124;134;140mt\u001b[0m…\u001b[0m\u001b[23m                                     ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events,     ",
-        " \u001b[3;38;2;124;134;140mneve\u001b[0m…\u001b[0m\u001b[23m                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while    ",
-        " \u001b[3;38;2;124;134;140mstr\u001b[0m…\u001b[0m\u001b[23m                                   ",
+        " \u001b[3;38;2;124;134;140mnever\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                  ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m\u001b[3m\u001b[23m    ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the    ",
-        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3;38;2;124;134;140mnex\u001b[0m…\u001b[0m\u001b[39m\u001b[23m                                   "
+        " \u001b[3;38;2;124;134;140mnext\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                   ",
+        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m                                 "
       ]
     },
     "streaming/light/40/ascii": {
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;124;134;140m\u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m\u001b[23m                                ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels    ",
-        " \u001b[3;38;2;124;134;140mdef\u001b[0m…\u001b[0m\u001b[23m                                   ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so   ",
-        " \u001b[3;38;2;124;134;140mgr\u001b[0m…\u001b[0m\u001b[23m                                    ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the  ",
-        " \u001b[3;38;2;124;134;140mt\u001b[0m…\u001b[0m\u001b[23m                                     ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events,     ",
-        " \u001b[3;38;2;124;134;140mneve\u001b[0m…\u001b[0m\u001b[23m                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while    ",
-        " \u001b[3;38;2;124;134;140mstr\u001b[0m…\u001b[0m\u001b[23m                                   ",
+        " \u001b[3;38;2;124;134;140mnever\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                  ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m\u001b[3m\u001b[23m    ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the    ",
-        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3;38;2;124;134;140mnex\u001b[0m…\u001b[0m\u001b[39m\u001b[23m                                   "
+        " \u001b[3;38;2;124;134;140mnext\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                   ",
+        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m                                 "
       ]
     },
     "streaming/light/60/unicode": {
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;124;134;140m\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m\u001b[23m                                                    ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels default to             ",
-        " \u001b[3;38;2;124;134;140m'Thinking...'\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                              ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must         ",
-        " \u001b[3;38;2;124;134;140mneutrali\u001b[0m…\u001b[0m\u001b[23m                                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current  ",
-        " \u001b[3;38;2;124;134;140mr\u001b[0m…\u001b[0m\u001b[23m                                                         ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  neutralise it\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                            ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m\u001b[3m\u001b[23m  ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                                      ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m         ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m              ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m              "
@@ -5039,12 +4978,9 @@
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;124;134;140m\u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m\u001b[23m                                                    ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels default to             ",
-        " \u001b[3;38;2;124;134;140m'Thinking...'\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                              ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must         ",
-        " \u001b[3;38;2;124;134;140mneutrali\u001b[0m…\u001b[0m\u001b[23m                                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current  ",
-        " \u001b[3;38;2;124;134;140mr\u001b[0m…\u001b[0m\u001b[23m                                                         ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  neutralise it\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                            ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m\u001b[3m\u001b[23m  ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                                      ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m         ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m              ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m              "
@@ -5126,42 +5062,32 @@
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;124;134;140m\u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m12s\u001b[39m\u001b[23m                            ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so   ",
-        " \u001b[3;38;2;124;134;140mgr\u001b[0m…\u001b[0m\u001b[23m                                    ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the  ",
-        " \u001b[3;38;2;124;134;140mt\u001b[0m…\u001b[0m\u001b[23m                                     ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events,     ",
-        " \u001b[3;38;2;124;134;140mneve\u001b[0m…\u001b[0m\u001b[23m                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while    ",
-        " \u001b[3;38;2;124;134;140mstr\u001b[0m…\u001b[0m\u001b[23m                                   ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m\u001b[3m\u001b[23m    ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the    ",
-        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3;38;2;124;134;140mnex\u001b[0m…\u001b[0m\u001b[39m\u001b[23m                                   "
+        " \u001b[3;38;2;124;134;140mnext\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                   ",
+        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m                                 "
       ]
     },
     "done/light/40/ascii": {
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;124;134;140m\u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m12s\u001b[39m\u001b[23m                            ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so   ",
-        " \u001b[3;38;2;124;134;140mgr\u001b[0m…\u001b[0m\u001b[23m                                    ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the  ",
-        " \u001b[3;38;2;124;134;140mt\u001b[0m…\u001b[0m\u001b[23m                                     ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events,     ",
-        " \u001b[3;38;2;124;134;140mneve\u001b[0m…\u001b[0m\u001b[23m                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while    ",
-        " \u001b[3;38;2;124;134;140mstr\u001b[0m…\u001b[0m\u001b[23m                                   ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m\u001b[3m\u001b[23m    ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the    ",
-        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3;38;2;124;134;140mnex\u001b[0m…\u001b[0m\u001b[39m\u001b[23m                                   "
+        " \u001b[3;38;2;124;134;140mnext\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                   ",
+        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m                                 "
       ]
     },
     "done/light/60/unicode": {
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;124;134;140m\u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m12s\u001b[39m\u001b[23m                                                ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must         ",
-        " \u001b[3;38;2;124;134;140mneutrali\u001b[0m…\u001b[0m\u001b[23m                                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current  ",
-        " \u001b[3;38;2;124;134;140mr\u001b[0m…\u001b[0m\u001b[23m                                                         ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m\u001b[3m\u001b[23m  ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                                      ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m         ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m              ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m              "
@@ -5171,10 +5097,8 @@
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;124;134;140m\u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m12s\u001b[39m\u001b[23m                                                ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must         ",
-        " \u001b[3;38;2;124;134;140mneutrali\u001b[0m…\u001b[0m\u001b[23m                                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current  ",
-        " \u001b[3;38;2;124;134;140mr\u001b[0m…\u001b[0m\u001b[23m                                                         ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m\u001b[3m\u001b[23m  ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                                      ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m         ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m              ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m              "
@@ -5250,42 +5174,32 @@
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;124;134;140m\u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m12s\u001b[39m\u001b[23m                            ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so   ",
-        " \u001b[3;38;2;124;134;140mgr\u001b[0m…\u001b[0m\u001b[23m                                    ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the  ",
-        " \u001b[3;38;2;124;134;140mt\u001b[0m…\u001b[0m\u001b[23m                                     ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events,     ",
-        " \u001b[3;38;2;124;134;140mneve\u001b[0m…\u001b[0m\u001b[23m                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while    ",
-        " \u001b[3;38;2;124;134;140mstr\u001b[0m…\u001b[0m\u001b[23m                                   ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m\u001b[3m\u001b[23m    ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the    ",
-        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3;38;2;124;134;140mnex\u001b[0m…\u001b[0m\u001b[39m\u001b[23m                                   "
+        " \u001b[3;38;2;124;134;140mnext\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                   ",
+        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m                                 "
       ]
     },
     "aged1/light/40/ascii": {
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;124;134;140m\u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m12s\u001b[39m\u001b[23m                            ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so   ",
-        " \u001b[3;38;2;124;134;140mgr\u001b[0m…\u001b[0m\u001b[23m                                    ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the  ",
-        " \u001b[3;38;2;124;134;140mt\u001b[0m…\u001b[0m\u001b[23m                                     ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events,     ",
-        " \u001b[3;38;2;124;134;140mneve\u001b[0m…\u001b[0m\u001b[23m                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while    ",
-        " \u001b[3;38;2;124;134;140mstr\u001b[0m…\u001b[0m\u001b[23m                                   ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m\u001b[3m\u001b[23m    ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the    ",
-        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3;38;2;124;134;140mnex\u001b[0m…\u001b[0m\u001b[39m\u001b[23m                                   "
+        " \u001b[3;38;2;124;134;140mnext\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                   ",
+        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m                                 "
       ]
     },
     "aged1/light/60/unicode": {
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;124;134;140m\u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m12s\u001b[39m\u001b[23m                                                ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must         ",
-        " \u001b[3;38;2;124;134;140mneutrali\u001b[0m…\u001b[0m\u001b[23m                                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current  ",
-        " \u001b[3;38;2;124;134;140mr\u001b[0m…\u001b[0m\u001b[23m                                                         ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m\u001b[3m\u001b[23m  ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                                      ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m         ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m              ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m              "
@@ -5295,10 +5209,8 @@
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;124;134;140m\u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m12s\u001b[39m\u001b[23m                                                ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must         ",
-        " \u001b[3;38;2;124;134;140mneutrali\u001b[0m…\u001b[0m\u001b[23m                                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current  ",
-        " \u001b[3;38;2;124;134;140mr\u001b[0m…\u001b[0m\u001b[23m                                                         ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m\u001b[3m\u001b[23m  ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                                      ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m         ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m              ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m              "
@@ -5374,36 +5286,29 @@
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;124;134;140m\u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m12s\u001b[39m\u001b[23m                            ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the  ",
-        " \u001b[3;38;2;124;134;140mt\u001b[0m…\u001b[0m\u001b[23m                                     ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events,     ",
-        " \u001b[3;38;2;124;134;140mneve\u001b[0m…\u001b[0m\u001b[23m                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while    ",
-        " \u001b[3;38;2;124;134;140mstr\u001b[0m…\u001b[0m\u001b[23m                                   ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m\u001b[3m\u001b[23m    ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the    ",
-        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3;38;2;124;134;140mnex\u001b[0m…\u001b[0m\u001b[39m\u001b[23m                                   "
+        " \u001b[3;38;2;124;134;140mnext\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                   ",
+        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m                                 "
       ]
     },
     "aged2/light/40/ascii": {
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;124;134;140m\u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m12s\u001b[39m\u001b[23m                            ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the  ",
-        " \u001b[3;38;2;124;134;140mt\u001b[0m…\u001b[0m\u001b[23m                                     ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events,     ",
-        " \u001b[3;38;2;124;134;140mneve\u001b[0m…\u001b[0m\u001b[23m                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while    ",
-        " \u001b[3;38;2;124;134;140mstr\u001b[0m…\u001b[0m\u001b[23m                                   ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m\u001b[3m\u001b[23m    ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the    ",
-        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3;38;2;124;134;140mnex\u001b[0m…\u001b[0m\u001b[39m\u001b[23m                                   "
+        " \u001b[3;38;2;124;134;140mnext\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                   ",
+        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m                                 "
       ]
     },
     "aged2/light/60/unicode": {
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;124;134;140m\u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m12s\u001b[39m\u001b[23m                                                ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current  ",
-        " \u001b[3;38;2;124;134;140mr\u001b[0m…\u001b[0m\u001b[23m                                                         ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                                      ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m         ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m              ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m              "
@@ -5413,8 +5318,7 @@
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;124;134;140m\u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m12s\u001b[39m\u001b[23m                                                ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current  ",
-        " \u001b[3;38;2;124;134;140mr\u001b[0m…\u001b[0m\u001b[23m                                                         ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                                      ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m\u001b[3m\u001b[23m         ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m              ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m              "
@@ -5484,24 +5388,20 @@
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;124;134;140m\u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m12s\u001b[39m\u001b[23m                            ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events,     ",
-        " \u001b[3;38;2;124;134;140mneve\u001b[0m…\u001b[0m\u001b[23m                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while    ",
-        " \u001b[3;38;2;124;134;140mstr\u001b[0m…\u001b[0m\u001b[23m                                   ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the    ",
-        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3;38;2;124;134;140mnex\u001b[0m…\u001b[0m\u001b[39m\u001b[23m                                   "
+        " \u001b[3;38;2;124;134;140mnext\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                   ",
+        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m                                 "
       ]
     },
     "aged3/light/40/ascii": {
       "lines": [
         "\u001b]133;A\u0007",
         " \u001b[3m\u001b[38;2;124;134;140m\u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m12s\u001b[39m\u001b[23m                            ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events,     ",
-        " \u001b[3;38;2;124;134;140mneve\u001b[0m…\u001b[0m\u001b[23m                                  ",
-        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while    ",
-        " \u001b[3;38;2;124;134;140mstr\u001b[0m…\u001b[0m\u001b[23m                                   ",
+        " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m\u001b[3m\u001b[23m                            ",
         " \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the    ",
-        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3;38;2;124;134;140mnex\u001b[0m…\u001b[0m\u001b[39m\u001b[23m                                   "
+        " \u001b[3;38;2;124;134;140mnext\u001b[39m\u001b[23m\u001b[3m\u001b[23m                                   ",
+        "\u001b]133;B\u0007\u001b]133;C\u0007 \u001b[3m\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m\u001b[3m\u001b[39m\u001b[23m                                 "
       ]
     },
     "aged3/light/60/unicode": {
@@ -7262,62 +7162,52 @@
     },
     "error/dark/40/unicode": {
       "lines": [
-        "\u001b[38;2;234;127;129m✗\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mbun run typecheck\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;234;127;129mexit 2\u001b[39m",
-        "  \u001b[38;2;157;165;169mexit 2\u001b[39m"
+        "\u001b[38;2;234;127;129m✗\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mbun run typecheck\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;234;127;129mexit 2\u001b[39m"
       ]
     },
     "error/dark/40/ascii": {
       "lines": [
-        "\u001b[38;2;234;127;129mx\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mbun run typecheck\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;234;127;129mexit 2\u001b[39m",
-        "  \u001b[38;2;157;165;169mexit 2\u001b[39m"
+        "\u001b[38;2;234;127;129mx\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mbun run typecheck\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;234;127;129mexit 2\u001b[39m"
       ]
     },
     "error/dark/60/unicode": {
       "lines": [
-        "\u001b[38;2;234;127;129m✗\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mbun run typecheck\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;234;127;129mexit 2\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;126;136;142m1.2s\u001b[39m",
-        "  \u001b[38;2;157;165;169mexit 2\u001b[39m"
+        "\u001b[38;2;234;127;129m✗\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mbun run typecheck\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;234;127;129mexit 2\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;126;136;142m1.2s\u001b[39m"
       ]
     },
     "error/dark/60/ascii": {
       "lines": [
-        "\u001b[38;2;234;127;129mx\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mbun run typecheck\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;234;127;129mexit 2\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;126;136;142m1.2s\u001b[39m",
-        "  \u001b[38;2;157;165;169mexit 2\u001b[39m"
+        "\u001b[38;2;234;127;129mx\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mbun run typecheck\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;234;127;129mexit 2\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;126;136;142m1.2s\u001b[39m"
       ]
     },
     "error/dark/80/unicode": {
       "lines": [
-        "\u001b[38;2;234;127;129m✗\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mbun run typecheck\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;234;127;129mexit 2\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;126;136;142m1.2s\u001b[39m",
-        "  \u001b[38;2;157;165;169mexit 2\u001b[39m"
+        "\u001b[38;2;234;127;129m✗\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mbun run typecheck\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;234;127;129mexit 2\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;126;136;142m1.2s\u001b[39m"
       ]
     },
     "error/dark/80/ascii": {
       "lines": [
-        "\u001b[38;2;234;127;129mx\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mbun run typecheck\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;234;127;129mexit 2\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;126;136;142m1.2s\u001b[39m",
-        "  \u001b[38;2;157;165;169mexit 2\u001b[39m"
+        "\u001b[38;2;234;127;129mx\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mbun run typecheck\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;234;127;129mexit 2\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;126;136;142m1.2s\u001b[39m"
       ]
     },
     "error/dark/100/unicode": {
       "lines": [
-        "\u001b[38;2;234;127;129m✗\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mbun run typecheck\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;234;127;129mexit 2\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;126;136;142m1.2s\u001b[39m",
-        "  \u001b[38;2;157;165;169mexit 2\u001b[39m"
+        "\u001b[38;2;234;127;129m✗\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mbun run typecheck\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;234;127;129mexit 2\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;126;136;142m1.2s\u001b[39m"
       ]
     },
     "error/dark/100/ascii": {
       "lines": [
-        "\u001b[38;2;234;127;129mx\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mbun run typecheck\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;234;127;129mexit 2\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;126;136;142m1.2s\u001b[39m",
-        "  \u001b[38;2;157;165;169mexit 2\u001b[39m"
+        "\u001b[38;2;234;127;129mx\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mbun run typecheck\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;234;127;129mexit 2\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;126;136;142m1.2s\u001b[39m"
       ]
     },
     "error/dark/120/unicode": {
       "lines": [
-        "\u001b[38;2;234;127;129m✗\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mbun run typecheck\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;234;127;129mexit 2\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;126;136;142m1.2s\u001b[39m",
-        "  \u001b[38;2;157;165;169mexit 2\u001b[39m"
+        "\u001b[38;2;234;127;129m✗\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mbun run typecheck\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;234;127;129mexit 2\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;126;136;142m1.2s\u001b[39m"
       ]
     },
     "error/dark/120/ascii": {
       "lines": [
-        "\u001b[38;2;234;127;129mx\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mbun run typecheck\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;234;127;129mexit 2\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;126;136;142m1.2s\u001b[39m",
-        "  \u001b[38;2;157;165;169mexit 2\u001b[39m"
+        "\u001b[38;2;234;127;129mx\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mbun run typecheck\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;234;127;129mexit 2\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;126;136;142m1.2s\u001b[39m"
       ]
     },
     "running/light/40/unicode": {
@@ -7702,62 +7592,52 @@
     },
     "error/light/40/unicode": {
       "lines": [
-        "\u001b[38;2;200;37;61m✗\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;200;37;61mexit 2\u001b[39m",
-        "  \u001b[38;2;103;113;118mexit 2\u001b[39m"
+        "\u001b[38;2;200;37;61m✗\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;200;37;61mexit 2\u001b[39m"
       ]
     },
     "error/light/40/ascii": {
       "lines": [
-        "\u001b[38;2;200;37;61mx\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;200;37;61mexit 2\u001b[39m",
-        "  \u001b[38;2;103;113;118mexit 2\u001b[39m"
+        "\u001b[38;2;200;37;61mx\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;200;37;61mexit 2\u001b[39m"
       ]
     },
     "error/light/60/unicode": {
       "lines": [
-        "\u001b[38;2;200;37;61m✗\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;200;37;61mexit 2\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;135;144;149m1.2s\u001b[39m",
-        "  \u001b[38;2;103;113;118mexit 2\u001b[39m"
+        "\u001b[38;2;200;37;61m✗\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;200;37;61mexit 2\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;135;144;149m1.2s\u001b[39m"
       ]
     },
     "error/light/60/ascii": {
       "lines": [
-        "\u001b[38;2;200;37;61mx\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;200;37;61mexit 2\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;135;144;149m1.2s\u001b[39m",
-        "  \u001b[38;2;103;113;118mexit 2\u001b[39m"
+        "\u001b[38;2;200;37;61mx\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;200;37;61mexit 2\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;135;144;149m1.2s\u001b[39m"
       ]
     },
     "error/light/80/unicode": {
       "lines": [
-        "\u001b[38;2;200;37;61m✗\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;200;37;61mexit 2\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;135;144;149m1.2s\u001b[39m",
-        "  \u001b[38;2;103;113;118mexit 2\u001b[39m"
+        "\u001b[38;2;200;37;61m✗\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;200;37;61mexit 2\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;135;144;149m1.2s\u001b[39m"
       ]
     },
     "error/light/80/ascii": {
       "lines": [
-        "\u001b[38;2;200;37;61mx\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;200;37;61mexit 2\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;135;144;149m1.2s\u001b[39m",
-        "  \u001b[38;2;103;113;118mexit 2\u001b[39m"
+        "\u001b[38;2;200;37;61mx\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;200;37;61mexit 2\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;135;144;149m1.2s\u001b[39m"
       ]
     },
     "error/light/100/unicode": {
       "lines": [
-        "\u001b[38;2;200;37;61m✗\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;200;37;61mexit 2\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;135;144;149m1.2s\u001b[39m",
-        "  \u001b[38;2;103;113;118mexit 2\u001b[39m"
+        "\u001b[38;2;200;37;61m✗\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;200;37;61mexit 2\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;135;144;149m1.2s\u001b[39m"
       ]
     },
     "error/light/100/ascii": {
       "lines": [
-        "\u001b[38;2;200;37;61mx\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;200;37;61mexit 2\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;135;144;149m1.2s\u001b[39m",
-        "  \u001b[38;2;103;113;118mexit 2\u001b[39m"
+        "\u001b[38;2;200;37;61mx\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;200;37;61mexit 2\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;135;144;149m1.2s\u001b[39m"
       ]
     },
     "error/light/120/unicode": {
       "lines": [
-        "\u001b[38;2;200;37;61m✗\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;200;37;61mexit 2\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;135;144;149m1.2s\u001b[39m",
-        "  \u001b[38;2;103;113;118mexit 2\u001b[39m"
+        "\u001b[38;2;200;37;61m✗\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;200;37;61mexit 2\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;135;144;149m1.2s\u001b[39m"
       ]
     },
     "error/light/120/ascii": {
       "lines": [
-        "\u001b[38;2;200;37;61mx\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;200;37;61mexit 2\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;135;144;149m1.2s\u001b[39m",
-        "  \u001b[38;2;103;113;118mexit 2\u001b[39m"
+        "\u001b[38;2;200;37;61mx\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;200;37;61mexit 2\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;135;144;149m1.2s\u001b[39m"
       ]
     }
   },
@@ -9149,12 +9029,12 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d0/dark/40/ascii": {
@@ -9198,12 +9078,12 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d0/dark/60/unicode": {
@@ -9247,9 +9127,9 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;150;160;164m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -9296,9 +9176,9 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;150;160;164m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -9634,12 +9514,12 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d1/dark/40/ascii": {
@@ -9678,12 +9558,12 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d1/dark/60/unicode": {
@@ -9722,9 +9602,9 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;150;160;164m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -9766,9 +9646,9 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;150;160;164m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -10068,12 +9948,12 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d2/dark/40/ascii": {
@@ -10106,12 +9986,12 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d2/dark/60/unicode": {
@@ -10144,9 +10024,9 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;150;160;164m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -10182,9 +10062,9 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;150;160;164m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -10442,12 +10322,12 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d3/dark/40/ascii": {
@@ -10474,12 +10354,12 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d3/dark/60/unicode": {
@@ -10506,9 +10386,9 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;150;160;164m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -10538,9 +10418,9 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;150;160;164m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -10757,12 +10637,12 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d4/dark/40/ascii": {
@@ -10784,12 +10664,12 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d4/dark/60/unicode": {
@@ -10811,9 +10691,9 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;150;160;164m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -10838,9 +10718,9 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;150;160;164m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -11023,12 +10903,12 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d5/dark/40/ascii": {
@@ -11046,12 +10926,12 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d5/dark/60/unicode": {
@@ -11069,9 +10949,9 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;150;160;164m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -11092,9 +10972,9 @@
         "  \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;150;160;164m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -11249,12 +11129,12 @@
         "  \u001b[38;2;126;136;142m< 2 more lines >\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d6/dark/40/ascii": {
@@ -11268,12 +11148,12 @@
         "  \u001b[38;2;126;136;142m< 2 more lines >\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d6/dark/60/unicode": {
@@ -11287,9 +11167,9 @@
         "  \u001b[38;2;126;136;142m< 2 more lines >\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;150;160;164m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -11306,9 +11186,9 @@
         "  \u001b[38;2;126;136;142m< 2 more lines >\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;150;160;164m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -11436,12 +11316,12 @@
         "  \u001b[38;2;126;136;142m< 2 more lines >\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d7/dark/40/ascii": {
@@ -11452,12 +11332,12 @@
         "  \u001b[38;2;126;136;142m< 2 more lines >\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d7/dark/60/unicode": {
@@ -11468,9 +11348,9 @@
         "  \u001b[38;2;126;136;142m< 2 more lines >\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;150;160;164m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -11484,9 +11364,9 @@
         "  \u001b[38;2;126;136;142m< 2 more lines >\u001b[39m",
         "",
         "\u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;150;160;164m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -11593,12 +11473,12 @@
         "\u001b[38;2;126;136;142m▸\u001b[39m \u001b[38;2;157;165;169m\u001b[1mRead 3 files\u001b[22m\u001b[39m\u001b[38;2;126;136;142m · \u001b[39m\u001b[38;2;157;165;169m\u001b[1mRan 2 commands\u001b[22m\u001b[39m\u001b[38;2;126;136;142m · \u001b[39m\u001b[38;2;157;165;169m\u001b[1mEdite\u001b[0m…\u001b[0m",
         "",
         "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d8/dark/40/ascii": {
@@ -11606,12 +11486,12 @@
         "\u001b[38;2;126;136;142m>\u001b[39m \u001b[38;2;157;165;169m\u001b[1mRead 3 files\u001b[22m\u001b[39m\u001b[38;2;126;136;142m . \u001b[39m\u001b[38;2;157;165;169m\u001b[1mRan 2 commands\u001b[22m\u001b[39m\u001b[38;2;126;136;142m . \u001b[39m\u001b[38;2;157;165;169m\u001b[1mEdite\u001b[0m…\u001b[0m",
         "",
         "\u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d8/dark/60/unicode": {
@@ -11619,9 +11499,9 @@
         "\u001b[38;2;126;136;142m▸\u001b[39m \u001b[38;2;157;165;169m\u001b[1mRead 3 files\u001b[22m\u001b[39m\u001b[38;2;126;136;142m · \u001b[39m\u001b[38;2;157;165;169m\u001b[1mRan 2 commands\u001b[22m\u001b[39m\u001b[38;2;126;136;142m · \u001b[39m\u001b[38;2;157;165;169m\u001b[1mEdited 2 files\u001b[22m\u001b[39m\u001b[38;2;126;136;142m · \u001b[39m\u001b[38;2;157;165;169m\u001b[1mCalled 1\u001b[0m…\u001b[0m",
         "",
         "\u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;150;160;164m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -11632,9 +11512,9 @@
         "\u001b[38;2;126;136;142m>\u001b[39m \u001b[38;2;157;165;169m\u001b[1mRead 3 files\u001b[22m\u001b[39m\u001b[38;2;126;136;142m . \u001b[39m\u001b[38;2;157;165;169m\u001b[1mRan 2 commands\u001b[22m\u001b[39m\u001b[38;2;126;136;142m . \u001b[39m\u001b[38;2;157;165;169m\u001b[1mEdited 2 files\u001b[22m\u001b[39m\u001b[38;2;126;136;142m . \u001b[39m\u001b[38;2;157;165;169m\u001b[1mCalled 1\u001b[0m…\u001b[0m",
         "",
         "\u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;150;160;164m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;150;160;164m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;150;160;164m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;150;160;164m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;150;160;164m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -11759,12 +11639,12 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d0/light/40/ascii": {
@@ -11808,12 +11688,12 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d0/light/60/unicode": {
@@ -11857,9 +11737,9 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;124;134;140m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -11906,9 +11786,9 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;124;134;140m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -12244,12 +12124,12 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d1/light/40/ascii": {
@@ -12288,12 +12168,12 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d1/light/60/unicode": {
@@ -12332,9 +12212,9 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;124;134;140m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -12376,9 +12256,9 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;124;134;140m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -12678,12 +12558,12 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d2/light/40/ascii": {
@@ -12716,12 +12596,12 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d2/light/60/unicode": {
@@ -12754,9 +12634,9 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;124;134;140m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -12792,9 +12672,9 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;124;134;140m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -13052,12 +12932,12 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d3/light/40/ascii": {
@@ -13084,12 +12964,12 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d3/light/60/unicode": {
@@ -13116,9 +12996,9 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;124;134;140m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -13148,9 +13028,9 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;124;134;140m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -13367,12 +13247,12 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d4/light/40/ascii": {
@@ -13394,12 +13274,12 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d4/light/60/unicode": {
@@ -13421,9 +13301,9 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;124;134;140m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -13448,9 +13328,9 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;124;134;140m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -13633,12 +13513,12 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d5/light/40/ascii": {
@@ -13656,12 +13536,12 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-20\u001b[0m…\u001b[0m\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d5/light/60/unicode": {
@@ -13679,9 +13559,9 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;124;134;140m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -13702,9 +13582,9 @@
         "  \u001b[38;2;103;113;118mkeys: onboarding, deploy, incident-2026-11\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;124;134;140m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -13859,12 +13739,12 @@
         "  \u001b[38;2;135;144;149m< 2 more lines >\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d6/light/40/ascii": {
@@ -13878,12 +13758,12 @@
         "  \u001b[38;2;135;144;149m< 2 more lines >\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d6/light/60/unicode": {
@@ -13897,9 +13777,9 @@
         "  \u001b[38;2;135;144;149m< 2 more lines >\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;124;134;140m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -13916,9 +13796,9 @@
         "  \u001b[38;2;135;144;149m< 2 more lines >\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;124;134;140m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -14046,12 +13926,12 @@
         "  \u001b[38;2;135;144;149m< 2 more lines >\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d7/light/40/ascii": {
@@ -14062,12 +13942,12 @@
         "  \u001b[38;2;135;144;149m< 2 more lines >\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d7/light/60/unicode": {
@@ -14078,9 +13958,9 @@
         "  \u001b[38;2;135;144;149m< 2 more lines >\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;124;134;140m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -14094,9 +13974,9 @@
         "  \u001b[38;2;135;144;149m< 2 more lines >\u001b[39m",
         "",
         "\u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;124;134;140m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -14203,12 +14083,12 @@
         "\u001b[38;2;135;144;149m▸\u001b[39m \u001b[38;2;103;113;118m\u001b[1mRead 3 files\u001b[22m\u001b[39m\u001b[38;2;135;144;149m · \u001b[39m\u001b[38;2;103;113;118m\u001b[1mRan 2 commands\u001b[22m\u001b[39m\u001b[38;2;135;144;149m · \u001b[39m\u001b[38;2;103;113;118m\u001b[1mEdite\u001b[0m…\u001b[0m",
         "",
         "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d8/light/40/ascii": {
@@ -14216,12 +14096,12 @@
         "\u001b[38;2;135;144;149m>\u001b[39m \u001b[38;2;103;113;118m\u001b[1mRead 3 files\u001b[22m\u001b[39m\u001b[38;2;135;144;149m . \u001b[39m\u001b[38;2;103;113;118m\u001b[1mRan 2 commands\u001b[22m\u001b[39m\u001b[38;2;135;144;149m . \u001b[39m\u001b[38;2;103;113;118m\u001b[1mEdite\u001b[0m…\u001b[0m",
         "",
         "\u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels def\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so gr\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the t\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, neve\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while str\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the nex\u001b[0m…\u001b[0m"
+        "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  per token\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  streaming\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  turn\u001b[39m\u001b[23m"
       ]
     },
     "d8/light/60/unicode": {
@@ -14229,9 +14109,9 @@
         "\u001b[38;2;135;144;149m▸\u001b[39m \u001b[38;2;103;113;118m\u001b[1mRead 3 files\u001b[22m\u001b[39m\u001b[38;2;135;144;149m · \u001b[39m\u001b[38;2;103;113;118m\u001b[1mRan 2 commands\u001b[22m\u001b[39m\u001b[38;2;135;144;149m · \u001b[39m\u001b[38;2;103;113;118m\u001b[1mEdited 2 files\u001b[22m\u001b[39m\u001b[38;2;135;144;149m · \u001b[39m\u001b[38;2;103;113;118m\u001b[1mCalled 1\u001b[0m…\u001b[0m",
         "",
         "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;124;134;140m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m"
@@ -14242,9 +14122,9 @@
         "\u001b[38;2;135;144;149m>\u001b[39m \u001b[38;2;103;113;118m\u001b[1mRead 3 files\u001b[22m\u001b[39m\u001b[38;2;135;144;149m . \u001b[39m\u001b[38;2;103;113;118m\u001b[1mRan 2 commands\u001b[22m\u001b[39m\u001b[38;2;135;144;149m . \u001b[39m\u001b[38;2;103;113;118m\u001b[1mEdited 2 files\u001b[22m\u001b[39m\u001b[38;2;135;144;149m . \u001b[39m\u001b[38;2;103;113;118m\u001b[1mCalled 1\u001b[0m…\u001b[0m",
         "",
         "\u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m",
-        "\u001b[3m\u001b[38;2;124;134;140m  reasoning: hidden thinking labels default to 'Thinking...'\u001b[39m\u001b[23m",
-        "\u001b[3m\u001b[38;2;124;134;140m  tool rows own a leading Spacer, so grouping must neutrali\u001b[0m…\u001b[0m",
-        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current r\u001b[0m…\u001b[0m",
+        "\u001b[3m\u001b[38;2;124;134;140m  neutralise it\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  recency should be measured from the tail of the current\u001b[39m\u001b[23m",
+        "\u001b[3m\u001b[38;2;124;134;140m  run\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  decay only on structural events, never per token\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  hysteresis prevents flicker while streaming\u001b[39m\u001b[23m",
         "\u001b[3m\u001b[38;2;124;134;140m  click pins a block open until the next turn\u001b[39m\u001b[23m"

@@ -81,6 +81,27 @@ function truncateLeft(kit: RenderKit, text: string, width: number, ellipsis = "â
 
 type HeaderPiece = { kind: "title" | "summary" | "error" | "duration"; text: string };
 
+/**
+ * A failed shell ends with the exit status; stderr sits above it. The header
+ * carries the status, the body carries the evidence (never the other way round).
+ */
+function errorLines(input: ToolRowInput): string[] {
+  return logicalLines(input.error ?? "").filter((line) => line.trim() !== "");
+}
+
+function errorHeadline(input: ToolRowInput, meta: ReturnType<typeof toolMeta>): string | undefined {
+  if (input.status !== "error" || !input.error) return undefined;
+  if (meta.cls !== "shell") return input.error;
+  return errorLines(input).at(-1);
+}
+
+function errorDetail(input: ToolRowInput, meta: ReturnType<typeof toolMeta>): string {
+  if (!input.error) return "";
+  if (meta.cls !== "shell") return input.error;
+  const lines = errorLines(input);
+  return lines.slice(0, -1).join("\n");
+}
+
 function durationLabel(input: ToolRowInput, theme: RenderTheme): string | undefined {
   if (input.durationMs === undefined) return undefined;
   const seconds = input.durationMs / 1000;
@@ -103,7 +124,8 @@ function header(api: RenderApi, input: ToolRowInput, width: number): string {
   // MCP labels already read `server/tool`; repeating it as the title is noise.
   if (title && title !== meta.label) pieces.push({ kind: "title", text: theme.fg("accent", title) });
   if (summary) pieces.push({ kind: "summary", text: theme.fg("dim", summary) });
-  if (input.status === "error" && input.error) pieces.push({ kind: "error", text: theme.fg("error", input.error) });
+  const error = errorHeadline(input, meta);
+  if (error) pieces.push({ kind: "error", text: theme.fg("error", error) });
   const duration = durationLabel(input, theme);
   if (duration) pieces.push({ kind: "duration", text: duration });
 
@@ -199,11 +221,11 @@ function body(api: RenderApi, input: ToolRowInput, width: number): string[] {
   const budget = input.full ? MAX_FULL_LINES : bodyLinesFor(input.level, input.expanded ?? false);
   if (budget <= 0) return [];
 
-  const text = input.error || input.output || "";
+  const meta = toolMeta(input.name);
+  const text = input.error ? errorDetail(input, meta) : (input.output ?? "");
   const present = nonEmptyLineCount(text);
   if (present === 0) return [];
 
-  const meta = toolMeta(input.name);
   // A notice counts against the budget: total body rows never exceed it.
   const show = Math.min(budget, present);
   const selected = select(text, input.name, meta.trend, show);

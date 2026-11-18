@@ -12,6 +12,8 @@ export interface ComponentLike {
 export interface RenderKit {
   /** ANSI-aware truncation with an ellipsis. */
   truncateToWidth(line: string, width: number, ellipsis?: string): string;
+  /** ANSI-aware word wrapping; returns one terminal row per line. */
+  wrap(text: string, width: number): string[];
   /** Visible terminal columns, not string length. */
   visibleWidth(text: string): number;
   /** Wrap a width-dependent line builder as a pi-tui Component. */

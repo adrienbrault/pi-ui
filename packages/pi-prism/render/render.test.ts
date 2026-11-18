@@ -8,10 +8,30 @@ import { glyphsFor } from "./glyphs.ts";
 import { planTranscript, type BlockShape } from "./layout.ts";
 import type { RenderKit, RenderTheme } from "./kit.ts";
 
+function wrapPlain(text: string, width: number): string[] {
+  const rows: string[] = [];
+  for (const source of text.split("\n")) {
+    let rest = source;
+    while (rest.length > width) {
+      const cut = rest.lastIndexOf(" ", width);
+      if (cut <= 0) {
+        rows.push(rest.slice(0, width));
+        rest = rest.slice(width);
+      } else {
+        rows.push(rest.slice(0, cut));
+        rest = rest.slice(cut + 1);
+      }
+    }
+    rows.push(rest);
+  }
+  return rows;
+}
+
 /** Plain-text stand-ins: the assertions are about row counts, not styling. */
 const kit: RenderKit = {
   truncateToWidth: (line, width, ellipsis = "…") =>
     line.length <= width ? line : line.slice(0, Math.max(1, width - ellipsis.length)) + ellipsis,
+  wrap: wrapPlain,
   visibleWidth: (text) => text.length,
   component: (build) => ({ render: (width) => build(width), invalidate: () => {} }),
 };
@@ -60,8 +80,11 @@ describe("detail ladder", () => {
   });
 
   test("errors keep their own rows at the bottom of the ladder", () => {
-    // Header plus the error notice: a failure never collapses into a group.
-    expect(renderToolRow(api, { name: "bash", status: "error", level: 6, error: "exit 2" }).render(80)).toHaveLength(2);
+    // Header plus the stderr detail: a failure never collapses into a group.
+    const rows = renderToolRow(api, { name: "bash", status: "error", level: 6, error: "detail\nexit 2" }).render(80);
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toContain("exit 2");
+    expect(rows[1]).toContain("detail");
   });
 });
 
@@ -161,6 +184,15 @@ describe("tool row heights", () => {
     expect(read[1]).toContain("line 1");
   });
 
+  test("a failed shell puts the exit status in the header and stderr in the body", () => {
+    const error = "1: ls: node_modules/@earendil-works/: No such file or directory\nCommand exited with code 1";
+    const rows = renderToolRow(api, { name: "bash", status: "error", level: 0, error }).render(120);
+    expect(rows[0]).toContain("Command exited with code 1");
+    expect(rows[0]).not.toContain("No such file or directory");
+    expect(rows.slice(1).join("\n")).toContain("No such file or directory");
+    expect(rows.slice(1).join("\n")).not.toContain("Command exited with code 1");
+  });
+
   test("every row fits the requested width", () => {
     for (const width of [20, 40, 80]) {
       for (const line of renderToolRow(api, { name: "read", status: "success", level: 0, output: OUTPUT }).render(
@@ -188,6 +220,13 @@ describe("thinking labels", () => {
     const collapsed = thinkingLabel(api, { phase: "aged", level: 1, text: OUTPUT, width: 80 });
     const expanded = thinkingLabel(api, { phase: "aged", level: 1, text: OUTPUT, width: 80, expanded: true });
     expect(expanded.split("\n").length).toBeGreaterThan(collapsed.split("\n").length);
+  });
+
+  test("long thoughts wrap instead of ending in an ellipsis", () => {
+    const long = Array.from({ length: 120 }, (_, index) => `word${index % 7}`).join(" ");
+    const label = thinkingLabel(api, { phase: "thinking", level: 0, text: long, width: 40 });
+    expect(label).not.toContain("…");
+    for (const line of label.split("\n")) expect(line.length).toBeLessThanOrEqual(40);
   });
 });
 
