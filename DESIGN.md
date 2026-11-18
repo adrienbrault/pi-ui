@@ -59,13 +59,17 @@ Rules:
 - Bodies spend their budget on evidence: diffs shed unchanged context lines
   before hiding any hunk, reads keep their opening and their end with a
   `< N more lines >` notice between, and logs keep the newest lines.
-- A click opens a block, and what it opens is graded like the tail: a folded
-  member shows its header, then roughly five body rows with a "show all" cue,
-  then the whole body; the next click folds it back. Any block with a truncated
-  body (a kept tool row, a one-line thinking run) opens the same way, and the
-  pin holds until the next turn. In the session the row under the pointer says
-  what the click will do — `click · expand`, `click · show all`,
+- A click opens a block all the way, and the next click folds it back: a folded
+  member shows its header until clicked, then its whole body. Any block with a
+  truncated body (a kept tool row, a one-line thinking run) toggles the same
+  way, and the pin holds until the next turn. In the session the row under the
+  pointer says what the click will do — `click · expand` or
   `click · collapse` — in an inverted chip at its right edge.
+- Thinking runs decay on the same visual ladder: the number of blocks that
+  follow them in the run sets their level, so an older thought keeps a tail
+  instead of collapsing to one line prematurely. Hover is neutral for thinking
+  and tool rows alike: the chip carries the affordance, the status glyph keeps
+  the outcome colour.
 
 ## Width and glyphs
 

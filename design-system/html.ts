@@ -349,14 +349,14 @@ var revealOpenState = {};
 var groupOpenState = {};
 var blockOpenState = {};
 
-// Members cycle: header only, then a taste with a "show all" cue, then the body.
+// Members toggle between their header and the whole body.
 // Each member owns a box: its heading pins while its own body is in view, and
 // lets go as the next member arrives. Groups nest the same way one level up.
 function groupHtml(prefix, group, gi) {
   var body = '';
   group.members.forEach(function (member, mi) {
     var st = revealOpenState[prefix + ':' + gi + ':' + mi] || 0;
-    body += '<div class="member">' + (st === 2 ? member.expanded : st === 1 ? member.preview : member.collapsed) + '</div>';
+    body += '<div class="member">' + (st === 1 ? member.expanded : member.collapsed) + '</div>';
   });
   return '<div class="gblock">' + group.header + '<div class="reveal-members">' + body + '</div></div>';
 }
@@ -381,7 +381,7 @@ function composeFrame(entry, idx, frameHtml, stateId) {
     (blocks.frames[idx] || []).forEach(function (spec) {
       var step = blockOpenState[prefix + ':' + spec.id] || 0;
       if (step > 0) {
-        ops.push({ from: spec.row, count: spec.count, html: '<div class="block">' + blocks.pool[spec.keys[step - 1]] + '</div>' });
+        ops.push({ from: spec.row, count: spec.count, html: '<div class="block">' + blocks.pool[spec.keys[spec.keys.length - 1]] + '</div>' });
       }
     });
   }
@@ -478,7 +478,7 @@ function annotateHints(term, entry, idx, stateId) {
   });
   Object.keys(turnGroups).forEach(function (key) {
     var st = revealOpenState[prefix + ':' + key] || 0;
-    var hint = st === 0 ? 'click · preview' : st === 1 ? 'click · show all' : 'click · collapse';
+    var hint = st === 0 ? 'click · expand' : 'click · collapse';
     turnGroups[key].forEach(function (row, order) {
       if (order === 0) {
         row.setAttribute('data-hint', hint);
@@ -494,7 +494,7 @@ function annotateHints(term, entry, idx, stateId) {
     var header = owned[0];
     if (!header) return;
     var st = blockOpenState[prefix + ':' + spec.id] || 0;
-    header.setAttribute('data-hint', st === 0 ? 'click · expand' : st < spec.keys.length ? 'click · show all' : 'click · collapse');
+    header.setAttribute('data-hint', st === 0 ? 'click · expand' : 'click · collapse');
     lamp(header);
     owned.forEach(function (row) {
       if (row !== header) row.setAttribute('data-anchor', 'block:' + spec.id);
@@ -664,7 +664,7 @@ function onTermClick(event) {
   if (turn) {
     var memberKey = prefix + ':' + turn.getAttribute('data-turn');
     var st = revealOpenState[memberKey] || 0;
-    revealOpenState[memberKey] = st === 0 ? 1 : st === 1 ? 2 : 0;
+    revealOpenState[memberKey] = st === 0 ? 1 : 0;
     hold();
     paintCard(card);
     return;
@@ -680,9 +680,9 @@ function onTermClick(event) {
     var id = block.getAttribute('data-block');
     var cell = blocksFor(entry, stateId);
     var spec = cell ? (cell.frames[idx] || []).filter(function (s) { return s.id === id; })[0] : null;
-    var steps = spec ? spec.keys.length : 0;
+    if (!spec || spec.keys.length === 0) return;
     var blockKey = prefix + ':' + id;
-    blockOpenState[blockKey] = ((blockOpenState[blockKey] || 0) + 1) % (steps + 1);
+    blockOpenState[blockKey] = blockOpenState[blockKey] ? 0 : 1;
     hold();
     paintCard(card);
     return;

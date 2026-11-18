@@ -67,15 +67,13 @@ describe("expansion cycle", () => {
 
   test("hints name the next action", () => {
     expect(hintFor(0, 40)).toBe("click · expand");
-    expect(hintFor(1, 40)).toBe("click · show all");
+    expect(hintFor(1, 40)).toBe("click · collapse");
     expect(hintFor(1, 12)).toBe("click · collapse");
-    expect(hintFor(2, 40)).toBe("click · collapse");
   });
 
   test("clicks follow the action, not a blind cycle", () => {
     expect(actionFor(0, 40)).toBe(1);
     expect(actionFor(1, 12)).toBe(0);
-    expect(actionFor(2, 12)).toBe(0);
   });
 
   test("an aged row only expands past its own budget", () => {
@@ -136,18 +134,14 @@ describe("tool renderers", () => {
     expect(header.render(80)).toHaveLength(1);
     expect(body.render(80).length).toBeLessThan(16);
 
-    // Click on the header twice: capped, then the whole output.
-    header.handleMouse?.(click());
-    const capped = body.render(80).length;
+    // One click shows the whole output; the next collapses it again.
     header.handleMouse?.(click());
     const full = body.render(80).length;
-
     header.handleMouse?.(click());
     const back = body.render(80).length;
 
-    expect(capped).toBeGreaterThan(0);
     expect(full).toBe(40);
-    expect(back).toBeLessThan(capped);
+    expect(back).toBeLessThan(full);
   });
 
   test("a newer call takes a body row from the block behind it", () => {

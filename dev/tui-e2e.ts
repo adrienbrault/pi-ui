@@ -3,11 +3,13 @@
  *
  * Synthetic sessions are restored so no model turn is needed. The pane is read
  * as text and SGR mouse sequences are injected as literal input, which is what
- * a terminal would send. Two scenarios:
+ * a terminal would send. Three scenarios:
  *
  * - 7 calls: the decay ladder, the hover chip, click expansion, inert rows.
  * - 12 calls: rows past FOLD_DISTANCE collapse into one summary; the summary
  *   opens its members; a member then expands its own body.
+ * - Thinking followed by work: the thinking run decays on the same ladder, keeps
+ *   a tail, and still opens all the way on click.
  *
  * Run: bun run e2e
  */
@@ -212,18 +214,60 @@ function thinkingFixture(path: string): void {
   add({ type: "model_change", id: "model", parentId: null, timestamp: new Date(now).toISOString(), provider: "flan", modelId: "deepseek-v4.1-flash-1017" });
   add({ type: "thinking_level_change", id: "thinking", parentId, timestamp: new Date(now).toISOString(), thinkingLevel: "medium" });
   message("user", now, { role: "user", content: [{ type: "text", text: "Explain the sky." }], timestamp: now });
-  message("assistant", now + 1000, {
+  const thoughts = [
+    "Thought intro.",
+    "SECRET_MIDDLE_CLAUSE about scattering.",
+    ...Array.from({ length: 8 }, (_, index) => `thought line ${index + 3}`),
+  ].join("\n");
+  message("assistant-thinking", now + 1000, {
+    role: "assistant",
+    api: "openai-completions",
+    provider: "flan",
+    model: "deepseek-v4.1-flash-1017",
+    stopReason: "toolUse",
+    timestamp: now + 1000,
+    usage,
+    content: [{ type: "thinking", thinking: thoughts }],
+  });
+
+  const calls = Array.from({ length: 3 }, (_, index) => ({
+    type: "toolCall",
+    id: `call-${index}`,
+    name: "bash",
+    arguments: { command: `echo thought-${index}` },
+  }));
+  message("assistant-calls", now + 1500, {
+    role: "assistant",
+    api: "openai-completions",
+    provider: "flan",
+    model: "deepseek-v4.1-flash-1017",
+    stopReason: "toolUse",
+    timestamp: now + 1500,
+    usage,
+    content: calls,
+  });
+
+  for (let index = 0; index < calls.length; index += 1) {
+    message(`result-${index}`, now + 2000 + index, {
+      role: "toolResult",
+      toolCallId: `call-${index}`,
+      toolName: "bash",
+      isError: false,
+      durationMs: 100 + index,
+      timestamp: now + 2000 + index,
+      content: [{ type: "text", text: `thought output ${index}` }],
+    });
+  }
+
+  message("assistant-done", now + 3000, {
     role: "assistant",
     api: "openai-completions",
     provider: "flan",
     model: "deepseek-v4.1-flash-1017",
     stopReason: "stop",
-    timestamp: now + 1000,
+    timestamp: now + 3000,
     usage,
-    content: [
-      { type: "thinking", thinking: "Intro words.\nSECRET_MIDDLE_CLAUSE about scattering.\nFinal tail end." },
-      { type: "text", text: "The sky is blue." },
-    ],
+    content: [{ type: "text", text: "The sky is blue." }],
   });
 
   writeFileSync(path, `${entries.map((entry) => JSON.stringify(entry)).join("\n")}\n`);
@@ -272,6 +316,9 @@ async function thinkingScenario(sessionPath: string): Promise<void> {
   start(sessionPath, 40);
   await waitFor("The sky is blue.");
   let pane = await waitFor("✻ think", 5_000);
+  const tail = pane.split("\n").filter((line) => line.includes("thought line "));
+  assert(tail.length === 3, `thinking should keep a decayed tail, not vanish\n${pane}`);
+  assert(pane.includes("thought line 10"), `the newest thought lines should survive\n${pane}`);
   assert(!pane.includes("SECRET_MIDDLE_CLAUSE"), `collapsed thinking should keep only its tail\n${pane}`);
 
   pane = capture();
@@ -290,7 +337,7 @@ async function thinkingScenario(sessionPath: string): Promise<void> {
   assert(pane.includes("SECRET_MIDDLE_CLAUSE"), `click should reveal the full thinking body\n${pane}`);
 
   pane = capture();
-  const collapseRow = rowOf(pane, "Intro words.");
+  const collapseRow = rowOf(pane, "Thought intro.");
   mouse(0, 5, collapseRow);
   mouse(0, 5, collapseRow, true);
   await Bun.sleep(400);
@@ -316,7 +363,7 @@ async function main(): Promise<void> {
     const think = join(dir, "thinking.jsonl");
     thinkingFixture(think);
     await thinkingScenario(think);
-    console.log("thinking ok: custom label renders; click reveals the full thought; second click collapses");
+    console.log("thinking ok: thinking keeps a decayed tail; click reveals the full thought; second click collapses");
   } finally {
     try {
       tmux("kill-server");

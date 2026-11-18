@@ -3,19 +3,20 @@
  *
  * The renderer slots are split so the header stays one row while the body grows:
  * `renderCall` owns the header (and the hover hint), `renderResult` owns the body.
- * A click on either cycles three states — as the transcript shows it, capped, and
- * the whole output — and a move paints the action the click would take.
+ * A click on either toggles between the transcript's tail and the whole output,
+ * and a move paints the action the click would take.
  */
 
 import { MouseRegion, truncateToWidth, visibleWidth, type Component, type TuiMouseEvent } from "@earendil-works/pi-tui";
 import type { ExtensionAPI, ToolRendererResolver, ToolRenderResultOptions } from "@earendil-works/pi-coding-agent";
-import { FOLD_DISTANCE, bodyLinesFor, detailFor, type DetailLevel } from "../render/detail.ts";
+import { FOLD_DISTANCE, bodyLinesFor, type DetailLevel } from "../render/detail.ts";
 import { glyphsFor } from "../render/glyphs.ts";
 import { groupSegments, renderGroupRow, type GroupSegment } from "../render/group-row.ts";
 import type { RenderKit, RenderTheme } from "../render/kit.ts";
 import { nonEmptyLineCount } from "../render/text.ts";
 import { toolMeta } from "../render/tools.ts";
 import { renderToolRow, type ToolRowInput, type ToolStatus } from "../render/tool-row.ts";
+import { levelFor, registerAge, resetAge, runIndex, sequenceIndex, startRun } from "./age.ts";
 import { claimHover, releaseHover } from "./hover.ts";
 import { installThinkingRenderer } from "./thinking.ts";
 
@@ -58,7 +59,7 @@ const KIT: RenderKit = {
 /** Tool kinds pi-prism owns. Anything else keeps whatever renderer it already had. */
 const OWNED = /^(read|ls|grep|find|write|edit|bash|web|fetch|mcp__.*)$/;
 
-type Expansion = 0 | 1 | 2;
+type Expansion = 0 | 1;
 
 interface RowState {
   expansion: Expansion;
@@ -67,7 +68,7 @@ interface RowState {
   /** Run the block belongs to, and its position inside that run. */
   run?: number;
   runSeq?: number;
-  /** Filled by the result slot: "show all" only exists when rows stay hidden. */
+  /** Filled by the result slot: the header opens it on click. */
   output?: string;
 }
 
@@ -99,7 +100,6 @@ interface FoldGroup {
 
 interface BlockRecord {
   key: AgeKey;
-  seq: number;
   run: number;
   runSeq: number;
   name: string;
@@ -121,11 +121,7 @@ interface BlockRecord {
 }
 
 const records = new Map<AgeKey, BlockRecord>();
-const aged: Array<{ run: number; runSeq: number; level: DetailLevel; invalidate: () => void }> = [];
 const pendingInvalidations = new Set<BlockRecord>();
-let latestSeq = 0;
-let currentRun = 0;
-let runSeq = 0;
 let planDirty = true;
 let invalidateScheduled = false;
 
@@ -172,9 +168,11 @@ function refreshPlan(): void {
     for (const member of members.slice(1)) next.set(member, { mode: "hidden", group });
     current = [];
   };
+  const activeRun = runIndex();
+  const activeSeq = sequenceIndex();
   for (const record of records.values()) {
-    const sameRun = record.run === currentRun;
-    const distance = sameRun ? runSeq - record.runSeq : Infinity;
+    const sameRun = record.run === activeRun;
+    const distance = sameRun ? activeSeq - record.runSeq : Infinity;
     if (distance >= FOLD_DISTANCE && record.status !== "error") {
       current.push(record);
       continue;
@@ -214,11 +212,11 @@ function syncRecord<TArgs>(
   const error = status === "error" ? output : undefined;
   let record = records.get(key);
   if (!record) {
+    const age = registerAge(ctx.invalidate);
     record = {
       key,
-      seq: ++latestSeq,
-      run: currentRun,
-      runSeq: ++runSeq,
+      run: age.run,
+      runSeq: age.seq,
       name,
       args: (args ?? {}) as Record<string, unknown>,
       status,
@@ -232,17 +230,6 @@ function syncRecord<TArgs>(
       hoverMember: false,
     };
     records.set(key, record);
-    // Only the rows whose level actually moves need a repaint; once a row is
-    // at level 6 nothing after it can change it, so it leaves the window.
-    for (const row of aged) {
-      if (row.run !== currentRun) continue;
-      const level = detailFor(runSeq - row.runSeq);
-      if (level === row.level) continue;
-      row.level = level;
-      row.invalidate();
-    }
-    aged.push({ run: currentRun, runSeq, level: 0, invalidate: ctx.invalidate });
-    while (aged[0]?.run === currentRun && aged[0]?.level === 6) aged.shift();
     planDirty = true;
   } else {
     record.invalidate = ctx.invalidate;
@@ -271,8 +258,7 @@ function syncRecord<TArgs>(
 /** The newest block is level 0; each block behind it drops one body row. */
 function levelOf(state: RowState): DetailLevel {
   if (state.runSeq === undefined || state.run === undefined) return 0;
-  if (state.run !== currentRun) return 6;
-  return detailFor(runSeq - state.runSeq);
+  return levelFor(state.run, state.runSeq);
 }
 
 function statusOf<TArgs>(ctx: ToolRenderContext<RowState, TArgs>, output: string): ToolStatus {
@@ -288,15 +274,12 @@ function outputText(result: { content: Array<{ type: string; text?: string }> })
     .join("\n");
 }
 
-const CAPPED = bodyLinesFor(0, true);
-
 /**
  * The click must change something. A row that already shows its whole body has
  * no expand step; collapsing always has one. `null` means the row is inert.
  */
 export function actionFor(expansion: Expansion, present: number, level: DetailLevel = 0): Expansion | null {
-  if (expansion === 2) return 0;
-  if (expansion === 1) return present > CAPPED ? 2 : 0;
+  if (expansion === 1) return 0;
   return present > bodyLinesFor(level) ? 1 : null;
 }
 
@@ -304,8 +287,7 @@ export function actionFor(expansion: Expansion, present: number, level: DetailLe
 export function hintFor(expansion: Expansion, present: number, level: DetailLevel = 0): string | null {
   const action = actionFor(expansion, present, level);
   if (action === null) return null;
-  if (action === 0) return "click · collapse";
-  return expansion === 0 ? "click · expand" : "click · show all";
+  return action === 0 ? "click · collapse" : "click · expand";
 }
 
 /**
@@ -343,8 +325,8 @@ function inputFor<TArgs>(
     args: (args ?? {}) as Record<string, unknown>,
     status,
     level: levelOf(state),
-    expanded: state.expansion >= 1,
-    full: state.expansion >= 2,
+    expanded: state.expansion === 1,
+    full: state.expansion === 1,
     output,
     error: status === "error" ? output : undefined,
     durationMs: ctx.durationMs,
@@ -427,14 +409,9 @@ function headerLines<TArgs>(
   const api = { kit: KIT, theme: theme as unknown as RenderTheme, glyphs: GLYPHS };
   const line = renderToolRow(api, inputFor(name, args, ctx, state.output ?? "")).render(width)[0] ?? "";
   if (!state.hover) return [line];
-  // The header itself lights up, tinted by the outcome it reports.
-  const tone =
-    statusOf(ctx, state.output ?? "") === "error"
-      ? "toolErrorBg"
-      : statusOf(ctx, state.output ?? "") === "success"
-        ? "toolSuccessBg"
-        : "toolPendingBg";
-  const header = tintText(theme, tone, line);
+  // Keep hover neutral, like a thinking row: the chip is the affordance, not
+  // another outcome signal competing with the status glyph.
+  const header = tintText(theme, "toolPendingBg", line);
   const hint = hintFor(state.expansion, nonEmptyLineCount(state.output ?? ""), levelOf(state));
   return [hint === null ? header : withChip(theme, header, hint, width)];
 }
@@ -469,16 +446,12 @@ type MemberHit = { start: number; end: number; member: BlockRecord };
 function memberHint(member: BlockRecord): string | null {
   const present = nonEmptyLineCount(member.output);
   if (present === 0) return null;
-  if (member.expansion === 0) return "click · expand";
-  if (member.expansion === 1) return present > CAPPED ? "click · show all" : "click · collapse";
-  return "click · collapse";
+  return member.expansion === 0 ? "click · expand" : "click · collapse";
 }
 
 function cycleMember(member: BlockRecord): void {
-  const present = nonEmptyLineCount(member.output);
-  if (member.expansion === 2) member.expansion = 0;
-  else if (member.expansion === 1) member.expansion = present > CAPPED ? 2 : 0;
-  else if (present > 0) member.expansion = 1;
+  if (nonEmptyLineCount(member.output) === 0) return;
+  member.expansion = member.expansion === 1 ? 0 : 1;
 }
 
 function memberLines(member: BlockRecord, theme: Theme, width: number): string[] {
@@ -488,8 +461,8 @@ function memberLines(member: BlockRecord, theme: Theme, width: number): string[]
     args: member.args,
     status: member.status,
     level: 0,
-    expanded: member.expansion >= 1,
-    full: member.expansion >= 2,
+    expanded: member.expansion === 1,
+    full: member.expansion === 1,
     output: member.output,
     error: member.error,
     durationMs: member.durationMs,
@@ -521,13 +494,7 @@ function groupLines(record: BlockRecord, theme: Theme, width: number, hits: Memb
     const start = lines.length;
     const rows = memberLines(member, theme, memberWidth);
     const hint = member.hoverMember ? memberHint(member) : null;
-    const header = member.hoverMember
-      ? tintText(
-          theme,
-          member.status === "error" ? "toolErrorBg" : member.status === "success" ? "toolSuccessBg" : "toolPendingBg",
-          rows[0] ?? "",
-        )
-      : (rows[0] ?? "");
+    const header = member.hoverMember ? tintText(theme, "toolPendingBg", rows[0] ?? "") : (rows[0] ?? "");
     rows[0] = hint === null ? header : withChip(theme, header, hint, memberWidth);
     for (const row of rows) lines.push(`  ${row}`);
     hits.push({ start, end: lines.length, member });
@@ -666,11 +633,8 @@ export default function prism(pi: ExtensionAPI): void {
 
   pi.on("session_start", () => {
     records.clear();
-    aged.length = 0;
     pendingInvalidations.clear();
-    latestSeq = 0;
-    currentRun = 0;
-    runSeq = 0;
+    resetAge();
     planDirty = true;
   });
 
@@ -679,9 +643,7 @@ export default function prism(pi: ExtensionAPI): void {
   // assistant turns inside one run keep the same ladder.
   pi.on("message_start", (event) => {
     if (event.message.role !== "user") return;
-    currentRun += 1;
-    runSeq = 0;
-    aged.length = 0;
+    startRun();
     planDirty = true;
     refreshPlan();
   });

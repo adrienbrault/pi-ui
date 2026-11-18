@@ -16,6 +16,7 @@
 import type { Component } from "@earendil-works/pi-tui";
 import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import type { DetailLevel } from "../render/detail.ts";
 import { glyphsFor } from "../render/glyphs.ts";
 import type { RenderKit, RenderTheme } from "../render/kit.ts";
 import { thinkingLabel } from "../render/thinking.ts";
@@ -64,6 +65,9 @@ interface HiddenThinkingRegion {
 
 /** One hover state per thinking run, so a rebuilt region does not reset it. */
 const HOVERS = new WeakMap<object, HoverState[]>();
+
+/** The decay level patchTree assigns from the component's place in the tree. */
+const LEVELS = new WeakMap<object, DetailLevel>();
 
 interface ContainerLike {
   children?: unknown[];
@@ -160,14 +164,20 @@ function bindHover(region: HiddenThinkingRegion, component: AssistantLike, state
   };
 }
 
-function labelComponent(text: string, streaming: boolean, theme: RenderTheme, hover: HoverState): Component {
+function labelComponent(
+  text: string,
+  streaming: boolean,
+  theme: RenderTheme,
+  hover: HoverState,
+  levelOf: () => DetailLevel,
+): Component {
   return {
     render(width: number): string[] {
       const label = thinkingLabel(
         { kit: KIT, theme, glyphs: GLYPHS },
         {
           phase: streaming ? "thinking" : "aged",
-          level: streaming ? 0 : 6,
+          level: streaming ? 0 : levelOf(),
           text,
           width: Math.max(1, width),
           frame: Math.floor(Date.now() / 120),
@@ -192,6 +202,7 @@ function decorate(component: AssistantLike, message: AssistantLike, streaming: b
   const hidden = children.filter(isHiddenThinking);
   const hoverStates = HOVERS.get(component) ?? [];
   HOVERS.set(component, hoverStates);
+  const levelOf = (): DetailLevel => LEVELS.get(component) ?? 0;
   let runIndex = 0;
   let hiddenIndex = 0;
   for (const text of runs) {
@@ -205,7 +216,7 @@ function decorate(component: AssistantLike, message: AssistantLike, streaming: b
           region.prismHover = hover;
           bindHover(region, component, hover);
         }
-        region.child = labelComponent(text, streaming, theme, hover);
+        region.child = labelComponent(text, streaming, theme, hover, levelOf);
       }
     }
     runIndex += 1;
@@ -251,16 +262,70 @@ function patchInstance(component: AssistantLike, theme: RenderTheme): void {
   }
 }
 
+function isToolComponent(component: unknown): boolean {
+  const candidate = component as { toolCallId?: unknown; toolName?: unknown; rendererState?: unknown };
+  return (
+    typeof candidate.toolCallId === "string" &&
+    typeof candidate.toolName === "string" &&
+    typeof candidate.rendererState === "object"
+  );
+}
+
+function isUserComponent(component: unknown): boolean {
+  const candidate = component as { text?: unknown; markdownTheme?: unknown };
+  return (
+    typeof candidate.text === "string" &&
+    typeof candidate.markdownTheme === "object" &&
+    candidate.markdownTheme !== null
+  );
+}
+
+/**
+ * Walk the TUI in visual order, then read the ladder backwards: each component
+ * knows how many blocks follow it in its run. This is what restored transcripts
+ * need — their thinking components are patched after the tool rows have already
+ * rendered, so render order alone would make every thought look newest.
+ */
 function patchTree(root: unknown, theme: RenderTheme): void {
-  const pending: unknown[] = [root];
+  const ordered: unknown[] = [];
+  const queue: unknown[] = [root];
   const seen = new Set<unknown>();
-  while (pending.length > 0) {
-    const component = pending.pop();
+  let cursor = 0;
+  while (cursor < queue.length) {
+    const component = queue[cursor++];
     if (!component || seen.has(component)) continue;
     seen.add(component);
-    if (isAssistant(component)) patchInstance(component, theme);
+    ordered.push(component);
     const children = (component as ContainerLike).children;
-    if (Array.isArray(children)) pending.push(...children);
+    if (Array.isArray(children)) queue.push(...children);
+  }
+
+  let behind = 0;
+  const levels = new Map<unknown, DetailLevel>();
+  for (let index = ordered.length - 1; index >= 0; index -= 1) {
+    const component = ordered[index];
+    if (isUserComponent(component)) {
+      // Everything before a new user message belongs to an older run: floor it.
+      behind = 6;
+      continue;
+    }
+    if (isToolComponent(component)) {
+      behind = Math.min(6, behind + 1);
+      continue;
+    }
+    if (!isAssistant(component)) continue;
+    levels.set(component, Math.min(6, behind) as DetailLevel);
+    const message = component.lastMessage;
+    if (message && thinkingRuns(message).length > 0) behind = Math.min(6, behind + 1);
+  }
+
+  for (const component of ordered) {
+    if (!isAssistant(component)) continue;
+    const next = levels.get(component) ?? 0;
+    const previous = LEVELS.get(component);
+    LEVELS.set(component, next);
+    patchInstance(component, theme);
+    if (previous !== next) component.invalidate?.();
   }
 }
 
@@ -312,8 +377,9 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
     setTimeout(patch, 100);
   });
 
-  pi.on("message_start", (event) => {
-    if (event.message.role === "assistant") schedule();
+  pi.on("message_start", () => {
+    // A user message starts a new run: patch so older thoughts floor.
+    schedule();
   });
   pi.on("message_end", (event) => {
     if (event.message.role === "assistant") patch();
