@@ -207,13 +207,19 @@ function baseToolStreaming(
   return component;
 }
 
-function baseAssistant(pi: PiInstall, content: unknown[], hideThinking: boolean, label = "Thinking..."): any {
+function baseAssistant(
+  pi: PiInstall,
+  content: unknown[],
+  hideThinking: boolean,
+  label = "Thinking...",
+  padding = 1,
+): any {
   return new pi.modules.coding.AssistantMessageComponent(
     assistantMessage(content),
     hideThinking,
     pi.modules.coding.getMarkdownTheme(),
     label,
-    1,
+    padding,
   );
 }
 
@@ -670,6 +676,7 @@ const oursEntries: EntryDef[] = [
               { cls: "shell" },
               { cls: "edit" },
             ]),
+            durationMs: 610,
           }).render(ctx.width),
       },
       {
@@ -738,13 +745,14 @@ function decayStack(ctx: RenderCtx, offset: number): string[] {
   const segments = groupSegments(
     folded.map(({ row }) => ({ cls: toolMeta(row.name).cls, failed: row.status === "error" })),
   );
+  const durationMs = folded.reduce((sum, { row }) => sum + (row.durationMs ?? 0), 0);
 
   let groupRendered = false;
   for (const { row, distance } of rows) {
     const level = detailFor(distance);
     if (distance >= FOLD_DISTANCE) {
       if (!groupRendered) {
-        components.push(renderGroupRow(ours(ctx), { segments }));
+        components.push(renderGroupRow(ours(ctx), { segments, durationMs }));
         groupRendered = true;
       }
       continue;
@@ -782,9 +790,10 @@ function decayReveal(ctx: RenderCtx, offset: number): RevealGroup[] {
   const segments = groupSegments(
     folded.map(({ row }) => ({ cls: toolMeta(row.name).cls, failed: row.status === "error" })),
   );
+  const durationMs = folded.reduce((sum, { row }) => sum + (row.durationMs ?? 0), 0);
   return [
     {
-      header: renderGroupRow(ours(ctx), { segments, expanded: true }).render(ctx.width),
+      header: renderGroupRow(ours(ctx), { segments, expanded: true, durationMs }).render(ctx.width),
       members: folded.map(({ row }) => {
         const collapsed = renderToolLine(ours(ctx), row).render(ctx.width);
         const preview = renderToolRow(ours(ctx), { ...row, level: 4 }).render(ctx.width);
@@ -836,6 +845,13 @@ function stepShape(step: SessionStep, index: number, frame: PlaybackFrame): Bloc
   }
   return { cls: "prose" };
 }
+
+/**
+ * Completed steps render the same rows for every later frame. The replay is
+ * long, so remember them per cell: build cost becomes live-step cost.
+ */
+const finishedPieces = new Map<string, SessionPiece>();
+const finishedGroups = new Map<string, string[]>();
 
 /** What a step shows at this frame: complete for past steps, streamed for the live one. */
 function stepProgress(step: SessionStep, index: number, frame: PlaybackFrame) {
@@ -912,31 +928,54 @@ function sessionPieces(ctx: RenderCtx, frameIndex: number): SessionPiece[] {
 
   return plan.map((item) => {
     if (item.kind === "group") {
-      return { lines: renderGroupRow(ours(ctx), { segments: item.segments }).render(SESSION_WIDTH) };
+      const groupKey = `${ctx.themeName}:${ctx.glyphMode}:${JSON.stringify(item.segments)}`;
+      const memo = finishedGroups.get(groupKey);
+      if (memo) return { lines: memo };
+      const durationMs = item.indices.reduce((sum, at) => {
+        const member = steps[at];
+        return sum + (member?.kind === "tool" ? (member.tool.durationMs ?? 0) : 0);
+      }, 0);
+      const lines = renderGroupRow(ours(ctx), { segments: item.segments, durationMs }).render(SESSION_WIDTH);
+      finishedGroups.set(groupKey, lines);
+      return { lines };
     }
 
     const step = steps[item.index];
     if (!step) throw new Error(`session frame ${frameIndex}: missing step ${item.index}`);
     const progress = stepProgress(step, item.index, frame);
     const live = progress.partial && progress.live;
+    const memoKey = `${ctx.themeName}:${ctx.glyphMode}:${item.index}:${item.level}`;
+    if (!progress.partial) {
+      const memo = finishedPieces.get(memoKey);
+      if (memo) return memo;
+    }
+    const remember = (piece: SessionPiece): SessionPiece => {
+      if (!progress.partial) finishedPieces.set(memoKey, piece);
+      return piece;
+    };
 
     switch (step.kind) {
       case "prefill":
-        return { lines: [] };
+        return remember({ lines: [] });
       case "user":
-        return {
+        return remember({
           lines: new ctx.pi.modules.coding.UserMessageComponent(
             partialText(step.text, progress.chars),
             ctx.pi.modules.coding.getMarkdownTheme(),
             1,
           ).render(SESSION_WIDTH),
-        };
+        });
       case "text":
-        return {
-          lines: baseAssistant(ctx.pi, [{ type: "text", text: partialText(step.text, progress.chars) }], false).render(
-            SESSION_WIDTH,
-          ),
-        };
+        return remember({
+          // Prose sits flush: the indent belongs to tool bodies and thinking tails.
+          lines: baseAssistant(
+            ctx.pi,
+            [{ type: "text", text: partialText(step.text, progress.chars) }],
+            false,
+            "Thinking...",
+            0,
+          ).render(SESSION_WIDTH),
+        });
       case "thinking": {
         const text = partialText(step.text, progress.chars);
         const label = thinkingLabel(ours(ctx), {
@@ -961,7 +1000,7 @@ function sessionPieces(ctx: RenderCtx, frameIndex: number): SessionPiece[] {
           if (expandedLines.length > piece.lines.length) piece.opens = [expandedLines];
         }
         if (piece.opens) piece.key = `think:${item.index}`;
-        return piece;
+        return remember(piece);
       }
       case "tool": {
         const input: ToolRowInput = {
@@ -985,7 +1024,7 @@ function sessionPieces(ctx: RenderCtx, frameIndex: number): SessionPiece[] {
             piece.key = `tool:${item.index}`;
           }
         }
-        return piece;
+        return remember(piece);
       }
     }
   });
@@ -1052,7 +1091,15 @@ function sessionReveal(ctx: RenderCtx, frameIndex: number): RevealGroup[] {
 
   return plan.flatMap((item) => {
     if (item.kind !== "group") return [];
-    const header = renderGroupRow(ours(ctx), { segments: item.segments, expanded: true }).render(SESSION_WIDTH);
+    const durationMs = item.indices.reduce((sum, at) => {
+      const member = steps[at];
+      return sum + (member?.kind === "tool" ? (member.tool.durationMs ?? 0) : 0);
+    }, 0);
+    const header = renderGroupRow(ours(ctx), {
+      segments: item.segments,
+      expanded: true,
+      durationMs,
+    }).render(SESSION_WIDTH);
     const members: RevealMember[] = item.indices.flatMap((index) => {
       const step = steps[index];
       if (!step || step.kind !== "tool") return [];
@@ -1230,6 +1277,31 @@ const MOTION_OPTIONS: Record<string, MotionOption> = {
     label: "Compass",
     note: "Eight frames: direction of travel, good for long-running tools.",
     frames: ["←", "↖", "↑", "↗", "→", "↘", "↓", "↙"],
+  },
+  shade: {
+    label: "Shade breathe",
+    note: "Six frames of ░▒▓█: reads as pressure building, not rotation (from agents-are-thinking).",
+    frames: ["░", "▒", "▓", "█", "▓", "▒"],
+  },
+  seesaw: {
+    label: "Bar seesaw",
+    note: "One column of a bar wave: ▁▃▅▇▅▃ — the repo's BarSeeSaw collapsed to a single cell.",
+    frames: ["▁", "▃", "▅", "▇", "▅", "▃"],
+  },
+  square: {
+    label: "Square sweep",
+    note: "Four quadrants rotating: the repo's Square family as one glyph.",
+    frames: ["◰", "◳", "◲", "◱"],
+  },
+  scanner: {
+    label: "Scanner",
+    note: "A sweep that grows and returns: reads as measuring rather than waiting.",
+    frames: ["▏", "▎", "▍", "▌", "▋", "▊", "▉", "█", "▉", "▊", "▋", "▌", "▍", "▎"],
+  },
+  ripple: {
+    label: "Ripple",
+    note: "A dot opening and closing: the repo's Ripple, reduced to one column.",
+    frames: ["·", "○", "◔", "◐", "◕", "●", "◕", "◐", "◔", "○"],
   },
   moon: {
     label: "Moon phases",

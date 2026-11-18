@@ -1,3 +1,6 @@
+// pi styles bold and italic through chalk; the gallery renders headless.
+process.env.FORCE_COLOR ||= "3";
+
 /**
  * Live re-render for the gallery's tail slider: the browser asks for cells at a
  * new tail budget and swaps them in, so the terminals update without a rebuild.

@@ -20,11 +20,32 @@ const theme: RenderTheme = {
   fg: (_token, text) => text,
   bold: (text) => text,
   italic: (text) => text,
+  style: (text) => text,
 };
 
 const api = { kit, theme, glyphs: glyphsFor("unicode") };
 
 const OUTPUT = Array.from({ length: 40 }, (_, index) => `line ${index + 1}`).join("\n");
+
+describe("head truncation", () => {
+  test("a two-row budget keeps one head row and never spills the tail", () => {
+    const lines = ["a", "b", "c", "d", "e"];
+    const body = bodyLinesFor(1);
+    expect(body).toBe(6);
+    const rows = renderToolRow(api, {
+      name: "read",
+      args: { path: "a.ts" },
+      status: "success",
+      title: "a.ts",
+      output: lines.join("\n"),
+      level: 4,
+    }).render(80);
+    // Level 4 leaves three body rows: head, notice, tail.
+    expect(rows.length).toBe(4);
+    expect(rows[2]).toContain("more lines");
+    expect(rows[3]).toContain("e");
+  });
+});
 
 describe("detail ladder", () => {
   test("distance maps to levels and saturates", () => {

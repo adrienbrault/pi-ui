@@ -95,7 +95,9 @@ function header(api: RenderApi, input: ToolRowInput, width: number): string {
   const summary = input.summary ?? (input.status === "success" ? summarizeOutput(input.output ?? "") : "");
 
   const sep = ` ${theme.fg("dim", glyphs.dot)} `;
-  const prefix = `${statusGlyph(api, input)} ${theme.bold(theme.fg("toolTitle", meta.label))}`;
+  // The verb is the headline: bold it through `style` so it survives headless
+  // rendering, where chalk's bold turns itself off without a terminal.
+  const prefix = `${statusGlyph(api, input)} ${theme.style(meta.label, { fg: "toolTitle", bold: true })}`;
 
   let pieces: HeaderPiece[] = [];
   // MCP labels already read `server/tool`; repeating it as the title is noise.
@@ -164,10 +166,12 @@ function selectHead(lines: string[], show: number): Selected[] {
   const head = Math.ceil(room / 2);
   const tail = room - head;
   const hidden = lines.length - head - tail;
+  // `slice(-0)` is `slice(0)`: a zero tail would spill the whole file.
+  const keptTail = tail > 0 ? lines.slice(-tail) : [];
   return [
     ...lines.slice(0, head).map((line) => ({ line })),
     notice(`${hidden} more lines`),
-    ...lines.slice(-tail).map((line) => ({ line })),
+    ...keptTail.map((line) => ({ line })),
   ];
 }
 

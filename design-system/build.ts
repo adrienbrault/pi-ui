@@ -1,3 +1,6 @@
+// pi styles bold and italic through chalk; the gallery renders headless.
+process.env.FORCE_COLOR ||= "3";
+
 /**
  * Build the gallery: render every registry cell against the live pi install,
  * then emit index.html, spec.json and ANSI fixtures.
@@ -24,6 +27,16 @@ type CellKey = string; // `${width}/${theme}/${glyph}`
 interface RevealCell {
   header: string;
   members: Array<{ collapsed: string; preview: string; expanded: string }>;
+}
+
+/**
+ * Reveal variants repeat across frames — a completed member looks the same for
+ * every token of the next answer. Deduplicate them: frames reference a pool.
+ */
+interface RevealStore {
+  /** One entry per distinct reveal arrangement; frames point into it. */
+  pool: RevealCell[][];
+  frames: number[];
 }
 
 /** Blocks outside a group: the collapsed row span and the body that replaces it. */
@@ -169,7 +182,7 @@ export async function renderGallery(scope: RenderScope = {}): Promise<GalleryRen
   const entries = scope.entries ?? ENTRIES;
   const themeNames = scope.themes ?? THEME_NAMES;
   const data = new Map<string, EntryData>();
-  const revealData = new Map<string, Record<string, Record<CellKey, RevealCell[][]>>>();
+  const revealData = new Map<string, Record<string, Record<CellKey, RevealStore>>>();
   const blockData = new Map<string, Record<string, Record<CellKey, BlockCell>>>();
   const fixtures = new Map<string, Record<string, { lines: string[] }>>();
   const themes: PagePayload["themes"] = {};
@@ -192,7 +205,7 @@ export async function renderGallery(scope: RenderScope = {}): Promise<GalleryRen
 
     for (const entry of entries) {
       const entryData: EntryData = data.get(entry.id) ?? { states: {} };
-      const revealEntry: Record<string, Record<CellKey, RevealCell[][]>> = revealData.get(entry.id) ?? {};
+      const revealEntry: Record<string, Record<CellKey, RevealStore>> = revealData.get(entry.id) ?? {};
       const blockEntry: Record<string, Record<CellKey, BlockCell>> = blockData.get(entry.id) ?? {};
       const fixtureEntry: Record<string, { lines: string[] }> = fixtures.get(entry.id) ?? {};
 
@@ -211,7 +224,9 @@ export async function renderGallery(scope: RenderScope = {}): Promise<GalleryRen
             };
             const frameCount = state.frames ?? 1;
             const frameRows: string[][] = [];
-            const sharedReveal: RevealCell[][] = [];
+            const revealPool: RevealCell[][] = [];
+            const revealKeys = new Map<string, number>();
+            const sharedReveal: number[] = [];
             const blockPool: Record<string, string> = {};
             const blockFrames: BlockCell["frames"] = [];
             for (let frame = 0; frame < frameCount; frame++) {
@@ -237,24 +252,29 @@ export async function renderGallery(scope: RenderScope = {}): Promise<GalleryRen
               blockFrames.push(opened);
               frameRows.push(state.reveal ? markRows(rows, groupRowIndices(lines, ctx.glyphs.collapsed)) : rows);
               if (state.reveal) {
-                sharedReveal.push(
-                  state.reveal(ctx, frame).map((group, gi) => ({
-                    header: tagRows(toRows(pi, group.header), "data-collapse", String(gi)).join(""),
-                    members: group.members.map((member, mi) => {
-                      const collapsed = toRows(pi, member.collapsed);
-                      const tag = `${gi}:${mi}`;
-                      // Nothing hidden: the row stays inert, no hint, no cursor.
-                      const inert = collapsed.length >= toRows(pi, member.expanded).length;
-                      const mark = (part: string[]) =>
-                        inert ? part.join("") : tagRows(part, "data-turn", tag).join("");
-                      return {
-                        collapsed: mark(collapsed),
-                        preview: mark(toRows(pi, member.preview)),
-                        expanded: mark(toRows(pi, member.expanded)),
-                      };
-                    }),
-                  })),
-                );
+                const groups = state.reveal(ctx, frame).map((group, gi) => ({
+                  header: tagRows(toRows(pi, group.header), "data-collapse", String(gi)).join(""),
+                  members: group.members.map((member, mi) => {
+                    const collapsed = toRows(pi, member.collapsed);
+                    const tag = `${gi}:${mi}`;
+                    // Nothing hidden: the row stays inert, no hint, no cursor.
+                    const inert = collapsed.length >= toRows(pi, member.expanded).length;
+                    const mark = (part: string[]) => (inert ? part.join("") : tagRows(part, "data-turn", tag).join(""));
+                    return {
+                      collapsed: mark(collapsed),
+                      preview: mark(toRows(pi, member.preview)),
+                      expanded: mark(toRows(pi, member.expanded)),
+                    };
+                  }),
+                }));
+                const key = contentKey(JSON.stringify(groups));
+                let at = revealKeys.get(key);
+                if (at === undefined) {
+                  at = revealPool.length;
+                  revealPool.push(groups);
+                  revealKeys.set(key, at);
+                }
+                sharedReveal.push(at);
               }
               if (frame === 0 && entry.fixture !== false) {
                 fixtureEntry[`${state.id}/${themeName}/${width}/${glyphMode}`] = { lines };
@@ -264,7 +284,10 @@ export async function renderGallery(scope: RenderScope = {}): Promise<GalleryRen
             const pool = frameCount > POOL_FRAME_THRESHOLD;
             byCell[key] = pool ? (pooled(frameRows) as unknown as string[]) : frameRows.map((rows) => rows.join(""));
             if (state.reveal) {
-              revealEntry[state.id] = { ...revealEntry[state.id], [key]: sharedReveal };
+              revealEntry[state.id] = {
+                ...revealEntry[state.id],
+                [key]: { pool: revealPool, frames: sharedReveal },
+              };
             }
             if (blockFrames.some((frame) => frame.length > 0)) {
               blockEntry[state.id] = { ...blockEntry[state.id], [key]: { pool: blockPool, frames: blockFrames } };

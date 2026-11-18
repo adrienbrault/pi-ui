@@ -1,3 +1,6 @@
+// pi styles bold and italic through chalk; the gallery renders headless.
+process.env.FORCE_COLOR ||= "3";
+
 /** Serve the generated gallery with Bun's HTTP server. */
 
 import { DEFAULT_TAIL, cellsFor } from "./api.ts";

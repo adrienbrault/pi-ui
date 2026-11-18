@@ -41,6 +41,42 @@ export type SessionStep =
 
 const BASH = "bash";
 
+/** Repeated turns reuse the fixtures: same evidence, different moment in the session. */
+const readStep = (label: string, title: string, summary: string, output: string, durationMs: number): SessionStep => ({
+  kind: "tool",
+  label,
+  tool: { name: "read", args: { path: title }, title, summary, output, durationMs },
+});
+const grepStep = (label: string, pattern: string, summary: string): SessionStep => ({
+  kind: "tool",
+  label,
+  tool: {
+    name: "grep",
+    args: { pattern },
+    title: pattern,
+    summary,
+    output: GREP_OUTPUT,
+    durationMs: 90,
+  },
+});
+const editStep = (label: string, path: string, summary: string): SessionStep => ({
+  kind: "tool",
+  label,
+  tool: { name: "edit", args: { path }, title: path, summary, output: EDIT_DIFF, durationMs: 300 },
+});
+const bashStep = (
+  label: string,
+  command: string,
+  summary: string,
+  output: string,
+  durationMs: number,
+  failed = false,
+): SessionStep => ({
+  kind: "tool",
+  label,
+  tool: { name: BASH, args: { command }, title: command, summary, output, durationMs, failed },
+});
+
 export const SESSION_STEPS: SessionStep[] = [
   { kind: "prefill", label: "prefill", tokens: 12_400 },
   {
@@ -144,6 +180,81 @@ export const SESSION_STEPS: SessionStep[] = [
     tool: {
       name: "mcp__memory__search",
       args: { query: "decay ladder" },
+      title: "memory/search",
+      summary: "2 entries",
+      output: MCP_OUTPUT,
+      durationMs: 70,
+    },
+  },
+  { kind: "thinking", label: "thinking", text: SESSION_THINKING },
+  readStep("read registry.ts", "src/core/registry.ts", "58 lines", SESSION_CODE, 160),
+  {
+    kind: "thinking",
+    label: "thinking",
+    text: "Registry is the seam: read, grep, edit all pass through one resolver.",
+  },
+  grepStep("search planTranscript", "planTranscript", "21 matches"),
+  { kind: "text", label: "note 4/10", text: "The planner is the seam: it owns order, the renderers own rows." },
+  editStep("edit layout.ts", "packages/pi-prism/render/layout.ts", "+42 −7"),
+  { kind: "thinking", label: "thinking", text: "Planner before renderers: order first, then rows." },
+  bashStep("check fails", "bun run check", "1 failed", TEST_FAIL, 3200, true),
+  { kind: "text", label: "note 5/10", text: "One failing expectation: the fold distance moved without the ladder." },
+  { kind: "thinking", label: "thinking", text: SESSION_THINKING_2 },
+  readStep("read DESIGN.md", "DESIGN.md", "181 lines", ASSISTANT_SOURCE, 240),
+  grepStep("search settleLevel", "settleLevel", "21 matches"),
+  editStep("edit thinking.ts", "packages/pi-prism/render/thinking.ts", "+6 −2"),
+  { kind: "thinking", label: "thinking", text: "Hysteresis settles one level, so a click pins until the turn ends." },
+  { kind: "text", label: "note 6/10", text: "Hysteresis belongs in the level, not the caller: one settle point." },
+  bashStep("lint", "bun run lint", "28 passing", TEST_OK, 1800),
+  { kind: "thinking", label: "thinking", text: SESSION_THINKING },
+  readStep("read group-row.ts", "packages/pi-prism/render/group-row.ts", "64 lines", SESSION_CODE, 170),
+  grepStep("search FOLD_DISTANCE", "FOLD_DISTANCE", "21 matches"),
+  editStep("edit registry.ts", "design-system/registry.ts", "+42 −7"),
+  { kind: "thinking", label: "thinking", text: "Counts survive folding; failures never hide inside a summary." },
+  {
+    kind: "text",
+    label: "note 7/10",
+    text: "Group rows carry their members: counts, order and failures survive folding.",
+  },
+  bashStep("test", "bun test", "28 passing", TEST_OK, 5400),
+  { kind: "thinking", label: "thinking", text: SESSION_THINKING_2 },
+  readStep("read build.ts", "design-system/build.ts", "181 lines", ASSISTANT_SOURCE, 260),
+  grepStep("search POOL_FRAME_THRESHOLD", "POOL_FRAME_THRESHOLD", "21 matches"),
+  editStep("edit html.ts", "design-system/html.ts", "+6 −2"),
+  { kind: "thinking", label: "thinking", text: "Pool frames by content: repetition is what makes the page heavy." },
+  {
+    kind: "text",
+    label: "note 8/10",
+    text: "Frames stay pooled; the reveal composes over the collapsed body in place.",
+  },
+  bashStep("ds", "bun run ds", "28 passing", TEST_OK, 2100),
+  { kind: "thinking", label: "thinking", text: SESSION_THINKING },
+  readStep("read tools.ts", "packages/pi-prism/render/tools.ts", "64 lines", SESSION_CODE, 150),
+  editStep("edit group-row.ts", "packages/pi-prism/render/group-row.ts", "+42 −7"),
+  { kind: "thinking", label: "thinking", text: "Clicks and hovers share one state; inert rows stay silent." },
+  bashStep("check", "bun run check", "28 passing", TEST_OK, 8700),
+  {
+    kind: "text",
+    label: "note 9/10",
+    text: "Green again. One deliberate stop: the head of the session must stay readable at the floor.",
+  },
+  { kind: "thinking", label: "thinking", text: SESSION_THINKING_2 },
+  readStep(
+    "read interaction.test.ts",
+    "packages/pi-prism/extensions/interaction.test.ts",
+    "181 lines",
+    ASSISTANT_SOURCE,
+    230,
+  ),
+  grepStep("search MouseRegion", "MouseRegion", "21 matches"),
+  bashStep("test suite", "bun test", "28 passing", TEST_OK, 4300),
+  { kind: "text", label: "note 10/10", text: "Clicks and hovers are covered; inert rows deliberately offer nothing." },
+  {
+    kind: "tool",
+    label: "memory search",
+    tool: {
+      name: "mcp__memory__search",
+      args: { query: "tail budget" },
       title: "memory/search",
       summary: "2 entries",
       output: MCP_OUTPUT,

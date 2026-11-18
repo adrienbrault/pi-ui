@@ -23,6 +23,8 @@ export interface RenderTheme {
   fg(token: string, text: string): string;
   bold(text: string): string;
   italic(text: string): string;
+  /** pi's Theme.style: colours and weight in one pass, sans chalk. */
+  style(text: string, options: { fg?: string; bg?: string; bold?: boolean }): string;
 }
 
 export function indented(prefix: string, text: string, width: number, kit: RenderKit): string {

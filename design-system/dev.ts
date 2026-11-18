@@ -1,3 +1,6 @@
+// pi styles bold and italic through chalk; the gallery renders headless.
+process.env.FORCE_COLOR ||= "3";
+
 /** `bun run dev`: serve the gallery and rebuild it whenever a source file changes. */
 
 const root = `${import.meta.dir}/..`;

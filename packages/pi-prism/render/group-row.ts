@@ -5,10 +5,10 @@
 
 import type { ComponentLike } from "./kit.ts";
 import type { RenderApi } from "./tool-row.ts";
-import { groupVerb, type ToolClass } from "./tools.ts";
+import { groupVerb, type GroupClass } from "./tools.ts";
 
 export interface GroupSegment {
-  cls: ToolClass;
+  cls: GroupClass;
   count: number;
   failed?: number;
 }
@@ -16,6 +16,8 @@ export interface GroupSegment {
 export interface GroupRowInput {
   segments: GroupSegment[];
   expanded?: boolean;
+  /** Wall time the folded rows spent, summed: one number for the whole group. */
+  durationMs?: number;
 }
 
 export function renderGroupRow(api: RenderApi, input: GroupRowInput): ComponentLike {
@@ -24,19 +26,25 @@ export function renderGroupRow(api: RenderApi, input: GroupRowInput): ComponentL
     const marker = theme.fg("dim", input.expanded ? glyphs.expanded : glyphs.collapsed);
     const segments = input.segments.map((segment) => {
       const verb = groupVerb(segment.cls, segment.count);
-      return theme.fg("toolOutput", verb);
+      return theme.style(verb, { fg: "toolOutput", bold: true });
     });
     if (input.segments.some((segment) => (segment.failed ?? 0) > 0)) {
       const failed = input.segments.reduce((sum, segment) => sum + (segment.failed ?? 0), 0);
       segments.push(theme.fg("error", `${failed} failed`));
     }
-    const line = `${marker} ${segments.join(theme.fg("dim", ` ${glyphs.dot} `))}`;
+    const dot = theme.fg("dim", ` ${glyphs.dot} `);
+    let line = `${marker} ${segments.join(dot)}`;
+    if (input.durationMs !== undefined) {
+      const seconds = input.durationMs / 1000;
+      const label = seconds < 10 ? `${seconds.toFixed(1)}s` : `${Math.round(seconds)}s`;
+      line += `${dot}${theme.fg("dim", label)}`;
+    }
     return [kit.truncateToWidth(line, width, "…")];
   });
 }
 
-export function groupSegments(rows: Array<{ cls: ToolClass; failed?: boolean }>): GroupSegment[] {
-  const byClass = new Map<ToolClass, GroupSegment>();
+export function groupSegments(rows: Array<{ cls: GroupClass; failed?: boolean }>): GroupSegment[] {
+  const byClass = new Map<GroupClass, GroupSegment>();
   for (const row of rows) {
     const existing = byClass.get(row.cls);
     if (existing) {

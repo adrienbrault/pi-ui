@@ -5,7 +5,7 @@
 
 import { FOLD_DISTANCE, detailFor, type DetailLevel } from "./detail.ts";
 import { groupSegments, type GroupSegment } from "./group-row.ts";
-import type { ToolClass } from "./tools.ts";
+import type { GroupClass, ToolClass } from "./tools.ts";
 
 export type BlockClass = ToolClass | "thinking" | "prose";
 
@@ -18,19 +18,15 @@ export type TranscriptItem =
   | { kind: "block"; index: number; level: DetailLevel }
   | { kind: "group"; segments: GroupSegment[]; indices: number[] };
 
-/** Only tool calls fold into summaries; prose anchors and thinking keep a line. */
-function groupable(cls: BlockClass): cls is ToolClass {
-  return cls !== "thinking" && cls !== "prose";
+/** Tool calls and thinking fold into summaries; prose anchors never fold. */
+function groupable(cls: BlockClass): cls is ToolClass | "thinking" {
+  return cls !== "prose";
 }
 
-/**
- * Age a block by its distance from the tail. Prose never decays; thinking
- * bottoms out at one tail line rather than joining a group.
- */
+/** Age a block by its distance from the tail. Prose never decays. */
 function levelFor(cls: BlockClass, distance: number): DetailLevel {
   if (cls === "prose") return 0;
-  const level = detailFor(distance);
-  return cls === "thinking" ? (Math.min(level, 6) as DetailLevel) : level;
+  return detailFor(distance);
 }
 
 export function planTranscript(blocks: BlockShape[]): TranscriptItem[] {
@@ -42,7 +38,7 @@ export function planTranscript(blocks: BlockShape[]): TranscriptItem[] {
     if (folded.length === 0) return;
     items.push({
       kind: "group",
-      segments: groupSegments(folded.map((block) => ({ cls: block.cls as ToolClass, failed: block.failed }))),
+      segments: groupSegments(folded.map((block) => ({ cls: block.cls as GroupClass, failed: block.failed }))),
       // The members a click can reveal: interaction needs the real indices.
       indices: foldedIndices,
     });

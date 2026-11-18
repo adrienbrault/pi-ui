@@ -68,8 +68,11 @@ export function plural(count: number, one: string, many = `${one}s`): string {
   return `${count} ${count === 1 ? one : many}`;
 }
 
+/** Thinking folds with tool rows; its verb belongs to the same vocabulary. */
+export type GroupClass = ToolClass | "thinking";
+
 /** Group vocabulary: what N collapsed rows of this class become. */
-export function groupNoun(cls: ToolClass): string {
+export function groupNoun(cls: GroupClass): string {
   switch (cls) {
     case "read":
       return "file";
@@ -89,10 +92,12 @@ export function groupNoun(cls: ToolClass): string {
       return "script";
     case "generic":
       return "tool";
+    case "thinking":
+      return "thought";
   }
 }
 
-export function groupVerb(cls: ToolClass, count: number): string {
+export function groupVerb(cls: GroupClass, count: number): string {
   const noun = groupNoun(cls);
   const pluralNoun = count === 1 ? noun : `${noun}s`;
   switch (cls) {
@@ -114,5 +119,7 @@ export function groupVerb(cls: ToolClass, count: number): string {
       return `Ran ${count} ${pluralNoun}`;
     case "generic":
       return `Called ${count} ${pluralNoun}`;
+    case "thinking":
+      return `Thought ${count} time${count === 1 ? "" : "s"}`;
   }
 }

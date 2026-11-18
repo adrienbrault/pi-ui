@@ -9,6 +9,12 @@ export interface RevealCellHtml {
   members: Array<{ collapsed: string; preview: string; expanded: string }>;
 }
 
+/** Reveal arrangements repeat across frames; frames index into a pool. */
+export interface RevealStoreHtml {
+  pool: RevealCellHtml[][];
+  frames: number[];
+}
+
 /** Blocks outside a group: the collapsed span and the body that replaces it. */
 export interface BlockCellHtml {
   pool: Record<string, string>;
@@ -35,7 +41,7 @@ export interface PagePayload {
     description: string;
     states: Array<{ id: string; label: string; note?: string; frames: number }>;
     data: Record<string, Record<string, CellData>>;
-    reveal?: Record<string, Record<string, RevealCellHtml[][]>>;
+    reveal?: Record<string, Record<string, RevealStoreHtml>>;
     blocks?: Record<string, Record<string, BlockCellHtml>>;
     sync?: string;
     stage?: string;
@@ -188,6 +194,19 @@ section.group > h2 { margin: 8px 0 0; font-family: var(--mono); font-size: 11px;
 .stage-lanes .card { padding: 10px 12px 8px; }
 .stage-lanes .chips, .stage-lanes p.desc, .stage-lanes .card-foot { display: none; }
 .term .reveal-members .ansi-line { padding-left: 2ch; }
+/* Pinned headings: the group stays at the top, its member just below, and a
+   nested block below that. Each pins inside its own box, so it lets go once its
+   body has scrolled past. Opaque, because rows scroll underneath. */
+.term .gblock > [data-collapse],
+.term > .block > [data-block] {
+  position: sticky; top: 0; z-index: 3; background: var(--term);
+}
+.term .reveal-members > .member > [data-turn] {
+  position: sticky; top: 1.5em; z-index: 2; background: var(--term);
+}
+.term .reveal-members > .member > .block > [data-block] {
+  position: sticky; top: 3em; z-index: 1; background: var(--term);
+}
 .term .reveal-members .ansi-line:hover { background: rgba(255, 255, 255, 0.03); }
 .term [data-expand], .term [data-turn], .term [data-collapse], .term [data-block] { cursor: pointer; }
 
@@ -242,9 +261,16 @@ function decodeCell(cell) {
 function framesFor(entry, stateId) {
   return decodeCell((entry.data[stateId] || {})[frameKey(entry)]) || [''];
 }
+var revealCache = {};
 function revealFor(entry, stateId) {
-  var frames = ((entry.reveal || {})[stateId] || {})[frameKey(entry)];
-  return frames || [];
+  var cell = ((entry.reveal || {})[stateId] || {})[frameKey(entry)];
+  if (!cell) return [];
+  var key = entry.id + ':' + stateId + ':' + frameKey(entry);
+  var hit = revealCache[key];
+  if (hit && hit.cell === cell) return hit.frames;
+  var frames = cell.frames.map(function (at) { return cell.pool[at] || []; });
+  revealCache[key] = { cell: cell, frames: frames };
+  return frames;
 }
 function blocksFor(entry, stateId) {
   return ((entry.blocks || {})[stateId] || {})[frameKey(entry)] || null;
@@ -256,7 +282,12 @@ function frameIndex(entry) {
 function paintStage(sync) {
   document.querySelectorAll('[data-stage]').forEach(function (stage) {
     if (stage.getAttribute('data-sync') !== sync) return;
-    stage.querySelectorAll('[data-card]').forEach(paintCard);
+    // One replay, one lane on screen: the toggle picks which renderer you see.
+    stage.querySelectorAll('[data-card]').forEach(function (card) {
+      var lane = byId(card.getAttribute('data-entry'));
+      card.style.display = lane && lane.variant === state.lane ? '' : 'none';
+      paintCard(card);
+    });
     var card = stage.querySelector('[data-card]');
     if (!card) return;
     var entry = byId(card.getAttribute('data-entry'));
@@ -302,13 +333,15 @@ var groupOpenState = {};
 var blockOpenState = {};
 
 // Members cycle: header only, then a taste with a "show all" cue, then the body.
-function memberHtml(prefix, group, gi) {
-  var members = '';
+// Each member owns a box: its heading pins while its own body is in view, and
+// lets go as the next member arrives. Groups nest the same way one level up.
+function groupHtml(prefix, group, gi) {
+  var body = '';
   group.members.forEach(function (member, mi) {
     var st = revealOpenState[prefix + ':' + gi + ':' + mi] || 0;
-    members += st === 2 ? member.expanded : st === 1 ? member.preview : member.collapsed;
+    body += '<div class="member">' + (st === 2 ? member.expanded : st === 1 ? member.preview : member.collapsed) + '</div>';
   });
-  return group.header + '<div class="reveal-members">' + members + '</div>';
+  return '<div class="gblock">' + group.header + '<div class="reveal-members">' + body + '</div></div>';
 }
 
 // Compose in place: rows keep their position, only the rows a click owns are
@@ -324,14 +357,14 @@ function composeFrame(entry, idx, frameHtml, stateId) {
     var gi = Number(match[1]);
     if (!groupOpenState[prefix + ':' + gi]) return;
     var group = groups[gi];
-    if (group) ops.push({ from: index, count: 1, html: memberHtml(prefix, group, gi) });
+    if (group) ops.push({ from: index, count: 1, html: groupHtml(prefix, group, gi) });
   });
   var blocks = blocksFor(entry, stateId);
   if (blocks) {
     (blocks.frames[idx] || []).forEach(function (spec) {
       var step = blockOpenState[prefix + ':' + spec.id] || 0;
       if (step > 0) {
-        ops.push({ from: spec.row, count: spec.count, html: blocks.pool[spec.keys[step - 1]] });
+        ops.push({ from: spec.row, count: spec.count, html: '<div class="block">' + blocks.pool[spec.keys[step - 1]] + '</div>' });
       }
     });
   }
@@ -486,7 +519,8 @@ function refreshVisibility() {
   document.querySelectorAll('[data-card]').forEach(function (card) {
     var entry = byId(card.getAttribute('data-entry'));
     if (!entry) return;
-    var laneOk = !entry.stage || entry.variant === state.lane;
+    // Stage cards are the two lanes of one replay: their own toggle owns them.
+    var laneOk = entry.stage ? true : entry.variant === state.lane;
     var hay = (entry.title + ' ' + entry.description + ' ' + entry.variant + ' ' + entry.group).toLowerCase();
     var searchOk = !q || hay.indexOf(q) !== -1;
     card.style.display = laneOk && searchOk ? '' : 'none';

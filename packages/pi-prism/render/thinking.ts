@@ -55,7 +55,7 @@ export function thinkingLabel(api: ThinkingApi, input: ThinkingLabelInput): stri
   // is still arriving it is the thing that spins — no second indicator needed.
   // The title uses the same token as every other header, so it stays full contrast.
   const glyph = input.phase === "thinking" ? frameAt(glyphs, input.frame ?? 0) : glyphs.thinking;
-  const marker = `${theme.fg("accent", glyph)} ${theme.fg("toolTitle", MARKER)}`;
+  const marker = `${theme.fg("accent", glyph)} ${theme.style(MARKER, { fg: "toolTitle", bold: true })}`;
   const dot = theme.fg("dim", glyphs.dot);
   const body = (row: string) => theme.italic(theme.fg("thinkingText", INDENT + row));
 
