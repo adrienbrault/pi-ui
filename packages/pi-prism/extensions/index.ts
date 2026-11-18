@@ -78,16 +78,22 @@ function stateOf<TArgs>(ctx: ToolRenderContext<RowState, TArgs>): RowState {
  * takes the next sequence number, and the blocks behind it are told to re-render
  * so they shed the row the newer block has earned.
  */
-const aged: Array<{ seq: number; invalidate: () => void }> = [];
+const aged: Array<{ seq: number; level: DetailLevel; invalidate: () => void }> = [];
 let latestSeq = 0;
 
 function ageState<TArgs>(ctx: ToolRenderContext<RowState, TArgs>, state: RowState): void {
   if (state.seq !== undefined) return;
   state.seq = ++latestSeq;
-  aged.push({ seq: state.seq, invalidate: ctx.invalidate });
+  // Only the blocks whose level actually moves need a repaint; once a block is
+  // at level 6 nothing after it can change it, so it leaves the window.
   for (const row of aged) {
-    if (row.seq < state.seq) row.invalidate();
+    const level = detailFor(state.seq - row.seq);
+    if (level === row.level) continue;
+    row.level = level;
+    row.invalidate();
   }
+  aged.push({ seq: state.seq, level: 0, invalidate: ctx.invalidate });
+  while (aged[0]?.level === 6) aged.shift();
 }
 
 /** The newest block is level 0; each block behind it drops one body row. */
