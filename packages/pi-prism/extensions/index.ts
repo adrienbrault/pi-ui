@@ -9,7 +9,7 @@
 
 import { MouseRegion, truncateToWidth, visibleWidth, type Component, type TuiMouseEvent } from "@earendil-works/pi-tui";
 import type { ExtensionAPI, ToolRendererResolver, ToolRenderResultOptions } from "@earendil-works/pi-coding-agent";
-import { bodyLinesFor } from "../render/detail.ts";
+import { bodyLinesFor, detailFor, type DetailLevel } from "../render/detail.ts";
 import { glyphsFor } from "../render/glyphs.ts";
 import type { RenderKit, RenderTheme } from "../render/kit.ts";
 import { nonEmptyLineCount } from "../render/text.ts";
@@ -59,6 +59,8 @@ interface RowState {
   expansion: Expansion;
   hover: boolean;
   hoverTimer?: ReturnType<typeof setTimeout>;
+  /** Position in the run; the newest block sits at `latestSeq`. */
+  seq?: number;
   /** Filled by the result slot: "show all" only exists when rows stay hidden. */
   output?: string;
 }
@@ -69,6 +71,28 @@ function stateOf<TArgs>(ctx: ToolRenderContext<RowState, TArgs>): RowState {
   const fresh: RowState = { expansion: 0, hover: false };
   ctx.state = fresh;
   return fresh;
+}
+
+/**
+ * Recency is live session state, not a design-system fixture: every tool call
+ * takes the next sequence number, and the blocks behind it are told to re-render
+ * so they shed the row the newer block has earned.
+ */
+const aged: Array<{ seq: number; invalidate: () => void }> = [];
+let latestSeq = 0;
+
+function ageState<TArgs>(ctx: ToolRenderContext<RowState, TArgs>, state: RowState): void {
+  if (state.seq !== undefined) return;
+  state.seq = ++latestSeq;
+  aged.push({ seq: state.seq, invalidate: ctx.invalidate });
+  for (const row of aged) {
+    if (row.seq < state.seq) row.invalidate();
+  }
+}
+
+/** The newest block is level 0; each block behind it drops one body row. */
+function levelOf(state: RowState): DetailLevel {
+  return state.seq === undefined ? 0 : detailFor(latestSeq - state.seq);
 }
 
 function statusOf<TArgs>(ctx: ToolRenderContext<RowState, TArgs>, output: string): ToolStatus {
@@ -84,22 +108,21 @@ function outputText(result: { content: Array<{ type: string; text?: string }> })
     .join("\n");
 }
 
-const SHOWN = bodyLinesFor(0);
 const CAPPED = bodyLinesFor(0, true);
 
 /**
  * The click must change something. A row that already shows its whole body has
  * no expand step; collapsing always has one. `null` means the row is inert.
  */
-export function actionFor(expansion: Expansion, present: number): Expansion | null {
+export function actionFor(expansion: Expansion, present: number, level: DetailLevel = 0): Expansion | null {
   if (expansion === 2) return 0;
   if (expansion === 1) return present > CAPPED ? 2 : 0;
-  return present > SHOWN ? 1 : null;
+  return present > bodyLinesFor(level) ? 1 : null;
 }
 
 /** What the next click does, in the row's own terms; nothing if nothing changes. */
-export function hintFor(expansion: Expansion, present: number): string | null {
-  const action = actionFor(expansion, present);
+export function hintFor(expansion: Expansion, present: number, level: DetailLevel = 0): string | null {
+  const action = actionFor(expansion, present, level);
   if (action === null) return null;
   if (action === 0) return "click · collapse";
   return expansion === 0 ? "click · expand" : "click · show all";
@@ -139,7 +162,7 @@ function inputFor<TArgs>(
     name,
     args: (args ?? {}) as Record<string, unknown>,
     status,
-    level: 0,
+    level: levelOf(state),
     expanded: state.expansion >= 1,
     full: state.expansion >= 2,
     output,
@@ -168,7 +191,7 @@ function onMouse<TArgs>(ctx: ToolRenderContext<RowState, TArgs>, event: TuiMouse
     return { render: true } as const;
   }
   if (event.type === "click" && event.button === "left") {
-    const action = actionFor(state.expansion, nonEmptyLineCount(state.output ?? ""));
+    const action = actionFor(state.expansion, nonEmptyLineCount(state.output ?? ""), levelOf(state));
     if (action === null) return undefined;
     state.expansion = action;
     state.hover = true;
@@ -203,7 +226,7 @@ function headerLines<TArgs>(
         : "toolPendingBg";
   const header = tintText(theme, tone, line);
 
-  const hint = hintFor(state.expansion, nonEmptyLineCount(state.output ?? ""));
+  const hint = hintFor(state.expansion, nonEmptyLineCount(state.output ?? ""), levelOf(state));
   if (hint === null) return [header];
   // Brackets and a background colour: the chip reads like the rest of the rows.
   const chip = theme.style(`[ ${hint} ]`, {
@@ -248,12 +271,13 @@ const resolver: ToolRendererResolver = (toolName, next) => {
     renderShell: "self",
     renderCall: (args, theme, ctx) => {
       const renderCtx = ctx as ToolRenderContext<RowState, typeof args>;
-      stateOf(renderCtx);
+      ageState(renderCtx, stateOf(renderCtx));
       return headerComponent(toolName, args, renderCtx, theme);
     },
     renderResult: (result, _options: ToolRenderResultOptions, theme, ctx) => {
       const renderCtx = ctx as ToolRenderContext<RowState, typeof ctx.args>;
       const state = stateOf(renderCtx);
+      ageState(renderCtx, state);
       const output = outputText(result as { content: Array<{ type: string; text?: string }> });
       state.output = output;
       return bodyComponent(toolName, renderCtx.args, renderCtx, theme, output);

@@ -76,6 +76,11 @@ describe("expansion cycle", () => {
     expect(actionFor(1, 12)).toBe(0);
     expect(actionFor(2, 12)).toBe(0);
   });
+
+  test("an aged row only expands past its own budget", () => {
+    expect(actionFor(0, 6, 2)).toBe(1);
+    expect(actionFor(0, 4, 2)).toBeNull();
+  });
 });
 
 const move = (): TuiMouseEvent => ({ ...click(), type: "move", button: "none" });
@@ -110,11 +115,28 @@ describe("tool renderers", () => {
     const capped = body.render(80).length;
     header.handleMouse?.(click());
     const full = body.render(80).length;
+
     header.handleMouse?.(click());
     const back = body.render(80).length;
 
     expect(capped).toBeGreaterThan(0);
     expect(full).toBe(40);
     expect(back).toBeLessThan(capped);
+  });
+
+  test("a newer call takes a body row from the block behind it", () => {
+    const renderers = resolver()("read", () => undefined) as Renderers;
+    const older = { ...ctx, state: undefined as unknown as { expansion: number; hover: boolean } };
+    renderers.renderCall(older.args, theme, older);
+    const body = renderers.renderResult(result, {}, theme, older);
+    expect(body.render(80)).toHaveLength(7);
+
+    const newer = {
+      ...ctx,
+      args: { path: "another.ts" },
+      state: undefined as unknown as { expansion: number; hover: boolean },
+    };
+    renderers.renderCall(newer.args, theme, newer);
+    expect(body.render(80)).toHaveLength(6);
   });
 });
