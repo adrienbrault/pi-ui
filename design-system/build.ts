@@ -334,6 +334,7 @@ export async function renderGallery(scope: RenderScope = {}): Promise<GalleryRen
       generatedAt: new Date().toISOString(),
       widths: [...WIDTHS],
       glyphs: [...GLYPH_MODES],
+      spinners: Object.fromEntries(GLYPH_MODES.map((mode) => [mode, [...glyphsFor(mode).spinner]])),
       themes: [...THEME_NAMES],
       bodyLines: bodyLinesMap(),
     },

@@ -291,8 +291,8 @@ const TOKEN_MS = 10;
 const OUTPUT_LINE_MS = 10;
 /** Prefill is not generation: prompt context lands at thousands of tokens a second. */
 const PREFILL_TOKENS_PER_SECOND = 4000;
-/** A tool that takes seconds should look like it: waiting is a visible phase. */
-const WAIT_FRAME_MS = 350;
+/** A tool that takes seconds should look like it: the timer keeps moving. */
+const WAIT_FRAME_MS = 80;
 const CHUNK_SIZES = [3, 5, 4, 7, 2, 6, 3, 4] as const;
 
 function chunkEnds(length: number): number[] {

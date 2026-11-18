@@ -29,6 +29,7 @@ export interface PagePayload {
     generatedAt: string;
     widths: number[];
     glyphs: string[];
+    spinners: Record<string, string[]>;
     themes: string[];
     bodyLines: Record<string, number>;
   };
@@ -220,8 +221,24 @@ section.group > h2 { margin: 8px 0 0; font-family: var(--mono); font-size: 11px;
   nav.side .group { flex-direction: row; flex-wrap: wrap; align-items: center; }
   nav.side .group h2 { margin-right: 8px; }
 }
+@keyframes spin-10 {
+  0% { opacity: 1; }
+  10% { opacity: 0; }
+  100% { opacity: 0; }
+}
+@keyframes spin-4 {
+  0% { opacity: 1; }
+  25% { opacity: 0; }
+  100% { opacity: 0; }
+}
+.term .spin { display: inline-grid; grid-template-columns: 1ch; vertical-align: bottom; line-height: inherit; }
+.term .spin > span { grid-area: 1 / 1; opacity: 0; animation: spin-10 1s steps(1, end) infinite; }
+.term .spin.n4 > span { animation-name: spin-4; }
+
 @media (prefers-reduced-motion: reduce) {
   .term { scroll-behavior: auto; }
+  .term .spin > span { animation: none; }
+  .term .spin > span:first-child { opacity: 1; }
 }
 `;
 
@@ -485,6 +502,21 @@ function annotateHints(term, entry, idx, stateId) {
   });
 }
 
+/** Keep running glyphs moving even while a tool spends its real wait. */
+function sparkle(html) {
+  if (state.glyph === 'ascii') return html;
+  var spinner = (DS.meta.spinners && DS.meta.spinners[state.glyph]) || [];
+  if (spinner.length < 2) return html;
+  var pattern = state.glyph === 'nerd'
+    ? /[\\u{E000}-\\u{F8FF}\\u{F0000}-\\u{FFFFD}]/gu
+    : /[\\u2800-\\u28FF]/g;
+  var slot = 1000 / spinner.length;
+  var stack = spinner.map(function (glyph, index) {
+    return '<span style="animation-delay:-' + (index * slot) + 'ms">' + glyph + '</span>';
+  }).join('');
+  return html.replace(pattern, '<span class="spin n' + spinner.length + '" aria-hidden="true">' + stack + '</span>');
+}
+
 function paintCard(card) {
   // Hidden lanes keep their DOM but skip repaint: playback should cost one lane.
   if (card.style.display === 'none') return;
@@ -496,7 +528,7 @@ function paintCard(card) {
   var idx = frameIndex(entry) % frames.length;
   var term = card.querySelector('[data-term]');
   if (term) {
-    term.innerHTML = composeFrame(entry, idx, frames[idx] || '', stateId);
+    term.innerHTML = sparkle(composeFrame(entry, idx, frames[idx] || '', stateId));
     annotateHints(term, entry, idx, stateId);
   }
   var note = card.querySelector('[data-note]');
@@ -802,13 +834,13 @@ function bind() {
 applyTheme();
 bind();
 paintAll();
-// Paint on the display clock, not a hot interval: a throttled tab used to
-// batch a whole second of frames into one jump. rAF pauses cleanly when hidden.
+// A self-scheduled timer keeps the clock honest even when the browser
+// throttles display callbacks; hidden tabs pause instead of jumping.
 var frameLoop = function () {
-  requestAnimationFrame(frameLoop);
+  setTimeout(frameLoop, 16);
   tick();
 };
-if (window.requestAnimationFrame) frameLoop(); else setInterval(tick, 8);
+frameLoop();
 document.addEventListener('visibilitychange', function () {
   // Coming back must resume where we left off, not spend the hidden time.
   Object.keys(playback).forEach(function (sync) {
