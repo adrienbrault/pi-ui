@@ -52,14 +52,16 @@ Rules:
 - One-line blocks hold their line until the fold distance: they do not vanish
   the turn after they shrink.
 - Thinking sheds one row per turn and bottoms out at one inline line. Past the
-  fold distance, folded thoughts become one `Thought N times` summary at the
-  oldest folded thought; the newest thought stays inline.
+  fold distance, folded thoughts join the same summary as folded tool rows at
+  the oldest folded member: `Thought 3 times · Ran 8 commands`. The newest
+  thought stays inline.
 - Errors and the live block keep their own rows; a failure never joins a group.
 - Recompute on structural events only; never per token.
 - Hysteresis: two consecutive recomputes must agree before a level changes.
 - Bodies spend their budget on evidence: diffs shed unchanged context lines
   before hiding any hunk, reads keep their opening and their end with a
-  `< N more lines >` notice between, and logs keep the newest lines.
+  `< N more lines >` notice between, logs keep the newest lines, and a decayed
+  thinking tail states `< N more lines >` above the thought it keeps.
 - A click opens a block all the way, and the next click folds it back: a folded
   member shows its header until clicked, then its whole body. Any block with a
   truncated body (a kept tool row, a one-line thinking run) toggles the same
@@ -74,6 +76,8 @@ Rules:
   affordance, the status glyph keeps the outcome colour.
 - A failed shell puts the exit status in its header and stderr in the body:
   the outcome stays scannable while the evidence stays readable.
+- Long shell commands truncate in the middle, keeping the opening verb and the
+  end target; paths keep their basename instead.
 
 ## Width and glyphs
 

@@ -10,7 +10,7 @@
 import { bodyLinesFor, type DetailLevel } from "./detail.ts";
 import { frameAt, type GlyphSet } from "./glyphs.ts";
 import type { RenderKit, RenderTheme } from "./kit.ts";
-import { cleanThinking, squeeze, tailLines } from "./text.ts";
+import { cleanThinking, nonEmptyLineCount, squeeze, tailLines } from "./text.ts";
 
 export interface ThinkingApi {
   kit: RenderKit;
@@ -72,10 +72,23 @@ export function thinkingLabel(api: ThinkingApi, input: ThinkingLabelInput): stri
   // One row of the budget is the header. Body text wraps instead of ending in
   // an ellipsis: a terminal row is a layout unit, not a truncation point.
   const bodyWidth = Math.max(1, input.width - INDENT.length);
-  const wrapped = tail.slice(-(budget - 1)).flatMap((row) => kit.wrap(row, bodyWidth));
-  // Collapsed rows keep the newest terminal rows; expanded rows show the whole
-  // thought (already capped to the last 16 source lines above).
-  const visible = input.expanded ? wrapped : wrapped.slice(-(budget - 1));
-  const rows = visible.map(body);
+  const wrapped = tail.flatMap((row, source) => kit.wrap(row, bodyWidth).map((line) => ({ line, source })));
+  const bodyBudget = Math.max(0, budget - 1);
+  let rows: string[];
+  if (input.expanded) {
+    // Expanded rows show the whole thought (already capped to the last 16
+    // source lines above).
+    rows = wrapped.slice(-bodyBudget).map((row) => body(row.line));
+  } else if (bodyBudget <= 1) {
+    // One body row is never spent on a notice: the newest line itself wins.
+    rows = wrapped.slice(-1).map((row) => body(row.line));
+  } else {
+    const visible = wrapped.slice(-(bodyBudget - 1));
+    const shownSources = new Set(visible.map((row) => row.source)).size;
+    const hidden = nonEmptyLineCount(cleaned) - shownSources;
+    rows = [];
+    if (hidden > 0) rows.push(theme.fg("dim", `${INDENT}< ${hidden} more lines >`));
+    rows.push(...visible.map((row) => body(row.line)));
+  }
   return [head, ...rows].map((row) => clampLine(kit, row, input.width)).join("\n");
 }

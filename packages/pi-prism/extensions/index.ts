@@ -16,16 +16,16 @@ import {
   type TuiMouseEvent,
 } from "@earendil-works/pi-tui";
 import type { ExtensionAPI, ToolRendererResolver, ToolRenderResultOptions } from "@earendil-works/pi-coding-agent";
-import { FOLD_DISTANCE, bodyLinesFor, type DetailLevel } from "../render/detail.ts";
+import { bodyLinesFor, type DetailLevel } from "../render/detail.ts";
 import { glyphsFor } from "../render/glyphs.ts";
-import { groupSegments, renderGroupRow, type GroupSegment } from "../render/group-row.ts";
+import { renderGroupRow } from "../render/group-row.ts";
 import type { RenderKit, RenderTheme } from "../render/kit.ts";
 import { nonEmptyLineCount } from "../render/text.ts";
-import { toolMeta } from "../render/tools.ts";
 import { renderToolRow, type ToolRowInput, type ToolStatus } from "../render/tool-row.ts";
-import { levelFor, registerAge, resetAge, runIndex, sequenceIndex, startRun } from "./age.ts";
+import { levelFor, registerAge, resetAge, startRun } from "./age.ts";
+import { type FoldMode, type LiveFoldGroup, registerToolInfo, setGroupOpen, toolPlan } from "./fold.ts";
 import { claimHover, releaseHover } from "./hover.ts";
-import { installThinkingRenderer } from "./thinking.ts";
+import { installThinkingRenderer, scheduleThinkingFold } from "./thinking.ts";
 
 /**
  * Duck-typed on purpose: pi ships several tui copies, so structural types beat
@@ -93,18 +93,10 @@ function stateOf<TArgs>(ctx: ToolRenderContext<RowState, TArgs>): RowState {
 
 /**
  * Recency is live session state, not a design-system fixture. Every tool call
- * gets a stable sequence number; older rows shed a line, and past the fold
- * distance they collapse into a group summary anchored at the oldest member.
+ * gets a stable sequence number for its decay level; folding itself is planned
+ * from the rendered tree so thoughts and calls share one summary.
  */
 type AgeKey = string | RowState;
-type RenderMode = "normal" | "hidden" | "anchor";
-
-interface FoldGroup {
-  anchor: BlockRecord;
-  members: BlockRecord[];
-  segments: GroupSegment[];
-  durationMs: number;
-}
 
 interface BlockRecord {
   key: AgeKey;
@@ -117,11 +109,9 @@ interface BlockRecord {
   error?: string;
   durationMs?: number;
   invalidate: () => void;
-  mode?: RenderMode;
-  group?: FoldGroup;
-  groupSig?: string;
+  mode?: FoldMode;
+  group?: LiveFoldGroup;
   expansion: Expansion;
-  open: boolean;
   hoverSummary: boolean;
   hoverMember: boolean;
   hoverOwner?: object;
@@ -129,82 +119,7 @@ interface BlockRecord {
 }
 
 const records = new Map<AgeKey, BlockRecord>();
-const pendingInvalidations = new Set<BlockRecord>();
 let planDirty = true;
-let invalidateScheduled = false;
-
-/** Coalesce plan-driven repaints so a render never invalidates synchronously. */
-function scheduleInvalidation(record: BlockRecord): void {
-  pendingInvalidations.add(record);
-  if (invalidateScheduled) return;
-  invalidateScheduled = true;
-  queueMicrotask(() => {
-    invalidateScheduled = false;
-    const pending = [...pendingInvalidations];
-    pendingInvalidations.clear();
-    for (const entry of pending) entry.invalidate();
-  });
-}
-
-function groupSignature(group: FoldGroup): string {
-  const segments = group.segments.map((segment) => `${segment.cls}:${segment.count}:${segment.failed ?? 0}`).join(",");
-  return `${group.members.length}|${segments}|${Math.round(group.durationMs)}`;
-}
-
-/**
- * Fold the rows older than the fold distance into contiguous groups. Failures
- * keep their own rows and split a group, exactly like the design-system plan.
- */
-function refreshPlan(): void {
-  if (!planDirty) return;
-  planDirty = false;
-  const next = new Map<BlockRecord, { mode: RenderMode; group?: FoldGroup }>();
-  let current: BlockRecord[] = [];
-  const flush = (): void => {
-    if (current.length === 0) return;
-    const members = [...current];
-    const anchor = members[0]!;
-    const group: FoldGroup = {
-      anchor,
-      members,
-      segments: groupSegments(
-        members.map((member) => ({ cls: toolMeta(member.name).cls, failed: member.status === "error" })),
-      ),
-      durationMs: members.reduce((sum, member) => sum + (member.durationMs ?? 0), 0),
-    };
-    next.set(anchor, { mode: "anchor", group });
-    for (const member of members.slice(1)) next.set(member, { mode: "hidden", group });
-    current = [];
-  };
-  const activeRun = runIndex();
-  const activeSeq = sequenceIndex();
-  for (const record of records.values()) {
-    const sameRun = record.run === activeRun;
-    const distance = sameRun ? activeSeq - record.runSeq : Infinity;
-    if (distance >= FOLD_DISTANCE && record.status !== "error") {
-      current.push(record);
-      continue;
-    }
-    flush();
-    next.set(record, { mode: "normal" });
-  }
-  flush();
-
-  const changed: BlockRecord[] = [];
-  for (const record of records.values()) {
-    const planned = next.get(record) ?? { mode: "normal" as const };
-    const signature = planned.group ? groupSignature(planned.group) : "";
-    if (record.mode !== planned.mode || record.groupSig !== signature) {
-      record.mode = planned.mode;
-      record.group = planned.group;
-      record.groupSig = signature;
-      changed.push(record);
-    } else if (planned.group) {
-      record.group = planned.group;
-    }
-  }
-  for (const record of changed) scheduleInvalidation(record);
-}
 
 function syncRecord<TArgs>(
   ctx: ToolRenderContext<RowState, TArgs>,
@@ -233,7 +148,6 @@ function syncRecord<TArgs>(
       durationMs: ctx.durationMs,
       invalidate: ctx.invalidate,
       expansion: 0,
-      open: false,
       hoverSummary: false,
       hoverMember: false,
     };
@@ -259,7 +173,16 @@ function syncRecord<TArgs>(
   record.durationMs = ctx.durationMs;
   state.run = record.run;
   state.runSeq = record.runSeq;
-  refreshPlan();
+  if (typeof key === "string") {
+    registerToolInfo(key, { name, status, durationMs: ctx.durationMs });
+  }
+  if (planDirty) {
+    planDirty = false;
+    scheduleThinkingFold();
+  }
+  const planned = typeof key === "string" ? toolPlan(key) : undefined;
+  record.mode = planned?.mode;
+  record.group = planned?.group;
   return record;
 }
 
@@ -449,11 +372,8 @@ function bodyComponent<TArgs>(
   return region(inner, ctx);
 }
 
-type MemberHit = { start: number; end: number; member: BlockRecord };
-
 function memberHint(member: BlockRecord): string | null {
-  const present = nonEmptyLineCount(member.output);
-  if (present === 0) return null;
+  if (nonEmptyLineCount(member.output) === 0) return null;
   return member.expansion === 0 ? "click · expand" : "click · collapse";
 }
 
@@ -462,13 +382,14 @@ function cycleMember(member: BlockRecord): void {
   member.expansion = member.expansion === 1 ? 0 : 1;
 }
 
+/** The anchor is also a member; its row sits under the summary once open. */
 function memberLines(member: BlockRecord, theme: Theme, width: number): string[] {
   const api = { kit: KIT, theme: theme as unknown as RenderTheme, glyphs: GLYPHS };
   const rows = renderToolRow(api, {
     name: member.name,
     args: member.args,
     status: member.status,
-    level: 0,
+    level: 6,
     expanded: member.expansion === 1,
     full: member.expansion === 1,
     output: member.output,
@@ -479,59 +400,42 @@ function memberLines(member: BlockRecord, theme: Theme, width: number): string[]
   return member.expansion === 0 ? [rows[0] ?? ""] : rows;
 }
 
-function groupLines(record: BlockRecord, theme: Theme, width: number, hits: MemberHit[]): string[] {
+function groupLines(record: BlockRecord, theme: Theme, width: number): string[] {
   const group = record.group;
   if (!group) return [];
   const api = { kit: KIT, theme: theme as unknown as RenderTheme, glyphs: GLYPHS };
-  hits.length = 0;
   const summary =
     renderGroupRow(api, {
       segments: group.segments,
-      expanded: record.open,
-      durationMs: group.durationMs,
+      expanded: group.open,
+      ...(group.durationMs !== undefined ? { durationMs: group.durationMs } : {}),
     }).render(width)[0] ?? "";
-  const summaryHint = record.open ? "click · collapse" : "click · expand";
+  const hint = group.open ? "click · collapse" : "click · expand";
   const summaryLine = record.hoverSummary
-    ? withChip(theme, tintText(theme, "toolPendingBg", summary), summaryHint, width)
+    ? withChip(theme, tintText(theme, "toolPendingBg", summary), hint, width)
     : summary;
-  if (!record.open) return [summaryLine];
-
-  const lines = [summaryLine];
-  const memberWidth = Math.max(1, width - 2);
-  for (const member of group.members) {
-    const start = lines.length;
-    const rows = memberLines(member, theme, memberWidth);
-    const hint = member.hoverMember ? memberHint(member) : null;
-    const header = member.hoverMember ? tintText(theme, "toolPendingBg", rows[0] ?? "") : (rows[0] ?? "");
-    rows[0] = hint === null ? header : withChip(theme, header, hint, memberWidth);
-    for (const row of rows) lines.push(`  ${row}`);
-    hits.push({ start, end: lines.length, member });
+  if (!group.open) return [summaryLine];
+  const rows = memberLines(record, theme, width);
+  const memberHintText = memberHint(record);
+  if (record.hoverMember && memberHintText !== null) {
+    const header = tintText(theme, "toolPendingBg", rows[0] ?? "");
+    rows[0] = withChip(theme, header, memberHintText, width);
   }
-  return lines;
+  return [summaryLine, ...rows];
 }
 
-function onGroupMouse(record: BlockRecord, event: TuiMouseEvent, hits: MemberHit[]) {
+function onGroupMouse(record: BlockRecord, event: TuiMouseEvent) {
   const group = record.group;
   if (!group) return undefined;
-  const clearGroup = () => {
-    record.hoverSummary = false;
-    for (const member of group.members) member.hoverMember = false;
-  };
-  const settle = () => {
+  const clear = () => {
     if (record.hoverTimer) clearTimeout(record.hoverTimer);
     record.hoverTimer = undefined;
-    clearGroup();
+    record.hoverSummary = false;
+    record.hoverMember = false;
     record.invalidate();
   };
-  const show = (owner: object, set: () => void, touch: boolean) => {
-    // Clear this group before re-lighting the row under the pointer.
-    clearGroup();
-    claimHover(owner, () => {
-      if (record.hoverOwner === owner) record.hoverOwner = undefined;
-      settle();
-    });
-    record.hoverOwner = owner;
-    set();
+  const show = (touch: boolean) => {
+    claimHover(record, clear);
     if (record.hoverTimer) clearTimeout(record.hoverTimer);
     if (!touch) {
       record.hoverTimer = undefined;
@@ -539,76 +443,45 @@ function onGroupMouse(record: BlockRecord, event: TuiMouseEvent, hits: MemberHit
       return;
     }
     record.hoverTimer = setTimeout(() => {
-      releaseHover(owner);
-      if (record.hoverOwner === owner) record.hoverOwner = undefined;
-      settle();
+      releaseHover(record);
+      clear();
     }, 1200);
     record.invalidate();
   };
-  const clearCurrent = () => {
-    if (record.hoverOwner) releaseHover(record.hoverOwner);
-    record.hoverOwner = undefined;
-    settle();
-  };
 
   if (event.type === "move") {
-    if (event.y === 0 || !record.open) {
-      show(
-        record,
-        () => {
-          record.hoverSummary = true;
-        },
-        true,
-      );
-    } else {
-      const hit = hits.find((entry) => event.y >= entry.start && event.y < entry.end);
-      if (hit) {
-        show(
-          hit.member,
-          () => {
-            hit.member.hoverMember = true;
-          },
-          true,
-        );
-      } else clearCurrent();
-    }
+    const onMember = group.open && event.y > 0;
+    record.hoverSummary = !onMember;
+    record.hoverMember = onMember;
+    show(true);
     return { render: true } as const;
   }
-
   if (event.type === "click" && event.button === "left") {
-    if (!record.open || event.y === 0) {
-      record.open = !record.open;
-      show(
-        record,
-        () => {
-          record.hoverSummary = true;
-        },
-        false,
-      );
+    // Rows below the summary belong to the anchor member, not the group.
+    if (group.open && event.y > 0) {
+      cycleMember(record);
+      record.hoverSummary = false;
+      record.hoverMember = true;
+      record.invalidate();
       return { handled: true, render: true } as const;
     }
-    const hit = hits.find((entry) => event.y >= entry.start && event.y < entry.end);
-    if (!hit) return undefined;
-    cycleMember(hit.member);
-    show(
-      hit.member,
-      () => {
-        hit.member.hoverMember = true;
-      },
-      false,
-    );
+    // Opening reveals the members in their own places; each member keeps its
+    // own click for expanding its body.
+    setGroupOpen(group, !group.open);
+    record.hoverSummary = true;
+    record.hoverMember = false;
+    show(false);
     return { handled: true, render: true } as const;
   }
   return undefined;
 }
 
 function groupComponent(record: BlockRecord, theme: Theme): Component {
-  const hits: MemberHit[] = [];
   const inner: Component = {
-    render: (width) => groupLines(record, theme, width, hits),
+    render: (width) => groupLines(record, theme, width),
     invalidate: () => {},
   };
-  return new MouseRegion(inner, (event) => onGroupMouse(record, event, hits));
+  return new MouseRegion(inner, (event) => onGroupMouse(record, event));
 }
 
 const resolver: ToolRendererResolver = (toolName, next) => {
@@ -619,7 +492,7 @@ const resolver: ToolRendererResolver = (toolName, next) => {
       const renderCtx = ctx as ToolRenderContext<RowState, typeof args>;
       const state = stateOf(renderCtx);
       const record = syncRecord(renderCtx, state, toolName, args, state.output ?? "");
-      if (record.mode === "hidden") return emptyComponent();
+      if (record.mode === "hidden" && !record.group?.open) return emptyComponent();
       if (record.mode === "anchor") return groupComponent(record, theme);
       return headerComponent(toolName, args, renderCtx, theme);
     },
@@ -629,7 +502,10 @@ const resolver: ToolRendererResolver = (toolName, next) => {
       const output = outputText(result as { content: Array<{ type: string; text?: string }> });
       state.output = output;
       const record = syncRecord(renderCtx, state, toolName, renderCtx.args, output);
-      if (record.mode === "hidden" || record.mode === "anchor") return emptyComponent();
+      if (record.mode === "anchor") return emptyComponent();
+      if (record.mode === "hidden") {
+        if (!record.group?.open || record.expansion === 0) return emptyComponent();
+      }
       return bodyComponent(toolName, renderCtx.args, renderCtx, theme, output);
     },
   };
@@ -641,9 +517,9 @@ export default function prism(pi: ExtensionAPI): void {
 
   pi.on("session_start", () => {
     records.clear();
-    pendingInvalidations.clear();
     resetAge();
     planDirty = true;
+    scheduleThinkingFold();
   });
 
   // A run is everything between user messages. A new user message ends the
@@ -653,6 +529,6 @@ export default function prism(pi: ExtensionAPI): void {
     if (event.message.role !== "user") return;
     startRun();
     planDirty = true;
-    refreshPlan();
+    scheduleThinkingFold();
   });
 }

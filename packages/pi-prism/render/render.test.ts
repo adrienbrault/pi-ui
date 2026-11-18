@@ -228,6 +228,16 @@ describe("thinking labels", () => {
     expect(label).not.toContain("…");
     for (const line of label.split("\n")) expect(line.length).toBeLessThanOrEqual(40);
   });
+
+  test("a decayed thought says how many lines it hid", () => {
+    const text = Array.from({ length: 10 }, (_, index) => `thought ${index + 1}`).join("\n");
+    const label = thinkingLabel(api, { phase: "aged", level: 4, text, width: 80 });
+    expect(label).toContain("< 9 more lines >");
+    expect(label).toContain("thought 10");
+    const expanded = thinkingLabel(api, { phase: "aged", level: 4, text, width: 80, expanded: true });
+    expect(expanded).not.toContain("more lines");
+    expect(expanded).toContain("thought 1");
+  });
 });
 
 describe("taxonomy", () => {

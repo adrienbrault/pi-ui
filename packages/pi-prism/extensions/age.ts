@@ -26,16 +26,6 @@ let run = 0;
 let seq = 0;
 const aged: AgedRow[] = [];
 
-/** The run the transcript is currently in; older runs sit at the floor. */
-export function runIndex(): number {
-  return run;
-}
-
-/** Latest sequence number in the current run. */
-export function sequenceIndex(): number {
-  return seq;
-}
-
 /**
  * Register a block in the current run. Older rows in the same run move one step
  * down and repaint; a new block takes the head at level 0.

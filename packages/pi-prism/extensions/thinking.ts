@@ -20,7 +20,9 @@ import { FOLD_DISTANCE, type DetailLevel } from "../render/detail.ts";
 import { glyphsFor } from "../render/glyphs.ts";
 import { renderGroupRow } from "../render/group-row.ts";
 import type { RenderKit, RenderTheme } from "../render/kit.ts";
+import { toolMeta } from "../render/tools.ts";
 import { thinkingLabel } from "../render/thinking.ts";
+import { type FoldPlan, type FoldUnit, planFolds, setGroupOpen, thinkingPlan, toolInfo } from "./fold.ts";
 import { claimHover, releaseHover } from "./hover.ts";
 
 const GLYPHS = glyphsFor("unicode");
@@ -36,6 +38,14 @@ const PROBE_WIDGET = "pi-prism-thinking-probe";
 interface ContentEntry {
   type: string;
   thinking?: string;
+  text?: string;
+}
+
+interface ToolComponentLike {
+  toolCallId?: string;
+  toolName?: string;
+  rendererState?: unknown;
+  invalidate?: () => void;
 }
 
 interface AssistantLike {
@@ -53,6 +63,7 @@ interface AssistantLike {
 
 interface MouseEventLike {
   type?: string;
+  y?: number;
 }
 
 interface HoverState {
@@ -72,14 +83,14 @@ const HOVERS = new WeakMap<object, HoverState[]>();
 /** The decay level patchTree assigns from the component's place in the tree. */
 const LEVELS = new WeakMap<object, DetailLevel>();
 
-interface FoldState {
-  kind: "normal" | "hidden" | "anchor";
-  count?: number;
-}
+const NORMAL_PLAN: FoldPlan = { mode: "normal" };
 
-/** Old thinking runs fold into one summary; patchTree assigns the part. */
-const FOLDS = new WeakMap<object, FoldState>();
-const NORMAL_FOLD: FoldState = { kind: "normal" };
+/** Tool rows register their metadata then ask the tree plan to recompute. */
+let scheduleFold: (() => void) | undefined;
+
+export function scheduleThinkingFold(): void {
+  scheduleFold?.();
+}
 
 interface ContainerLike {
   children?: unknown[];
@@ -143,7 +154,12 @@ function tintText(theme: RenderTheme, token: string, line: string): string {
   });
 }
 
-function bindHover(region: HiddenThinkingRegion, component: AssistantLike, state: HoverState): void {
+function bindHover(
+  region: HiddenThinkingRegion,
+  component: AssistantLike,
+  state: HoverState,
+  foldOf: () => FoldPlan,
+): void {
   const original = region.onMouse;
   const clear = () => {
     if (state.timer) clearTimeout(state.timer);
@@ -166,6 +182,22 @@ function bindHover(region: HiddenThinkingRegion, component: AssistantLike, state
       }, 1200);
       if (firstMove) component.invalidate?.();
     } else if (event.type === "click") {
+      const plan = foldOf();
+      if (plan.mode === "anchor" && plan.group && !(plan.group.open && (event.y ?? 0) > 0)) {
+        // The summary owns the click; once open, rows below it belong to the
+        // anchor thought and keep pi's own expand/collapse.
+        state.active = true;
+        claimHover(state, clear);
+        if (state.timer) clearTimeout(state.timer);
+        state.timer = setTimeout(() => {
+          state.active = false;
+          state.timer = undefined;
+          releaseHover(state);
+          component.invalidate?.();
+        }, 1200);
+        setGroupOpen(plan.group, !plan.group.open);
+        return { handled: true, render: true };
+      }
       claimHover(state, clear);
       clear();
       releaseHover(state);
@@ -182,18 +214,44 @@ function labelComponent(
   theme: RenderTheme,
   hover: HoverState,
   levelOf: () => DetailLevel,
-  foldOf: () => FoldState,
+  foldOf: () => FoldPlan,
   expanded: boolean,
 ): Component {
   return {
     render(width: number): string[] {
-      const fold = foldOf();
-      if (fold.kind === "hidden") return [];
-      if (fold.kind === "anchor") {
-        return renderGroupRow(
+      const plan = foldOf();
+      const group = plan.group;
+      if (plan.mode === "hidden" && !group?.open) return [];
+      if (plan.mode === "anchor" && group) {
+        const summary =
+          renderGroupRow(
+            { kit: KIT, theme, glyphs: GLYPHS },
+            {
+              segments: group.segments,
+              expanded: group.open,
+              ...(group.durationMs !== undefined ? { durationMs: group.durationMs } : {}),
+            },
+          ).render(width)[0] ?? "";
+        if (!hover.active) return [summary];
+        const hint = group.open ? "click · collapse" : "click · expand";
+        const summaryLine = hover.active
+          ? chipLine(theme, tintText(theme, "toolPendingBg", summary), hint, width)
+          : summary;
+        if (!group.open) return [summaryLine];
+        // The anchor is also a member: show its own row under the summary, so
+        // opening a one-thought group reveals that thought.
+        const member = thinkingLabel(
           { kit: KIT, theme, glyphs: GLYPHS },
-          { segments: [{ cls: "thinking", count: fold.count ?? 1 }] },
-        ).render(width);
+          {
+            phase: streaming ? "thinking" : "aged",
+            level: streaming ? 0 : levelOf(),
+            text,
+            width: Math.max(1, width),
+            frame: Math.floor(Date.now() / 120),
+            expanded,
+          },
+        );
+        return [summaryLine, ...member.split("\n")];
       }
       const label = thinkingLabel(
         { kit: KIT, theme, glyphs: GLYPHS },
@@ -240,7 +298,7 @@ function decorate(component: AssistantLike, message: AssistantLike, streaming: b
   const hoverStates = HOVERS.get(component) ?? [];
   HOVERS.set(component, hoverStates);
   const levelOf = (): DetailLevel => LEVELS.get(component) ?? 0;
-  const foldOf = (): FoldState => FOLDS.get(component) ?? NORMAL_FOLD;
+  const foldOf = (): FoldPlan => thinkingPlan(component) ?? NORMAL_PLAN;
   const hasHiddenLabel = (component.hiddenThinkingLabel ?? "").trim() !== "";
   let runIndex = 0;
   let regionIndex = 0;
@@ -257,14 +315,15 @@ function decorate(component: AssistantLike, message: AssistantLike, streaming: b
       const hover = (hoverStates[runIndex] ??= { active: false });
       if (region.prismHover !== hover) {
         region.prismHover = hover;
-        bindHover(region, component, hover);
+        bindHover(region, component, hover, foldOf);
       }
       // Keep our marker and body in both states; expanding must not hand the
       // run back to pi's bare markdown. The click stays owned by MouseRegion.
       const fold = foldOf();
       region.child = labelComponent(text, streaming, theme, hover, levelOf, foldOf, !isHidden);
-      // A hidden folded run should not leave its leading spacer behind.
-      if (fold.kind === "hidden") dropSpacerBefore(children, region);
+      // A hidden folded run should not leave its leading spacer behind. Once
+      // the group opens the member is visible again, so its spacer stays.
+      if (fold.mode === "hidden" && !fold.group?.open) dropSpacerBefore(children, region);
     }
     runIndex += 1;
   }
@@ -309,7 +368,7 @@ function patchInstance(component: AssistantLike, theme: RenderTheme): void {
   }
 }
 
-function isToolComponent(component: unknown): boolean {
+function isToolComponent(component: unknown): component is ToolComponentLike {
   const candidate = component as { toolCallId?: unknown; toolName?: unknown; rendererState?: unknown };
   return (
     typeof candidate.toolCallId === "string" &&
@@ -349,7 +408,7 @@ function patchTree(root: unknown, theme: RenderTheme): void {
 
   let behind = 0;
   const levels = new Map<unknown, DetailLevel>();
-  const folded: Array<{ component: AssistantLike; index: number; count: number }> = [];
+  const units: FoldUnit[] = [];
   for (let index = ordered.length - 1; index >= 0; index -= 1) {
     const component = ordered[index];
     if (isUserComponent(component)) {
@@ -358,6 +417,26 @@ function patchTree(root: unknown, theme: RenderTheme): void {
       continue;
     }
     if (isToolComponent(component)) {
+      const key = component.toolCallId;
+      if (!key) {
+        behind += 1;
+        continue;
+      }
+      const info = toolInfo(key);
+      const meta = toolMeta(info?.name ?? component.toolName ?? "");
+      const failed = info?.status === "error";
+      units.push({
+        kind: "tool",
+        key,
+        component,
+        count: 1,
+        cls: meta.cls,
+        failed,
+        durationMs: info?.durationMs,
+        distance: behind,
+        boundary: failed,
+        invalidate: () => (component as { invalidate?: () => void }).invalidate?.(),
+      });
       behind += 1;
       continue;
     }
@@ -365,33 +444,40 @@ function patchTree(root: unknown, theme: RenderTheme): void {
     levels.set(component, Math.min(6, behind) as DetailLevel);
     const message = component.lastMessage;
     const runs = message ? thinkingRuns(message).length : 0;
-    if (runs === 0) continue;
-    if (behind >= FOLD_DISTANCE) folded.push({ component, index, count: runs });
-    behind += 1;
+    // Prose keeps its own row and splits the run; only a thinking-only message
+    // can become a member of a summary.
+    const hasProse = (message?.content ?? []).some((entry) => entry.type === "text" && entry.text?.trim());
+    // An assistant that only owns tool calls is the container for the tool
+    // components below it, not a block in its own right.
+    if (runs === 0 && !hasProse) continue;
+    units.push({
+      kind: "thinking",
+      key: "thinking",
+      component,
+      count: Math.max(1, runs),
+      cls: "thinking",
+      distance: behind,
+      boundary: runs === 0 || hasProse,
+      invalidate: () => component.invalidate?.(),
+    });
+    // Prose is an anchor, not a decay block: it ends a group but does not make
+    // the blocks before it look older than they are.
+    if (!hasProse) behind += Math.max(1, runs);
   }
 
-  folded.sort((left, right) => left.index - right.index);
-  const folds = new Map<unknown, FoldState>();
-  if (folded.length > 0) {
-    const anchor = folded[0]?.component;
-    const count = folded.reduce((sum, entry) => sum + entry.count, 0);
-    for (const entry of folded) {
-      folds.set(entry.component, entry.component === anchor ? { kind: "anchor", count } : { kind: "hidden" });
-    }
-  }
+  units.reverse();
+  const changed = planFolds(units);
 
   for (const component of ordered) {
     if (!isAssistant(component)) continue;
     const next = levels.get(component) ?? 0;
-    const nextFold = folds.get(component) ?? NORMAL_FOLD;
     const previous = LEVELS.get(component);
-    const previousFold = FOLDS.get(component) ?? NORMAL_FOLD;
     LEVELS.set(component, next);
-    FOLDS.set(component, nextFold);
     patchInstance(component, theme);
-    if (previous !== next || previousFold.kind !== nextFold.kind || previousFold.count !== nextFold.count) {
-      component.invalidate?.();
-    }
+    if (previous !== next) component.invalidate?.();
+  }
+  for (const component of changed) {
+    (component as { invalidate?: () => void }).invalidate?.();
   }
 }
 
@@ -418,6 +504,7 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
       patch();
     }, 0);
   };
+  scheduleFold = schedule;
 
   pi.on("session_start", (_event, ctx: ExtensionContext) => {
     if (tui || !ctx.hasUI || ctx.mode !== "tui") return;

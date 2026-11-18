@@ -65,6 +65,18 @@ function statusGlyph(api: RenderApi, input: ToolRowInput): string {
   }
 }
 
+/** Keep the opening and the end: a shell command's verb and target both matter. */
+function truncateMiddle(kit: RenderKit, text: string, width: number, ellipsis = "…"): string {
+  if (width <= 0) return "";
+  if (kit.visibleWidth(text) <= width) return text;
+  const chars = [...text];
+  const room = width - kit.visibleWidth(ellipsis);
+  if (room <= 0) return kit.truncateToWidth(ellipsis, width, ellipsis);
+  const head = Math.ceil(room / 2);
+  const tail = room - head;
+  return `${chars.slice(0, head).join("")}${ellipsis}${tail > 0 ? chars.slice(-tail).join("") : ""}`;
+}
+
 /** Keep the end of a long path: the basename is the part a reader needs. */
 function truncateLeft(kit: RenderKit, text: string, width: number, ellipsis = "…"): string {
   if (width <= 0) return "";
@@ -143,7 +155,8 @@ function header(api: RenderApi, input: ToolRowInput, width: number): string {
     if (titlePiece) {
       const others = pieces.filter((piece) => piece !== titlePiece);
       const room = width - kit.visibleWidth(compose(others)) - kit.visibleWidth(sep);
-      titlePiece.text = theme.fg("accent", truncateLeft(kit, title, room));
+      const truncate = meta.cls === "shell" ? truncateMiddle : truncateLeft;
+      titlePiece.text = theme.fg("accent", truncate(kit, title, room));
     }
   }
 

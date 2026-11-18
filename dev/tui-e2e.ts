@@ -3,7 +3,7 @@
  *
  * Synthetic sessions are restored so no model turn is needed. The pane is read
  * as text and SGR mouse sequences are injected as literal input, which is what
- * a terminal would send. Four scenarios:
+ * a terminal would send. Five scenarios:
  *
  * - 7 calls: the decay ladder, the hover chip, click expansion, inert rows.
  * - 12 calls: rows past FOLD_DISTANCE collapse into one summary; the summary
@@ -11,6 +11,7 @@
  * - Thinking followed by work: the thinking run decays on the same ladder, keeps
  *   a tail, and still opens all the way on click.
  * - Many old thoughts: the folded run becomes one `Thought N times` summary.
+ * - Thoughts and commands: both fold into one shared summary that opens both.
  *
  * Run: bun run e2e
  */
@@ -329,16 +330,128 @@ function thinkingFoldFixture(path: string): void {
 
 async function thinkingFoldScenario(sessionPath: string): Promise<void> {
   start(sessionPath, 50);
-  const pane = await waitFor("Fold done.");
+  let pane = await waitFor("Fold done.");
+  await Bun.sleep(600);
+  pane = capture();
   assert(count(pane, "Thought 12 times") === 1, `old thoughts should fold into one summary\n${pane}`);
   assert(!pane.includes("thought old-0"), `the oldest folded thought leaked\n${pane}`);
   assert(!pane.includes("thought old-11"), `the newest folded thought leaked\n${pane}`);
   assert(pane.includes("thought old-19"), `the newest thought should survive\n${pane}`);
+
+  pane = capture();
+  const summaryRow = rowOf(pane, "Thought 12 times");
+  mouse(0, 5, summaryRow);
+  mouse(0, 5, summaryRow, true);
+  await Bun.sleep(500);
+  pane = capture();
+  assert(pane.includes("thought old-3"), `the thought summary should open its members\n${pane}`);
+}
+
+function combinedFoldFixture(path: string): void {
+  const now = Date.now();
+  const entries: Entry[] = [];
+  let parentId: string | null = null;
+  const add = (entry: Entry): void => {
+    entries.push(entry);
+    parentId = String(entry.id);
+  };
+  const message = (id: string, timestamp: number, body: Record<string, unknown>): void => {
+    add({ type: "message", id, parentId, timestamp: new Date(timestamp).toISOString(), message: body });
+  };
+  const usage = {
+    input: 100,
+    output: 20,
+    cacheRead: 0,
+    cacheWrite: 0,
+    reasoning: 0,
+    totalTokens: 120,
+    cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0, totalFromProvider: false },
+  };
+
+  add({ type: "session", version: 3, id: crypto.randomUUID(), timestamp: new Date(now).toISOString(), cwd: ROOT });
+  add({ type: "model_change", id: "model", parentId: null, timestamp: new Date(now).toISOString(), provider: "flan", modelId: "deepseek-v4.1-flash-1017" });
+  add({ type: "thinking_level_change", id: "thinking", parentId, timestamp: new Date(now).toISOString(), thinkingLevel: "medium" });
+  message("user", now, { role: "user", content: [{ type: "text", text: "Run the long chain." }], timestamp: now });
+
+  for (let index = 0; index < 3; index += 1) {
+    message(`thought-${index}`, now + 1000 + index, {
+      role: "assistant",
+      api: "openai-completions",
+      provider: "flan",
+      model: "deepseek-v4.1-flash-1017",
+      stopReason: "stop",
+      timestamp: now + 1000 + index,
+      usage,
+      content: [{ type: "thinking", thinking: `thought combo-${index}` }],
+    });
+  }
+
+  const calls = Array.from({ length: 16 }, (_, index) => ({
+    type: "toolCall",
+    id: `call-${index}`,
+    name: "bash",
+    arguments: { command: `echo combo-${index}` },
+  }));
+  message("assistant-calls", now + 1500, {
+    role: "assistant",
+    api: "openai-completions",
+    provider: "flan",
+    model: "deepseek-v4.1-flash-1017",
+    stopReason: "toolUse",
+    timestamp: now + 1500,
+    usage,
+    content: calls,
+  });
+  for (let index = 0; index < calls.length; index += 1) {
+    message(`result-${index}`, now + 2000 + index, {
+      role: "toolResult",
+      toolCallId: `call-${index}`,
+      toolName: "bash",
+      isError: false,
+      durationMs: 100,
+      timestamp: now + 2000 + index,
+      content: [{ type: "text", text: `combo output ${index}` }],
+    });
+  }
+
+  message("assistant-done", now + 4000, {
+    role: "assistant",
+    api: "openai-completions",
+    provider: "flan",
+    model: "deepseek-v4.1-flash-1017",
+    stopReason: "stop",
+    timestamp: now + 4000,
+    usage,
+    content: [{ type: "text", text: "Chain done." }],
+  });
+
+  writeFileSync(path, `${entries.map((entry) => JSON.stringify(entry)).join("\n")}\n`);
+}
+
+async function combinedFoldScenario(sessionPath: string): Promise<void> {
+  start(sessionPath, 60);
+  let pane = await waitFor("Chain done.");
+  await Bun.sleep(600);
+  pane = capture();
+  assert(lineWith(pane, "Thought 3 times").includes("Ran 8 commands"), `thoughts and commands should share one summary\n${pane}`);
+  assert(!pane.includes("echo combo-0 ·"), `the oldest command leaked\n${pane}`);
+  assert(pane.includes("echo combo-8 ·"), `the newest surviving command should stay\n${pane}`);
+
+  pane = capture();
+  const summaryRow = rowOf(pane, "Thought 3 times");
+  mouse(0, 5, summaryRow);
+  mouse(0, 5, summaryRow, true);
+  await Bun.sleep(500);
+  pane = capture();
+  assert(pane.includes("thought combo-0"), `opening the summary should reveal the anchor thought\n${pane}`);
+  assert(pane.includes("echo combo-0 ·"), `opening the summary should reveal the folded command\n${pane}`);
 }
 
 async function foldScenario(sessionPath: string): Promise<void> {
   start(sessionPath, 60);
   let pane = await waitFor("All twelve commands finished.");
+  await Bun.sleep(600);
+  pane = capture();
 
   const folded = Array.from({ length: 4 }, (_, index) => `echo command-${index} ·`);
   const survivors = Array.from({ length: 8 }, (_, index) => `echo command-${index + 4} ·`);
@@ -380,8 +493,9 @@ async function thinkingScenario(sessionPath: string): Promise<void> {
   await waitFor("The sky is blue.");
   let pane = await waitFor("✻ think", 5_000);
   const tail = pane.split("\n").filter((line) => line.includes("thought line "));
-  assert(tail.length === 3, `thinking should keep a decayed tail, not vanish\n${pane}`);
+  assert(tail.length >= 1, `thinking should keep a decayed tail, not vanish\n${pane}`);
   assert(pane.includes("thought line 10"), `the newest thought lines should survive\n${pane}`);
+  assert(/< \d+ more lines >/.test(pane), `thinking should say how much it hid\n${pane}`);
   assert(!pane.includes("SECRET_MIDDLE_CLAUSE"), `collapsed thinking should keep only its tail\n${pane}`);
 
   pane = capture();
@@ -434,7 +548,13 @@ async function main(): Promise<void> {
     const thinkFold = join(dir, "thinking-fold.jsonl");
     thinkingFoldFixture(thinkFold);
     await thinkingFoldScenario(thinkFold);
-    console.log("thinking fold ok: old thoughts became one summary; newest thought survives");
+    console.log("thinking fold ok: old thoughts became one summary; click opens them");
+
+    tmux("kill-server");
+    const combined = join(dir, "combined-fold.jsonl");
+    combinedFoldFixture(combined);
+    await combinedFoldScenario(combined);
+    console.log("combined fold ok: thoughts and commands share one summary and open together");
   } finally {
     try {
       tmux("kill-server");
