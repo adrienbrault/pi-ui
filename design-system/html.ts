@@ -566,6 +566,8 @@ function playbackTick(now) {
   Object.keys(playback).forEach(function (sync) {
     var st = playback[sync];
     if (!st.playing) return;
+    // A hidden tab must not fast-forward: pause the playhead where it stands.
+    if (document.hidden) { st.last = 0; st.acc = 0; return; }
     var stage = document.querySelector('[data-stage][data-sync="' + sync + '"]');
     if (!stage) return;
     var card = stage.querySelector('[data-card]');
@@ -800,7 +802,20 @@ function bind() {
 applyTheme();
 bind();
 paintAll();
-setInterval(tick, 8);
+// Paint on the display clock, not a hot interval: a throttled tab used to
+// batch a whole second of frames into one jump. rAF pauses cleanly when hidden.
+var frameLoop = function () {
+  requestAnimationFrame(frameLoop);
+  tick();
+};
+if (window.requestAnimationFrame) frameLoop(); else setInterval(tick, 8);
+document.addEventListener('visibilitychange', function () {
+  // Coming back must resume where we left off, not spend the hidden time.
+  Object.keys(playback).forEach(function (sync) {
+    playback[sync].last = 0;
+    playback[sync].acc = 0;
+  });
+});
 `;
 
 function esc(text: string): string {
