@@ -9,36 +9,15 @@
  * of truth. Recompute on structural events only; never per stream token.
  */
 
-/** 0 = live. The last level keeps a single body line. Past the ladder a block folds. */
-export type DetailLevel =
-  | 0
-  | 1
-  | 2
-  | 3
-  | 4
-  | 5
-  | 6
-  | 7
-  | 8
-  | 9
-  | 10
-  | 11
-  | 12
-  | 13
-  | 14
-  | 15
-  | 16
-  | 17
-  | 18
-  | 19
-  | 20
-  | 21
-  | 22
-  | 23;
+/**
+ * 0 = live; each step keeps one body line fewer, down to one at 7. COMPACT_LEVEL
+ * is a folded member's one-row form.
+ */
+export type DetailLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | typeof COMPACT_LEVEL;
 
 /** The tail budget: newest keeps this many body lines, then one fewer per turn. */
 export const TAIL_LINES = 8;
-export const COMPACT_LEVEL = 23;
+export const COMPACT_LEVEL = 23 as const;
 
 /** Expanded (user-pinned) bodies are deliberately generous but finite. */
 export const EXPANDED_BODY_LINES = 16;
