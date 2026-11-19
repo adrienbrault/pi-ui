@@ -19,8 +19,9 @@ import {
   thinkingPlan,
   toolPlan,
 } from "../packages/pi-prism/extensions/fold.ts";
-import { thinkingLabel } from "../packages/pi-prism/render/thinking.ts";
-import { renderToolRow, toolHeader, type ToolRowInput } from "../packages/pi-prism/render/tool-row.ts";
+import { THINKING_LABEL, thinkingLabel } from "../packages/pi-prism/render/thinking.ts";
+import { memberColumns, type MemberCells, type MemberColumns } from "../packages/pi-prism/render/columns.ts";
+import { renderToolRow, toolHeader, toolLabel, type ToolRowInput } from "../packages/pi-prism/render/tool-row.ts";
 import {
   callTokens,
   estimatedTokens,
@@ -774,17 +775,31 @@ function plannedStack(
     if (open && group && !group.open) setGroupOpen(group, true);
   }
 
-  const thought = (block: Extract<ScenarioBlock, { kind: "thinking" }>, level: DetailLevel, width: number) =>
-    thinkingLabel(api, { phase: "aged", level, text: block.text, width, durationMs: block.durationMs }).split("\n");
-  const member = (block: ScenarioBlock, width: number): string[] =>
+  const thought = (
+    block: Extract<ScenarioBlock, { kind: "thinking" }>,
+    level: DetailLevel,
+    width: number,
+    columns?: MemberColumns,
+  ) =>
+    thinkingLabel(api, { phase: "aged", level, text: block.text, width, durationMs: block.durationMs, columns }).split(
+      "\n",
+    );
+  // An open group lines its members up in columns, from every member's cells.
+  const cellsOf = (block: ScenarioBlock): MemberCells[] =>
+    block.kind === "tool"
+      ? [{ label: toolLabel(block.row.name) }]
+      : block.kind === "thinking"
+        ? [{ label: THINKING_LABEL }]
+        : [];
+  const member = (block: ScenarioBlock, width: number, columns: MemberColumns): string[] =>
     renderGroupMember(
       ctx.kit,
       width,
       (inner) =>
         block.kind === "tool"
-          ? [toolHeader(api, { ...block.row, level: COMPACT_LEVEL }, inner).line]
+          ? [toolHeader(api, { ...block.row, level: COMPACT_LEVEL, columns }, inner).line]
           : block.kind === "thinking"
-            ? thought(block, COMPACT_LEVEL, inner)
+            ? thought(block, COMPACT_LEVEL, inner, columns)
             : [],
       cutMark(api.theme),
     );
@@ -810,6 +825,7 @@ function plannedStack(
         const candidateUnit = units.get(candidate);
         return candidateUnit && group.members.some((item) => item.component === candidateUnit.component);
       });
+      const columns = memberColumns(members.flatMap(cellsOf), ctx.kit.visibleWidth);
       components.push(
         ctx.kit.component((width) => [
           ...renderGroupRow(api, {
@@ -820,7 +836,7 @@ function plannedStack(
             durationMs: group.durationMs ?? group.members.reduce((sum, item) => sum + (item.activeMs ?? 0), 0),
           }).render(width),
           // Members stack under the summary with no blank rows, as they do live.
-          ...(group.open ? members.flatMap((item) => member(item, width)) : []),
+          ...(group.open ? members.flatMap((item) => member(item, width, columns)) : []),
         ]),
       );
       continue;

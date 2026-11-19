@@ -25,12 +25,16 @@ import {
   previewText,
   leavingRow,
   toolHeader,
+  toolLabel,
   toolRowLayout,
   renderToolRow,
   type ToolRowInput,
   type ToolStatus,
 } from "../render/tool-row.ts";
+import type { MemberCells } from "../render/columns.ts";
+import { groupColumns, registerMemberCells } from "./columns.ts";
 import {
+  type FoldMember,
   type FoldMode,
   keepGroupOpen,
   type LiveFoldGroup,
@@ -38,6 +42,7 @@ import {
   registerToolInfo,
   resetFolds,
   setGroupOpen,
+  toolInfo,
   toolPlan,
 } from "./fold.ts";
 import { claimHover, isOmissionRow, releaseHover } from "./hover.ts";
@@ -364,7 +369,11 @@ function memberLines(member: BlockRecord, theme: Theme, width: number): string[]
     KIT,
     width,
     (innerWidth) => {
-      const input: ToolRowInput = { ...inputFor(member), level: COMPACT_LEVEL };
+      const input: ToolRowInput = {
+        ...inputFor(member),
+        level: COMPACT_LEVEL,
+        ...(member.group ? { columns: groupColumns(member.group) } : {}),
+      };
       if (member.expansion === 0) {
         const header = toolHeader(api, input, innerWidth);
         member.commandClipped = !!header.hiddenCommand;
@@ -489,8 +498,15 @@ const resolver: ToolRendererResolver = (toolName, next) => {
   };
 };
 
+/** A tool member's cells in its group's columns. */
+function toolCells(member: FoldMember): MemberCells[] {
+  const name = records.get(member.key)?.name ?? toolInfo(member.key)?.name;
+  return name === undefined ? [] : [{ label: toolLabel(name) }];
+}
+
 export default function prism(pi: ExtensionAPI): void {
   pi.registerToolRenderer(resolver);
+  registerMemberCells("tool", toolCells);
   installThinkingRenderer(pi);
   ratesFor = installThroughput(pi, (id) => records.get(id)?.invalidate());
 

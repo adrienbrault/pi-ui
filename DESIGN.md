@@ -64,7 +64,7 @@ Rules:
   An omission notice sits where lines were removed: below a tail, and between the opening and the end of a read.
 - A preview gives each output line one row and cuts it at the terminal width; a cut line makes the row openable even when every line is present. An opened tool row wraps long lines instead. The rows that continue its command, its wrapped output and any omission notices share one cap of 400 body rows; the command takes at most half of the cap when there is output to show.
 - Under an open group summary, member headers occupy consecutive rows two columns in,
-  starting immediately below the summary. Tool and thinking bodies begin four columns past their own heading marker, two columns past the heading label. Output, omission notices, and wrapped Markdown share this inset.
+  starting immediately below the summary. They read as a table: each member's label (`think`, `bash`, `read`, …) fills the width of the group's widest label, so the separator dot and the description start in the same column on every row. The widths come from every member's cells at once (`render/columns.ts`), never from measuring rendered rows. Tool and thinking bodies begin four columns past their own heading marker, two columns past the heading label. Output, omission notices, and wrapped Markdown share this inset.
 - A click opens a block all the way, and the next click folds it back: a folded
   member shows its header until clicked, then its whole body. Any block with a
   truncated body (a kept tool row, a one-line thinking run) toggles the same

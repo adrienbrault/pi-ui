@@ -35,6 +35,9 @@ test("an opened mixed group lists every member under its summary, thoughts in pl
   expect(members.every((row) => /^ {2}\S/.test(row))).toBe(true);
   const order = ["think · Start from the", "read", "grep", "bash", "think · The test pinned", "edit"];
   members.forEach((row, index) => expect(row).toContain(order[index]!));
+  // A table: think, read, grep, bash and edit fill one label column, so every description starts together.
+  expect(new Set(members.map((row) => row.indexOf(" · ")))).toEqual(new Set([members[0]!.indexOf(" · ")]));
+  expect(members[1]).toMatch(/^ {2}. read  · /);
   // The member list ends at the next block's blank separator.
   expect(rows[summary + 7]).toBe("");
 });

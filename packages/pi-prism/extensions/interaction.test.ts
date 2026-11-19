@@ -898,6 +898,40 @@ describe("tool renderers", () => {
     }
   });
 
+  test("an open group's members line up in columns, thoughts and tools alike", () => {
+    const session = fadeSession("bash");
+    try {
+      const region = { child: { setText: () => {} } as unknown as Row, onMouse: () => undefined };
+      const message = { role: "assistant", content: [{ type: "thinking", thinking: "weigh the options" }] };
+      const thought = {
+        contentContainer: { children: [region] },
+        thinkingVisibilityOverrides: new Map<number, boolean>(),
+        hideThinkingBlock: true,
+        hiddenThinkingLabel: "Thinking...",
+        isStreaming: false,
+        lastMessage: message,
+        updateContent() {},
+        invalidate: () => {},
+        render: () => [],
+      };
+      session.children.push(thought);
+      const shells = Array.from({ length: 7 }, (_, index) => {
+        const shell = session.add("table-" + index);
+        session.dispatch("agent_settled");
+        jest.advanceTimersByTime(10_000);
+        return shell;
+      });
+      // The thought and the two oldest commands form the newest group, listed under its summary.
+      expect(toolPlan("table-0")?.group?.members.map((member) => member.kind)).toEqual(["thinking", "tool", "tool"]);
+      const rows = [region.child.render(80)[1]!, shells[0]!.render(80)[0]!, shells[1]!.render(80)[0]!];
+      expect(rows[0]).toMatch(/^ {2}✻ think · weigh the options/);
+      expect(rows[1]).toMatch(/^ {2}● bash {2}· bun test/);
+      expect(new Set(rows.map((row) => row.indexOf(" · ")))).toEqual(new Set([rows[0]!.indexOf(" · ")]));
+    } finally {
+      session.close();
+    }
+  });
+
   test("blocks more than one step behind catch up without animation", () => {
     const session = fadeSession("bash");
     try {

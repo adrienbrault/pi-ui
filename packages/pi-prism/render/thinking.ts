@@ -9,6 +9,7 @@
 
 import { bodyLinesFor, COMPACT_LEVEL, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
 import { frameAt, type GlyphSet } from "./glyphs.ts";
+import { cellPadding, type MemberColumns } from "./columns.ts";
 import { blockBodyIndent, cutMark, type RenderKit, type RenderTheme } from "./kit.ts";
 import { previewBar, truncateMiddle, type BarCell } from "./tool-row.ts";
 import { estimatedTokens, formatRate } from "./tools.ts";
@@ -49,9 +50,12 @@ export interface ThinkingLabelInput {
    * whole tail. Defaults to `phase === "thinking"`; expansion always wraps.
    */
   truncate?: boolean;
+  /** As an open group's member: the group's column widths, so its rows line up. */
+  columns?: MemberColumns;
 }
 
-const MARKER = "think";
+/** The label a thought leads with, as a tool row leads with its verb. */
+export const THINKING_LABEL = "think";
 
 function clampLine(api: ThinkingApi, line: string, width: number): string {
   return api.kit.truncateToWidth(line, Math.max(1, width), cutMark(api.theme));
@@ -90,7 +94,8 @@ function headerFor(api: ThinkingApi, input: ThinkingLabelInput): Header {
   // The whole thought on one line, as the reader sees it: rendered Markdown, no markup.
   const flat = source.map(plain).filter(Boolean).join(" ");
   const glyph = input.phase === "thinking" ? frameAt(glyphs, input.frame ?? 0) : glyphs.thinking;
-  const marker = `${theme.fg("accent", glyph)} ${theme.style(MARKER, { fg: "toolTitle", bold: true })}`;
+  const labelPad = input.columns ? cellPadding(THINKING_LABEL, input.columns.label, kit.visibleWidth) : "";
+  const marker = `${theme.fg("accent", glyph)} ${theme.style(THINKING_LABEL, { fg: "toolTitle", bold: true })}${labelPad}`;
   const dot = theme.fg("dim", glyphs.dot);
   const count = input.reasoningTokens ?? input.estimatedTokens ?? estimatedTokens(input.text.length);
   const tokens = `${count} token${count === 1 ? "" : "s"}`;

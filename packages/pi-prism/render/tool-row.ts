@@ -5,6 +5,7 @@
 
 import { bodyLinesFor, COMPACT_LEVEL, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
 import { frameAt, type GlyphSet } from "./glyphs.ts";
+import { cellPadding, type MemberColumns } from "./columns.ts";
 import { blockBodyIndent, cutMark, type ComponentLike, type RenderKit, type RenderTheme } from "./kit.ts";
 import {
   cleanOutput,
@@ -44,6 +45,13 @@ export interface ToolRowInput extends TokenRates {
   inputTokens?: number;
   durationMs?: number;
   frame?: number;
+  /** As an open group's member: the group's column widths, so its rows line up. */
+  columns?: MemberColumns;
+}
+
+/** The verb a tool row leads with: `bash`, `read`, an MCP `server/tool`. */
+export function toolLabel(name: string): string {
+  return oneLine(toolMeta(name).label);
 }
 
 /** Diff lines keep their meaning under decay: additions green, removals red. */
@@ -178,7 +186,7 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, width: number) {
   const { theme, glyphs, kit } = api;
   const meta = toolMeta(input.name);
   // Names, titles, summaries and errors come from the model or the tool: never trust them.
-  const label = oneLine(meta.label);
+  const label = toolLabel(input.name);
   const title = oneLine(input.title ?? describeCall(input.name, input.args).title);
   const summary = input.summary === undefined ? undefined : oneLine(input.summary);
   const { outputTokens, inputTokens } = toolTokenCounts(input);
@@ -188,7 +196,9 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, width: number) {
   const mark = cutMark(theme);
   // The verb is the headline: bold it through `style` so it survives headless
   // rendering, where chalk's bold turns itself off without a terminal.
-  const prefix = `${statusGlyph(api, input)} ${theme.style(label, { fg: "toolTitle", bold: true })}`;
+  // As a group member, the label fills its column so every member's description starts together.
+  const labelPad = input.columns ? cellPadding(label, input.columns.label, kit.visibleWidth) : "";
+  const prefix = `${statusGlyph(api, input)} ${theme.style(label, { fg: "toolTitle", bold: true })}${labelPad}`;
 
   let pieces: HeaderPiece[] = [];
   // MCP labels already read `server/tool`; repeating it as the title is noise.
