@@ -171,11 +171,12 @@ export function paintBar(
 }
 
 /**
- * The scroll bar drawn in column 1 of an open block's visible rows: track on
- * every visible row and one thumb cell ("fill") marking the reader's position
- * in the block. The thumb sits on the first visible row at the block's top, on
- * the last at its end, and moves down as the reader scrolls down. A block that
- * fits on screen has nothing to scroll: its thumb fills the whole track.
+ * The scroll bar drawn in column 1 of an open block's visible rows, like a
+ * real one: the track is the block's visible rows and the thumb's length is
+ * the share of the block on screen (at least one row). The thumb sits at the
+ * top of the track at the block's top, at the bottom at its end, and moves
+ * down as the reader scrolls down. A block that fits on screen has nothing to
+ * scroll: its thumb fills the whole track.
  */
 export function scrollBarRows(spans: Span[], top: number, height: number): Map<number, BarCell> {
   const cells = new Map<number, BarCell>();
@@ -184,10 +185,13 @@ export function scrollBarRows(spans: Span[], top: number, height: number): Map<n
     const last = Math.min(span.end, top + height);
     const visible = last - first;
     if (visible <= 0) continue;
-    const range = span.end - span.start - visible;
-    // Shown whole, like a real scroll bar: the thumb is the whole track.
-    const thumb = range > 0 ? first + Math.round(((visible - 1) * (first - span.start)) / range) : undefined;
-    for (let row = first; row < last; row++) cells.set(row, thumb === undefined || row === thumb ? "fill" : "track");
+    const total = span.end - span.start;
+    const range = total - visible;
+    // Like a real scroll bar: the thumb's share of the track is the block's share on screen, at
+    // least one row, and it moves through the rest as the reader scrolls. Shown whole, it fills.
+    const size = range > 0 ? Math.min(visible, Math.max(1, Math.round((visible * visible) / total))) : visible;
+    const start = range > 0 ? first + Math.round(((visible - size) * (first - span.start)) / range) : first;
+    for (let row = first; row < last; row++) cells.set(row, row >= start && row < start + size ? "fill" : "track");
   }
   return cells;
 }

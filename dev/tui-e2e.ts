@@ -786,17 +786,19 @@ ${visible}`);
       pane = capture();
     }
     assert(pane.includes("long output line 80.") && !pane.includes("long output line 159."), "expected middle of expanded bash output");
-    // Mid-block, column 1 of the open rows is the scroll bar: track, with one thumb cell marking the position.
+    // Mid-block, column 1 of the open rows is the scroll bar: track, with a thumb whose length is the
+    // block's share on screen, one unbroken run inside the visible slice.
     const styled = tmux("capture-pane", "-e", "-p", "-t", SESSION).split("\n");
     const open = styled.filter((line) => line.includes("long output line"));
     const cells = open.map(barOf);
     const dump = styled.map((line, row) => `${row + 1} ${barOf(line) ?? "-"} ${Bun.stripANSI(line).slice(0, 40)}`).join("\n");
     assert(cells.every((cell) => cell !== undefined) && open.every((line) => backgrounds(line)[0] === undefined), `every open row should paint column 1 and only column 1\n${dump}`);
     const kinds = [...new Set(cells)];
-    const thumbs = kinds.filter((kind) => cells.filter((cell) => cell === kind).length === 1);
-    assert(kinds.length === 2 && thumbs.length === 1, `mid-block the bar should show track and exactly one thumb cell\n${dump}`);
-    const thumbRow = cells.indexOf(thumbs[0]);
-    assert(thumbRow > 0 && thumbRow < cells.length - 1, `mid-block the thumb should sit inside the visible slice, not at an end\n${dump}`);
+    const inner = (kind: string | undefined) => {
+      const rows = cells.flatMap((cell, row) => (cell === kind ? [row] : []));
+      return rows.length > 0 && rows[0]! > 0 && rows.at(-1)! < cells.length - 1 && rows.at(-1)! - rows[0]! === rows.length - 1;
+    };
+    assert(kinds.length === 2 && kinds.filter(inner).length === 1, `mid-block the bar should show track and one thumb run inside the visible slice, not at an end\n${dump}`);
     const inside = rowOf(pane, "long output line 80.");
     mouse(0, 5, inside);
     mouse(0, 5, inside, true);
