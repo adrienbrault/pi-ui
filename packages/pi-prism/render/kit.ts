@@ -44,11 +44,13 @@ export function cutMark(theme: RenderTheme): string {
 }
 
 /**
- * An omission notice's style: italic `accent`, so the count of hidden lines
- * stands apart from the grey output around it and still reads as secondary.
+ * An omission notice's style: italic `thinkingOff`, the faintest text grey pi's
+ * themes define (below `dim`: okhsl 49% vs 56% in dark, 80% vs 59% in light).
+ * It recedes behind the output and stays clear of the `accent` used by commands
+ * and headings; the italic and the direction glyph set it apart.
  */
 export function omissionStyle(theme: RenderTheme, label: string): string {
-  return theme.italic(theme.fg("accent", label));
+  return theme.italic(theme.fg("thinkingOff", label));
 }
 
 /** Body text starts one two-column step past the heading label, leaving room for content on narrow screens. */

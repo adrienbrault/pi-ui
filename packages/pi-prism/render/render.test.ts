@@ -898,7 +898,7 @@ describe("the row that leaves", () => {
 
 /** A notice row styled as italic `accent`, under a theme that prints its tokens. */
 const styled = (line: string | undefined) =>
-  expect(line?.trim()).toMatch(/^<i><accent>[↑↓⋮] \d+ more lines?<\/accent><\/i>$/);
+  expect(line?.trim()).toMatch(/^<i><thinkingOff>[↑↓⋮] \d+ more lines?<\/thinkingOff><\/i>$/);
 
 describe("omission notices", () => {
   const diff = ["@@ -1,30 +1,30 @@", ...Array.from({ length: 15 }, (_, index) => `-old ${index}\n+new ${index}`)].join(
@@ -968,7 +968,7 @@ describe("omission notices", () => {
     expect(rows.at(-1)?.trim()).toBe("⋮ 3 more lines");
   });
 
-  test("every notice is italic accent, apart from the grey output", () => {
+  test("every notice is italic and faint, apart from the grey output", () => {
     const tokens = {
       ...api,
       theme: {
