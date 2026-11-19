@@ -105,15 +105,37 @@ export function truncateMiddle(
 ): { text: string; cut: boolean } {
   if (width <= 0) return { text: "", cut: text.length > 0 };
   if (kit.visibleWidth(text) <= width) return { text: paint(text), cut: false };
-  const chars = [...text];
   const room = width - kit.visibleWidth(mark);
   if (room <= 0) return { text: kit.truncateToWidth(mark, width, ""), cut: true };
-  const head = Math.ceil(room / 2);
-  const tail = room - head;
+  // Columns, not characters: a wide character takes two, and a cluster is never split.
+  const parts = graphemes(text);
+  const head = fitColumns(kit, parts, Math.ceil(room / 2));
+  const tail = fitColumns(kit, parts.slice(head.count).toReversed(), room - head.width);
+  const end = parts.slice(parts.length - tail.count).join("");
   return {
-    text: `${paint(chars.slice(0, head).join(""))}${mark}${tail > 0 ? paint(chars.slice(-tail).join("")) : ""}`,
+    text: `${paint(parts.slice(0, head.count).join(""))}${mark}${end ? paint(end) : ""}`,
     cut: true,
   };
+}
+
+const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+
+/** A string's grapheme clusters: what a terminal draws as one character. */
+function graphemes(text: string): string[] {
+  return Array.from(segmenter.segment(text), ({ segment }) => segment);
+}
+
+/** How many leading parts fit in `room` columns, and the columns they take. */
+function fitColumns(kit: RenderKit, parts: string[], room: number): { count: number; width: number } {
+  let width = 0;
+  let count = 0;
+  for (const part of parts) {
+    const next = width + kit.visibleWidth(part);
+    if (next > room) break;
+    width = next;
+    count += 1;
+  }
+  return { count, width };
 }
 
 /** Keep the end of a long path: the basename is the part a reader needs. */
