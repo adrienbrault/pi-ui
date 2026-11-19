@@ -33,7 +33,7 @@ import { blockDistances, type PlanBlock } from "../render/layout.ts";
 import {
   type FoldPlan,
   type FoldUnit,
-  joinsFormingGroup,
+  joinsOpenGroup,
   keepGroupOpen,
   type LiveFoldGroup,
   memberRowFade,
@@ -786,7 +786,7 @@ function patchTree(
       head.kind === "tool" ? head.key : undefined,
       folding,
       frameMs,
-      folding && joinsFormingGroup(units, units.indexOf(head)),
+      folding && joinsOpenGroup(units, units.indexOf(head)),
     );
     repaint.add(head.component);
   }

@@ -4,7 +4,7 @@ import { blockDistances, type PlanBlock } from "../render/layout.ts";
 import type { GroupClass } from "../render/tools.ts";
 import {
   type FoldUnit,
-  joinsFormingGroup,
+  joinsOpenGroup,
   keepGroupOpen,
   planFolds,
   resetFolds,
@@ -249,9 +249,18 @@ describe("forming group", () => {
 
   test("a block joins a forming group while the group still fits five rows with it", () => {
     const joiner = unit("tool", "joiner", FOLD_DISTANCE - 1);
-    expect(joinsFormingGroup([...folded(4), joiner], 4)).toBe(true);
-    expect(joinsFormingGroup([...folded(5), joiner], 5)).toBe(false);
-    expect(joinsFormingGroup([...folded(5), { ...joiner, startsRun: true }], 5)).toBe(true);
-    expect(joinsFormingGroup([...folded(2), { ...joiner, currentRun: false }], 2)).toBe(false);
+    expect(joinsOpenGroup([...folded(4), joiner], 4)).toBe(true);
+    expect(joinsOpenGroup([...folded(5), joiner], 5)).toBe(false);
+    expect(joinsOpenGroup([...folded(5), { ...joiner, startsRun: true }], 5)).toBe(true);
+    expect(joinsOpenGroup([...folded(2), { ...joiner, currentRun: false }], 2)).toBe(false);
+  });
+
+  test("a block joining a group the user closed folds through its heading; one the user opened lists it", () => {
+    const joiner = unit("tool", "joiner", FOLD_DISTANCE - 1);
+    planFolds(folded(2));
+    setGroupOpen(toolPlan("f0")!.group!, false);
+    expect(joinsOpenGroup([...folded(2), joiner], 2)).toBe(false);
+    setGroupOpen(toolPlan("f0")!.group!, true);
+    expect(joinsOpenGroup([...folded(5), joiner], 5)).toBe(true);
   });
 });

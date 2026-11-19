@@ -259,19 +259,23 @@ export function memberRowFade(
 
 /**
  * Whether the unit at `index`, stepping to the fold distance, joins a group that
- * still forms: the newest group of the current run, at most FORMING_ROWS rows
- * once it counts the joiner. Such a block keeps its heading as its member row.
+ * will list it: one the user opened, or one that still forms (the newest group
+ * of the current run, at most FORMING_ROWS rows once it counts the joiner) and
+ * that the user has not closed. Such a block keeps its heading as its member row.
  */
-export function joinsFormingGroup(units: FoldUnit[], index: number): boolean {
+export function joinsOpenGroup(units: FoldUnit[], index: number): boolean {
   const joiner = units[index];
-  if (!joiner || joiner.boundary || joiner.currentRun === false) return false;
+  if (!joiner || joiner.boundary) return false;
   const group = [joiner];
   for (let before = index - 1; before >= 0 && !group[0]!.startsRun; before--) {
     const unit = units[before]!;
     if (unit.boundary || unit.distance < FOLD_DISTANCE) break;
     group.unshift(unit);
   }
-  return memberRows(group) <= FORMING_ROWS;
+  const choices = new Set(group.map(choiceOf));
+  if (choices.has(true)) return true;
+  if (choices.has(false)) return false;
+  return joiner.currentRun !== false && memberRows(group) <= FORMING_ROWS;
 }
 
 /**
