@@ -218,6 +218,76 @@ describe("grep output", () => {
   });
 });
 
+describe("single-file commands", () => {
+  test("head numbers from 1, alone or after cat", () => {
+    expect(shell("head -n 2 src/a.ts", lines("one", "two"))).toEqual([
+      "    1  <typescript>one",
+      "    2  <typescript>two",
+    ]);
+    expect(shell("cat src/a.ts | head -50", lines("one", "two"))).toEqual([
+      "    1  <typescript>one",
+      "    2  <typescript>two",
+    ]);
+    expect(calls).toEqual([{ source: "one\ntwo", language: "typescript" }]);
+  });
+
+  test("a range keeps its start through head, and tail -n +K starts at K", () => {
+    expect(shell("sed -n '120,200p' src/a.ts | head -2", lines("one", "two"))).toEqual([
+      "    120  <typescript>one",
+      "    121  <typescript>two",
+    ]);
+    expect(shell("awk 'NR>=40 && NR<=41' src/a.ts", lines("one", "two"))).toEqual([
+      "    40  <typescript>one",
+      "    41  <typescript>two",
+    ]);
+    expect(shell("tail -n +40 src/a.ts", "one")).toEqual(["    40  <typescript>one"]);
+    expect(shell("bat --plain -r 7:9 src/a.ts", "seven")).toEqual(["    7  <typescript>seven"]);
+    expect(shell("sed -n '10,20p' src/a.ts | sed -n '3,4p'", "twelve")).toEqual(["    12  <typescript>twelve"]);
+  });
+
+  test("tail highlights without numbers: its first line is not known", () => {
+    expect(shell("tail -n 2 src/a.ts", lines("one", "two"))).toEqual(["    <typescript>one", "    <typescript>two"]);
+    expect(shell("cat src/a.ts | tail -5", "one")).toEqual(["    <typescript>one"]);
+  });
+
+  test("nl's own numbers move into the gutter, and blank lines it left unnumbered take no row", () => {
+    expect(shell("nl src/a.ts", lines("     1\tone", "       ", "     2\t  two"))).toEqual([
+      "    1  <typescript>one",
+      "    2  <typescript>  two",
+    ]);
+    expect(calls).toEqual([{ source: "one\n\n  two", language: "typescript" }]);
+    expect(shell("cat -n src/a.ts | sed -n '2,3p'", lines("     2\ttwo", "     3\tthree"))).toEqual([
+      "    2  <typescript>two",
+      "    3  <typescript>three",
+    ]);
+  });
+
+  test("a pipeline that reorders or rewrites the file is not read", () => {
+    for (const command of [
+      "cat src/a.ts | sort",
+      "head src/a.ts | grep x",
+      "cat a.ts b.ts",
+      "cat src/*.ts",
+      "nl -s: a.ts",
+    ]) {
+      expect(shell(command, lines("one", "two"))).toEqual(["    one", "    two"]);
+    }
+  });
+
+  test("a running or cut output highlights without numbers", () => {
+    expect(shell("cat src/a.ts", "one", { status: "running" })).toEqual(["    <typescript>one"]);
+    const cut = lines("late", "", "", "[Showing lines 1999-2000 of 2000. Full output: /tmp/pi-bash.log]");
+    expect(shell("cat src/a.ts", cut)).toEqual([
+      "    <typescript>late",
+      "    [Showing lines 1999-2000 of 2000. Full output: /tmp/pi-bash.log]",
+    ]);
+  });
+
+  test("a file named for no language is highlighted as JSON when it parses", () => {
+    expect(shell("cat config", '{"a": 1}')).toEqual(['    1  <json>{"a": 1}']);
+  });
+});
+
 /** The sources a view's lines are highlighted from, in order. */
 function sourcesOf(command: string, output: string): string[] {
   const found: string[] = [];

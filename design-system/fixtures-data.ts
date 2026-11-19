@@ -57,6 +57,14 @@ export const SHELL_GREP = [
   'render/index.ts:10:export { renderToolRow, toolRowLayout } from "./tool-row.ts";',
 ].join("\n");
 
+/** `cat -n FILE | sed -n '48,51p'`: cat's own numbers before a tab, then the code. */
+export const SHELL_NUMBERED = [
+  "    48\texport function bodyLinesFor(level: DetailLevel, expanded = false): number {",
+  "    49\t  if (expanded) return EXPANDED_BODY_LINES;",
+  "    50\t  return Math.max(1, TAIL_LINES - level);",
+  "    51\t}",
+].join("\n");
+
 export const SHELL_LONG = [
   "c477023 test(pi-prism): a collapsing group rebuilt mid-row hands its collapse on",
   "9bce9ff fix(pi-prism): a narrow open group drops its table on every row at once",

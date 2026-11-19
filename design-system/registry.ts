@@ -37,6 +37,7 @@ import {
   MCP_OUTPUT,
   SHELL_GREP,
   SHELL_LONG,
+  SHELL_NUMBERED,
   SHELL_OK,
   SHELL_OUTPUT,
   THINKING_TEXT,
@@ -623,6 +624,18 @@ const oursEntries: EntryDef[] = [
             output: SHELL_GREP,
           }),
         "grep's line numbers move into the gutter and each file's lines take its syntax colours; a path row heads each file and ⋮ marks the lines grep skipped",
+      ),
+      levelState(
+        "file",
+        "numbered file range",
+        0,
+        () =>
+          bashRow({
+            args: { command: "cat -n packages/pi-prism/render/detail.ts | sed -n '48,51p'" },
+            title: undefined,
+            output: SHELL_NUMBERED,
+          }),
+        "cat -n and nl print their own numbers: they move into the gutter, and the code takes the file's syntax colours",
       ),
       levelState("error", "failed", 0, () =>
         bashRow({ status: "error", output: SHELL_OUTPUT, summary: "", error: "exit 2" }),

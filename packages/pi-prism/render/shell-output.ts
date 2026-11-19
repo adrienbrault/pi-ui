@@ -1,6 +1,6 @@
 /**
- * What a shell command printed, when its command says so: a range of one file (`cat`,
- * `sed -n 'A,Bp'`) or grep-style matches (`rg`, `grep`, `git grep`, `ag`). The command
+ * What a shell command printed, when its command says so: a range of one file (`cat`, `head`,
+ * `sed -n 'A,Bp'`, `nl`, …) or grep-style matches (`rg`, `grep`, `git grep`, `ag`). The command
  * decides what the output can be; the output is never sniffed on its own, so a log that happens to
  * start with `12:34:56` stays a log. Pure: no I/O, no globals.
  */
@@ -258,42 +258,116 @@ function sedFrom(words: Word[]): { operands: Word[]; from: number } | undefined 
   return range ? { operands: operands.slice(1), from: Math.max(1, Number(range[1])) } : undefined;
 }
 
+/** `awk 'NR>=A && NR<=B'`, with an optional `{print}`: the line it starts at. */
+function awkFrom(words: Word[]): { operands: Word[]; from: number } | undefined {
+  const [program, ...operands] = words.slice(1);
+  if (!program || program.text.startsWith("-")) return undefined;
+  const conditions = program.text.replace(/\s+/g, "").replace(/\{print(?:\$0)?;?\}$/, "");
+  let from = 1;
+  for (const condition of conditions.split("&&")) {
+    const match = /^F?NR(>=|>|==|<=|<)(\d+)$/.exec(condition);
+    if (!match) return undefined;
+    const value = Number(match[2]);
+    if (match[1] === ">=" || match[1] === "==") from = Math.max(from, value);
+    else if (match[1] === ">") from = Math.max(from, value + 1);
+  }
+  return { operands, from };
+}
+
+/** `bat` with its decorations off: `-p`, `--plain` or `--style=plain`; `-r A:B` starts at A. */
+function batFrom(words: Word[]): { operands: Word[]; from: number } | undefined {
+  let plain = false;
+  let from = 1;
+  const operands = parseOptions(
+    words.slice(1),
+    (name) => ["-r", "--line-range", "--style", "--paging", "--color"].includes(name),
+    (name, value) => {
+      if (name === "-p" || name === "--plain") plain = true;
+      else if (name === "--style") plain ||= value === "plain";
+      else if (name === "-r" || name === "--line-range") {
+        const range = /^(\d*):(\d*)$/.exec(value ?? "");
+        if (!range) return false;
+        from = Math.max(1, Number(range[1] || 1));
+      } else if (name === "--paging" || name === "-P") return name === "-P" || value === "never";
+      else if (name !== "--color") return false;
+      return true;
+    },
+  );
+  return plain && operands ? { operands, from } : undefined;
+}
+
 // ---------------------------------------------------------------------------------------------
 // Single-file commands
 
 interface FileSource {
   path: string;
-  /** The output's first line. */
-  from: number;
+  /** The output's first line, when the command fixes it. */
+  from?: number;
+  /** `nl` and `cat -n` print each line's number before a tab. */
+  numbered?: boolean;
 }
 
-/** The first stage, when it prints one literal file or a range of it: `cat FILE`, `sed -n 'A,Bp' FILE`. */
+/** The first stage, when it prints one literal file or a range of it. */
 function fileSource(words: Word[]): FileSource | undefined {
   const name = words[0]!.text;
-  let source: { operands: Word[]; from: number } | undefined;
+  let source: { operands: Word[]; from?: number; numbered?: boolean } | undefined;
   if (name === "cat") {
+    let numbered = false;
     const operands = parseOptions(
       words.slice(1),
       () => false,
-      () => false,
+      (flag) => (numbered = flag === "-n"),
     );
-    source = operands && { operands, from: 1 };
-  } else if (name === "sed") source = sedFrom(words);
+    source = operands && { operands, from: 1, numbered };
+  } else if (name === "head" || name === "tail") source = headTail(words);
+  else if (name === "sed") source = sedFrom(words);
+  else if (name === "awk") source = awkFrom(words);
+  else if (name === "bat") source = batFrom(words);
+  else if (name === "nl") {
+    // Its own numbers lead each line; a custom separator would hide where they end.
+    const operands = parseOptions(
+      words.slice(1),
+      (flag) => /^-[bnwvi]$/.test(flag),
+      (flag) => /^-[bnwvi]$/.test(flag),
+    );
+    source = operands && { operands, numbered: true };
+  }
   if (!source || source.operands.length !== 1 || source.operands[0]!.dynamic) return undefined;
-  return { path: source.operands[0]!.text, from: source.from };
+  return {
+    path: source.operands[0]!.text,
+    ...(source.from === undefined ? {} : { from: source.from }),
+    ...(source.numbered ? { numbered: true } : {}),
+  };
 }
 
+/** A later stage that keeps a range of its input: where that range starts, given the input's start. */
+function narrow(words: Word[], from: number | undefined): { from?: number } | undefined {
+  const name = words[0]!.text;
+  let kept: { operands: Word[]; from?: number } | undefined;
+  if (name === "head" || name === "tail") kept = headTail(words);
+  else if (name === "sed") kept = sedFrom(words);
+  else if (name === "awk") kept = awkFrom(words);
+  else if (name === "cat" && words.length === 1) kept = { operands: [], from: 1 };
+  if (!kept || kept.operands.length) return undefined;
+  return from === undefined || kept.from === undefined ? {} : { from: from + kept.from - 1 };
+}
+
+const NUMBERED_LINE = /^ *(\d+) *\t(.*)$/;
+
 function fileView(source: FileSource, lines: string[], from: number | undefined, options: ShellViewOptions): ShellView {
-  const language = options.languageFromPath?.(source.path) ?? options.sniff?.(lines.join("\n"));
+  const numbered = lines.map((line) => (source.numbered ? NUMBERED_LINE.exec(line) : null));
+  const text = lines.map((line, index) => numbered[index]?.[2] ?? line).join("\n");
+  const language = options.languageFromPath?.(source.path) ?? options.sniff?.(text);
   return {
-    lines: lines.map(
-      (line, index): ShellLine => ({
-        kind: "code",
-        code: line,
-        ...(from === undefined ? {} : { number: from + index }),
-        ...lang(language),
-      }),
-    ),
+    lines: lines.map((line, index): ShellLine => {
+      const match = numbered[index];
+      if (source.numbered) {
+        if (match) return { kind: "code", code: match[2] ?? "", number: Number(match[1]), ...lang(language) };
+        // `nl` leaves blank lines unnumbered; anything else it did not write.
+        return line.trim() ? { kind: "plain", text: line } : { kind: "code", code: "", ...lang(language) };
+      }
+      return { kind: "code", code: line, ...(from === undefined ? {} : { number: from + index }), ...lang(language) };
+    }),
     contiguous: true,
     paths: false,
   };
@@ -621,9 +695,15 @@ export function shellView(command: string, output: string, options: ShellViewOpt
   }
 
   const source = fileSource(head!);
-  if (!source || later.length) return undefined;
+  if (!source) return undefined;
+  let from = source.from;
+  for (const stage of later) {
+    const kept = narrow(stage, from);
+    if (!kept) return undefined;
+    from = kept.from;
+  }
   // Counting from the first line needs the output from its start.
-  const view = fileView(source, lines, options.complete && !cut ? source.from : undefined, options);
+  const view = fileView(source, lines, options.complete && !cut ? from : undefined, options);
   return { ...view, lines: [...view.lines, ...trailer] };
 }
 
