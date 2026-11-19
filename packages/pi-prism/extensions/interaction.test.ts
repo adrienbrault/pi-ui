@@ -1,4 +1,5 @@
-import { beforeEach, afterEach, describe, expect, jest, test } from "bun:test";
+import { beforeAll, beforeEach, afterEach, describe, expect, jest, test } from "bun:test";
+import { initTheme } from "@earendil-works/pi-coding-agent";
 import {
   rgbColor,
   stripTerminalSequences,
@@ -11,6 +12,8 @@ import { toolPlan } from "./fold.ts";
 import prism, { actionFor, hintFor } from "./index.ts";
 
 import { DEFAULT_TAIL_LINES, setTailLines } from "../render/detail.ts";
+// Syntax highlighting reads pi's global theme; do not depend on another test file installing it.
+beforeAll(() => initTheme("dark"));
 // Exercise the compact seven-row configuration used by these fixtures.
 beforeEach(() => setTailLines(7));
 afterEach(() => setTailLines(DEFAULT_TAIL_LINES));
