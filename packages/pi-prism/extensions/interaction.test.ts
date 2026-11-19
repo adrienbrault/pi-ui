@@ -131,7 +131,7 @@ const fadeTheme = {
 };
 
 /** A live session under fake timers whose transcript is tool shells of one kind. */
-function fadeSession(name: string, text = output) {
+function fadeSession(name: string, text = output, onVisit?: () => void) {
   jest.useFakeTimers();
   const handlers = new Map<string, Array<(...args: any[]) => void>>();
   const dispatch = (event: string, ...args: unknown[]) => {
@@ -149,7 +149,16 @@ function fadeSession(name: string, text = output) {
       hasUI: true,
       mode: "tui",
       ui: {
-        setWidget: (_: string, factory?: (root: object, theme: object) => void) => factory?.({ children }, fadeTheme),
+        setWidget: (_: string, factory?: (root: object, theme: object) => void) =>
+          factory?.(
+            {
+              get children() {
+                onVisit?.();
+                return children;
+              },
+            },
+            fadeTheme,
+          ),
       },
     },
   );
@@ -496,6 +505,30 @@ describe("tool renderers", () => {
         jest.advanceTimersByTime(10000);
         expect(oldest.render(80).map((row) => stripTerminalSequences(row).trim())).not.toContain(line);
       }
+    } finally {
+      session.close();
+    }
+  });
+
+  test("a fade tick repaints one block instead of walking the transcript", () => {
+    let visits = 0;
+    const session = fadeSession("bash", output, () => visits++);
+    try {
+      session.add("walk-0");
+      session.dispatch("agent_settled");
+      jest.advanceTimersByTime(1);
+      // The new row's registration schedules the walk that starts the fade.
+      session.add("walk-1");
+      jest.advanceTimersByTime(1);
+      const before = visits;
+      session.dispatch("agent_settled");
+      const walk = visits - before;
+      expect(walk).toBeGreaterThan(0);
+      jest.advanceTimersByTime(300);
+      expect(visits).toBe(before + walk);
+      jest.advanceTimersByTime(60);
+      expect(toolPlan("walk-0")?.level).toBe(1);
+      expect(visits).toBe(before + 2 * walk);
     } finally {
       session.close();
     }

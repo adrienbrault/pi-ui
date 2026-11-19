@@ -100,7 +100,7 @@ The four-row preview fits three content lines and one omission notice.
 
 - Count newer blocks across the whole transcript. Show four 90 ms fade frames (360 ms) per departing visible row, including each row of a folding block and apply offscreen changes immediately.
 - The live block is pinned to L0 regardless of its own length.
-- Recompute on structural events only: `message_start`, `tool_execution_start/end`, `turn_end`, `agent_settled`. Never per token.
+- Recompute on structural events only: `message_start`, `tool_execution_start/end`, `turn_end`, `agent_settled`, plus once when a fade step completes. Never per token. A fade tick repaints only the fading block; it never walks the transcript.
 - Hysteresis: a block must cross the boundary for two consecutive recomputes before changing level, so stream chatter does not flicker heights.
 - Clicking a standalone tool pins it at its expanded form until clicked again; the pin is keyed by tool call id or message id, so it survives re-render and restore.
 

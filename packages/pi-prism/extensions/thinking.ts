@@ -580,8 +580,8 @@ function patchTree(
   theme: RenderTheme,
   liveToolEnds: ReadonlyMap<string, number>,
   distances: WeakMap<object, number>,
-  advance: boolean,
-): boolean {
+  commit?: object,
+): object | undefined {
   const ordered: unknown[] = [];
   const queue: unknown[] = [root];
   const seen = new Set<unknown>();
@@ -683,36 +683,38 @@ function patchTree(
     if (startsRun) unit.startsRun = true;
     startsRun = false;
   });
-  let pending = false;
   const repaint = new Set<object>();
   let committed: FoldUnit | undefined;
+  // Visible blocks behind their target, in visual order: they step down one at a time.
+  const waiting: FoldUnit[] = [];
   for (const unit of units) {
     const target = Math.min(FOLD_DISTANCE, unit.distance);
     const previous = distances.get(unit.component);
-    const frame = fadeOf(unit.component);
     const key = unit.kind === "tool" ? unit.key : undefined;
     unit.distance = target;
     if (previous !== undefined && previous < target && !history.has(unit.component) && !unit.boundary) {
       unit.distance = previous;
-      if (!pending) {
-        if (!frame) {
-          startFade(unit.component, key, previous + 1 === FOLD_DISTANCE);
-          repaint.add(unit.component);
-        } else if (advance) {
-          if (advanceFade(frame)) {
-            unit.distance++;
-            committed = unit;
-            endFade(unit.component, key);
-          }
-          repaint.add(unit.component);
-        }
+      // The fade has run its course: this walk commits the step.
+      if (commit === unit.component && fadeOf(unit.component)) {
+        unit.distance++;
+        committed = unit;
+        endFade(unit.component, key);
+        repaint.add(unit.component);
       }
-      pending = true;
-    } else if (frame) {
-      endFade(unit.component, key);
-      repaint.add(unit.component);
+      if (unit.distance < target) waiting.push(unit);
     }
     distances.set(unit.component, unit.distance);
+  }
+  // A fade in progress keeps the floor; otherwise the oldest waiting block takes it.
+  const head = waiting.find((unit) => fadeOf(unit.component)) ?? waiting[0];
+  for (const unit of units) {
+    if (unit === head || !fadeOf(unit.component)) continue;
+    endFade(unit.component, unit.kind === "tool" ? unit.key : undefined);
+    repaint.add(unit.component);
+  }
+  if (head && !fadeOf(head.component)) {
+    startFade(head.component, head.kind === "tool" ? head.key : undefined, head.distance + 1 === FOLD_DISTANCE);
+    repaint.add(head.component);
   }
   const changed = planFolds(units, committed?.component);
 
@@ -725,7 +727,7 @@ function patchTree(
     (component as { invalidate?: () => void }).invalidate?.();
   }
   if (changed.size > 0) (root as { requestRender?: () => void }).requestRender?.();
-  return pending;
+  return head?.component;
 }
 
 /** Wire the decorator to the live TUI. Safe to call once at extension load. */
@@ -738,20 +740,35 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
   const liveToolEnds = new Map<string, number>();
 
   const distances = new WeakMap<object, number>();
+  // The block whose fade is running. A tick touches only it; a finished step walks once.
+  let fading: object | undefined;
   let decayTimer: ReturnType<typeof setTimeout> | undefined;
-  const patch = (advance = false): void => {
+  const tick = (): void => {
+    decayTimer = undefined;
+    const frame = fading && fadeOf(fading);
+    if (!fading || !frame) return;
+    if (advanceFade(frame)) {
+      patch(fading);
+      return;
+    }
+    (fading as { invalidate?: () => void }).invalidate?.();
+    tui?.requestRender?.();
+    decayTimer = setTimeout(tick, DECAY_FRAME_MS);
+  };
+  const patch = (commit?: object): void => {
     if (!tui || !theme) return;
     try {
       const activeTheme = theme;
       decorateViewport(tui, {
         bar: (cell) => styleBarCell(activeTheme, cell),
       });
-      if (patchTree(tui, theme, liveToolEnds, distances, advance) && !decayTimer) {
-        decayTimer = setTimeout(() => {
-          decayTimer = undefined;
-          patch(true);
-        }, DECAY_FRAME_MS);
+      const head = patchTree(tui, theme, liveToolEnds, distances, commit);
+      if (head !== fading) {
+        clearTimeout(decayTimer);
+        decayTimer = undefined;
+        fading = head;
       }
+      if (fading && !decayTimer) decayTimer = setTimeout(tick, DECAY_FRAME_MS);
     } catch {
       // Keep pi's native label if the tree shape changed.
     }
@@ -808,6 +825,7 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
   pi.on("session_shutdown", () => {
     clearTimeout(decayTimer);
     decayTimer = undefined;
+    fading = undefined;
     resetFades();
   });
 }
