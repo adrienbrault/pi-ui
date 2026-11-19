@@ -350,4 +350,32 @@ describe("highlight groups", () => {
     leavingRow(piApi, input, 80);
     expect(count).toBe(3);
   });
+
+  test("pi's kit keeps an owner's sources up to one render's worth, and a hit never clears them", () => {
+    let count = 0;
+    const piKit = createPiKit(
+      {
+        Markdown: undefined as never,
+        truncateToWidth: kit.truncateToWidth,
+        visibleWidth: kit.visibleWidth,
+        wrapTextWithAnsi: kit.wrap,
+      },
+      {
+        getLanguageFromPath: languageFromPath,
+        getMarkdownTheme: (() => ({})) as never,
+        highlightCode: (source: string) => {
+          count++;
+          return source.split("\n");
+        },
+      },
+    );
+    const owner = {};
+    const [a, b, c] = ["a".repeat(30_000), "b".repeat(30_000), "c".repeat(30_000)] as const;
+    for (const source of [a, b, a, b]) piKit.highlight!(source, "typescript", theme, owner);
+    expect(count).toBe(2);
+    // A third source would pass the bound: the owner starts over with it.
+    piKit.highlight!(c, "typescript", theme, owner);
+    piKit.highlight!(a, "typescript", theme, owner);
+    expect(count).toBe(4);
+  });
 });

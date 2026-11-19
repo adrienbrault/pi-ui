@@ -3,13 +3,6 @@ import type * as Tui from "@earendil-works/pi-tui";
 import type { RenderKit, RenderTheme } from "./kit.ts";
 import { MAX_FORMAT_CHARS } from "./text.ts";
 
-/**
- * Source characters an owner keeps highlighted. One render highlights at most MAX_FORMAT_CHARS
- * (a read, or every group of a grep output), so a render always fits, and a block whose output
- * grows while it streams starts over instead of keeping every version it showed.
- */
-const OWNER_CHARS = 4 * MAX_FORMAT_CHARS;
-
 /** Both the gallery and the extension supply their own resolved pi modules. */
 export function createPiKit(
   tui: Pick<typeof Tui, "Markdown" | "truncateToWidth" | "visibleWidth" | "wrapTextWithAnsi">,
@@ -26,20 +19,21 @@ export function createPiKit(
     languageFromPath: coding.getLanguageFromPath,
     highlight(source, language, theme, owner) {
       if (!owner) return coding.highlightCode(source, language);
-      // A grep output highlights one source per file group: an owner keeps them all.
+      // A grep output highlights one source per file group: an owner keeps them all. One render
+      // highlights at most MAX_FORMAT_CHARS, so a miss that would pass it starts over: a block
+      // whose output grows while it streams keeps only what it shows, after two renders at most.
       const palette = theme.colors;
       let cache = code.get(owner);
-      if (!cache || cache.palette !== palette || cache.chars + source.length > OWNER_CHARS) {
+      const key = `${language}\n${source}`;
+      const hit = cache && cache.palette === palette ? cache.rows.get(key) : undefined;
+      if (hit) return hit;
+      if (!cache || cache.palette !== palette || cache.chars + source.length > MAX_FORMAT_CHARS) {
         cache = { palette, chars: 0, rows: new Map() };
         code.set(owner, cache);
       }
-      const key = `${language}\n${source}`;
-      let rows = cache.rows.get(key);
-      if (!rows) {
-        rows = coding.highlightCode(source, language);
-        cache.rows.set(key, rows);
-        cache.chars += source.length;
-      }
+      const rows = coding.highlightCode(source, language);
+      cache.rows.set(key, rows);
+      cache.chars += source.length;
       return rows;
     },
     markdown(source, width, theme, owner) {
