@@ -324,13 +324,15 @@ function bodyComponent(record: BlockRecord, theme: Theme, includeHeader = false)
   return region(
     KIT.component((width) => {
       const input = inputFor(record);
-      const layout = toolRowLayout({ ...api, owner: record }, input, width);
+      // The record owns the row's highlighted code, so the fade's look at the next level reuses it.
+      const owned = { ...api, owner: record };
+      const layout = toolRowLayout(owned, input, width);
       let rows = layout.rows.slice(includeHeader ? 0 : 1);
       if (record.expansion === 1) return rows;
       // A step down fades the row the next level drops, found by the renderer.
       const fade = typeof record.key === "string" ? toolFade(record.key) : undefined;
       if (fade) {
-        const leaving = leavingRow(api, input, width);
+        const leaving = leavingRow(owned, input, width);
         rows = paintLeaving(
           rows,
           leaving === undefined ? undefined : leaving - (includeHeader ? 0 : 1),
