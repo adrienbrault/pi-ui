@@ -822,6 +822,43 @@ describe("tool renderers", () => {
     }
   });
 
+  test("blocks held back behind a folding block join at once when it lands, without a fade", () => {
+    const session = fadeSession("bash");
+    try {
+      const shells = Array.from({ length: 6 }, (_, index) => {
+        const shell = session.add("held-" + index);
+        session.dispatch("agent_settled");
+        jest.advanceTimersByTime(10_000);
+        return shell;
+      });
+      // A user message ends the run: every block heads for the group. held-1 is one step away and folds;
+      // the others are further behind and wait for it.
+      session.children.push(user());
+      session.dispatch("message_start", { message: { role: "user" } });
+      let landed = false;
+      for (let tick = 0; tick < 400 && !landed; tick++) {
+        jest.advanceTimersByTime(10);
+        landed = toolPlan("held-1")?.mode !== "normal";
+        if (landed) break;
+        for (const shell of shells.slice(2)) {
+          expect(toolPlan(shell.toolCallId)?.mode).toBe("normal");
+          expect(shell.render(80).join("")).not.toContain("38;2;");
+        }
+      }
+      expect(landed).toBe(true);
+      expect(shells.map((shell) => toolPlan(shell.toolCallId)?.mode)).toEqual([
+        "anchor",
+        "hidden",
+        "hidden",
+        "hidden",
+        "hidden",
+        "hidden",
+      ]);
+    } finally {
+      session.close();
+    }
+  });
+
   test("a collapse that starts while another runs waits for it, and both groups close", () => {
     const session = fadeSession("bash");
     try {

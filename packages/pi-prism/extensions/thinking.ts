@@ -564,6 +564,8 @@ function patchTree(
   theme: RenderTheme,
   liveToolEnds: ReadonlyMap<string, number>,
   distances: WeakMap<object, number>,
+  /** Blocks catching up without animation that an older block on its way holds back. */
+  catching: WeakSet<object>,
   commit: object | undefined,
   /** Called with the number of runs and of blocks in the current run, before any fade starts. */
   countBlocks: (runs: number, blocks: number) => void,
@@ -696,19 +698,23 @@ function patchTree(
         endFade(unit.component);
         repaint.add(unit.component);
         unit.distance = allowed;
-      } else if (fading || target - previous === 1) {
+        if (allowed < target) catching.add(unit.component);
+      } else if (fading || (target - previous === 1 && !catching.has(unit.component))) {
         // One step behind, or mid-row: animate in turn.
         unit.distance = previous;
       } else {
         // More than one step behind and not fading: catch up without animation,
-        // through the usual two agreeing recomputes, as offscreen blocks do.
+        // through the usual two agreeing recomputes, as offscreen blocks do. Held
+        // back by an older block, it takes the rest of the way once that block lands.
         unit.distance = allowed;
+        if (allowed < target) catching.add(unit.component);
       }
       if (unit.distance < target) {
-        waiting.push(unit);
+        if (!catching.has(unit.component)) waiting.push(unit);
         cap = Math.min(cap, unit.distance);
       }
     }
+    if (unit.distance >= target) catching.delete(unit.component);
     distances.set(unit.component, unit.distance);
   }
   // A collapse that has run its course: the group now shows only its summary.
@@ -818,6 +824,7 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
   const liveToolEnds = new Map<string, number>();
 
   const distances = new WeakMap<object, number>();
+  const catching = new WeakSet<object>();
   // The block whose fade is running. A tick touches only it; a finished step walks once.
   let fading: object | undefined;
   let decayTimer: ReturnType<typeof setTimeout> | undefined;
@@ -858,7 +865,7 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
       decorateViewport(tui, {
         bar: (cell) => styleBarCell(activeTheme, cell),
       });
-      const head = patchTree(tui, theme, liveToolEnds, distances, commit, countBlocks, frameMs, fading);
+      const head = patchTree(tui, theme, liveToolEnds, distances, catching, commit, countBlocks, frameMs, fading);
       if (head !== fading) {
         clearTimeout(decayTimer);
         decayTimer = undefined;

@@ -732,12 +732,13 @@ ${visible}`);
     // The run's only group is forming: its member row sits under the summary.
     assert(lineWith(visible, "Ran 1 shell command").includes("▾") && visible.split("\n")[rowOf(visible, "Ran 1 shell command")]?.includes("echo command-0 ·"), `a one-member forming group should list its member\n${visible}`);
     tmux("send-keys", "-t", SESSION, "new run for animation", "Enter");
-    // The new prompt ends the run: the one-step-behind block folds row by row, later blocks catch up at once.
+    // The new prompt ends the run: the one-step-behind block folds row by row, and the later blocks,
+    // further behind, wait below it and join at once when it lands.
     await waitFor("Ran 1 shell command", 8000, screen => {
       const start = screen.indexOf("echo command-1");
-      const end = screen.slice(start).search(/Ran \d+ shell commands?/);
-      if (start < 0 || end < 0) return false;
-      const folding = screen.slice(start, start + end);
+      const end = screen.indexOf("echo command-2");
+      if (start < 0 || end < start) return false;
+      const folding = screen.slice(start, end);
       return folding.includes("animated line 39") && !folding.includes("+ 37 lines");
     });
     await waitFor("Ran 6 shell commands", 8000);
