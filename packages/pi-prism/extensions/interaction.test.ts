@@ -345,6 +345,21 @@ describe("tool renderers", () => {
     ).toEqual(output.split("\n"));
   });
 
+  test("hovering a clipped silent command marks its header, the only row it has", () => {
+    const tool = resolver()("bash", () => undefined) as Renderers;
+    const command = "echo " + "abcdefghij".repeat(12);
+    const context = { ...ctx, args: { command }, state: {} };
+    const header = tool.renderCall(context.args, barred, context);
+    const body = tool.renderResult({ content: [] }, {}, barred, context);
+    expect(header.render(40).map(barCell)).toEqual(["none"]);
+    header.handleMouse?.(move());
+    expect(header.render(40).map(barCell)).toEqual(["fill"]);
+    expect(body.render(40)).toEqual([]);
+    // Open, the full command is the body; the header takes no cell.
+    header.handleMouse?.(click());
+    expect(header.render(40).map(barCell)).toEqual(["none"]);
+  });
+
   test("a clipped silent bash command opens in full and closes again", () => {
     const tool = resolver()("bash", () => undefined) as Renderers;
     const command = "echo " + "abcdefghij".repeat(12) + "\necho second";

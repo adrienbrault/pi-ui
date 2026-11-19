@@ -301,6 +301,9 @@ function headerComponent(record: BlockRecord, theme: Theme): Component {
     KIT.component((width) => {
       const header = toolHeader(api, inputFor(record), width);
       record.commandClipped = !!header.hiddenCommand;
+      // A clipped command with no output has no body rows to carry the bar: its header takes one filled cell.
+      if (record.hover && !record.expansion && record.commandClipped && nonEmptyLineCount(previewText(record)) === 0)
+        return [paintBarCell(header.line, styleBarCell(api.theme, "fill"), width)];
       return [header.line];
     }) as Component,
     record,
