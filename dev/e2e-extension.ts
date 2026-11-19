@@ -15,6 +15,53 @@ import prism from "../packages/pi-prism/extensions/index.ts";
 export const OFFLINE_BASE_URL = "http://127.0.0.1:9/v1";
 export const E2E_MODEL = "deepseek-v4.1-flash-1017";
 
+/**
+ * A second stand-in that answers from a script, in process, so a live turn can run a real tool
+ * without any network: a prompt `run: <command>` gets one bash call with that command, and the
+ * turn after a tool result gets `Script done.`.
+ */
+export const SCRIPT_PROVIDER = "prism-script";
+export const SCRIPT_MODEL = "prism-script-1";
+
+interface ScriptContext {
+  messages: Array<{ role: string; content?: unknown }>;
+}
+
+const ZERO_USAGE = {
+  input: 0,
+  output: 0,
+  cacheRead: 0,
+  cacheWrite: 0,
+  totalTokens: 0,
+  cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 },
+};
+
+/** The scripted reply to `context`, as the events of one assistant response. */
+export async function* scriptedReply(context: ScriptContext): AsyncGenerator<Record<string, unknown>> {
+  const last = context.messages.at(-1);
+  const text =
+    typeof last?.content === "string"
+      ? last.content
+      : Array.isArray(last?.content)
+        ? last.content.map((part: { text?: string }) => part.text ?? "").join("")
+        : "";
+  const command = last?.role === "user" && text.startsWith("run: ") ? text.slice("run: ".length) : undefined;
+  const message = {
+    role: "assistant",
+    api: SCRIPT_PROVIDER,
+    provider: SCRIPT_PROVIDER,
+    model: SCRIPT_MODEL,
+    usage: ZERO_USAGE,
+    timestamp: Date.now(),
+    stopReason: command ? "toolUse" : "stop",
+    content: command
+      ? [{ type: "toolCall", id: `script-${Date.now()}`, name: "bash", arguments: { command } }]
+      : [{ type: "text", text: "Script done." }],
+  };
+  yield { type: "start", partial: { ...message, content: [] } };
+  yield { type: "done", reason: message.stopReason, message };
+}
+
 interface Pi {
   registerProvider(name: string, config: Record<string, unknown>): void;
   on(event: "session_start", handler: (event: unknown, ctx: { ui?: ThemeUi }) => void): void;
@@ -48,6 +95,25 @@ export default function e2e(pi: Pi): void {
         contextWindow: 131072,
         maxTokens: 8192,
         compat: { supportsDeveloperRole: false, supportsReasoningEffort: true },
+      },
+    ],
+  });
+  pi.registerProvider(SCRIPT_PROVIDER, {
+    name: SCRIPT_PROVIDER,
+    // Never contacted: the script answers in process.
+    baseUrl: OFFLINE_BASE_URL,
+    apiKey: "offline",
+    api: SCRIPT_PROVIDER,
+    streamSimple: (_model: unknown, context: ScriptContext) => scriptedReply(context),
+    models: [
+      {
+        id: SCRIPT_MODEL,
+        name: SCRIPT_MODEL,
+        reasoning: false,
+        input: ["text"],
+        cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+        contextWindow: 131072,
+        maxTokens: 8192,
       },
     ],
   });

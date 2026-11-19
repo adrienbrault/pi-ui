@@ -19,14 +19,17 @@
  * - Many old thoughts: the folded run becomes one `Thought N times` summary
  *   (untimed thoughts read as a count; timed ones as `Thought for 12s`).
  * - Thoughts and commands: both fold into one shared summary that opens both.
+ * - A live bash, scripted in process, that writes files in a git work tree: their diffs
+ *   show under its output, and the result records them.
  *
  * Run: bun run e2e
  */
 
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { FOLD_DISTANCE } from "../packages/pi-prism/render/detail.ts";
+import { SCRIPT_MODEL, SCRIPT_PROVIDER } from "./e2e-extension.ts";
 
 const ROOT = join(import.meta.dir, "..");
 const SOCKET = `prism-e2e-${process.pid}`;
@@ -221,9 +224,9 @@ function count(pane: string, needle: string): number {
   return pane.split("\n").filter((line) => line.includes(needle)).length;
 }
 
-function start(sessionPath: string, height: number): void {
+function start(sessionPath: string, height: number, cwd = ROOT, extra: string[] = []): void {
 
-  tmux("-f", "/dev/null", "new-session", "-d", "-s", SESSION, "-x", String(WIDTH), "-y", String(height), "-c", ROOT);
+  tmux("-f", "/dev/null", "new-session", "-d", "-s", SESSION, "-x", String(WIDTH), "-y", String(height), "-c", cwd);
   tmux("set", "-g", "extended-keys", "on");
   // Keep pi's startup warning from moving the row between capture and mouse dispatch.
   tmux("set", "-sq", "extended-keys-format", "csi-u");
@@ -233,6 +236,7 @@ function start(sessionPath: string, height: number): void {
     "pi --no-extensions --tui-mode fullscreen",
     `-e ${join(ROOT, "dev", "e2e-extension.ts")}`,
     `--session ${sessionPath}`,
+    ...extra,
   ].join(" ");
   tmux("send-keys", "-t", SESSION, pi, "Enter");
 }
@@ -747,6 +751,46 @@ async function thinkingScenario(sessionPath: string): Promise<void> {
   assert(styledHeader() === beforeHover, "clicking a fully visible thought should leave it inert");
 }
 
+/** A live bash that writes two files in a git work tree shows their diffs and records them on its result. */
+async function bashChangesScenario(dir: string): Promise<void> {
+  const repo = join(dir, "repo");
+  mkdirSync(repo);
+  const git = (...args: string[]): void => {
+    const result = Bun.spawnSync(["git", "-c", "commit.gpgsign=false", "-c", "user.name=e2e", "-c", "user.email=e2e@example.invalid", ...args], {
+      cwd: repo,
+      env: { ...process.env, GIT_CONFIG_GLOBAL: "/dev/null", GIT_CONFIG_NOSYSTEM: "1" },
+      stderr: "pipe",
+    });
+    if (result.exitCode !== 0) throw new Error(`git ${args.join(" ")}: ${result.stderr.toString()}`);
+  };
+  git("init", "-q");
+  writeFileSync(join(repo, "tracked.txt"), "Edits: 4\nLines: 12\n");
+  git("add", ".");
+  git("commit", "-q", "-m", "init");
+  const session = join(dir, "bash-changes.jsonl");
+  const at = new Date().toISOString();
+  writeSession(session, [
+    { type: "session", version: 3, id: crypto.randomUUID(), timestamp: at, cwd: repo },
+    { type: "model_change", id: "model", parentId: null, timestamp: at, provider: SCRIPT_PROVIDER, modelId: SCRIPT_MODEL },
+  ], false);
+  // Name the scripted model outright: nothing else may answer the prompt.
+  start(session, 40, repo, ["--model", `${SCRIPT_PROVIDER}/${SCRIPT_MODEL}`, "--no-skills", "--no-prompt-templates", "--no-context-files"]);
+  // The typed pi command names the model too: wait for pi's own footer to show it.
+  await waitFor("[Extensions]", 15_000, (screen) => lineWith(screen, "%/").includes(SCRIPT_MODEL));
+  tmux("send-keys", "-t", SESSION, "-l", "run: printf 'Edits: 5\\nLines: 12\\n' > tracked.txt; mkdir -p tmp; printf 'new file\\n' > tmp/one.txt");
+  // Typed text arriving with its Enter reads as a paste: let the editor take the text first.
+  await waitFor("printf 'new file");
+  await Bun.sleep(300);
+  tmux("send-keys", "-t", SESSION, "Enter");
+  const pane = await waitFor("Script done.", 15_000, (screen) => screen.includes("+new file"));
+  for (const row of ["tmp/one.txt", "tracked.txt", "-Edits: 4", "+Edits: 5", "+new file"]) {
+    assert(pane.split("\n").some((line) => line.trim() === row || line.trim().endsWith(` ${row}`)), `expected a row reading ${row}\n${pane}`);
+  }
+  assert(!pane.includes("@@") && !pane.includes("+++"), `the diffs should carry no headers\n${pane}`);
+  const saved = await Bun.file(session).text();
+  assert(saved.includes('"prismChanges"'), "the result should record the changed files for a reload");
+}
+
 async function main(): Promise<void> {
   const dir = mkdtempSync(join(tmpdir(), "pi-prism-e2e-"));
   try {
@@ -870,6 +914,10 @@ ${visible}`);
     combinedFoldFixture(combined);
     await combinedFoldScenario(combined);
     console.log("combined fold ok: thoughts and commands share one summary and open together");
+
+    tmux("kill-server");
+    await bashChangesScenario(dir);
+    console.log("bash changes ok: a live bash's file diffs show under its output and are recorded on its result");
   } finally {
     try {
       tmux("kill-server");
