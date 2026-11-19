@@ -9,7 +9,7 @@
  *   group lists its member, and a new prompt folds the next block row by row.
  * - A thought and two commands in the newest small group: the forming group lists
  *   them as consecutive member rows under its summary.
- * - 7 calls: the decay ladder, the hover chip, click expansion, inert rows.
+ * - 5 calls: the decay ladder, the hover bar, click expansion, inert rows.
  * - 12 calls: rows past FOLD_DISTANCE collapse into one summary; the summary
  *   opens its members; a member then expands its own body.
  * - A delegated tool stays visible while an untimed failure joins its group.
@@ -166,7 +166,7 @@ function count(pane: string, needle: string): number {
   return pane.split("\n").filter((line) => line.includes(needle)).length;
 }
 
-function start(sessionPath: string, height: number, budget = 7): void {
+function start(sessionPath: string, height: number): void {
 
   tmux("-f", "/dev/null", "new-session", "-d", "-s", SESSION, "-x", String(WIDTH), "-y", String(height), "-c", ROOT);
   tmux("set", "-g", "extended-keys", "on");
@@ -174,7 +174,7 @@ function start(sessionPath: string, height: number, budget = 7): void {
   tmux("set", "-sq", "extended-keys-format", "csi-u");
   // Only pi-prism and an offline stand-in provider load; see dev/e2e-extension.ts.
   const pi = [
-    `env PI_OFFLINE=1 PI_SKIP_VERSION_CHECK=1 PRISM_E2E_TAIL=${budget}`,
+    "env PI_OFFLINE=1 PI_SKIP_VERSION_CHECK=1",
     "pi --no-extensions --tui-mode fullscreen",
     `-e ${join(ROOT, "dev", "e2e-extension.ts")}`,
     `--session ${sessionPath}`,
@@ -196,14 +196,14 @@ async function openHistory(sessionPath: string, height: number): Promise<void> {
 
 async function decayScenario(sessionPath: string): Promise<void> {
   await openHistory(sessionPath, 45);
-  let pane = await waitFor("All four commands finished.", 15_000, (screen) => screen.includes("output 0 line C") && !screen.includes("output 0 line A"));
-  const headers = Array.from({ length: 4 }, (_, index) => `echo command-${index}`);
+  let pane = await waitFor("All five commands finished.", 15_000, (screen) => screen.includes("output 0 line C") && !screen.includes("output 0 line A"));
+  const headers = Array.from({ length: 5 }, (_, index) => `echo command-${index}`);
   for (const header of headers) assert(count(pane, header) === 1, `expected exactly one ${header}\n${pane}`);
 
   const oldestBody = pane.split("\n").filter((line) => line.includes("output 0 line"));
   assert(oldestBody.length === 3 && oldestBody[0]?.includes("line C"), `oldest body should keep three content lines\n${pane}`);
 
-  const newestBody = pane.split("\n").filter((line) => line.includes("output 3 line"));
+  const newestBody = pane.split("\n").filter((line) => line.includes("output 4 line"));
   assert(newestBody.length === 2, `newest body should keep both lines\n${pane}`);
 
   // Re-read the row before every mouse event: notices can appear and shift the pane.
@@ -381,13 +381,13 @@ async function thinkingFoldScenario(sessionPath: string): Promise<void> {
   let pane = await waitFor("Fold done.");
   await Bun.sleep(600);
   pane = capture();
-  assert(count(pane, "Thought 16 times") === 1, `old thoughts should fold into one summary\n${pane}`);
+  assert(count(pane, "Thought 15 times") === 1, `old thoughts should fold into one summary\n${pane}`);
   assert(!pane.includes("thought old-0"), `the oldest folded thought leaked\n${pane}`);
-  assert(!pane.includes("thought old-11"), `the newest folded thought leaked\n${pane}`);
+  assert(!pane.includes("thought old-14"), `the newest folded thought leaked\n${pane}`);
   assert(pane.includes("thought old-19"), `the newest thought should survive\n${pane}`);
 
   pane = capture();
-  const summaryRow = rowOf(pane, "Thought 16 times");
+  const summaryRow = rowOf(pane, "Thought 15 times");
   mouse(0, 5, summaryRow);
   mouse(0, 5, summaryRow, true);
   await Bun.sleep(500);
@@ -482,11 +482,11 @@ async function combinedFoldScenario(sessionPath: string): Promise<void> {
   let pane = await waitFor("Chain done.");
   await Bun.sleep(600);
   pane = capture();
-  assert(lineWith(pane, "Thought 3 times").includes("ran 12 shell commands"), `thoughts and commands should share one summary\n${pane}`);
+  assert(lineWith(pane, "Thought 3 times").includes("ran 11 shell commands"), `thoughts and commands should share one summary\n${pane}`);
   assert(lineWith(pane, "Thought 3 times").includes("1.0s"), "mixed group should span the first thought through the last folded result");
-  assert(lineWith(pane, "Thought 3 times").includes("147 out / 48 in tokens"), "fold should total three thoughts, eight invocations and eight results");
+  assert(lineWith(pane, "Thought 3 times").includes("139 out / 44 in tokens"), "fold should total three thoughts, eleven invocations and eleven results");
   assert(!pane.includes("echo combo-0 ·"), `the oldest command leaked\n${pane}`);
-  assert(pane.includes("echo combo-12 ·"), `the newest surviving command should stay\n${pane}`);
+  assert(pane.includes("echo combo-11 ·"), `the oldest surviving command should stay\n${pane}`);
 
   pane = capture();
   let summaryRow = rowOf(pane, "Thought 3 times");
@@ -514,14 +514,14 @@ async function combinedFoldScenario(sessionPath: string): Promise<void> {
   const summaryColumn = lineWith(pane, "Thought 3 times").search(/\S/);
   const members = [
     ...Array.from({ length: 3 }, (_, i) => `thought combo-${i}`),
-    ...Array.from({ length: 12 }, (_, i) => `echo combo-${i} ·`),
+    ...Array.from({ length: 11 }, (_, i) => `echo combo-${i} ·`),
   ];
   for (const [index, member] of members.entries()) {
     const line = pane.split("\n")[openedRow + index] ?? "";
     assert(line.includes(member) && line.search(/\S/) === summaryColumn + 2, `expected consecutive indented member ${member}\n${pane}`);
   }
   assert(!pane.includes("**thought combo-"), "revealed thoughts should render Markdown emphasis");
-  assert(lineWith(pane, "echo combo-12 ·").search(/\S/) === summaryColumn, `a surviving tool should align with the summary\n${pane}`);
+  assert(lineWith(pane, "echo combo-11 ·").search(/\S/) === summaryColumn, `a surviving tool should align with the summary\n${pane}`);
 
   mouse(35, 5, rowOf(pane, "thought combo-0"));
   await Bun.sleep(200);
@@ -565,25 +565,25 @@ async function foldScenario(sessionPath: string): Promise<void> {
   await Bun.sleep(600);
   pane = capture();
 
-  const folded = Array.from({ length: 8 }, (_, index) => `echo command-${index} ·`);
-  const survivors = Array.from({ length: 4 }, (_, index) => `echo command-${index + 8} ·`);
-  assert(pane.includes("Ran 8 shell commands"), `folded rows should become one summary\n${pane}`);
+  const folded = Array.from({ length: 7 }, (_, index) => `echo command-${index} ·`);
+  const survivors = Array.from({ length: 5 }, (_, index) => `echo command-${index + 7} ·`);
+  assert(pane.includes("Ran 7 shell commands"), `folded rows should become one summary\n${pane}`);
   for (const header of folded) assert(count(pane, header) === 0, `folded member leaked: ${header}\n${pane}`);
   for (const header of survivors) assert(count(pane, header) === 1, `surviving row missing: ${header}\n${pane}`);
 
   pane = capture();
-  mouse(35, 5, rowOf(pane, "Ran 8 shell commands"));
+  mouse(35, 5, rowOf(pane, "Ran 7 shell commands"));
   await Bun.sleep(400);
   pane = capture();
-  assert(lineWith(pane, "Ran 8 shell commands").includes("[ click · expand ]"), `summary hover should show its action\n${pane}`);
+  assert(lineWith(pane, "Ran 7 shell commands").includes("[ click · expand ]"), `summary hover should show its action\n${pane}`);
 
   pane = capture();
-  const summaryRow = rowOf(pane, "Ran 8 shell commands");
+  const summaryRow = rowOf(pane, "Ran 7 shell commands");
   mouse(0, 5, summaryRow);
   mouse(0, 5, summaryRow, true);
   await Bun.sleep(400);
   pane = capture();
-  assert(lineWith(pane, "Ran 8 shell commands").includes("[ click · collapse ]"), "open group should show its collapse action");
+  assert(lineWith(pane, "Ran 7 shell commands").includes("[ click · collapse ]"), "open group should show its collapse action");
   for (const header of folded) assert(count(pane, header) === 1, `opened group should reveal ${header}\n${pane}`);
 
   pane = capture();
@@ -608,7 +608,7 @@ async function foldScenario(sessionPath: string): Promise<void> {
   mouse(0, 5, secondRow, true);
   pane = await waitFor("output 1 line A", 2000);
   assert(pane.includes("output 1 line B"), `a later member should reveal its whole body\n${pane}`);
-  const column = lineWith(pane, "Ran 8 shell commands").search(/\S/);
+  const column = lineWith(pane, "Ran 7 shell commands").search(/\S/);
   assert(lineWith(pane, folded[0]!).search(/\S/) === column + 2, `the anchor tool should be indented\n${pane}`);
   assert(lineWith(pane, "output 1 line B").search(/\S/) === column + 6, `tool output should nest under its member\n${pane}`);
 }
@@ -684,7 +684,7 @@ async function main(): Promise<void> {
     const live = join(dir, "visible.jsonl");
     const longPreview = { output: Array.from({ length: 40 }, (_, i) => "animated line " + i).join("\n") };
     fixture(live, 6, [{}, longPreview, longPreview], false);
-    start(live, 100, 8);
+    start(live, 100);
     await waitFor("All six commands finished.");
     await Bun.sleep(350);
     const visible = capture();
@@ -705,7 +705,7 @@ ${visible}`);
     tmux("kill-server");
 
     const decay = join(dir, "decay.jsonl");
-    fixture(decay, 4, [{ output: ["A","B","C","D","E"].map(letter => "output 0 line " + letter).join("\n") }]);
+    fixture(decay, 5, [{ output: ["A","B","C","D","E"].map(letter => "output 0 line " + letter).join("\n") }]);
     await decayScenario(decay);
     console.log("decay ok: three content lines at the oldest, full newest, hover bar and click reveal");
 
@@ -713,8 +713,8 @@ ${visible}`);
     const long = join(dir, "long.jsonl");
     fixture(long, 1, [{ output: Array.from({ length: 160 }, (_, i) => `long output line ${i}.`).join("\n") }]);
     await openHistory(long, 45);
-    let pane = await waitFor("+ 154 lines");
-    const footer = rowOf(pane, "+ 154 lines");
+    let pane = await waitFor("+ 153 lines");
+    const footer = rowOf(pane, "+ 153 lines");
     mouse(0, 5, footer);
     mouse(0, 5, footer, true);
     await Bun.sleep(250);
@@ -738,15 +738,15 @@ ${visible}`);
     mouse(0, 5, inside, true);
     await Bun.sleep(200);
     assert(!capture().includes("long output line 80."), "a click inside the open block should close it");
-    for (let i = 0; i < 60 && !capture().includes("+ 154 lines"); i++) {
+    for (let i = 0; i < 60 && !capture().includes("+ 153 lines"); i++) {
       mouse(64, 20, 15);
       await Bun.sleep(50);
     }
-    await waitFor("+ 154 lines");
+    await waitFor("+ 153 lines");
     console.log("long bash output shows its scroll bar and collapses from a click inside it");
     tmux("kill-server");
     const forming = join(dir, "forming.jsonl");
-    combinedFoldFixture(forming, 1, 6);
+    combinedFoldFixture(forming, 1, 7);
     await formingScenario(forming, ["thought combo-0", "echo combo-0 ·", "echo combo-1 ·"], "echo combo-2 ·");
     console.log("forming ok: the newest small group lists its thought and tool members under its summary");
 
@@ -754,16 +754,16 @@ ${visible}`);
     const fold = join(dir, "fold.jsonl");
     fixture(fold, 12);
     await foldScenario(fold);
-    console.log("fold ok: 8 old rows became one summary; summary opens members; member body expands");
+    console.log("fold ok: 7 old rows became one summary; summary opens members; member body expands");
 
     tmux("kill-server");
     const mixed = join(dir, "delegated-and-failed.jsonl");
     fixture(mixed, 12, [{ name: "custom_review_tool" }, {}, { error: "permission denied\nexit code 2" }]);
     await openHistory(mixed, 65);
-    let mixedPane = await waitFor("Ran 7 shell commands", 15_000, (screen) => lineWith(screen, "Ran 7 shell commands").includes("(1 failed)"));
+    let mixedPane = await waitFor("Ran 6 shell commands", 15_000, (screen) => lineWith(screen, "Ran 6 shell commands").includes("(1 failed)"));
     assert(mixedPane.includes("custom_review_tool"), "the delegated row should keep its own renderer");
     assert(!mixedPane.includes("exit code 2"), "a grouped failure should fold");
-    const summary = rowOf(mixedPane, "Ran 7 shell commands");
+    const summary = rowOf(mixedPane, "Ran 6 shell commands");
     mouse(0, 5, summary);
     mouse(0, 5, summary, true);
     mixedPane = await waitFor("echo command-1 ·");

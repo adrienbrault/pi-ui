@@ -1,6 +1,6 @@
 /**
- * The extension the end-to-end harness loads into pi: pi-prism at a chosen tail
- * budget, plus a stand-in for the `flan` provider the synthetic sessions name.
+ * The extension the end-to-end harness loads into pi: pi-prism as it ships, plus
+ * a stand-in for the `flan` provider the synthetic sessions name.
  *
  * The stand-in is what keeps the run offline. pi catches an exception thrown
  * from `before_provider_request` and sends the request anyway, and
@@ -10,7 +10,6 @@
  */
 
 import prism from "../packages/pi-prism/extensions/index.ts";
-import { setTailLines } from "../packages/pi-prism/render/detail.ts";
 
 /** Port 9 (discard) is closed on a normal machine, so connecting fails at once. */
 export const OFFLINE_BASE_URL = "http://127.0.0.1:9/v1";
@@ -21,7 +20,6 @@ interface Pi {
 }
 
 export default function e2e(pi: Pi): void {
-  if (process.env.PRISM_E2E_TAIL) setTailLines(Number(process.env.PRISM_E2E_TAIL));
   prism(pi as unknown as Parameters<typeof prism>[0]);
   pi.registerProvider("flan", {
     name: "flan",
