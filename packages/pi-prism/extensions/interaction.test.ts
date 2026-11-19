@@ -657,6 +657,25 @@ describe("tool renderers", () => {
     }
   });
 
+  test("a collapsing group rebuilt mid-row hands its collapse on: the row finishes, then it closes", () => {
+    const session = fadeSession("bash");
+    try {
+      const { shells, rows } = collapseStart(session);
+      jest.advanceTimersByTime(SLOW_ROW_MS / 2);
+      expect(rows()).toEqual([2, 1, 1, 1, 1, 0]);
+      // A member's result lands late: its timing changes, so the planner builds a new group object.
+      const group = toolPlan("collapse-0")!.group!;
+      (shells[2] as { result?: { timestamp: number } }).result = { timestamp: 5 };
+      session.dispatch("agent_settled");
+      expect(toolPlan("collapse-0")!.group).not.toBe(group);
+      expect(rows()).toEqual([2, 1, 1, 1, 1, 0]);
+      jest.advanceTimersByTime(SLOW_ROW_MS / 2 + 20);
+      expect(rows()).toEqual([1, 0, 0, 0, 0, 0]);
+    } finally {
+      session.close();
+    }
+  });
+
   test("a forming group that stops forming offscreen collapses at once", () => {
     // Twenty rows show only the newest blocks; the forming group and its sixth block sit above them.
     const session = fadeSession("bash", output, undefined, 20);
