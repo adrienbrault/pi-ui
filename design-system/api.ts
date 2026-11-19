@@ -22,7 +22,23 @@ export interface CellQuery {
 
 const CACHE_LIMIT = 32;
 const cache = new Map<string, string>();
-let queue: Promise<void> = Promise.resolve();
+
+/**
+ * Run tasks one at a time, in call order. A rejected task rejects only its own
+ * caller; the queue carries on, so one failed render cannot fail every later
+ * request until the server restarts.
+ */
+export function serial(): <T>(task: () => Promise<T>) => Promise<T> {
+  let tail: Promise<unknown> = Promise.resolve();
+  return (task) => {
+    const run = tail.then(task);
+    tail = run.catch(() => {});
+    return run;
+  };
+}
+
+// The tail knob is process state, so two builds must not interleave.
+const render = serial();
 
 export const DEFAULT_TAIL = DEFAULT_TAIL_LINES;
 
@@ -33,21 +49,16 @@ export async function cellsFor(query: CellQuery): Promise<string> {
   const hit = cache.get(key);
   if (hit) return hit;
 
-  let body = "";
-  // Serialise renders: the tail knob is process state, so two builds must not interleave.
-  queue = queue.then(async () => {
+  return render(async () => {
     const again = cache.get(key);
-    if (again) {
-      body = again;
-      return;
-    }
+    if (again) return again;
     const { payload } = await renderGallery({
       tailLines: query.tail,
       themes: [query.theme],
       glyphModes: [query.glyph],
       entries: ENTRIES.filter((entry) => entry.variant === "ours"),
     });
-    body = JSON.stringify({
+    const body = JSON.stringify({
       meta: {
         tail: query.tail,
         bodyLines: payload.meta.bodyLines,
@@ -62,7 +73,6 @@ export async function cellsFor(query: CellQuery): Promise<string> {
       if (oldest === undefined) break;
       cache.delete(oldest);
     }
+    return body;
   });
-  await queue;
-  return body;
 }
