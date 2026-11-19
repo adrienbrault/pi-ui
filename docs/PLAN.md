@@ -98,7 +98,7 @@ Standalone body budget: 8 → 7 → 6 → 5 → 4 → group
 The four-row preview fits three content lines and one omission notice.
 ```
 
-- Count newer blocks across the whole transcript. Show four fade frames per departing visible row, including each row of a folding block, and apply offscreen changes immediately. A row fades over a quarter of the recent gap between new blocks (a moving average over assistant messages and tool starts, reset by a user message, ignoring pauses over a minute), clamped to 80–480 ms; 360 ms until the pace is known.
+- Count newer blocks across the whole transcript. Show four fade frames per departing visible row, including each row of a folding block, and apply offscreen changes immediately. A row fades over a quarter of the recent gap between new blocks (a moving average over the walks that find new blocks, as the planner counts them, reset when a user message starts a new run, counting blocks that arrive within one 20 ms frame of each other once and ignoring pauses over a minute), clamped to 80–480 ms; 360 ms until the pace is known.
 - The newest group of the run lists one row per member up to five rows (`FORMING_ROWS`). At the sixth it collapses: its member rows leave bottom to top, one fade per row, as any departing row does.
 - The live block is pinned to L0 regardless of its own length.
 - Recompute on structural events only: `message_start`, `tool_execution_start/end`, `turn_end`, `agent_settled`, plus once when a fade step completes. Never per token. A fade tick repaints only the fading block; it never walks the transcript.

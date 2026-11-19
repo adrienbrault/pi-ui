@@ -1,5 +1,16 @@
 import { describe, expect, test } from "bun:test";
-import { advanceFade, endFade, FADE_FRAMES, fadeDurationMs, fadeOf, nextPace, startFade, toolFade } from "./fade.ts";
+import {
+  advanceFade,
+  blocksArrived,
+  endFade,
+  type PaceClock,
+  FADE_FRAMES,
+  fadeDurationMs,
+  fadeOf,
+  nextPace,
+  startFade,
+  toolFade,
+} from "./fade.ts";
 
 /** Tick until the step completes; the states seen before each tick. */
 function ticks(frame: ReturnType<typeof startFade>): Array<[number, number]> {
@@ -56,5 +67,16 @@ describe("fade pace", () => {
     expect(nextPace(400, 1400)).toBeCloseTo(700);
     expect(nextPace(400, 60_001)).toBe(400);
     expect(nextPace(undefined, 60_001)).toBeUndefined();
+  });
+
+  test("blocks arriving within one frame of each other are one arrival", () => {
+    const clock: PaceClock = {};
+    blocksArrived(clock, 1000);
+    expect(clock).toEqual({ lastAt: 1000 });
+    blocksArrived(clock, 1800);
+    blocksArrived(clock, 1801);
+    expect(clock).toEqual({ pace: 800, lastAt: 1800 });
+    blocksArrived(clock, 2600);
+    expect(clock).toEqual({ pace: 800, lastAt: 2600 });
   });
 });

@@ -62,7 +62,8 @@ import {
   fadeLine,
   FADE_FRAMES,
   fadeDurationMs,
-  nextPace,
+  blocksArrived,
+  type PaceClock,
   fadeOf,
   moveFade,
   paintFold,
@@ -564,7 +565,9 @@ function patchTree(
   liveToolEnds: ReadonlyMap<string, number>,
   distances: WeakMap<object, number>,
   commit: object | undefined,
-  frameMs: number,
+  /** Called with the number of runs and of blocks in the current run, before any fade starts. */
+  countBlocks: (runs: number, blocks: number) => void,
+  frameMs: () => number,
   current?: object,
 ): object | undefined {
   const ordered: unknown[] = [];
@@ -656,6 +659,8 @@ function patchTree(
       invalidate: () => component.invalidate?.(),
     });
   }
+  const runs = blocks.filter((block) => block.kind === "user").length;
+  countBlocks(runs, blocks.length - 1 - blocks.findLastIndex((block) => block.kind === "user"));
   const units: FoldUnit[] = [];
   let startsRun = false;
   blockDistances(blocks).forEach((placed, index) => {
@@ -712,7 +717,7 @@ function patchTree(
     const rows = memberRows(group.members.filter((member) => shown.has(member.component)));
     // Offscreen, or nothing left to animate: the group collapses at once.
     if (rows === 0 || group.members.every((member) => history.has(member.component))) return;
-    const frame = startFade(group, undefined, true, frameMs);
+    const frame = startFade(group, undefined, true, frameMs());
     frame.foldRows = rows;
     frame.shown = shown;
     frame.blocks = units.length;
@@ -785,7 +790,7 @@ function patchTree(
       head.component,
       head.kind === "tool" ? head.key : undefined,
       folding,
-      frameMs,
+      frameMs(),
       folding && joinsOpenGroup(units, units.indexOf(head)),
     );
     repaint.add(head.component);
@@ -816,14 +821,15 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
   // The block whose fade is running. A tick touches only it; a finished step walks once.
   let fading: object | undefined;
   let decayTimer: ReturnType<typeof setTimeout> | undefined;
-  // The average gap between new blocks in this run sets how long a row takes to fade.
-  let pace: number | undefined;
-  let lastBlockAt: number | undefined;
-  const frameMs = (): number => fadeDurationMs(pace) / FADE_FRAMES;
-  const blockStarted = (): void => {
-    const now = performance.now();
-    if (lastBlockAt !== undefined) pace = nextPace(pace, now - lastBlockAt);
-    lastBlockAt = now;
+  // The average gap between new blocks in this run, as the planner counts them, sets how long a row takes to fade.
+  let clock: PaceClock = {};
+  let counted: { runs: number; blocks: number } | undefined;
+  const frameMs = (): number => fadeDurationMs(clock.pace) / FADE_FRAMES;
+  const countBlocks = (runs: number, blocks: number): void => {
+    // A user message starts a new run, and a new pace.
+    if (counted && runs !== counted.runs) clock = {};
+    else if (counted && blocks > counted.blocks) blocksArrived(clock, performance.now());
+    counted = { runs, blocks };
   };
   const tick = (): void => {
     decayTimer = undefined;
@@ -852,7 +858,7 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
       decorateViewport(tui, {
         bar: (cell) => styleBarCell(activeTheme, cell),
       });
-      const head = patchTree(tui, theme, liveToolEnds, distances, commit, frameMs(), fading);
+      const head = patchTree(tui, theme, liveToolEnds, distances, commit, countBlocks, frameMs, fading);
       if (head !== fading) {
         clearTimeout(decayTimer);
         decayTimer = undefined;
@@ -897,16 +903,8 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
     }
   });
 
-  pi.on("message_start", (event) => {
-    const role = (event as { message?: { role?: string } }).message?.role;
-    // A user message starts a new run, and a new pace.
-    if (role === "user") {
-      pace = undefined;
-      lastBlockAt = undefined;
-    } else if (role === "assistant") blockStarted();
-    // A user message starts a new run: patch so older thoughts floor.
-    schedule();
-  });
+  // A user message starts a new run: patch so older thoughts floor.
+  pi.on("message_start", schedule);
   pi.on("message_end", (event) => {
     if (event.message.role === "assistant") patch();
     if (event.message.role === "toolResult") {
@@ -914,10 +912,7 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
       schedule();
     }
   });
-  pi.on("tool_execution_start", (event) => {
-    if (!(event as { parentToolCallId?: string }).parentToolCallId) blockStarted();
-    schedule();
-  });
+  pi.on("tool_execution_start", schedule);
   pi.on("tool_execution_end", schedule);
   pi.on("turn_end", () => patch());
   pi.on("agent_settled", () => patch());
@@ -925,8 +920,8 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
     clearTimeout(decayTimer);
     decayTimer = undefined;
     fading = undefined;
-    pace = undefined;
-    lastBlockAt = undefined;
+    clock = {};
+    counted = undefined;
     resetFades();
   });
 }

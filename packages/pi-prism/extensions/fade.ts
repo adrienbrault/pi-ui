@@ -43,6 +43,8 @@ export const MAX_FADE_MS = 480;
 export const PACE_ALPHA = 0.3;
 /** A longer gap is a pause, not a pace: it does not slow the next run's fades. */
 export const IDLE_GAP_MS = 60_000;
+/** A shorter gap is the same arrival (parallel tool calls), not a pace: one frame at the fastest fade. */
+export const MIN_GAP_MS = MIN_FADE_MS / FADE_FRAMES;
 
 /** How long one row takes to fade, given the average gap between new blocks. */
 export function fadeDurationMs(pace?: number): number {
@@ -54,6 +56,22 @@ export function fadeDurationMs(pace?: number): number {
 export function nextPace(pace: number | undefined, gapMs: number): number | undefined {
   if (!Number.isFinite(gapMs) || gapMs < 0 || gapMs > IDLE_GAP_MS) return pace;
   return pace === undefined ? gapMs : pace + PACE_ALPHA * (gapMs - pace);
+}
+
+/** The session's pace: the average gap between new blocks, and when the last one arrived. */
+export interface PaceClock {
+  pace?: number;
+  lastAt?: number;
+}
+
+/** New blocks arrived at `now`. A gap shorter than one frame is the same arrival. */
+export function blocksArrived(clock: PaceClock, now: number): void {
+  if (clock.lastAt !== undefined) {
+    const gap = now - clock.lastAt;
+    if (gap < MIN_GAP_MS) return;
+    clock.pace = nextPace(clock.pace, gap);
+  }
+  clock.lastAt = now;
 }
 
 // Keep each departing row in the layout until its final fade frame.

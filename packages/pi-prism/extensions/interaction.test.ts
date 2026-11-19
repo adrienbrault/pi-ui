@@ -237,9 +237,12 @@ function collapseStart(session: ReturnType<typeof fadeSession>) {
   // The sixth block folds through its heading, then the group collapses.
   session.add("collapse-10");
   session.dispatch("agent_settled");
-  for (let tick = 0; tick < 60 && toolPlan("collapse-5")?.mode === "normal"; tick++) jest.advanceTimersByTime(90);
+  for (let tick = 0; tick < 600 && toolPlan("collapse-5")?.mode === "normal"; tick++) jest.advanceTimersByTime(10);
   return { shells, rows };
 }
+
+/** Blocks ten seconds apart are a slow session: a departing row fades over 480 ms, 120 ms a frame. */
+const SLOW_ROW_MS = 480;
 
 describe("tool renderers", () => {
   test("leaves unowned tools to the next resolver", () => {
@@ -520,23 +523,25 @@ describe("tool renderers", () => {
       const oldest = session.add("animated-0");
       session.dispatch("agent_settled");
       jest.advanceTimersByTime(1);
+      // Blocks ten seconds apart are a slow session: a row fades over 480 ms, 120 ms a frame
+      // (the first step, before any gap is known, over 360 ms).
       for (let i = 1; i <= 5; i++) {
         session.add("animated-" + i);
         session.dispatch("agent_settled");
         const first = oldest.render(80);
-        jest.advanceTimersByTime(90);
+        jest.advanceTimersByTime(120);
         const second = oldest.render(80);
         expect(second.map(stripTerminalSequences)).toEqual(first.map(stripTerminalSequences));
         expect(second.filter((line, index) => line !== first[index])).toHaveLength(1);
         expect(second.join("")).toContain("38;2;140;140;140");
         if (i === 5) {
-          jest.advanceTimersByTime(270);
+          jest.advanceTimersByTime(360);
           // It starts a new, forming group: the body folds and the heading stays as the member row.
           for (let height = first.length - 1; height > 1; height--) {
             expect(oldest.render(80).map(stripTerminalSequences)).toEqual(
               first.slice(0, height).map(stripTerminalSequences),
             );
-            jest.advanceTimersByTime(360);
+            jest.advanceTimersByTime(480);
           }
           const grouped = oldest.render(80).map(stripTerminalSequences);
           expect(grouped[0]).toStartWith("▾ Ran 1 shell command");
@@ -561,7 +566,8 @@ describe("tool renderers", () => {
         session.add("read-" + step);
         session.dispatch("agent_settled");
         const first = oldest.render(80);
-        jest.advanceTimersByTime(90);
+        // One frame: 90 ms before any gap is known, 120 ms once blocks arrive ten seconds apart.
+        jest.advanceTimersByTime(120);
         const fading = oldest.render(80).filter((line, index) => line !== first[index]);
         expect(fading).toHaveLength(1);
         const line = stripTerminalSequences(fading[0]!).trim();
@@ -606,12 +612,12 @@ describe("tool renderers", () => {
     const session = fadeSession("bash");
     try {
       const { rows } = collapseStart(session);
-      jest.advanceTimersByTime(180);
+      jest.advanceTimersByTime(SLOW_ROW_MS / 2);
       session.dispatch("turn_end");
       session.dispatch("agent_settled");
-      jest.advanceTimersByTime(180);
+      jest.advanceTimersByTime(SLOW_ROW_MS / 2);
       expect(rows()).toEqual([2, 1, 1, 1, 0, 0]);
-      jest.advanceTimersByTime(360);
+      jest.advanceTimersByTime(SLOW_ROW_MS);
       expect(rows()).toEqual([2, 1, 1, 0, 0, 0]);
     } finally {
       session.close();
@@ -622,10 +628,12 @@ describe("tool renderers", () => {
     const session = fadeSession("bash");
     try {
       const { rows } = collapseStart(session);
-      jest.advanceTimersByTime(180);
+      jest.advanceTimersByTime(SLOW_ROW_MS / 2);
       session.add("collapse-11");
       session.dispatch("agent_settled");
-      jest.advanceTimersByTime(180);
+      jest.advanceTimersByTime(SLOW_ROW_MS / 2 - 20);
+      expect(rows()).toEqual([2, 1, 1, 1, 1, 0]);
+      jest.advanceTimersByTime(20);
       expect(rows()[0]).toBe(1);
       expect(toolPlan("collapse-0")?.group?.open).toBe(false);
     } finally {
@@ -637,7 +645,7 @@ describe("tool renderers", () => {
     const session = fadeSession("bash");
     try {
       const { rows } = collapseStart(session);
-      jest.advanceTimersByTime(400);
+      jest.advanceTimersByTime(SLOW_ROW_MS + 40);
       expect(rows()).toEqual([2, 1, 1, 1, 0, 0]);
       // What a click that opens a member does to its group.
       keepGroupOpen(toolPlan("collapse-0")!.group!);
@@ -663,18 +671,18 @@ describe("tool renderers", () => {
     try {
       const { shells, rows } = collapseStart(session);
       expect(rows()).toEqual([2, 1, 1, 1, 1, 0]);
-      jest.advanceTimersByTime(90);
+      jest.advanceTimersByTime(SLOW_ROW_MS / 4);
       // The bottom member row fades over a whole fade before it leaves.
       expect(rows()).toEqual([2, 1, 1, 1, 1, 0]);
       expect(stripTerminalSequences(shells[4]!.render(80)[0]!)).toContain("bun test");
       expect(shells[4]!.render(80)[0]).toContain("38;2;140;140;140");
-      jest.advanceTimersByTime(270);
+      jest.advanceTimersByTime((SLOW_ROW_MS * 3) / 4);
       expect(rows()).toEqual([2, 1, 1, 1, 0, 0]);
-      jest.advanceTimersByTime(360);
+      jest.advanceTimersByTime(SLOW_ROW_MS);
       expect(rows()).toEqual([2, 1, 1, 0, 0, 0]);
-      jest.advanceTimersByTime(720);
+      jest.advanceTimersByTime(2 * SLOW_ROW_MS);
       expect(rows()).toEqual([2, 0, 0, 0, 0, 0]);
-      jest.advanceTimersByTime(360);
+      jest.advanceTimersByTime(SLOW_ROW_MS);
       expect(rows()).toEqual([1, 0, 0, 0, 0, 0]);
       expect(toolPlan("collapse-0")?.group).toMatchObject({ forming: false, open: false });
     } finally {
@@ -788,7 +796,7 @@ describe("tool renderers", () => {
       shells.push(session.add("second-5"));
       session.dispatch("agent_settled");
       for (let tick = 0; tick < 40 && toolPlan("second-0")?.mode === "normal"; tick++) jest.advanceTimersByTime(90);
-      jest.advanceTimersByTime(400);
+      jest.advanceTimersByTime(SLOW_ROW_MS + 40);
       const first = () => shells.slice(0, 3).map((shell) => shell.render(80).length);
       expect(first()).toEqual([2, 1, 0]);
       // A user message ends the second group's forming mid-collapse of the first.
@@ -829,23 +837,38 @@ describe("tool renderers", () => {
     }
   });
 
-  test("a fast session fades its rows faster", () => {
+  test("the gap between new blocks sets the fade, a burst counts once, and a user message resets it", () => {
     const session = fadeSession("read");
     try {
-      // Three tool starts 400 ms apart: a row fades over 100 ms, not 360.
-      for (const id of ["pace-0", "pace-1", "pace-2"]) {
-        session.dispatch("tool_execution_start", { toolCallId: id, toolName: "read" }, { mode: "tui" });
-        jest.advanceTimersByTime(400);
+      // New blocks 800 ms apart: a row fades over 200 ms, neither the default 360 nor the 80 ms floor.
+      for (const id of ["quick-0", "quick-1"]) {
+        session.add(id);
+        session.dispatch("agent_settled");
+        jest.advanceTimersByTime(800);
       }
-      session.add("quick-0");
+      session.add("quick-2");
+      jest.advanceTimersByTime(1);
+      session.add("quick-3");
+      session.dispatch("agent_settled");
+      // The oldest block fades its row, then takes the target the burst gave it.
+      jest.advanceTimersByTime(150);
+      expect(toolPlan("quick-0")?.level).toBe(1);
+      jest.advanceTimersByTime(60);
+      expect(toolPlan("quick-0")?.level).toBe(3);
+      jest.advanceTimersByTime(10_000);
+      // A new run starts without a pace: the next fade takes the default 360 ms.
+      session.children.push(user());
+      session.dispatch("message_start", { message: { role: "user" } });
+      jest.advanceTimersByTime(1);
+      session.add("next-0");
       session.dispatch("agent_settled");
       jest.advanceTimersByTime(1);
-      session.add("quick-1");
-      jest.advanceTimersByTime(1);
-      jest.advanceTimersByTime(74);
-      expect(toolPlan("quick-0")?.level).toBe(0);
-      jest.advanceTimersByTime(26);
-      expect(toolPlan("quick-0")?.level).toBe(1);
+      session.add("next-1");
+      session.dispatch("agent_settled");
+      jest.advanceTimersByTime(300);
+      expect(toolPlan("next-0")?.level).toBe(0);
+      jest.advanceTimersByTime(70);
+      expect(toolPlan("next-0")?.level).toBe(1);
     } finally {
       session.close();
     }
