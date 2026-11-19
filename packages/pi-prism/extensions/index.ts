@@ -30,6 +30,7 @@ import {
   toolRowCells,
   toolRowLayout,
   renderToolRow,
+  type FileChanges,
   type ToolRowInput,
   type ToolStatus,
 } from "../render/tool-row.ts";
@@ -51,6 +52,7 @@ import { claimHover, releaseHover } from "./hover.ts";
 import { expandedRegions, hoveredRegions, paintBar, paintMarker, styleBarCell } from "./viewport.ts";
 import { fadeLine, paintLeaving, toolFade } from "./fade.ts";
 import { installThinkingRenderer, scheduleThinkingFold } from "./thinking.ts";
+import { installFileChanges, recordedChanges } from "./changes.ts";
 
 /**
  * Duck-typed on purpose: pi ships several tui copies, so structural types beat
@@ -102,6 +104,8 @@ interface BlockRecord {
   expandRow?: number;
   pinnedVisible: boolean;
   hoverTimer?: ReturnType<typeof setTimeout>;
+  /** Files a shell command changed, recorded on its result. */
+  changes?: FileChanges;
 }
 
 const records = new Map<string | object, BlockRecord>();
@@ -241,6 +245,7 @@ function inputFor(record: BlockRecord): ToolRowInput {
     outputTokens: record.outputTokens,
     ...(typeof record.key === "string" ? ratesFor?.(record.key) : undefined),
     error: record.error,
+    ...(record.changes ? { changes: record.changes } : {}),
     durationMs: clock ? performance.now() - clock.startedAt : record.durationMs,
     frame: frame(),
   };
@@ -316,7 +321,8 @@ function headerComponent(record: BlockRecord, theme: Theme): Component {
       if (record.hover && (record.expansion === 1 || record.commandClipped || record.expandRow !== undefined))
         header = toolHeader(api, { ...input, lit: true }, width);
       // A clipped command with no output has no body rows to carry the bar: its header takes one filled cell.
-      if (record.hover && !record.expansion && record.commandClipped && nonEmptyLineCount(previewText(record)) === 0)
+      const silent = nonEmptyLineCount(previewText(record)) === 0 && !record.changes;
+      if (record.hover && !record.expansion && record.commandClipped && silent)
         return [paintMarker(header.line, api.theme, width)];
       return [header.line];
     }) as Component,
@@ -382,7 +388,7 @@ function bodyComponent(record: BlockRecord, theme: Theme, includeHeader = false)
 
 /** A member opens only when it has a body or a clipped command to show. */
 function canCycle(member: BlockRecord): boolean {
-  return !!member.commandClipped || nonEmptyLineCount(previewText(member)) > 0;
+  return !!member.commandClipped || nonEmptyLineCount(previewText(member)) > 0 || !!member.changes;
 }
 
 function cycleMember(member: BlockRecord): void {
@@ -525,6 +531,7 @@ const resolver: ToolRendererResolver = (toolName, next) => {
         content: result.content,
       });
       const record = syncRecord(ctx, toolName, ctx.args, outputText(toolName, ctx.isError, result), inputTokens);
+      record.changes = recordedChanges(result.details);
       if (record.group || toolName === "write") return emptyComponent();
       return bodyComponent(record, theme);
     },
@@ -543,6 +550,7 @@ export default function prism(pi: ExtensionAPI): void {
   pi.registerToolRenderer(resolver);
   registerMemberCells("tool", toolMemberCells);
   installThinkingRenderer(pi);
+  installFileChanges(pi);
   ratesFor = installThroughput(pi, (id) => records.get(id)?.invalidate());
 
   pi.on("tool_execution_start", (event, ctx) => {

@@ -507,6 +507,22 @@ describe("tool renderers", () => {
     expect(backgrounds(rows[0]!)[1]).toBe("7");
   });
 
+  test("a shell result's recorded file changes show under its output, and survive a reload", () => {
+    const patch = "--- tmp/one.txt\n+++ tmp/one.txt\n@@ -0,0 +1,1 @@\n+Edits: 5\n";
+    const details = { prismChanges: { files: [{ path: "tmp/one.txt", kind: "created", patch }] } };
+    const silent = { content: [{ type: "text", text: "(no output)" }], details };
+    // A reload renders the persisted result: the same details, a fresh renderer.
+    for (const tool of [resolver(), resolver()].map((r) => r("bash", () => undefined) as Renderers)) {
+      const context = { ...ctx, args: { command: "printf 'Edits: 5' > ./tmp/one.txt" }, state: {} };
+      tool.renderCall(context.args, theme, context);
+      const rows = tool
+        .renderResult(silent, {}, theme, context)
+        .render(60)
+        .map((row) => row.trimEnd());
+      expect(rows).toEqual(["    (no output)", "    tmp/one.txt", "    1  +Edits: 5"]);
+    }
+  });
+
   test("hovering a clipped silent command marks its header, the only row it has", () => {
     const tool = resolver()("bash", () => undefined) as Renderers;
     const command = "echo " + "abcdefghij".repeat(12);
