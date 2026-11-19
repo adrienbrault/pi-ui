@@ -10,7 +10,7 @@
 
 import { detailFor, FOLD_DISTANCE, FORMING_ROWS, settleLevel, type DetailLevel } from "../render/detail.ts";
 import { groupSegments, type GroupSegment } from "../render/group-row.ts";
-import { fadeOf } from "./fade.ts";
+import { endFade, fadeOf } from "./fade.ts";
 import type { ToolStatus } from "../render/tool-row.ts";
 import { sumTokens, type TokenCounts, type GroupClass } from "../render/tools.ts";
 
@@ -124,8 +124,12 @@ function markOpen(member: FoldMember, open: boolean): void {
   else OPEN_TOOLS.set(member.key, open);
 }
 
-/** Open or close every member at once: one click on the summary does the lot, and it sticks. */
+/**
+ * Open or close every member at once: one click on the summary does the lot, and it sticks.
+ * The user's choice ends a collapse in progress.
+ */
 export function setGroupOpen(group: LiveFoldGroup, open: boolean): void {
+  endFade(group);
   group.open = open;
   group.choice = open;
   for (const member of group.members) markOpen(member, open);
@@ -247,7 +251,8 @@ export function memberRowFade(
   run = 0,
 ): { gone: boolean; phase: number } | undefined {
   const frame = fadeOf(group);
-  if (!frame?.shown) return undefined;
+  // The user's choice overrides a collapse.
+  if (!frame?.shown || group.choice !== undefined) return undefined;
   let row = 0;
   for (const item of group.members) {
     const mine = item.kind === "tool" ? item.key === member : item.component === member;

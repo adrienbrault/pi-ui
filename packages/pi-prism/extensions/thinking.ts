@@ -828,7 +828,12 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
   const tick = (): void => {
     decayTimer = undefined;
     const frame = fading && fadeOf(fading);
-    if (!fading || !frame) return;
+    if (!fading) return;
+    // The fade ended outside a walk (the user opened or closed a collapsing group): hand on the floor.
+    if (!frame) {
+      patch();
+      return;
+    }
     // Hurried, a collapse ends with the row that was fading.
     if (advanceFade(frame) || (frame.hurry && frame.phase === 0)) {
       patch(fading);

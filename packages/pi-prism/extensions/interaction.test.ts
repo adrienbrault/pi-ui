@@ -7,7 +7,7 @@ import {
   type TextStyle,
   type TuiMouseEvent,
 } from "@earendil-works/pi-tui";
-import { setGroupOpen, toolPlan } from "./fold.ts";
+import { keepGroupOpen, setGroupOpen, toolPlan } from "./fold.ts";
 import { toolFade } from "./fade.ts";
 import prism, { actionFor } from "./index.ts";
 
@@ -628,6 +628,31 @@ describe("tool renderers", () => {
       jest.advanceTimersByTime(180);
       expect(rows()[0]).toBe(1);
       expect(toolPlan("collapse-0")?.group?.open).toBe(false);
+    } finally {
+      session.close();
+    }
+  });
+
+  test("opening a member mid-collapse stops the collapse; closing and reopening the group lists every member", () => {
+    const session = fadeSession("bash");
+    try {
+      const { rows } = collapseStart(session);
+      jest.advanceTimersByTime(400);
+      expect(rows()).toEqual([2, 1, 1, 1, 0, 0]);
+      // What a click that opens a member does to its group.
+      keepGroupOpen(toolPlan("collapse-0")!.group!);
+      expect(rows()).toEqual([2, 1, 1, 1, 1, 1]);
+      jest.advanceTimersByTime(3000);
+      expect(rows()).toEqual([2, 1, 1, 1, 1, 1]);
+      setGroupOpen(toolPlan("collapse-0")!.group!, false);
+      session.dispatch("agent_settled");
+      expect(rows()).toEqual([1, 0, 0, 0, 0, 0]);
+      setGroupOpen(toolPlan("collapse-0")!.group!, true);
+      session.dispatch("agent_settled");
+      expect(rows()).toEqual([2, 1, 1, 1, 1, 1]);
+      // The blocks that waited behind the collapse take their turn.
+      jest.advanceTimersByTime(3000);
+      expect([6, 7, 8, 9].map((index) => toolPlan("collapse-" + index)?.level)).toEqual([4, 3, 2, 1]);
     } finally {
       session.close();
     }
