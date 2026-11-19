@@ -26,6 +26,7 @@ import {
   leavingRow,
   toolHeader,
   toolLabel,
+  toolRowCells,
   toolRowLayout,
   renderToolRow,
   type ToolRowInput,
@@ -499,14 +500,16 @@ const resolver: ToolRendererResolver = (toolName, next) => {
 };
 
 /** A tool member's cells in its group's columns. */
-function toolCells(member: FoldMember): MemberCells[] {
-  const name = records.get(member.key)?.name ?? toolInfo(member.key)?.name;
+function toolMemberCells(member: FoldMember): MemberCells[] {
+  const record = records.get(member.key);
+  if (record) return [toolRowCells(inputFor(record))];
+  const name = toolInfo(member.key)?.name;
   return name === undefined ? [] : [{ label: toolLabel(name) }];
 }
 
 export default function prism(pi: ExtensionAPI): void {
   pi.registerToolRenderer(resolver);
-  registerMemberCells("tool", toolCells);
+  registerMemberCells("tool", toolMemberCells);
   installThinkingRenderer(pi);
   ratesFor = installThroughput(pi, (id) => records.get(id)?.invalidate());
 

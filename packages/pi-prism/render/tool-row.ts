@@ -5,7 +5,7 @@
 
 import { bodyLinesFor, COMPACT_LEVEL, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
 import { frameAt, type GlyphSet } from "./glyphs.ts";
-import { cellPadding, type MemberColumns } from "./columns.ts";
+import { cellPadding, metricColumns, type MemberCells, type MemberColumns } from "./columns.ts";
 import { blockBodyIndent, cutMark, type ComponentLike, type RenderKit, type RenderTheme } from "./kit.ts";
 import {
   cleanOutput,
@@ -16,7 +16,7 @@ import {
   omittedLinesLabel,
   MAX_FORMAT_CHARS,
 } from "./text.ts";
-import { describeCall, toolTokenCounts, toolMeta, toolTokenLabel, type TokenRates } from "./tools.ts";
+import { describeCall, formatRate, toolTokenCounts, toolMeta, toolTokenLabel, type TokenRates } from "./tools.ts";
 
 export interface RenderApi {
   kit: RenderKit;
@@ -171,7 +171,8 @@ function errorDetail(input: ToolRowInput, meta: ReturnType<typeof toolMeta>): st
   return lines.slice(0, -1).join("\n");
 }
 
-function styleMetric(theme: RenderTheme, label: string): string {
+/** Numbers in the text colour, `out` and `in` as keyword and type, units and separators muted. */
+export function styleMetric(theme: RenderTheme, label: string): string {
   return (label.match(/\d+(?:\.\d+)?k?|[a-z]+|[^a-z\d]+/gi) ?? [])
     .map((part) => {
       if (/^\d/.test(part)) return theme.fg("text", part);
@@ -180,6 +181,19 @@ function styleMetric(theme: RenderTheme, label: string): string {
       return theme.fg("muted", part);
     })
     .join("");
+}
+
+/** A tool row's cells in its group's table: its call is model output, its result model input. */
+export function toolRowCells(input: ToolRowInput): MemberCells {
+  const { outputTokens, inputTokens } = toolTokenCounts(input);
+  return {
+    label: toolLabel(input.name),
+    outValue: formatRate(outputTokens),
+    ...(input.outputRate ? { outRate: formatRate(input.outputRate) } : {}),
+    inValue: formatRate(inputTokens),
+    ...(input.inputRate ? { inRate: `${input.inputRateEstimated ? "~" : ""}${formatRate(input.inputRate)}` } : {}),
+    ...(input.durationMs !== undefined ? { duration: formatDuration(input.durationMs) } : {}),
+  };
 }
 
 export function toolHeader(api: RenderApi, input: ToolRowInput, width: number) {
@@ -204,10 +218,15 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, width: number) {
   // MCP labels already read `server/tool`; repeating it as the title is noise.
   if (title && title !== label) pieces.push({ kind: "title", text: theme.fg("accent", title) });
   if (summary) pieces.push({ kind: "summary", text: theme.fg("dim", summary) });
-  pieces.push({ kind: "tokens", text: styleMetric(theme, tokens) });
+  // As a group member, tokens, rates and duration fill the group's columns as one piece.
+  pieces.push({
+    kind: "tokens",
+    text: styleMetric(theme, input.columns ? metricColumns(toolRowCells(input), input.columns) : tokens),
+  });
   const error = errorHeadline(input, meta);
   if (error) pieces.push({ kind: "error", text: theme.fg("error", error) });
-  const duration = input.durationMs === undefined ? undefined : styleMetric(theme, formatDuration(input.durationMs));
+  const duration =
+    input.durationMs === undefined || input.columns ? undefined : styleMetric(theme, formatDuration(input.durationMs));
   if (duration) pieces.push({ kind: "duration", text: duration });
 
   const compose = (parts: HeaderPiece[]) => parts.reduce((acc, part) => `${acc}${sep}${part.text}`, prefix);

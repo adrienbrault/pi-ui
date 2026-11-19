@@ -9,9 +9,9 @@
 
 import { bodyLinesFor, COMPACT_LEVEL, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
 import { frameAt, type GlyphSet } from "./glyphs.ts";
-import { cellPadding, type MemberColumns } from "./columns.ts";
+import { cellPadding, metricColumns, type MemberCells, type MemberColumns } from "./columns.ts";
 import { blockBodyIndent, cutMark, type RenderKit, type RenderTheme } from "./kit.ts";
-import { previewBar, truncateMiddle, type BarCell } from "./tool-row.ts";
+import { previewBar, styleMetric, truncateMiddle, type BarCell } from "./tool-row.ts";
 import { estimatedTokens, formatRate } from "./tools.ts";
 import {
   cleanOutput,
@@ -75,6 +75,38 @@ interface Header {
   heading: (left: string) => string;
 }
 
+type ThoughtMetricsInput = Pick<
+  ThinkingLabelInput,
+  "reasoningTokens" | "estimatedTokens" | "text" | "outputRate" | "phase" | "turnDuration" | "durationMs"
+>;
+
+/** A thought's token count, its rate and its duration as its header shows them. */
+function thoughtNumbers(input: ThoughtMetricsInput): { count: number; rate?: number | null; duration?: string } {
+  const count = input.reasoningTokens ?? input.estimatedTokens ?? estimatedTokens(input.text.length);
+  const rate =
+    input.outputRate === undefined &&
+    input.phase !== "thinking" &&
+    !input.turnDuration &&
+    input.durationMs &&
+    input.durationMs > 0
+      ? (count * 1000) / input.durationMs
+      : input.outputRate;
+  const duration =
+    input.durationMs === undefined ? undefined : formatDuration(input.durationMs) + (input.turnDuration ? " turn" : "");
+  return { count, rate, ...(duration ? { duration } : {}) };
+}
+
+/** A thought's cells in its group's table: its tokens are model output; the input columns stay blank. */
+export function thoughtCells(input: ThoughtMetricsInput): MemberCells {
+  const { count, rate, duration } = thoughtNumbers(input);
+  return {
+    label: THINKING_LABEL,
+    outValue: formatRate(count),
+    ...(rate ? { outRate: formatRate(rate) } : {}),
+    ...(duration ? { duration } : {}),
+  };
+}
+
 function headerFor(api: ThinkingApi, input: ThinkingLabelInput): Header {
   const { kit, theme, glyphs } = api;
   const indent = blockBodyIndent(input.width);
@@ -97,20 +129,14 @@ function headerFor(api: ThinkingApi, input: ThinkingLabelInput): Header {
   const labelPad = input.columns ? cellPadding(THINKING_LABEL, input.columns.label, kit.visibleWidth) : "";
   const marker = `${theme.fg("accent", glyph)} ${theme.style(THINKING_LABEL, { fg: "toolTitle", bold: true })}${labelPad}`;
   const dot = theme.fg("dim", glyphs.dot);
-  const count = input.reasoningTokens ?? input.estimatedTokens ?? estimatedTokens(input.text.length);
+  const { count, rate, duration } = thoughtNumbers(input);
   const tokens = `${count} token${count === 1 ? "" : "s"}`;
-  const duration = input.durationMs === undefined ? undefined : formatDuration(input.durationMs);
-  const timing = duration ? ` ${dot} ${theme.fg("dim", duration + (input.turnDuration ? " turn" : ""))}` : "";
-  const rate =
-    input.outputRate === undefined &&
-    input.phase !== "thinking" &&
-    !input.turnDuration &&
-    input.durationMs &&
-    input.durationMs > 0
-      ? (count * 1000) / input.durationMs
-      : input.outputRate;
+  const timing = duration ? ` ${dot} ${theme.fg("dim", duration)}` : "";
   const speed = rate ? ` ${formatRate(rate)}/s` : "";
-  const metrics = theme.fg("dim", tokens + speed) + timing;
+  // As a group member, the thought's tokens (model output), rate and time fill the group's columns.
+  const metrics = input.columns
+    ? styleMetric(theme, metricColumns(thoughtCells(input), input.columns))
+    : theme.fg("dim", tokens + speed) + timing;
   const heading = (left: string) => {
     const prefix = left + ` ${dot} `;
     const gap = Math.max(0, input.width - kit.visibleWidth(prefix + metrics));

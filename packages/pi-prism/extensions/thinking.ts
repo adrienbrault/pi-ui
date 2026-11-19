@@ -24,6 +24,7 @@ import { estimatedTokens, toolMeta } from "../render/tools.ts";
 import {
   composeThinkingLabel,
   THINKING_LABEL,
+  thoughtCells,
   thinkingFrame,
   thinkingLeavingRow,
   type ThinkingLabelInput,
@@ -819,14 +820,29 @@ function patchTree(
   return floor;
 }
 
-/** A thinking member's cells in its group's columns: one row per run. */
-function thoughtCells(member: FoldMember): MemberCells[] {
-  return Array.from({ length: Math.max(1, member.count) }, () => ({ label: THINKING_LABEL }));
+/** A thinking member's cells in its group's columns: one row per run, read as its label renders it. */
+function thinkingMemberCells(member: FoldMember): MemberCells[] {
+  const component = member.component as AssistantLike;
+  const message = component.lastMessage;
+  const runs = message ? thinkingRuns(message) : [];
+  if (!message || runs.length === 0) return [{ label: THINKING_LABEL }];
+  const streaming = component.isStreaming ?? false;
+  const reasoningTokens = reportedReasoning(message, runs.length, streaming);
+  return runs.map((run) => {
+    const timing = thinkingTime(message, run.first, streaming);
+    return thoughtCells({
+      ...timing,
+      estimatedTokens: estimatedTokens(run.chars),
+      reasoningTokens,
+      phase: timing.running ? "thinking" : "aged",
+      text: run.text,
+    });
+  });
 }
 
 /** Wire the decorator to the live TUI. Safe to call once at extension load. */
 export function installThinkingRenderer(pi: ExtensionAPI): void {
-  registerMemberCells("thinking", thoughtCells);
+  registerMemberCells("thinking", thinkingMemberCells);
   let tui: (TranscriptTui & { requestRender?: () => void }) | undefined;
   installThinkingClock(pi, () => tui?.requestRender?.());
   let theme: RenderTheme | undefined;

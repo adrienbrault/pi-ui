@@ -927,6 +927,11 @@ describe("tool renderers", () => {
       expect(rows[0]).toMatch(/^ {2}✻ think · weigh the options/);
       expect(rows[1]).toMatch(/^ {2}● bash {2}· bun test/);
       expect(new Set(rows.map((row) => row.indexOf(" · ")))).toEqual(new Set([rows[0]!.indexOf(" · ")]));
+      // The numbers line up too; the thought's tokens are model output, its input column stays blank.
+      expect(new Set(rows.map((row) => row.indexOf("out ")))).toEqual(new Set([rows[0]!.indexOf("out ")]));
+      expect(rows[1]!.indexOf("· in ")).toBe(rows[2]!.indexOf("· in "));
+      expect(rows[0]).not.toContain(" in ");
+      expect(new Set(rows.map((row) => row.length))).toEqual(new Set([80]));
     } finally {
       session.close();
     }

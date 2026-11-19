@@ -17,6 +17,7 @@ import { glyphsFor } from "./glyphs.ts";
 import { blockDistances, type PlanBlock } from "./layout.ts";
 import { advanceTailWindow, isDropping, planTailWindow } from "./window.ts";
 import { cutMark, type RenderKit, type RenderTheme } from "./kit.ts";
+import { memberColumns, metricColumns } from "./columns.ts";
 
 function wrapPlain(text: string, width: number): string[] {
   const rows: string[] = [];
@@ -952,5 +953,30 @@ describe("cut mark", () => {
     expect(label).toMatch(
       /<thinkingText>opening [a-z ]+<\/thinkingText><b:text> … <\/b><thinkingText>[a-z ]+end<\/thinkingText>/,
     );
+  });
+});
+
+describe("member columns", () => {
+  test("each cell is right-aligned to its column, and a blank cell keeps its width", () => {
+    const cells = [
+      { label: "think", outValue: "15", outRate: "3.6", duration: "4.2s" },
+      { label: "bash", outValue: "9", inValue: "1.2k", inRate: "~840", duration: "900ms" },
+    ];
+    const columns = memberColumns(cells, (text) => text.length);
+    expect(columns).toEqual({ label: 5, outValue: 2, outRate: 3, inValue: 4, inRate: 4, duration: 5 });
+    expect(cells.map((cell) => metricColumns(cell, columns))).toEqual([
+      "out 15 @ 3.6/s                    ·  4.2s",
+      "out  9         · in 1.2k @ ~840/s · 900ms",
+    ]);
+  });
+
+  test("a group with no input leaves out the input columns", () => {
+    const cells = [{ label: "think", outValue: "15", duration: "4.2s" }];
+    expect(
+      metricColumns(
+        cells[0]!,
+        memberColumns(cells, (text) => text.length),
+      ),
+    ).toBe("out 15 · 4.2s");
   });
 });

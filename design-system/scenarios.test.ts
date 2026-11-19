@@ -38,6 +38,12 @@ test("an opened mixed group lists every member under its summary, thoughts in pl
   // A table: think, read, grep, bash and edit fill one label column, so every description starts together.
   expect(new Set(members.map((row) => row.indexOf(" · ")))).toEqual(new Set([members[0]!.indexOf(" · ")]));
   expect(members[1]).toMatch(/^ {2}. read  · /);
+  // Its numbers are columns too: out, in and duration each line up, and thoughts leave the in column blank.
+  const column = (text: string) => new Set(members.filter((row) => row.includes(text)).map((row) => row.indexOf(text)));
+  expect(column("out ").size).toBe(1);
+  expect(column("· in ").size).toBe(1);
+  expect(new Set(members.map((row) => row.length)).size).toBe(1);
+  expect(members.filter((row) => row.includes("think ·")).every((row) => !row.includes(" in "))).toBe(true);
   // The member list ends at the next block's blank separator.
   expect(rows[summary + 7]).toBe("");
 });

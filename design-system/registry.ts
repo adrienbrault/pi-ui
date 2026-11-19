@@ -19,9 +19,9 @@ import {
   thinkingPlan,
   toolPlan,
 } from "../packages/pi-prism/extensions/fold.ts";
-import { THINKING_LABEL, thinkingLabel } from "../packages/pi-prism/render/thinking.ts";
+import { thinkingLabel, thoughtCells } from "../packages/pi-prism/render/thinking.ts";
 import { memberColumns, type MemberCells, type MemberColumns } from "../packages/pi-prism/render/columns.ts";
-import { renderToolRow, toolHeader, toolLabel, type ToolRowInput } from "../packages/pi-prism/render/tool-row.ts";
+import { renderToolRow, toolHeader, toolRowCells, type ToolRowInput } from "../packages/pi-prism/render/tool-row.ts";
 import {
   callTokens,
   estimatedTokens,
@@ -787,9 +787,9 @@ function plannedStack(
   // An open group lines its members up in columns, from every member's cells.
   const cellsOf = (block: ScenarioBlock): MemberCells[] =>
     block.kind === "tool"
-      ? [{ label: toolLabel(block.row.name) }]
+      ? [toolRowCells(block.row)]
       : block.kind === "thinking"
-        ? [{ label: THINKING_LABEL }]
+        ? [thoughtCells({ phase: "aged", text: block.text, durationMs: block.durationMs })]
         : [];
   const member = (block: ScenarioBlock, width: number, columns: MemberColumns): string[] =>
     renderGroupMember(
