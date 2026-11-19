@@ -41,7 +41,8 @@ L0 live       8 body rows plus the header, streaming
 L1            7 rows
 L2–L3         one fewer row at each step
 L4            4 rows (3 content lines plus the omission notice when truncated)
-distance ≥ 5 folded into a group summary
+distance ≥ 5 folded into a group: one row per member while the newest
+              group of the run has at most 5 rows, then one summary row
 ```
 
 The tail budget (8 above) is configurable. `setTailLines()` moves the whole
@@ -50,6 +51,7 @@ ladder.
 Rules:
 
 - Completed previews age as newer blocks arrive, including on screen. Visible previews step down one at a time. Each departing line fades in place. A departing row fades over a quarter of the recent gap between new blocks in the run, between 80 and 480 ms, and over 360 ms until that pace is known, so a fast model's transcript settles quickly and a slow one's steps are easy to follow. A block folds from bottom to top, one row at a time, ending with its heading.
+- The newest group of the current run forms: under its summary it lists one row per member (a tool is one row, a thought one per run) while it has at most five rows, and collapses to the summary at the sixth. A group stops forming when a newer group starts or a user message follows it, so at most one forming group is on screen. Forming follows the member count directly, without hysteresis.
 - With the default budget, a long preview keeps at least three content lines until it joins its group. Short outputs use only the lines they have. Tool calls and thoughts fold together.
 - The group timer spans the earliest member start through the latest finish, including model responses and overlapping tools. Sessions with incomplete timing omit the group timer.
 - Failed calls fold with their peers. Each affected summary segment includes its failure count, and opening the group reveals the failed calls in order.

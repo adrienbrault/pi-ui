@@ -16,7 +16,7 @@ Status: agreed direction. Working package name `pi-prism` (rename later; nothing
 Make a long agentic session readable at a glance without losing the live detail:
 
 - The newest block streams with a bounded tail (max 8 lines).
-- Completed previews age as newer blocks arrive, including on screen. Visible previews step down one at a time before joining a group.
+- Completed previews age as newer blocks arrive, including on screen. Visible previews step down one at a time before joining a group. A new group lists its members, one row each, until it holds six rows, so the reader sees what opening a group looks like and the transcript shrinks gradually.
 - Older runs stop being a pile of one-liners and become one grouped summary that reads as a sentence: `Thought for 3m 40s, listed 3 directories, ran 30 shell commands for 2m 05s (4 failed)`.
 - Clicking a collapsed group member opens it until clicked again. A standalone tool pin lasts until clicked again.
 - The same rules apply to thinking, tool calls (builtin + MCP + codemode), reads, writes, edits, and shell output.

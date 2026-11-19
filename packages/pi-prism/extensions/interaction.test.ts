@@ -665,9 +665,9 @@ describe("tool renderers", () => {
     };
     const headers = Array.from({ length: 7 }, (_, index) => add(index));
     await Bun.sleep(10);
-    const anchor = headers[0]!;
+    // A small group of the current run already lists its members.
+    expect(toolPlan("growing-0")?.group?.forming).toBe(true);
     const member = headers[1]!;
-    anchor().handleMouse?.(click());
     member().handleMouse?.(click());
     expect(member().render(80)).toHaveLength(41);
     add(7);

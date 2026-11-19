@@ -72,6 +72,13 @@ export const MAX_FULL_LINES = 400;
 /** The last standalone preview reserves three content rows plus its omission notice. */
 export let FOLD_DISTANCE = DEFAULT_TAIL_LINES - 3;
 
+/**
+ * The newest group of a run shows one row per member while it has at most this
+ * many rows, then collapses to its summary. A tool is one row; a thought is
+ * one row per run.
+ */
+export const FORMING_ROWS = 5;
+
 export function detailFor(distance: number): DetailLevel {
   if (!Number.isFinite(distance) || distance <= 0) return 0;
   return Math.min(Math.floor(distance), tailLines - 1) as DetailLevel;

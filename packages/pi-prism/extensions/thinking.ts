@@ -682,6 +682,7 @@ function patchTree(
     if (!unit) return;
     units.push(unit);
     unit.distance = placed.distance;
+    unit.currentRun = placed.currentRun;
     // A keyless tool is weighed but owns no row: the run starts at the next unit.
     if (startsRun) unit.startsRun = true;
     startsRun = false;

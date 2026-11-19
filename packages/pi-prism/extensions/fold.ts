@@ -8,7 +8,7 @@
  * this module, and both renderers read the result.
  */
 
-import { detailFor, FOLD_DISTANCE, settleLevel, type DetailLevel } from "../render/detail.ts";
+import { detailFor, FOLD_DISTANCE, FORMING_ROWS, settleLevel, type DetailLevel } from "../render/detail.ts";
 import { groupSegments, type GroupSegment } from "../render/group-row.ts";
 import type { ToolStatus } from "../render/tool-row.ts";
 import { sumTokens, type TokenCounts, type GroupClass } from "../render/tools.ts";
@@ -46,7 +46,12 @@ export interface LiveFoldGroup {
   segments: GroupSegment[];
   tokens?: TokenCounts;
   durationMs?: number;
+  /** Shown open: the user's choice, else whether the group is forming. */
   open: boolean;
+  /** The user's choice; undefined while the group follows its size. */
+  choice?: boolean;
+  /** The newest group of the current run, small enough to list its members. */
+  forming: boolean;
   invalidate: () => void;
 }
 
@@ -64,13 +69,16 @@ export interface FoldUnit extends FoldMember {
   /** Keeps its own row instead of joining the summary. */
   boundary?: boolean;
   startsRun?: boolean;
+  /** No user message follows this block; only the current run's newest group forms. */
+  currentRun?: boolean;
 }
 
 const TOOL_INFO = new Map<string, ToolInfo>();
 let toolPlans = new Map<string, FoldPlan>();
 const THINKING_PLANS = new WeakMap<object, FoldPlan>();
-const OPEN_THINKING = new WeakSet<object>();
-const OPEN_TOOLS = new Set<string>();
+/** The user's choice per member: open, closed, or absent while the group follows its size. */
+const OPEN_THINKING = new WeakMap<object, boolean>();
+const OPEN_TOOLS = new Map<string, boolean>();
 
 export function resetFolds(): void {
   TOOL_INFO.clear();
@@ -106,25 +114,26 @@ export function thinkingPlan(component: object): FoldPlan | undefined {
   return THINKING_PLANS.get(component);
 }
 
-function isOpen(member: FoldMember): boolean {
-  return member.kind === "thinking" ? OPEN_THINKING.has(member.component) : OPEN_TOOLS.has(member.key);
+function choiceOf(member: FoldMember): boolean | undefined {
+  return member.kind === "thinking" ? OPEN_THINKING.get(member.component) : OPEN_TOOLS.get(member.key);
 }
 
 function markOpen(member: FoldMember, open: boolean): void {
-  if (member.kind === "thinking") {
-    if (open) OPEN_THINKING.add(member.component);
-    else OPEN_THINKING.delete(member.component);
-    return;
-  }
-  if (open) OPEN_TOOLS.add(member.key);
-  else OPEN_TOOLS.delete(member.key);
+  if (member.kind === "thinking") OPEN_THINKING.set(member.component, open);
+  else OPEN_TOOLS.set(member.key, open);
 }
 
-/** Open or close every member at once: one click on the summary does the lot. */
+/** Open or close every member at once: one click on the summary does the lot, and it sticks. */
 export function setGroupOpen(group: LiveFoldGroup, open: boolean): void {
   group.open = open;
+  group.choice = open;
   for (const member of group.members) markOpen(member, open);
   group.invalidate();
+}
+
+/** Rows a group lists when open: a tool is one, a thought one per run. */
+function memberRows(units: FoldMember[]): number {
+  return units.reduce((sum, unit) => sum + (unit.kind === "thinking" ? Math.max(1, unit.count) : 1), 0);
 }
 
 function sameGroup(previous: LiveFoldGroup | undefined, units: FoldUnit[]): boolean {
@@ -166,10 +175,24 @@ function elapsedMs(members: FoldMember[]): number | undefined {
   return end - start;
 }
 
-function buildGroup(units: FoldUnit[], previous: LiveFoldGroup | undefined): LiveFoldGroup {
+/**
+ * Merged members agree on one choice: any open member opens the group, else any
+ * closed one closes it, else the group follows its size.
+ */
+function groupChoice(members: FoldMember[]): boolean | undefined {
+  const choices = new Set(members.map(choiceOf));
+  const choice = choices.has(true) ? true : choices.has(false) ? false : undefined;
+  if (choice !== undefined) for (const member of members) markOpen(member, choice);
+  return choice;
+}
+
+function buildGroup(units: FoldUnit[], previous: LiveFoldGroup | undefined, forming: boolean): LiveFoldGroup {
   if (sameGroup(previous, units)) {
-    previous!.open = isOpen(previous!.anchor);
-    return previous!;
+    const group = previous!;
+    group.choice = groupChoice(group.members);
+    group.forming = forming;
+    group.open = group.choice ?? forming;
+    return group;
   }
   const members = units.map((unit) => ({ ...unit }));
   const rows = members.map((member) => ({
@@ -180,10 +203,7 @@ function buildGroup(units: FoldUnit[], previous: LiveFoldGroup | undefined): Liv
   }));
   const durationMs = elapsedMs(members);
   // A finishing tool can merge two groups or replace the summary anchor.
-  const open = members.some(isOpen);
-  if (open) {
-    for (const member of members) markOpen(member, true);
-  }
+  const choice = groupChoice(members);
   const anchor = members[0]!;
   return {
     anchor,
@@ -191,7 +211,9 @@ function buildGroup(units: FoldUnit[], previous: LiveFoldGroup | undefined): Liv
     segments: groupSegments(rows),
     tokens: members.every((member) => member.tokens) ? sumTokens(members.map((member) => member.tokens!)) : undefined,
     ...(durationMs !== undefined ? { durationMs } : {}),
-    open,
+    open: choice ?? forming,
+    ...(choice !== undefined ? { choice } : {}),
+    forming,
     invalidate: () => {
       for (const member of members) member.invalidate();
     },
@@ -205,12 +227,13 @@ function previousPlan(unit: FoldUnit): FoldPlan | undefined {
 /**
  * Turn units into plans. A contiguous run of units past the fold distance is a
  * group; a boundary or a recent unit ends it and keeps its own row. The first
- * member owns the summary, the rest render nothing until the group opens.
+ * member owns the summary, the rest render nothing until the group opens. The
+ * newest group of the current run forms: it lists its members while it holds at
+ * most FORMING_ROWS rows.
  */
 export function planFolds(units: FoldUnit[], animated?: object): Set<object> {
   const nextTools = new Map<string, FoldPlan>();
   const changed = new Set<object>();
-  let run: FoldUnit[] = [];
   const assign = (unit: FoldUnit, mode: FoldMode, group?: LiveFoldGroup): void => {
     const previous = previousPlan(unit);
     const target = detailFor(unit.distance);
@@ -224,15 +247,12 @@ export function planFolds(units: FoldUnit[], animated?: object): Set<object> {
     }
   };
 
+  const blocks: Array<FoldUnit | FoldUnit[]> = [];
+  let run: FoldUnit[] = [];
   const flush = (): void => {
-    if (run.length === 0) return;
-    const group = buildGroup(run, previousPlan(run[0]!)?.group);
-    run.forEach((unit, index) => {
-      assign(unit, index === 0 ? "anchor" : "hidden", group);
-    });
+    if (run.length) blocks.push(run);
     run = [];
   };
-
   for (const unit of units) {
     if (unit.startsRun) flush();
     if (!unit.boundary && unit.distance >= FOLD_DISTANCE) {
@@ -240,9 +260,26 @@ export function planFolds(units: FoldUnit[], animated?: object): Set<object> {
       continue;
     }
     flush();
-    assign(unit, "normal");
+    blocks.push(unit);
   }
   flush();
+
+  const newest = blocks.findLast((block) => Array.isArray(block));
+  for (const block of blocks) {
+    if (!Array.isArray(block)) {
+      assign(block, "normal");
+      continue;
+    }
+    const forming = block === newest && block.at(-1)!.currentRun !== false && memberRows(block) <= FORMING_ROWS;
+    const previous = previousPlan(block[0]!)?.group;
+    const wasOpen = previous?.open;
+    const group = buildGroup(block, previous, forming);
+    // A reused group that opens or closes must render its members again.
+    if (group === previous && wasOpen !== group.open) for (const unit of block) changed.add(unit.component);
+    block.forEach((unit, index) => {
+      assign(unit, index === 0 ? "anchor" : "hidden", group);
+    });
+  }
   toolPlans = nextTools;
   return changed;
 }

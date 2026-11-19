@@ -725,7 +725,7 @@ function plannedStack(
   const units = new Map<ScenarioBlock, FoldUnit>();
   blocks.forEach((block, index) => {
     if (block.kind !== "tool" && block.kind !== "thinking") return;
-    const { distance, startsRun } = distances[index]!;
+    const { distance, startsRun, currentRun } = distances[index]!;
     const durationMs = block.kind === "tool" ? block.row.durationMs : block.durationMs;
     const timing =
       block.startedAt !== undefined && durationMs !== undefined
@@ -746,6 +746,7 @@ function plannedStack(
       ...timing,
       distance: Math.min(FOLD_DISTANCE, offset + distance),
       startsRun,
+      currentRun,
       invalidate: () => {},
     });
   });
@@ -927,6 +928,12 @@ const scenarioEntries: EntryDef[] = [
         id: "opened",
         label: "opened",
         render: (ctx) => stack(ctx.width, plannedStack(ctx, foldRun, { open: true }), 1),
+      },
+      {
+        id: "forming",
+        label: "forming",
+        note: "Five blocks later: the new run's first group lists its members until it holds six rows.",
+        render: (ctx) => stack(ctx.width, plannedStack(ctx, foldRun, { offset: FOLD_DISTANCE }), 1),
       },
     ],
   },
