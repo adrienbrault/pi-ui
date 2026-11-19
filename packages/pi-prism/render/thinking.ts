@@ -10,6 +10,7 @@
 import { bodyLinesFor, COMPACT_LEVEL, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
 import { frameAt, type GlyphSet } from "./glyphs.ts";
 import { blockBodyIndent, type RenderKit, type RenderTheme } from "./kit.ts";
+import { previewBar, type BarCell } from "./tool-row.ts";
 import { estimatedTokens, formatRate } from "./tools.ts";
 import {
   cleanOutput,
@@ -189,6 +190,18 @@ export function thinkingFrame(
   };
 }
 
+export interface ThinkingLayout {
+  label: string;
+  canToggle: boolean;
+  /**
+   * For a collapsed preview with a body: where its rows sit in the whole
+   * thought, one cell per body row (every label row after the heading,
+   * including the omission notice). Each cell stands for an equal share of the
+   * source lines and is filled where the preview shows some of them.
+   */
+  bar?: BarCell[];
+}
+
 /**
  * Compose the header, selected body rows and omission notice within the current budget.
  */
@@ -196,7 +209,7 @@ export function composeThinkingLabel(
   api: ThinkingApi,
   input: ThinkingLabelInput,
   frame: ThinkingFrame,
-): { label: string; canToggle: boolean } {
+): ThinkingLayout {
   const { kit, theme } = api;
   const notice = (hidden: number) => theme.fg("dim", `${frame.indent}${omittedLinesLabel(hidden)}`);
 
@@ -249,6 +262,7 @@ export function composeThinkingLabel(
   return {
     label: [frame.head, ...rows].map((row) => clampLine(kit, row, input.width)).join("\n"),
     canToggle: frame.canToggle,
+    bar: previewBar(frame.sourceCount, visibleSources, rows.length),
   };
 }
 
@@ -257,7 +271,7 @@ export function thinkingLabel(api: ThinkingApi, input: ThinkingLabelInput): stri
 }
 
 /** Report whether toggling reveals text at this width, including clipped inline previews. */
-export function thinkingLayout(api: ThinkingApi, input: ThinkingLabelInput): { label: string; canToggle: boolean } {
+export function thinkingLayout(api: ThinkingApi, input: ThinkingLabelInput): ThinkingLayout {
   return composeThinkingLabel(api, input, thinkingFrame(api, input));
 }
 

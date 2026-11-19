@@ -187,9 +187,9 @@ function barOf(line: string): string | undefined {
   return backgrounds(line)[1];
 }
 
-/** Whether the row holding `needle` paints the scroll bar in column 1 and leaves column 0 alone. */
+/** Whether the row holding `needle` (matched on its plain text) paints the scroll bar in column 1 and leaves column 0 alone. */
 function barred(needle: string): boolean {
-  const line = tmux("capture-pane", "-e", "-p", "-t", SESSION).split("\n").find((row) => row.includes(needle)) ?? "";
+  const line = tmux("capture-pane", "-e", "-p", "-t", SESSION).split("\n").find((row) => Bun.stripANSI(row).includes(needle)) ?? "";
   return barOf(line) !== undefined && backgrounds(line)[0] === undefined;
 }
 
@@ -526,11 +526,12 @@ async function combinedFoldScenario(sessionPath: string): Promise<void> {
   pane = capture();
   summaryRow = rowOf(pane, "Thought 3 times");
   assert(lineWith(pane, "Thought 3 times").includes("▸"), `hover must not open the group\n${pane}`);
+  assert(barred("Thought 3 times") && !pane.includes("[ click"), `summary hover should mark column 1 and show no chip\n${pane}`);
   assert((pane.split("\n")[summaryRow] ?? "").trim() === "", `hover must not consume the gap below the summary\n${pane}`);
 
   mouse(35, 5, summaryRow + 1);
   await Bun.sleep(150);
-  assert(!capture().includes("[ click"), "entering the blank row must clear the chip immediately");
+  assert(!barred("Thought 3 times"), "entering the blank row must clear the summary bar immediately");
   mouse(0, 5, summaryRow + 1);
   mouse(0, 5, summaryRow + 1, true);
   await Bun.sleep(150);
@@ -557,11 +558,12 @@ async function combinedFoldScenario(sessionPath: string): Promise<void> {
   mouse(35, 5, rowOf(pane, "thought combo-0"));
   await Bun.sleep(200);
   pane = capture();
-  assert(!lineWith(pane, "thought combo-0").includes("[ click"), `fully visible anchor thought should clear the summary hover\n${pane}`);
+  assert(!barred("thought combo-0") && !barred("Thought 3 times"), `fully visible anchor thought should clear the summary hover and stay unmarked\n${pane}`);
   const excerpt = rowOf(pane, "thought combo-1");
   mouse(35, 5, excerpt);
   await Bun.sleep(200);
-  assert(lineWith(capture(), "thought combo-1").includes("[ click · expand ]"), "an expandable inline excerpt should show its action");
+  pane = capture();
+  assert(barred("thought combo-1") && !pane.includes("[ click"), `an expandable inline excerpt should mark column 1 and show no chip\n${pane}`);
   mouse(0, 5, excerpt);
   mouse(0, 5, excerpt, true);
   pane = await waitFor("ordered detail 0");
@@ -581,7 +583,7 @@ async function formingScenario(sessionPath: string, members: string[], survivor:
   const summary = rowOf(pane, "ran 2 shell commands");
   const summaryLine = lineWith(pane, "ran 2 shell commands");
   const column = summaryLine.search(/\S/);
-  assert(summaryLine.includes("▾") && !summaryLine.includes("[ click"), `a forming group is open without a pinned chip\n${pane}`);
+  assert(summaryLine.includes("▾") && !summaryLine.includes("[ click") && !barred("ran 2 shell commands"), `a forming group is open without a chip or a bar\n${pane}`);
   for (const [index, member] of members.entries()) {
     const line = pane.split("\n")[summary + index] ?? "";
     assert(line.includes(member) && line.search(/\S/) === column + 2, `expected consecutive member row ${member}\n${pane}`);
@@ -606,7 +608,7 @@ async function foldScenario(sessionPath: string): Promise<void> {
   mouse(35, 5, rowOf(pane, "Ran 7 shell commands"));
   await Bun.sleep(400);
   pane = capture();
-  assert(lineWith(pane, "Ran 7 shell commands").includes("[ click · expand ]"), `summary hover should show its action\n${pane}`);
+  assert(barred("Ran 7 shell commands") && !pane.includes("[ click"), `summary hover should mark column 1 and show no chip\n${pane}`);
 
   pane = capture();
   const summaryRow = rowOf(pane, "Ran 7 shell commands");
@@ -614,14 +616,15 @@ async function foldScenario(sessionPath: string): Promise<void> {
   mouse(0, 5, summaryRow, true);
   await Bun.sleep(400);
   pane = capture();
-  assert(lineWith(pane, "Ran 7 shell commands").includes("[ click · collapse ]"), "open group should show its collapse action");
+  assert(!pane.includes("[ click"), `an open group shows no collapse chip\n${pane}`);
   for (const header of folded) assert(count(pane, header) === 1, `opened group should reveal ${header}\n${pane}`);
 
   pane = capture();
   mouse(35, 5, rowOf(pane, folded[0] ?? ""));
   await Bun.sleep(400);
   pane = capture();
-  assert(lineWith(pane, folded[0] ?? "").includes("[ click · expand ]"), `member hover should show its action\n${pane}`);
+  assert(barred(folded[0] ?? "") && !pane.includes("[ click"), `member hover should mark its row\n${pane}`);
+  assert(!barred("Ran 7 shell commands"), `member hover should clear the summary bar\n${pane}`);
 
   pane = capture();
   const memberRow = rowOf(pane, folded[0] ?? "");
@@ -633,7 +636,9 @@ async function foldScenario(sessionPath: string): Promise<void> {
 
   mouse(35, 5, rowOf(pane, folded[1] ?? ""));
   await Bun.sleep(150);
-  assert(lineWith(capture(), "output 0 line B").includes("[ click · collapse ]"), "open member should keep its collapse action after the pointer leaves");
+  pane = capture();
+  assert(!pane.includes("[ click"), `an open member shows no collapse chip\n${pane}`);
+  assert(barred(folded[1] ?? "") && barred("output 0 line B"), `the hovered member is marked and the open member keeps its open-block bar\n${pane}`);
   const secondRow = rowOf(pane, folded[1] ?? "");
   mouse(0, 5, secondRow);
   mouse(0, 5, secondRow, true);
@@ -659,22 +664,25 @@ async function thinkingScenario(sessionPath: string): Promise<void> {
   mouse(35, 5, hoverRow);
   await Bun.sleep(400);
   pane = capture();
-  assert(/\+ \d+ lines? \[ click · expand \]/.test(pane), `thinking hover should show the expand chip\n${pane}`);
+  const notice = (pane.split("\n")[hoverRow - 1] ?? "").trim();
+  assert(barred(notice) && barred("thought line 10") && !pane.includes("[ click"), `thinking hover should paint its preview bar and no chip\n${pane}`);
 
   const spacerRow = rowOf(pane, "✻ think") - 1;
   assert(pane.split("\n")[spacerRow - 1]?.trim() === "", "expected a blank before the thinking block");
   mouse(35, 5, spacerRow);
   await Bun.sleep(150);
-  assert(!capture().includes("[ click"), "the thinking spacer must clear the previous hover");
+  assert(!barred(notice) && !barred("thought line 10"), "the thinking spacer must clear the previous hover");
   mouse(0, 5, spacerRow);
   mouse(0, 5, spacerRow, true);
   await Bun.sleep(150);
   assert(!capture().includes("SECRET_MIDDLE_CLAUSE"), "a spacer click must leave the thought collapsed");
 
   pane = capture();
-  const headerRow = rowOf(pane, "✻ think");
-  mouse(0, 5, headerRow);
-  mouse(0, 5, headerRow, true);
+  // Any row opens it: a body row, neither the heading nor the notice.
+  const bodyRow = rowOf(pane, "thought line ");
+  assert(bodyRow > rowOf(pane, "✻ think") && bodyRow < hoverRow, `expected a body row between the heading and the notice\n${pane}`);
+  mouse(0, 5, bodyRow);
+  mouse(0, 5, bodyRow, true);
   await Bun.sleep(400);
   pane = capture();
   for (let i = 0; i < 60 && !pane.includes("scattering detail 65"); i++) {
@@ -684,7 +692,7 @@ async function thinkingScenario(sessionPath: string): Promise<void> {
   }
   assert(pane.includes("scattering detail 65"), `expected to scroll through expanded thinking\n${pane}`);
   assert(!pane.includes("thought line 10"), "the natural collapse footer must be off screen");
-  // No pinned chip: a click on any visible row of the open thought closes it.
+  // A click on any visible row of the open thought closes it.
   const collapseRow = rowOf(pane, "scattering detail 65");
   mouse(0, 5, collapseRow);
   mouse(0, 5, collapseRow, true);
@@ -758,16 +766,16 @@ ${visible}`);
     }
     assert(pane.includes("long output line 80.") && !pane.includes("long output line 159."), "expected middle of expanded bash output");
     // Mid-block, column 1 of the open rows is the scroll bar: track, with one thumb cell marking the position.
-    const open = tmux("capture-pane", "-e", "-p", "-t", SESSION)
-      .split("\n")
-      .filter((line) => line.includes("long output line"));
+    const styled = tmux("capture-pane", "-e", "-p", "-t", SESSION).split("\n");
+    const open = styled.filter((line) => line.includes("long output line"));
     const cells = open.map(barOf);
-    assert(cells.every((cell) => cell !== undefined) && open.every((line) => backgrounds(line)[0] === undefined), `every open row should paint column 1 and only column 1\n${cells.join("\n")}`);
+    const dump = styled.map((line, row) => `${row + 1} ${barOf(line) ?? "-"} ${Bun.stripANSI(line).slice(0, 40)}`).join("\n");
+    assert(cells.every((cell) => cell !== undefined) && open.every((line) => backgrounds(line)[0] === undefined), `every open row should paint column 1 and only column 1\n${dump}`);
     const kinds = [...new Set(cells)];
     const thumbs = kinds.filter((kind) => cells.filter((cell) => cell === kind).length === 1);
-    assert(kinds.length === 2 && thumbs.length === 1, `mid-block the bar should show track and exactly one thumb cell\n${cells.join("\n")}`);
+    assert(kinds.length === 2 && thumbs.length === 1, `mid-block the bar should show track and exactly one thumb cell\n${dump}`);
     const thumbRow = cells.indexOf(thumbs[0]);
-    assert(thumbRow > 0 && thumbRow < cells.length - 1, `mid-block the thumb should sit inside the visible slice, not at an end\n${cells.join("\n")}`);
+    assert(thumbRow > 0 && thumbRow < cells.length - 1, `mid-block the thumb should sit inside the visible slice, not at an end\n${dump}`);
     const inside = rowOf(pane, "long output line 80.");
     mouse(0, 5, inside);
     mouse(0, 5, inside, true);

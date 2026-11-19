@@ -71,7 +71,7 @@ export function renderGroupRow(api: RenderApi, input: GroupRowInput): ComponentL
   });
 }
 
-/** Lay out a revealed member inside the summary, including its body and hover chip. */
+/** Lay out a revealed member inside the summary, including its body. */
 export function renderGroupMember(kit: RenderKit, width: number, render: (innerWidth: number) => string[]): string[] {
   const indent = " ".repeat(Math.max(0, Math.min(2, width - 1)));
   const innerWidth = Math.max(1, width - indent.length);

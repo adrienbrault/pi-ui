@@ -14,7 +14,6 @@
  */
 
 import type { Component } from "@earendil-works/pi-tui";
-import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { COMPACT_LEVEL, FOLD_DISTANCE, type DetailLevel } from "../render/detail.ts";
 import { glyphsFor } from "../render/glyphs.ts";
@@ -49,11 +48,14 @@ import {
   expandedRegions,
   insideExpanded,
   offscreenHistory,
+  paintBar,
+  paintBarCell,
   styleBarCell,
+  type BarCell,
   type TranscriptTui,
 } from "./viewport.ts";
 import { installThinkingClock, thinkingTime, type TimedMessage } from "./thinking-time.ts";
-import { highlightGroupRow, claimHover, clearHover, onSpacerMouse, releaseHover } from "./hover.ts";
+import { claimHover, clearHover, onSpacerMouse, releaseHover } from "./hover.ts";
 import {
   advanceFade,
   endFade,
@@ -111,9 +113,7 @@ interface MouseEventLike {
 interface HoverState {
   target?: "summary" | "thought";
   canToggle: boolean;
-  expandRow?: number;
   expanded?: boolean;
-  row?: number;
   timer?: ReturnType<typeof setTimeout>;
 }
 
@@ -207,33 +207,6 @@ function isHiddenThinking(component: unknown): component is HiddenThinkingRegion
   );
 }
 
-/** Inline terminal chip, never wider than the row. */
-function chipLine(theme: RenderTheme, line: string, hint: string, width: number): string {
-  const accent = theme.colors?.accent;
-  const fg = theme.colors?.toolPendingBg;
-  if (!accent || !fg) return line;
-  const chip = theme.style(`[ ${hint} ]`, { bg: accent, fg, bold: true });
-  const chipWidth = visibleWidth(chip);
-  if (chipWidth >= width) return truncateToWidth(chip, width, "…");
-  const left = truncateToWidth(line, Math.max(0, width - chipWidth - 1), "…");
-  return left + " " + chip;
-}
-
-/** Tie a background to the text itself: no band across the empty row remainder. */
-function tintText(theme: RenderTheme, token: string, line: string): string {
-  const painted = theme.colors?.[token];
-  if (!painted) return line;
-  // oxlint-disable-next-line no-control-regex -- escape sequences are the input domain
-  const open = /^\x1b\[[0-9;]*m/.exec(theme.style("", { bg: painted }))?.[0];
-  if (!open) return line;
-  // oxlint-disable-next-line no-control-regex -- splitting styled runs from SGR codes
-  return line.replace(/(\x1b\[[0-9;]*m)|([^\x1b]+)/g, (run, sgr: string | undefined, text: string | undefined) => {
-    if (sgr) return sgr;
-    if (!text || text.trim() === "") return text ?? "";
-    return `${open}${text}\x1b[49m`;
-  });
-}
-
 function bindHover(
   region: HiddenThinkingRegion,
   component: AssistantLike,
@@ -251,31 +224,29 @@ function bindHover(
     if (event.type !== "move" && event.type !== "click") return original.call(region, event);
     const plan = foldOf();
     const summary = plan.mode === "anchor" && plan.group && (event.y ?? 0) === 0;
-    if (!summary && !state.canToggle && (!plan.group?.open || event.type === "click")) {
+    // A thought with nothing more to show is inert: no bar, no click.
+    if (!summary && !state.canToggle) {
       const changed = clearHover();
       return { handled: true, render: changed };
     }
     const target = summary ? "summary" : "thought";
-    const row = (event.y ?? 0) - (plan.mode === "anchor" ? 1 : 0);
-    const changed = state.target !== target || state.row !== row;
-    state.row = row;
+    const changed = state.target !== target;
     claimHover(state, clear);
-    if (event.type === "click" && !summary) {
-      clearHover();
-      if (!state.expanded && row !== 0 && row !== state.expandRow) return { handled: true, render: false };
-      // Opening a member keeps a forming group from collapsing under it.
-      if (!state.expanded && plan.group) keepGroupOpen(plan.group);
-      return original.call(region, event);
-    }
     state.target = target;
     if (state.timer) clearTimeout(state.timer);
     state.timer = setTimeout(() => {
       releaseHover(state);
       clear();
     }, 1200);
-    if (event.type === "click" && plan.group) {
+    if (event.type === "click" && plan.group && summary) {
       setGroupOpen(plan.group, !plan.group.open);
       return { handled: true, render: true };
+    }
+    if (event.type === "click") {
+      // Any row of a thought that can open opens it; any row of an open thought closes it.
+      // Opening a member keeps a forming group from collapsing under it.
+      if (!state.expanded && plan.group) keepGroupOpen(plan.group);
+      return original.call(region, event);
     }
     if (changed) component.invalidate?.();
     return { handled: true, render: changed };
@@ -315,6 +286,7 @@ function labelComponent(
       if (plan.mode === "hidden" && !group?.open) return [];
       const api = { kit: KIT, theme, glyphs: GLYPHS };
       let settled: ThinkingLabelInput | undefined;
+      let bar: BarCell[] | undefined;
       const thoughtLines = (innerWidth: number): string[] => {
         const timing = thinkingTime(message, run.first, streaming);
         const level: DetailLevel = group ? COMPACT_LEVEL : streaming ? 0 : levelOf();
@@ -349,33 +321,25 @@ function labelComponent(
         );
         const layout = composeThinkingLabel(api, input, frame);
         hover.canToggle = layout.canToggle && (!streaming || expanded);
-        const lines = layout.label.split("\n");
         hover.expanded = expanded;
-        hover.expandRow = lines.length - 1;
-        if (
-          hover.canToggle &&
-          (expanded || (hover.target === "thought" && (hover.row === 0 || hover.row === lines.length - 1)))
-        ) {
-          const last = lines.length - 1;
-          if (!expanded && last > 0 && hover.row === last)
-            highlightGroupRow(
-              lines,
-              0,
-              innerWidth,
-              theme.style(" ", { bg: theme.colors?.toolPendingBg }).split(" ")[0]!,
-            );
-          const footer = tintText(theme, "toolPendingBg", lines[last]!);
-          if (expanded && visibleWidth(lines[last]!) + 21 > innerWidth)
-            lines.push(chipLine(theme, "", "click · collapse", innerWidth));
-          else lines[last] = chipLine(theme, footer, expanded ? "click · collapse" : "click · expand", innerWidth);
-        }
+        const lines = layout.label.split("\n");
+        // Hover marks a thought that can open with its preview bar; a one-row thought gets one filled cell.
+        // An open thought carries the open-block bar instead.
+        bar =
+          hover.canToggle && !expanded && hover.target === "thought"
+            ? (layout.bar ?? (lines.length === 1 ? ["fill"] : undefined))
+            : undefined;
         return lines;
+      };
+      const paint = (rows: string[]): string[] => {
+        if (bar?.length) paintBar(rows, rows.length - bar.length, bar, (cell) => styleBarCell(theme, cell), width);
+        return rows;
       };
       if (!group) {
         const lines = thoughtLines(width);
         const frame = fadeOf(owner);
-        if (streaming || expanded || !frame || frame.folding || !settled) return lines;
-        return paintLeaving(lines, thinkingLeavingRow(api, settled), frame, theme);
+        if (streaming || expanded || !frame || frame.folding || !settled) return paint(lines);
+        return paint(paintLeaving(lines, thinkingLeavingRow(api, settled), frame, theme));
       }
       const memberLines = () => {
         const rows = renderGroupMember(KIT, width, thoughtLines);
@@ -383,31 +347,18 @@ function labelComponent(
         const collapse = memberRowFade(group, owner, ordinal);
         if (collapse?.gone) return [];
         if (collapse?.phase) return rows.map((row) => fadeLine(row, collapse.phase, theme));
-        return hover.target === "thought"
-          ? highlightGroupRow(
-              rows,
-              hover.row,
-              width,
-              theme.style(" ", { bg: theme.colors?.toolPendingBg }).split(" ")[0]!,
-            )
-          : rows;
+        return paint(rows);
       };
       if (plan.mode === "hidden") return memberLines();
-      // A group the user opened keeps its collapse chip; a forming one shows it on hover.
-      const pinned = group.open && group.choice === true;
-
       const summary =
         renderGroupRow(api, {
           segments: group.segments,
           tokens: group.tokens,
           expanded: group.open,
           durationMs: group.durationMs,
-        }).render(pinned ? Math.max(1, width - "[ click · collapse ] ".length) : width)[0] ?? "";
-      const hovered = hover.target === "summary";
-      const hint = group.open ? "click · collapse" : "click · expand";
-      const rows = [pinned || hovered ? chipLine(theme, summary, hint, width) : summary];
-      if (hovered)
-        highlightGroupRow(rows, 0, width, theme.style(" ", { bg: theme.colors?.toolPendingBg }).split(" ")[0]!);
+        }).render(width)[0] ?? "";
+      // Hover marks the summary with one filled bar cell: a click anywhere on it opens or closes the group.
+      const rows = [hover.target === "summary" ? paintBarCell(summary, styleBarCell(theme, "fill"), width) : summary];
       return group.open ? [...rows, ...memberLines()] : rows;
     },
     invalidate(): void {},

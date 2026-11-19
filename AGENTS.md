@@ -17,7 +17,7 @@ bun run ds:show read # print cards whose id contains "read" as ANSI (--width N, 
 | Path | What lives there |
 |---|---|
 | `packages/pi-prism/render/` | Pure renderers: detail ladder, tool rows, group rows, thinking labels. No I/O, no timers, no globals. |
-| `packages/pi-prism/extensions/` | The live session: a tool-renderer resolver that owns tool rows, paints the hover hint, and cycles expansion on click. |
+| `packages/pi-prism/extensions/` | The live session: a tool-renderer resolver that owns tool rows, thoughts and groups, paints the hover scroll bar, and cycles expansion on click. |
 | `design-system/registry.ts` | Every card and scenario, declared once. |
 | `design-system/lib/` | Resolving the pi install, theme init, the render kit and `stack`. |
 | `design-system/build.ts` | Renders every cell and writes the fixtures. `--check` guards drift. |

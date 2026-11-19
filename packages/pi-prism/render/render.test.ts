@@ -541,6 +541,42 @@ describe("preview bar", () => {
     ).toBeUndefined();
   });
 
+  test("a settled thought's bar covers its body rows, notice included, and fills where its tail sits", () => {
+    const text = Array.from({ length: 10 }, (_, index) => `thought ${index + 1}`).join("\n");
+    const layout = thinkingLayout(api, { phase: "aged", level: 3, text, width: 80 });
+    const rows = layout.label.split("\n");
+    // Three kept lines and the notice below them: ten sources over four cells, the last three shown.
+    expect(rows.at(-1)).toContain("+ 7 lines");
+    expect(layout.bar).toEqual(["track", "track", "track", "fill"]);
+    expect(layout.bar).toHaveLength(rows.length - 1);
+  });
+
+  test("a streaming thought's notice row sits at the top of its bar like any other row", () => {
+    const text = Array.from({ length: 100 }, (_, index) => `line ${index}`).join("\n");
+    const layout = thinkingLayout(api, { phase: "thinking", level: 0, text, width: 40 });
+    const rows = layout.label.split("\n");
+    expect(rows[1]?.trim()).toBe("+ 94 lines");
+    expect(layout.bar).toEqual(["track", "track", "track", "track", "track", "track", "fill"]);
+    expect(layout.bar).toHaveLength(rows.length - 1);
+  });
+
+  test("a formatted thought maps its formatted rows", () => {
+    const markdown = { ...api, kit: { ...kit, markdown: (text: string, width: number) => wrapPlain(text, width) } };
+    const text = Array.from({ length: 12 }, (_, index) => `- item ${index + 1}`).join("\n");
+    const layout = thinkingLayout(markdown, { phase: "aged", level: 3, text, width: 80 });
+    expect(layout.label).toContain("+ 9 lines");
+    expect(layout.bar).toEqual(["track", "track", "track", "fill"]);
+  });
+
+  test("a thought shown whole is filled; inline and open thoughts have no preview bar", () => {
+    const short = "one\ntwo";
+    expect(thinkingLayout(api, { phase: "aged", level: 0, text: short, width: 80 }).bar).toEqual(["fill", "fill"]);
+    expect(thinkingLayout(api, { phase: "aged", level: 7, text: OUTPUT, width: 80 }).bar).toBeUndefined();
+    expect(
+      thinkingLayout(api, { phase: "aged", level: 1, text: OUTPUT, width: 80, expanded: true }).bar,
+    ).toBeUndefined();
+  });
+
   test("each cell stands for an equal share of the lines", () => {
     expect(previewBar(10, new Set([4, 5]), 5)).toEqual(["track", "track", "fill", "track", "track"]);
     expect(previewBar(3, new Set([2]), 6)).toEqual(["track", "track", "track", "track", "fill", "fill"]);

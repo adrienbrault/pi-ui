@@ -2,11 +2,11 @@
  * pi-prism in the real session: tool rows you can open, close and read all the way.
  *
  * The renderer slots are split so the header stays one row while the body grows:
- * `renderCall` owns the header (and the hover hint), `renderResult` owns the body.
- * The hover chip identifies the row that can open the whole output.
+ * `renderCall` owns the header, `renderResult` owns the body. Hovering a block
+ * that can open paints its scroll bar in column 1; nothing else changes.
  */
 
-import { MouseRegion, truncateToWidth, visibleWidth, type Component, type TuiMouseEvent } from "@earendil-works/pi-tui";
+import { MouseRegion, type Component, type TuiMouseEvent } from "@earendil-works/pi-tui";
 import {
   estimateTokens,
   type ExtensionAPI,
@@ -40,8 +40,8 @@ import {
   setGroupOpen,
   toolPlan,
 } from "./fold.ts";
-import { claimHover, highlightGroupRow, isOmissionRow, releaseHover } from "./hover.ts";
-import { expandedRegions, paintBar, styleBarCell } from "./viewport.ts";
+import { claimHover, isOmissionRow, releaseHover } from "./hover.ts";
+import { expandedRegions, paintBar, paintBarCell, styleBarCell } from "./viewport.ts";
 import { fadeLine, paintLeaving, toolFade } from "./fade.ts";
 import { installThinkingRenderer, scheduleThinkingFold } from "./thinking.ts";
 
@@ -92,7 +92,6 @@ interface BlockRecord {
   commandClipped?: boolean;
   hoverSummary: boolean;
   hover: boolean;
-  hoverRow?: number;
   expandRow?: number;
   pinnedVisible: boolean;
   hoverTimer?: ReturnType<typeof setTimeout>;
@@ -216,30 +215,6 @@ export function actionFor(expansion: Expansion, present: number, level: DetailLe
   return present > bodyLinesFor(level) ? 1 : null;
 }
 
-/** What the next click does, in the row's own terms; nothing if nothing changes. */
-export function hintFor(expansion: Expansion, present: number, level: DetailLevel = 0): string | null {
-  const action = actionFor(expansion, present, level);
-  if (action === null) return null;
-  return action === 0 ? "click · collapse" : "click · expand";
-}
-
-/**
- * Tie a background to the text itself. Styling the whole line would paint the
- * empty remainder of the row, so the band is reopened per text run and closed
- * with a background-only reset (\x1b[49m) which leaves colour and weight alone.
- */
-function tintText(theme: Theme, token: string, line: string): string {
-  // oxlint-disable-next-line no-control-regex -- escape sequences are the input domain
-  const open = /^\x1b\[[0-9;]*m/.exec(theme.bg(token, ""))?.[0];
-  if (!open) return line;
-  // oxlint-disable-next-line no-control-regex -- splitting styled runs from SGR codes
-  return line.replace(/(\x1b\[[0-9;]*m)|([^\x1b]+)/g, (run, sgr: string | undefined, text: string | undefined) => {
-    if (sgr) return sgr;
-    if (!text || text.trim() === "") return text ?? "";
-    return `${open}${text}\x1b[49m`;
-  });
-}
-
 /** Streaming paint: the glyph moves while the tool still reports partial results. */
 function frame(): number {
   return Math.floor(Date.now() / 100) % GLYPHS.spinner.length;
@@ -303,10 +278,6 @@ function onMouse(state: BlockRecord, event: TuiMouseEvent) {
 
 function region(inner: Component, record: BlockRecord, part: "header" | "body" | "combined" = "header"): Component {
   const surface = new MouseRegion(inner, (event) => {
-    const heading = part === "header" || (part === "combined" && event.y === 0);
-    const row = heading ? undefined : event.y;
-    if (record.hoverRow !== row && record.hover) record.invalidate();
-    record.hoverRow = row;
     if (
       event.type === "click" &&
       !record.expansion &&
@@ -322,23 +293,6 @@ function region(inner: Component, record: BlockRecord, part: "header" | "body" |
 
 function emptyComponent(): Component {
   return KIT.component(() => []) as Component;
-}
-
-/** Inline terminal chip, never wider than the row. */
-function withChip(theme: Theme, line: string, hint: string, width: number): string {
-  const chip = theme.style(`[ ${hint} ]`, {
-    bg: theme.colors.accent,
-    fg: theme.colors.toolPendingBg,
-    bold: true,
-  });
-  const chipWidth = visibleWidth(chip);
-  if (chipWidth >= width) return truncateToWidth(chip, width, "…");
-  const left = truncateToWidth(line, Math.max(0, width - chipWidth - 1), "…");
-  return left + " " + chip;
-}
-
-function expandHint(theme: Theme, line: string, width: number): string {
-  return withChip(theme, tintText(theme, "toolPendingBg", line), "click · expand", width);
 }
 
 function headerComponent(record: BlockRecord, theme: Theme): Component {
@@ -390,18 +344,13 @@ function bodyComponent(record: BlockRecord, theme: Theme, includeHeader = false)
   );
 }
 
-function collapseFooter(theme: Theme, rows: string[], width: number): void {
-  const hint = "click · collapse";
-  const last = rows.length - 1;
-  if (last < 0 || visibleWidth(rows[last]!) + hint.length + 5 > width) {
-    rows.push(withChip(theme, "", hint, width));
-    return;
-  }
-  rows[last] = withChip(theme, tintText(theme, "toolPendingBg", rows[last]!), hint, width);
+/** A member opens only when it has a body or a clipped command to show. */
+function canCycle(member: BlockRecord): boolean {
+  return !!member.commandClipped || nonEmptyLineCount(previewText(member)) > 0;
 }
 
 function cycleMember(member: BlockRecord): void {
-  if (!member.commandClipped && nonEmptyLineCount(previewText(member)) === 0) return;
+  if (!canCycle(member)) return;
   setExpansion(member, member.expansion === 1 ? 0 : 1);
 }
 
@@ -413,49 +362,39 @@ function memberLines(member: BlockRecord, theme: Theme, width: number): string[]
     if (member.expansion === 0) {
       const header = toolHeader(api, input, innerWidth);
       member.commandClipped = !!header.hiddenCommand;
-      return [
-        member.hover && member.hoverRow === 0 && (member.commandClipped || nonEmptyLineCount(previewText(member)))
-          ? expandHint(theme, header.line, innerWidth)
-          : header.line,
-      ];
+      return [header.line];
     }
-    const detail = renderToolRow({ ...api, owner: member }, input).render(innerWidth);
-    collapseFooter(theme, detail, innerWidth);
-    return detail;
+    return renderToolRow({ ...api, owner: member }, input).render(innerWidth);
   });
   // A collapsing group drops its member rows from the bottom, one fade each.
   const collapse = member.group && typeof member.key === "string" ? memberRowFade(member.group, member.key) : undefined;
   if (collapse?.gone) return [];
   if (collapse?.phase) return rows.map((row) => fadeLine(row, collapse.phase, theme as unknown as RenderTheme));
-  return member.hover
-    ? highlightGroupRow(rows, member.hoverRow, width, theme.bg("toolPendingBg", " ").split(" ")[0]!)
-    : rows;
+  // Hover marks a member that can open with one filled bar cell on its row; an open member carries the open-block bar.
+  if (member.hover && member.expansion === 0 && canCycle(member) && rows[0] !== undefined)
+    rows[0] = paintBarCell(rows[0], styleBarCell(api.theme, "fill"), width);
+  return rows;
 }
 
 function groupLines(record: BlockRecord, theme: Theme, width: number): string[] {
   const group = record.group;
   if (!group) return [];
   const api = { kit: KIT, theme: theme as unknown as RenderTheme, glyphs: GLYPHS };
-  // A group the user opened keeps its collapse chip; a forming one shows it on hover.
-  const pinned = group.open && group.choice === true;
   const summary =
     renderGroupRow(api, {
       segments: group.segments,
       tokens: group.tokens,
       expanded: group.open,
       ...(group.durationMs !== undefined ? { durationMs: group.durationMs } : {}),
-    }).render(pinned ? Math.max(1, width - "[ click · collapse ] ".length) : width)[0] ?? "";
-  const hovered = record.hoverSummary;
-  const hint = group.open ? "click · collapse" : "click · expand";
-  const rows = [pinned || hovered ? withChip(theme, summary, hint, width) : summary];
-  if (hovered) highlightGroupRow(rows, 0, width, theme.bg("toolPendingBg", " ").split(" ")[0]!);
+    }).render(width)[0] ?? "";
+  // Hover marks the summary with one filled bar cell: a click anywhere on it opens or closes the group.
+  const rows = [record.hoverSummary ? paintBarCell(summary, styleBarCell(api.theme, "fill"), width) : summary];
   return group.open ? [...rows, ...memberLines(record, theme, width)] : rows;
 }
 
 function onGroupMouse(record: BlockRecord, event: TuiMouseEvent) {
   const group = record.group;
   if (!group) return undefined;
-  record.hoverRow = event.y - (record.mode === "hidden" ? 0 : 1);
   const clear = () => {
     if (record.hoverTimer) clearTimeout(record.hoverTimer);
     record.hoverTimer = undefined;

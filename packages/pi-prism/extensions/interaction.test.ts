@@ -7,9 +7,8 @@ import {
   type TextStyle,
   type TuiMouseEvent,
 } from "@earendil-works/pi-tui";
-import { highlightGroupRow } from "./hover.ts";
 import { toolPlan } from "./fold.ts";
-import prism, { actionFor, hintFor } from "./index.ts";
+import prism, { actionFor } from "./index.ts";
 
 // Syntax highlighting reads pi's global theme; do not depend on another test file installing it.
 beforeAll(() => initTheme("dark"));
@@ -90,13 +89,6 @@ function historyViewport(children: object[], onVisit?: () => void) {
 describe("expansion cycle", () => {
   test("nothing to reveal means no step", () => {
     expect(actionFor(0, 4)).toBeNull();
-    expect(hintFor(0, 4)).toBeNull();
-  });
-
-  test("hints name the next action", () => {
-    expect(hintFor(0, 40)).toBe("click · expand");
-    expect(hintFor(1, 40)).toBe("click · collapse");
-    expect(hintFor(1, 12)).toBe("click · collapse");
   });
 
   test("clicks follow the action, not a blind cycle", () => {
@@ -279,16 +271,6 @@ describe("tool renderers", () => {
     expect(body.render(80).join("\n")).not.toContain("[ click");
     body.handleMouse?.({ ...click(), y: 20 });
     expect(body.render(80)).toHaveLength(8);
-  });
-
-  test("a grouped hover covers the indent, gap and trailing cells on just the pointed row", () => {
-    const bg = "\x1b[45m";
-    const rows = ["summary", "  bash\x1b[0m    8ms", "next"];
-    expect(highlightGroupRow(rows, 1, 16, bg)).toEqual([
-      "summary",
-      bg + "  bash\x1b[0m" + bg + "    8ms   \x1b[49m",
-      "next",
-    ]);
   });
 
   test("hover leaves the heading and the footer unpainted", () => {
@@ -815,7 +797,7 @@ describe("tool renderers", () => {
     expect(member().render(80)).toHaveLength(1);
   });
 
-  test("a forming group shows its chip on hover only, and opening a member keeps it open", async () => {
+  test("a group marks its hovered summary and members with one bar cell, and a click anywhere toggles them", async () => {
     const handlers = new Map<string, Array<(...args: any[]) => void>>();
     const dispatch = (event: string, ...args: unknown[]) => {
       for (const handler of handlers.get(event) ?? []) handler(...args);
@@ -832,7 +814,7 @@ describe("tool renderers", () => {
         mode: "tui",
         ui: {
           setWidget: (_: string, factory?: (root: object, theme: object) => void) =>
-            factory?.(historyViewport(children), theme),
+            factory?.(historyViewport(children), barred),
         },
       },
     );
@@ -840,23 +822,54 @@ describe("tool renderers", () => {
       const toolCallId = `forming-${index}`;
       children.push({ toolCallId, toolName: "read", rendererState: {} });
       const context = { ...ctx, args: { path: `file-${index}` }, toolCallId, state: {}, durationMs: 500 };
-      tool.renderResult(result, {}, theme, context);
-      return () => tool.renderCall(context.args, theme, context);
+      tool.renderResult(result, {}, barred, context);
+      return () => tool.renderCall(context.args, barred, context);
     };
     const headers = Array.from({ length: 7 }, (_, index) => add(index));
     await Bun.sleep(10);
     const anchor = headers[0]!;
+    const member = headers[1]!;
     expect(toolPlan("forming-0")?.group).toMatchObject({ forming: true, open: true });
-    expect(anchor().render(80)[0]).not.toContain("[ click");
-    anchor().handleMouse?.({ ...move(), y: 0 });
-    expect(anchor().render(80)[0]).toContain("[ click · collapse ]");
+    expect(anchor().render(80).map(barCell)).toEqual(["none", "none"]);
 
-    headers[1]!().handleMouse?.(click());
+    // The summary: one filled cell in column 1, the row otherwise as rendered, and no chip.
+    const idle = anchor().render(80)[0]!;
+    anchor().handleMouse?.({ ...move(), y: 0 });
+    const hovered = anchor().render(80);
+    expect(hovered.map(barCell)).toEqual(["fill", "none"]);
+    expect(stripTerminalSequences(hovered[0]!).trimEnd()).toBe(stripTerminalSequences(idle).trimEnd());
+    expect(hovered.join("\n")).not.toContain("[ click");
+
+    // A collapsed member that can open: one filled cell on its row, and the summary lets go.
+    member().handleMouse?.({ ...move(), y: 0 });
+    expect(member().render(80).map(barCell)).toEqual(["fill"]);
+    expect(anchor().render(80).map(barCell)).toEqual(["none", "none"]);
+
+    // Opening a member shows its body with no chip; inline mode has no open-block bar.
+    member().handleMouse?.({ ...click(), x: 50 });
+    const open = member().render(80);
+    expect(open).toHaveLength(41);
+    expect(open.map(barCell).every((cell) => cell === "none")).toBe(true);
+    expect(open.join("\n")).not.toContain("[ click");
+    // Any row of the open member closes it.
+    member().handleMouse?.({ ...click(), y: 20 });
+    expect(member().render(80)).toHaveLength(1);
+    member().handleMouse?.({ ...click(), y: 0 });
+
+    // Opening a member keeps the group open past six rows, with no pinned chip on its summary.
     for (let index = 7; index < 12; index++) add(index);
     dispatch("agent_settled");
     dispatch("agent_settled");
     expect(toolPlan("forming-0")?.group).toMatchObject({ forming: false, open: true });
-    expect(anchor().render(80)[0]).toContain("[ click · collapse ]");
+    expect(anchor().render(80)[0]).not.toContain("[ click");
+
+    // A click anywhere along the summary row closes the group, and the next opens it again.
+    anchor().handleMouse?.({ ...click(), x: 70, y: 0 });
+    expect(toolPlan("forming-0")?.group?.open).toBe(false);
+    expect(anchor().render(80)).toHaveLength(1);
+    expect(anchor().render(80).map(barCell)).toEqual(["fill"]);
+    anchor().handleMouse?.({ ...click(), x: 3, y: 0 });
+    expect(toolPlan("forming-0")?.group?.open).toBe(true);
   });
 
   test("an expanded standalone tool survives a turn boundary until clicked again", () => {
@@ -873,5 +886,111 @@ describe("tool renderers", () => {
     expect(body.render(80)).toHaveLength(40);
     header.handleMouse?.(click());
     expect(body.render(80)).toHaveLength(8);
+  });
+});
+
+/** A stand-in for pi's assistant message: one thinking run behind a MouseRegion whose click flips its visibility. */
+function thoughtSession(text: string) {
+  const handlers = new Map<string, Array<(...args: any[]) => void>>();
+  prism({
+    registerToolRenderer: () => {},
+    on: (event: string, handler: (...args: any[]) => void) =>
+      handlers.set(event, [...(handlers.get(event) ?? []), handler]),
+  } as never);
+  const message = {
+    role: "assistant",
+    content: [{ type: "thinking", thinking: text }],
+    timestamp: 1000,
+    durationMs: 4000,
+  };
+  const overrides = new Map<number, boolean>();
+  interface Region {
+    child: Row;
+    onMouse(event: { type?: string; y?: number }): unknown;
+  }
+  // Like pi, every content update builds a fresh label and region.
+  const region = (): Region => ({
+    child: { setText: () => {} } as unknown as Row,
+    onMouse(event) {
+      if (event.type !== "click") return undefined;
+      overrides.set(0, !(overrides.get(0) ?? true));
+      assistant.updateContent(message);
+      return { handled: true, render: true };
+    },
+  });
+  const assistant = {
+    contentContainer: { children: [region()] },
+    thinkingVisibilityOverrides: overrides,
+    hideThinkingBlock: true,
+    hiddenThinkingLabel: "Thinking...",
+    isStreaming: false,
+    lastMessage: message,
+    updateContent(next: typeof message) {
+      this.lastMessage = next;
+      this.contentContainer.children = [region()];
+    },
+    invalidate: () => {},
+  };
+  const current = () => assistant.contentContainer.children[0]!;
+  const root = { children: [assistant], requestRender: () => {} };
+  for (const handler of handlers.get("session_start") ?? [])
+    handler(
+      {},
+      {
+        hasUI: true,
+        mode: "tui",
+        ui: { setWidget: (_: string, factory?: (tui: object, theme: object) => void) => factory?.(root, barred) },
+      },
+    );
+  return {
+    rows: (width = 80) => current().child.render(width),
+    mouse: (type: "move" | "click", y: number) => current().onMouse({ type, y }),
+  };
+}
+
+describe("thought interaction", () => {
+  const long = Array.from({ length: 40 }, (_, index) => `thought line ${index + 1}`).join("\n");
+
+  test("hovering a thought that can open paints only its preview bar in column 1", async () => {
+    const thought = thoughtSession(long);
+    await Bun.sleep(10);
+    const idle = thought.rows();
+    // The heading, six kept lines and the notice below them.
+    expect(idle).toHaveLength(8);
+    expect(idle.map(barCell).every((cell) => cell === "none")).toBe(true);
+    thought.mouse("move", 3);
+    const hovered = thought.rows();
+    // Forty lines over seven cells; the last six are shown, so only the bottom cell fills.
+    expect(hovered.map(barCell)).toEqual(["none", "track", "track", "track", "track", "track", "track", "fill"]);
+    expect(plainRows(hovered).map((row) => row.slice(0, 1) + row.slice(2))).toEqual(
+      plainRows(idle).map((row) => row.slice(0, 1) + row.slice(2)),
+    );
+    expect(hovered.join("\n")).not.toContain("[ click");
+  });
+
+  test("any row of a thought that can open opens it, and any row of the open thought closes it", async () => {
+    const thought = thoughtSession(long);
+    await Bun.sleep(10);
+    thought.rows();
+    // A middle body row: neither the heading nor the notice.
+    thought.mouse("click", 3);
+    const open = thought.rows();
+    expect(open).toHaveLength(41);
+    expect(open.join("\n")).not.toContain("[ click");
+    expect(open.map(barCell).every((cell) => cell === "none")).toBe(true);
+    thought.mouse("click", 25);
+    expect(thought.rows()).toHaveLength(8);
+    thought.mouse("click", 0);
+    expect(thought.rows()).toHaveLength(41);
+  });
+
+  test("a thought shown whole stays inert: no bar, and a click changes nothing", async () => {
+    const thought = thoughtSession("one\ntwo");
+    await Bun.sleep(10);
+    const idle = thought.rows();
+    thought.mouse("move", 1);
+    expect(thought.rows()).toEqual(idle);
+    thought.mouse("click", 1);
+    expect(thought.rows()).toEqual(idle);
   });
 });

@@ -1,23 +1,7 @@
-import { visibleWidth } from "@earendil-works/pi-tui";
 import { cleanOutput } from "../render/text.ts";
 
 export function isOmissionRow(line: string): boolean {
   return /^\+ \d+ lines?$/.test(cleanOutput(line).trim());
-}
-
-/** Paint the measured terminal row, restoring its background after nested styles end. */
-export function highlightGroupRow(
-  rows: string[],
-  row: number | undefined,
-  width: number,
-  background: string,
-): string[] {
-  if (row === undefined || rows[row] === undefined || !background) return rows;
-  const line = rows[row]!;
-  // oxlint-disable-next-line no-control-regex -- pi emits SGR resets after styled spans
-  const painted = line.replace(/\x1b\[(?:0|49|22;39;49|39;49)m/g, (reset) => reset + background);
-  rows[row] = background + painted + " ".repeat(Math.max(0, width - visibleWidth(line))) + "\x1b[49m";
-  return rows;
 }
 
 /**
@@ -25,7 +9,7 @@ export function highlightGroupRow(
  *
  * Terminals report continuous motion, so a per-row latch leaves every row the
  * pointer crossed lit at once. Claiming a new owner clears the previous one
- * before its chip can paint.
+ * before its bar can paint.
  */
 
 let owner: object | undefined;
