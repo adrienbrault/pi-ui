@@ -1,14 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  DEFAULT_TAIL_LINES,
-  FOLD_DISTANCE,
-  MAX_FULL_LINES,
-  bodyLinesFor,
-  detailFor,
-  maxRowsFor,
-  setTailLines,
-  settleLevel,
-} from "./detail.ts";
+import { FOLD_DISTANCE, MAX_FULL_LINES, bodyLinesFor, detailFor, maxRowsFor, settleLevel } from "./detail.ts";
 import { groupVerb, mcpLabel, toolMeta, groupNoun, toolTokenLabel } from "./tools.ts";
 import { formatDuration, headLines, omittedCount, tailLines } from "./text.ts";
 import { groupSegments, renderGroupMember, renderGroupRow } from "./group-row.ts";
@@ -131,17 +122,6 @@ describe("detail ladder", () => {
     expect(rows).toHaveLength(2);
     expect(rows[0]).toContain("exit 2");
     expect(rows[1]).toContain("detail");
-  });
-});
-
-describe("tail budget", () => {
-  test("the slider changes every level at once and the ladder still sheds one row", () => {
-    setTailLines(11);
-    try {
-      expect(([0, 1, 2, 3, 4, 5, 6] as const).map((level) => bodyLinesFor(level))).toEqual([11, 10, 9, 8, 7, 6, 5]);
-    } finally {
-      setTailLines(DEFAULT_TAIL_LINES);
-    }
   });
 });
 

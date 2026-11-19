@@ -94,7 +94,7 @@ render/                          pure renderers shared with the design system
 #### Detail model
 
 ```
-Standalone body budget: 7 → 6 → 5 → 4 → group
+Standalone body budget: 8 → 7 → 6 → 5 → 4 → group
 The four-row preview fits three content lines and one omission notice.
 ```
 
@@ -180,4 +180,4 @@ pi-extensions/
 
 - Package name and branding.
 - Whether "ours" absorbs pi-code's todo/subagent/tool renderers by import or reimplementation in P4.
-- Whether to expose the decay curve as a setting (`/prism decay 7,5,3,1`) or keep it fixed for v1.
+- Whether to expose the decay curve as a setting (`/prism decay 7,5,3,1`) or keep it fixed for v1. For now the tail budget, the fold distance and the forming size are constants in `render/detail.ts`; a setting should arrive as explicit parameters with its own design, including the floor a separate fold distance needs.

@@ -45,8 +45,7 @@ distance ≥ 5 folded into a group: one row per member while the newest
               group of the run has at most 5 rows, then one summary row
 ```
 
-The tail budget (8 above) is configurable. `setTailLines()` moves the whole
-ladder.
+The tail budget (8 above), the fold distance (5) and the forming size (5 rows) are constants in `render/detail.ts`; nothing in the product changes them.
 
 Rules:
 
