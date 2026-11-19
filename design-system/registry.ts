@@ -35,6 +35,7 @@ import {
   EDIT_DIFF,
   FILE_TEXT,
   MCP_OUTPUT,
+  SHELL_LONG,
   SHELL_OK,
   SHELL_OUTPUT,
   THINKING_TEXT,
@@ -587,6 +588,18 @@ const oursEntries: EntryDef[] = [
       levelState("l0", "success L0", 0, () => bashRow()),
       levelState("l1", "aged L1", 1, () => bashRow()),
       levelState("l3", "aged L3", 3, () => bashRow()),
+      levelState(
+        "long",
+        "long log, aged L4",
+        4,
+        () =>
+          bashRow({
+            args: { command: "git log -5 --oneline; git branch -vv; ls" },
+            title: undefined,
+            output: SHELL_LONG,
+          }),
+        "the newest lines stay; the notice above them counts the lines hidden above",
+      ),
       levelState("error", "failed", 0, () =>
         bashRow({ status: "error", output: SHELL_OUTPUT, summary: "", error: "exit 2" }),
       ),

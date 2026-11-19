@@ -679,9 +679,9 @@ async function thinkingScenario(sessionPath: string): Promise<void> {
   assert(!capture().includes("SECRET_MIDDLE_CLAUSE"), "a spacer click must leave the thought collapsed");
 
   pane = capture();
-  // Any row opens it: a body row, neither the heading nor the notice.
+  // Any row opens it: a body row, neither the heading nor the notice above the kept rows.
   const bodyRow = rowOf(pane, "thought line ");
-  assert(bodyRow > rowOf(pane, "✻ think") && bodyRow < hoverRow, `expected a body row between the heading and the notice\n${pane}`);
+  assert(hoverRow > rowOf(pane, "✻ think") && bodyRow > hoverRow, `expected the notice between the heading and the body rows\n${pane}`);
   mouse(0, 5, bodyRow);
   mouse(0, 5, bodyRow, true);
   await Bun.sleep(400);
@@ -740,7 +740,8 @@ ${visible}`);
       const end = screen.indexOf("echo command-2");
       if (start < 0 || end < start) return false;
       const folding = screen.slice(start, end);
-      return folding.includes("animated line 39") && !folding.includes("+ 37 lines");
+      // Mid-fold: the newest line at the bottom has left, the notice above the tail has not.
+      return folding.includes("+ 37 lines") && !folding.includes("animated line 39");
     });
     await waitFor("Ran 6 shell commands", 8000);
     tmux("kill-server");

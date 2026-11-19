@@ -243,6 +243,8 @@ export interface ThinkingLayout {
    * source lines and is filled where the preview shows some of them.
    */
   bar?: BarCell[];
+  /** The label row that holds the omission notice, when one is shown. */
+  noticeRow?: number;
 }
 
 /**
@@ -270,18 +272,20 @@ export function composeThinkingLabel(
   }
 
   if (input.expanded) {
-    // Match tool output's safety cap. Keep both ends in order and count the notice in the budget.
-    const rows =
-      frame.rows.length <= MAX_FULL_LINES
-        ? frame.rows
-        : [
-            ...frame.rows.slice(0, MAX_FULL_LINES - 2),
-            frame.rows[frame.rows.length - 1]!,
-            notice(frame.rows.length - (MAX_FULL_LINES - 1)),
-          ];
+    // Match tool output's safety cap. Keep both ends in order and count the notice in the budget;
+    // the hidden rows are between the opening and the last row, and so is the notice.
+    const cut = frame.rows.length > MAX_FULL_LINES;
+    const rows = !cut
+      ? frame.rows
+      : [
+          ...frame.rows.slice(0, MAX_FULL_LINES - 2),
+          notice(frame.rows.length - (MAX_FULL_LINES - 1)),
+          frame.rows[frame.rows.length - 1]!,
+        ];
     return {
       label: [frame.head, ...rows].map((row) => clampLine(api, row, input.width)).join("\n"),
       canToggle: thinkingLayout(api, { ...input, expanded: false }).canToggle,
+      ...(cut ? { noticeRow: MAX_FULL_LINES - 1 } : {}),
     };
   }
 
@@ -291,14 +295,14 @@ export function composeThinkingLabel(
   const hidden = frame.sourceCount - visibleSources.size;
   const rows = [...visible];
   const omitted = hidden || frame.rows.length - visible.length;
-  if (collapsedBudget(input.level) > 1 && frame.canToggle && omitted > 0) {
-    if (input.phase === "thinking") rows.unshift(notice(omitted));
-    else rows.push(notice(omitted));
-  }
+  // The preview keeps the newest rows, streaming or settled: the hidden ones are above, and so is the notice.
+  const noticed = collapsedBudget(input.level) > 1 && frame.canToggle && omitted > 0;
+  if (noticed) rows.unshift(notice(omitted));
   return {
     label: [frame.head, ...rows].map((row) => clampLine(api, row, input.width)).join("\n"),
     canToggle: frame.canToggle,
     bar: previewBar(frame.sourceCount, visibleSources, rows.length),
+    ...(noticed ? { noticeRow: 1 } : {}),
   };
 }
 
@@ -313,13 +317,15 @@ export function thinkingLayout(api: ThinkingApi, input: ThinkingLabelInput): Thi
 
 /**
  * The label row the next level drops, for a settled thought: its oldest kept
- * row, under the heading. Undefined when the next level keeps the same rows,
- * as levels whose collapsed budgets floor at four do.
+ * row, under the heading and the notice above it. Undefined when the next
+ * level keeps the same rows, as levels whose collapsed budgets floor at four do.
  */
 export function thinkingLeavingRow(api: ThinkingApi, input: ThinkingLabelInput): number | undefined {
   if (input.expanded || bodyLinesFor(input.level) <= 1) return undefined;
-  const rows = thinkingFrame(api, input).rows.length;
+  const frame = thinkingFrame(api, input);
+  const rows = frame.rows.length;
+  const oldest = composeThinkingLabel(api, input, frame).noticeRow === 1 ? 2 : 1;
   const next = Math.min(input.level + 1, COMPACT_LEVEL) as DetailLevel;
-  if (bodyLinesFor(next) <= 1) return 1;
-  return Math.min(rows, thinkingKeep(input.level)) > Math.min(rows, thinkingKeep(next)) ? 1 : undefined;
+  if (bodyLinesFor(next) <= 1) return oldest;
+  return Math.min(rows, thinkingKeep(input.level)) > Math.min(rows, thinkingKeep(next)) ? oldest : undefined;
 }

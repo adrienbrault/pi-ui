@@ -61,7 +61,7 @@ Rules:
 - Visible blocks fade one step at a time, in order. A block more than one step behind its target when the plan is recomputed catches up without animation, as offscreen blocks do; the block mid-fade finishes its row first, then takes its target, so a burst of new blocks never queues more than one animated step per block. Nothing overtakes an older block that is still on its way: a block catching up stops at the distance the nearest older block of its run is held at, so it never joins a group ahead of it, and takes the rest of the way at once when that block lands. A fade or collapse in progress keeps the floor until it ends; a collapse that starts meanwhile waits its turn, and the oldest waiting block or collapse goes next.
 - Bodies spend their budget on evidence: diffs shed unchanged context lines
   before hiding any hunk, reads keep their opening and their end, and logs and thinking previews keep their newest lines.
-  An omission notice sits where lines were removed: below a tail, and between the opening and the end of a read.
+  An omission notice sits where lines were removed: above a tail (a log's or a thought's, streaming or settled), between the opening and the end of a read or of an opened thought cut at the cap, and below the evidence a diff or an opened command keeps.
 - A preview gives each output line one row and cuts it at the terminal width; a cut line makes the row openable even when every line is present. An opened tool row wraps long lines instead. The rows that continue its command, its wrapped output and any omission notices share one cap of 400 body rows; the command takes at most half of the cap when there is output to show.
 - Under an open group summary, member headers occupy consecutive rows two columns in,
   starting immediately below the summary. They read as a table: each member's label (`think`, `bash`, `read`, …) fills the width of the group's widest label, so the separator dot and the description start in the same column on every row. The widths come from every member's cells at once (`render/columns.ts`), never from measuring rendered rows. Tool and thinking bodies begin four columns past their own heading marker, two columns past the heading label. Output, omission notices, and wrapped Markdown share this inset.
@@ -77,7 +77,7 @@ Rules:
   each source line to the terminal width instead of wrapping it, so arriving
   tokens extend the last row rather than reflowing the tail; once the run
   settles, body text wraps instead of ending in an ellipsis. A terminal row is
-  a layout unit, not a truncation point. During streaming the omission count sits directly below the heading and the newest line stays at the bottom. The preview skips intermediate rows that never reached the screen. When it sheds previously visible rows, it drops
+  a layout unit, not a truncation point. Streaming or settled, the omission count sits directly below the heading and the newest line stays at the bottom. The preview skips intermediate rows that never reached the screen. When it sheds previously visible rows, it drops
   one per tick. The fade applies only after streaming finishes. Hover is neutral for thinking and tool rows alike: the scroll bar in column 1 carries the
   affordance, the status glyph keeps the outcome colour.
 - Opening a group shows each collapsed thinking member as one inline row, regardless of its age. Clicking a truncated thought opens its body.

@@ -45,6 +45,30 @@ export const SHELL_OK = [
   "wrote design-system/web/index.html",
 ].join("\n");
 
+/** A log longer than any preview: its tail is kept and the rest counted above it. */
+export const SHELL_LONG = [
+  "c477023 test(pi-prism): a collapsing group rebuilt mid-row hands its collapse on",
+  "9bce9ff fix(pi-prism): a narrow open group drops its table on every row at once",
+  "1ddc373 fix(pi-prism): a restarted session keeps its probe until it has the TUI",
+  "8b3bdec refactor(pi-prism): drop the unused indented and padBetween kit helpers",
+  "c9ee8be test(dev): wait for an opened thought's own body row",
+  "* main c477023 test(pi-prism): a collapsing group rebuilt mid-row hands its collapse on",
+  "AGENTS.md",
+  "biome.json",
+  "bun.lock",
+  "CLAUDE.md",
+  "DESIGN.md",
+  "design-system",
+  "dev",
+  "docs",
+  "node_modules",
+  "package.json",
+  "packages",
+  "README.md",
+  "review-eval",
+  "tsconfig.json",
+].join("\n");
+
 export const EDIT_DIFF = [
   "diff --git a/extensions/prism/decorator.ts b/extensions/prism/decorator.ts",
   "index 3f9c1aa..8b2d410 100644",

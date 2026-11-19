@@ -369,8 +369,9 @@ function selectTail(lines: Selected[], show: number): Selected[] {
     });
     return useful ? [useful] : [notice(lines.length)];
   }
+  // The hidden lines come before the kept ones, so the notice heads them.
   const kept = show - 1;
-  return [...lines.slice(-kept), notice(lines.length - kept)];
+  return [notice(lines.length - kept), ...lines.slice(-kept)];
 }
 
 const DIFF_HINT = /^(diff --git|@@ )/m;

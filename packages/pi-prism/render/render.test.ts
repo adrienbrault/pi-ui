@@ -241,8 +241,9 @@ describe("tool row heights", () => {
 
   test("shell rows trend on the tail, read rows on the head", () => {
     const shell = renderToolRow(api, { name: "bash", status: "success", level: 2, output: OUTPUT }).render(80);
-    expect(shell.at(-2)).toContain("line 40");
-    expect(shell.at(-1)).toMatch(/\+ \d+ lines?$/);
+    // The hidden lines are above the tail, so the notice heads the body.
+    expect(shell[1]).toMatch(/\+ \d+ lines?$/);
+    expect(shell.at(-1)).toContain("line 40");
     const read = renderToolRow(api, { name: "read", status: "success", level: 2, output: OUTPUT }).render(80);
     expect(read[1]).toContain("line 1");
   });
@@ -292,7 +293,8 @@ describe("thinking labels", () => {
     const lines = thinkingLabel(api, { ...input, text: long, expanded: true }).split("\n");
     expect(lines).toHaveLength(401);
     expect(lines[1]).toBe("    part 0");
-    expect(lines.slice(-2)).toEqual(["    part 419", "    + 21 lines"]);
+    // The hidden rows sit between the opening and the last row: so does the notice.
+    expect(lines.slice(-3)).toEqual(["    part 397", "    + 21 lines", "    part 419"]);
   });
 
   test("a reported reasoning count and legacy turn timing are identified in the header", () => {
@@ -365,8 +367,9 @@ describe("thinking labels", () => {
   test("a decayed thought says how many lines it hid", () => {
     const text = Array.from({ length: 10 }, (_, index) => `thought ${index + 1}`).join("\n");
     const label = thinkingLabel(api, { phase: "aged", level: 3, text, width: 80 });
-    expect(label.split("\n").at(-1)).toContain("+ 7 lines");
-    expect(label).toContain("thought 10");
+    // A settled thought keeps its newest rows: the hidden ones are above them, and so is the notice.
+    expect(label.split("\n")[1]).toContain("+ 7 lines");
+    expect(label.split("\n").at(-1)).toContain("thought 10");
     const expanded = thinkingLabel(api, { phase: "aged", level: 3, text, width: 80, expanded: true });
     expect(expanded).not.toMatch(/\+ \d+ lines?$/m);
     expect(expanded).toContain("thought 1");
@@ -540,7 +543,7 @@ describe("full body budget", () => {
     }).render(80);
     expect(rows.length).toBeLessThanOrEqual(1 + MAX_FULL_LINES);
     expect(rows).toContain("    300");
-    expect(rows.at(-1)).toMatch(/\+ \d+ lines$/);
+    expect(rows[1]).toMatch(/\+ \d+ lines$/);
   });
 
   test("a preview reports when a line was clipped to the width", () => {
@@ -569,7 +572,8 @@ describe("the row that leaves", () => {
   });
 
   test("a log loses its oldest kept line", () => {
-    expect(leavingAt({ name: "bash", status: "success", output: thirty })).toEqual([1, 1, 1, 1]);
+    // Row 1 is the notice above the tail; the oldest kept line is under it.
+    expect(leavingAt({ name: "bash", status: "success", output: thirty })).toEqual([2, 2, 2, 2]);
   });
 
   test("an output that fits loses nothing", () => {
@@ -584,12 +588,18 @@ describe("the row that leaves", () => {
   test("a thought keeps its newest rows, and two levels can keep the same three", () => {
     expect(([0, 1, 2, 3, 4] as const).map(thinkingKeep)).toEqual([6, 5, 4, 3, 3]);
     const input = { phase: "aged", text: thirty, width: 80 } as const;
+    // Row 1 is the notice above the kept rows; the oldest kept row is under it.
     expect(([0, 1, 2, 3] as const).map((level) => thinkingLeavingRow(api, { ...input, level }))).toEqual([
-      1,
-      1,
-      1,
+      2,
+      2,
+      2,
       undefined,
     ]);
+    const rows = thinkingLabel(api, { ...input, level: 0 }).split("\n");
+    expect(rows[2]?.trim()).toBe("L25");
+    // With nothing hidden there is no notice, and the oldest row is the first under the heading.
+    const fits = { ...input, text: Array.from({ length: 6 }, (_, index) => `L${index + 1}`).join("\n") };
+    expect(thinkingLeavingRow(api, { ...fits, level: 0 })).toBe(1);
     expect(thinkingLeavingRow(api, { ...input, text: "short", level: 0 })).toBeUndefined();
   });
 });
@@ -599,6 +609,9 @@ describe("preview bar", () => {
     const layout = toolRowLayout(api, { name: "bash", status: "success", level: 0, output: many(160) }, 80);
     expect(layout.bar).toEqual(["track", "track", "track", "track", "track", "track", "track", "fill"]);
     expect(layout.bar).toHaveLength(layout.rows.length - 1);
+    // The notice heads the tail, beside a track cell; the filled cell sits beside the newest line.
+    expect(layout.rows[1]).toMatch(/\+ 153 lines$/);
+    expect(layout.sources?.[0]).toBeUndefined();
   });
 
   test("a read shows its opening and its end as two filled ends", () => {
@@ -625,8 +638,10 @@ describe("preview bar", () => {
     const text = Array.from({ length: 10 }, (_, index) => `thought ${index + 1}`).join("\n");
     const layout = thinkingLayout(api, { phase: "aged", level: 3, text, width: 80 });
     const rows = layout.label.split("\n");
-    // Three kept lines and the notice below them: ten sources over four cells, the last three shown.
-    expect(rows.at(-1)).toContain("+ 7 lines");
+    // The notice above three kept lines: ten sources over four cells, the last three shown,
+    // so the filled cell sits beside the newest row and the notice's cell is track.
+    expect(rows[1]).toContain("+ 7 lines");
+    expect(rows.at(-1)).toContain("thought 10");
     expect(layout.bar).toEqual(["track", "track", "track", "fill"]);
     expect(layout.bar).toHaveLength(rows.length - 1);
   });

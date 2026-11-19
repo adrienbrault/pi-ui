@@ -338,7 +338,7 @@ function bodyComponent(record: BlockRecord, theme: Theme, includeHeader = false)
           api.theme,
         );
       }
-      // The omission notice: last for tails, at the cut for head-and-tail reads.
+      // The omission notice: above a tail, at the cut of a head-and-tail read, below a diff's evidence.
       const omission = rows.findLastIndex(isOmissionRow);
       const expandable =
         record.commandClipped ||
