@@ -352,7 +352,8 @@ function labelComponent(
         return lines;
       };
       const paint = (rows: string[]): string[] => {
-        if (bar?.length) paintBar(rows, rows.length - bar.length, bar, (cell) => styleBarCell(theme, cell), width);
+        if (bar?.length)
+          paintBar(rows, rows.length - bar.length, bar, (cell, lit) => styleBarCell(theme, cell, lit), width);
         else if (oneRow && rows[0] !== undefined) rows[0] = paintMarker(rows[0], theme, width);
         return rows;
       };

@@ -492,6 +492,21 @@ describe("tool renderers", () => {
     expect(header.render(200)[0]).toContain(command);
   });
 
+  test("a one-cell hover bar carries no position, so it lights in the hovered colours", () => {
+    const accented = { ...barred, colors: { ...barred.colors, accent: "7" } };
+    const tool = resolver()("bash", () => undefined) as Renderers;
+    const command = "printf 'Edits: 5' > ./tmp/one.txt; for file in a b c; do echo $file > $file; done";
+    const context = { ...ctx, args: { command }, state: {} };
+    const header = tool.renderCall(context.args, accented, context);
+    const body = tool.renderResult({ content: [{ type: "text", text: "(no output)" }] }, {}, accented, context);
+    header.render(50);
+    body.handleMouse?.(move());
+    const rows = body.render(50);
+    expect(rows).toHaveLength(1);
+    // `accent` (7) on the bar cell, not the idle track grey (2).
+    expect(backgrounds(rows[0]!)[1]).toBe("7");
+  });
+
   test("hovering a clipped silent command marks its header, the only row it has", () => {
     const tool = resolver()("bash", () => undefined) as Renderers;
     const command = "echo " + "abcdefghij".repeat(12);

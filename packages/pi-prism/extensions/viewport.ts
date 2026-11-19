@@ -156,17 +156,29 @@ export function paintMarker(row: string, theme: RenderTheme, width: number): str
   return compositeTuiLine(row, cell, column, 1, width);
 }
 
-/** Paint the bar column of `rows[from + i]` with `cells[i]`. */
+/**
+ * A hover preview bar with no position to show: a single cell, or fill in every cell. Its grey
+ * would say nothing, so it lights as a whole, in the hovered colours.
+ */
+export function positionless(cells: readonly BarCell[]): boolean {
+  return cells.length === 1 || cells.every((cell) => cell === "fill");
+}
+
+/**
+ * Paint the bar column of `rows[from + i]` with `cells[i]`. A bar with no position to show
+ * paints every cell as fill, with `lit` set so the caller paints it in the hovered colours.
+ */
 export function paintBar(
   rows: string[],
   from: number,
   cells: readonly BarCell[],
-  paint: (cell: BarCell) => string,
+  paint: (cell: BarCell, lit: boolean) => string,
   width: number,
 ): void {
+  const lit = positionless(cells);
   cells.forEach((cell, index) => {
     const row = rows[from + index];
-    if (row !== undefined) rows[from + index] = paintBarCell(row, paint(cell), width);
+    if (row !== undefined) rows[from + index] = paintBarCell(row, paint(lit ? "fill" : cell, lit), width);
   });
 }
 

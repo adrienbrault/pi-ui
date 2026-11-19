@@ -7,8 +7,10 @@ import {
   expandedSpans,
   hoveredRegions,
   offscreenHistory,
+  paintBar,
   paintBarCell,
   scrollBarRows,
+  type BarCell,
 } from "./viewport.ts";
 
 test("fully offscreen blocks age while a single visible row protects the whole block", () => {
@@ -170,5 +172,24 @@ describe("hovered open block", () => {
       fill: "accent",
       track: "scrollbarTrack",
     });
+  });
+});
+
+/** A preview bar painted as letters in column 1: `H` lit, `#` fill, `:` track. */
+function previewCells(cells: BarCell[]): Array<string | undefined> {
+  const rows = cells.map(() => "    row");
+  paintBar(rows, 0, cells, (cell, lit) => (lit ? "H" : cell === "fill" ? "#" : ":"), 10);
+  return rows.map((row) => stripTerminalSequences(row)[1]);
+}
+
+describe("hover preview bar", () => {
+  test("a bar that shows a position paints its cells at rest", () => {
+    expect(previewCells(["fill", "track", "track"])).toEqual(["#", ":", ":"]);
+  });
+
+  test("a bar with no position to show, one cell or all fill, lights in the hovered colours", () => {
+    expect(previewCells(["track"])).toEqual(["H"]);
+    expect(previewCells(["fill"])).toEqual(["H"]);
+    expect(previewCells(["fill", "fill"])).toEqual(["H", "H"]);
   });
 });

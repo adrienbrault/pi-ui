@@ -366,7 +366,13 @@ function bodyComponent(record: BlockRecord, theme: Theme, includeHeader = false)
       record.expandRow = expandable && rows.length ? (omission === -1 ? rows.length - 1 : omission) : undefined;
       // Hover shows only the scroll bar: where the preview sits in the whole output.
       if (expandable && record.hover && layout.bar?.length)
-        paintBar(rows, rows.length - layout.bar.length, layout.bar, (cell) => styleBarCell(api.theme, cell), width);
+        paintBar(
+          rows,
+          rows.length - layout.bar.length,
+          layout.bar,
+          (cell, lit) => styleBarCell(api.theme, cell, lit),
+          width,
+        );
       return rows;
     }) as Component,
     record,
