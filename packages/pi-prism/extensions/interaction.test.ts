@@ -435,18 +435,18 @@ describe("tool renderers", () => {
         children.push(makeShell("animated-" + i));
         dispatch("agent_settled");
         const first = oldest.render(80);
-        jest.advanceTimersByTime(180);
+        jest.advanceTimersByTime(90);
         const second = oldest.render(80);
         expect(second.map(stripTerminalSequences)).toEqual(first.map(stripTerminalSequences));
         expect(second.filter((line, index) => line !== first[index])).toHaveLength(1);
-        expect(second.join("")).toContain("38;2;150;150;150");
+        expect(second.join("")).toContain("38;2;140;140;140");
         if (i === 4) {
-          jest.advanceTimersByTime(540);
+          jest.advanceTimersByTime(270);
           for (let height = first.length - 1; height > 0; height--) {
             expect(oldest.render(80).map(stripTerminalSequences)).toEqual(
               first.slice(0, height).map(stripTerminalSequences),
             );
-            jest.advanceTimersByTime(720);
+            jest.advanceTimersByTime(360);
           }
         }
         jest.advanceTimersByTime(10000);

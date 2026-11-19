@@ -35,7 +35,8 @@ const decayFrames = new WeakMap<
   { folding: boolean; phase: number; removed: number; foldRows: number; budget: number; tail: boolean }
 >();
 const DECAY_FRAME_MS = 90;
-const FADE_FRAMES = 8;
+// Four 90 ms frames: a departing row is gone in 360 ms.
+const FADE_FRAMES = 4;
 
 function fadeLine(line: string, phase: number, theme: RenderTheme): string {
   if (phase === 0) return line;
