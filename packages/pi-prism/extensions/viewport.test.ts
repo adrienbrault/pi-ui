@@ -68,23 +68,40 @@ describe("scroll bar of an open block", () => {
     expect(expandedSpans(documentWith(20), 23, 5)).toEqual([]);
   });
 
-  test("the fill rises from the bottom of the visible slice as the reader scrolls up", () => {
+  test("one thumb cell marks the reader's position: top, middle, end", () => {
     const span = { start: 2, end: 22 };
     const bar = (top: number) => scrollBarRows([span], top, 10);
-    const filled = (top: number) => [...bar(top).values()].filter((kind) => kind === "fill").length;
-    // At the block's end nothing is filled; at its top the whole visible track is.
-    expect(filled(12)).toBe(0);
-    expect(filled(2)).toBe(10);
-    expect(filled(7)).toBe(5);
-    // Filled rows sit at the bottom of the visible slice, so the fill's edge is always on screen.
-    expect([...bar(7)].filter(([, kind]) => kind === "fill").map(([row]) => row)).toEqual([12, 13, 14, 15, 16]);
-    // Only visible rows of the block are painted.
+    const thumbs = (top: number) => [...bar(top)].filter(([, kind]) => kind === "fill").map(([row]) => row);
+    // At the block's top the thumb is on the first visible row, at its end on the last.
+    expect(thumbs(2)).toEqual([2]);
+    expect(thumbs(12)).toEqual([21]);
+    // Halfway through the scroll range, halfway down the visible slice.
+    expect(thumbs(7)).toEqual([12]);
+    expect(thumbs(3)).toEqual([4]);
+    // Every other visible row of the block is track, and only visible rows are painted.
+    for (const top of [0, 2, 5, 7, 12, 15]) expect(thumbs(top)).toHaveLength(1);
     expect([...bar(0).keys()]).toEqual([2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(thumbs(0)).toEqual([2]);
+    // Only the block's tail on screen: the reader is at its end.
+    expect(thumbs(15)).toEqual([21]);
   });
 
-  test("a block that fits on screen shows a full bar", () => {
+  test("a block that fits on screen keeps its thumb on its first row", () => {
     const bar = scrollBarRows([{ start: 2, end: 6 }], 0, 10);
-    expect([...bar.values()]).toEqual(["fill", "fill", "fill", "fill"]);
+    expect([...bar.values()]).toEqual(["fill", "track", "track", "track"]);
+  });
+
+  test("each open block on screen has its own single thumb", () => {
+    const bar = scrollBarRows(
+      [
+        { start: 0, end: 4 },
+        { start: 6, end: 30 },
+      ],
+      2,
+      10,
+    );
+    // The first block shows only its end, so its thumb is on its last row; the second shows its top.
+    expect([...bar].filter(([, kind]) => kind === "fill").map(([row]) => row)).toEqual([3, 6]);
   });
 
   test("the document render paints column 1 of the visible open rows and leaves column 0 alone", () => {
@@ -97,7 +114,7 @@ describe("scroll bar of an open block", () => {
       { bar: (kind) => (kind === "fill" ? "#" : ":") },
     );
     const lines = doc.render(20).map(stripTerminalSequences);
-    expect(lines.slice(7, 17).map((line) => line[1])).toEqual([":", ":", ":", ":", ":", "#", "#", "#", "#", "#"]);
+    expect(lines.slice(7, 17).map((line) => line[1])).toEqual([":", ":", ":", ":", ":", "#", ":", ":", ":", ":"]);
     expect(lines.slice(7, 17).every((line) => line[0] === " " && line.slice(2, 4) === "  ")).toBe(true);
     expect(lines[6]?.[1]).toBe(" ");
     expect(lines[17]?.[1]).toBe(" ");

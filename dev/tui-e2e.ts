@@ -757,13 +757,17 @@ ${visible}`);
       pane = capture();
     }
     assert(pane.includes("long output line 80.") && !pane.includes("long output line 159."), "expected middle of expanded bash output");
-    // Mid-block, column 1 of the open rows is the scroll bar: track above, fill below, both painted.
+    // Mid-block, column 1 of the open rows is the scroll bar: track, with one thumb cell marking the position.
     const open = tmux("capture-pane", "-e", "-p", "-t", SESSION)
       .split("\n")
       .filter((line) => line.includes("long output line"));
     const cells = open.map(barOf);
     assert(cells.every((cell) => cell !== undefined) && open.every((line) => backgrounds(line)[0] === undefined), `every open row should paint column 1 and only column 1\n${cells.join("\n")}`);
-    assert(new Set(cells).size === 2, `mid-block the bar should show both fill and track\n${[...new Set(cells)].join("\n")}`);
+    const kinds = [...new Set(cells)];
+    const thumbs = kinds.filter((kind) => cells.filter((cell) => cell === kind).length === 1);
+    assert(kinds.length === 2 && thumbs.length === 1, `mid-block the bar should show track and exactly one thumb cell\n${cells.join("\n")}`);
+    const thumbRow = cells.indexOf(thumbs[0]);
+    assert(thumbRow > 0 && thumbRow < cells.length - 1, `mid-block the thumb should sit inside the visible slice, not at an end\n${cells.join("\n")}`);
     const inside = rowOf(pane, "long output line 80.");
     mouse(0, 5, inside);
     mouse(0, 5, inside, true);

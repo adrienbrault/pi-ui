@@ -130,9 +130,11 @@ export function paintBar(
 }
 
 /**
- * The scroll bar drawn in column 1 of an open block's visible rows. The fill
- * rises from the bottom of the visible slice: empty at the block's end, full
- * once its first row is on screen. Its edge is always within the viewport.
+ * The scroll bar drawn in column 1 of an open block's visible rows: track on
+ * every visible row and one thumb cell ("fill") marking the reader's position
+ * in the block. The thumb sits on the first visible row at the block's top, on
+ * the last at its end, and moves down as the reader scrolls down. A block that
+ * fits on screen has nothing to scroll: its thumb stays on its first row.
  */
 export function scrollBarRows(spans: Span[], top: number, height: number): Map<number, BarCell> {
   const cells = new Map<number, BarCell>();
@@ -141,10 +143,9 @@ export function scrollBarRows(spans: Span[], top: number, height: number): Map<n
     const last = Math.min(span.end, top + height);
     const visible = last - first;
     if (visible <= 0) continue;
-    const range = span.end - span.start - height;
-    const progress = range > 0 ? Math.min(1, Math.max(0, 1 - (top - span.start) / range)) : 1;
-    const filled = Math.round(progress * visible);
-    for (let row = first; row < last; row++) cells.set(row, row >= last - filled ? "fill" : "track");
+    const range = span.end - span.start - visible;
+    const thumb = range > 0 ? first + Math.round(((visible - 1) * (first - span.start)) / range) : first;
+    for (let row = first; row < last; row++) cells.set(row, row === thumb ? "fill" : "track");
   }
   return cells;
 }
