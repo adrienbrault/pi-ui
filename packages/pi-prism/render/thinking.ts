@@ -9,7 +9,7 @@
 
 import { bodyLinesFor, COMPACT_LEVEL, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
 import { frameAt, type GlyphSet } from "./glyphs.ts";
-import { cellPadding, metricColumns, type MemberCells, type MemberColumns } from "./columns.ts";
+import { cellPadding, metricColumns, tableFits, type MemberCells, type MemberColumns } from "./columns.ts";
 import { blockBodyIndent, cutMark, type RenderKit, type RenderTheme } from "./kit.ts";
 import { previewBar, styleMetric, truncateMiddle, type BarCell } from "./tool-row.ts";
 import { estimatedTokens, formatRate } from "./tools.ts";
@@ -134,10 +134,14 @@ function headerFor(api: ThinkingApi, input: ThinkingLabelInput): Header {
   const timing = duration ? ` ${dot} ${theme.fg("dim", duration)}` : "";
   const speed = rate ? ` ${formatRate(rate)}/s` : "";
   // As a group member, the thought's tokens (model output), rate and time fill the group's columns.
-  const metrics = input.columns
-    ? styleMetric(theme, metricColumns(thoughtCells(input), input.columns))
-    : theme.fg("dim", tokens + speed) + timing;
+  // Too narrow for the group's table, every member row leaves it out.
+  const metrics = !input.columns
+    ? theme.fg("dim", tokens + speed) + timing
+    : tableFits(input.columns, input.width)
+      ? styleMetric(theme, metricColumns(thoughtCells(input), input.columns))
+      : "";
   const heading = (left: string) => {
+    if (!metrics) return clampLine(api, left, input.width);
     const prefix = left + ` ${dot} `;
     const gap = Math.max(0, input.width - kit.visibleWidth(prefix + metrics));
     return clampLine(api, prefix + " ".repeat(gap) + metrics, input.width);
@@ -255,7 +259,7 @@ export function composeThinkingLabel(
   if (bodyLinesFor(input.level) <= 1 && !input.expanded) {
     // One row: the start and the end of the reasoning, cut in the middle like a command.
     const prefix = `${frame.marker} ${frame.dot} `;
-    const room = input.width - kit.visibleWidth(frame.metrics) - 3 - kit.visibleWidth(prefix);
+    const room = input.width - (frame.metrics ? kit.visibleWidth(frame.metrics) + 3 : 0) - kit.visibleWidth(prefix);
     const excerpt = frame.flat
       ? truncateMiddle(kit, frame.flat, Math.max(0, room), cutMark(theme), (part) => theme.fg("thinkingText", part))
       : undefined;

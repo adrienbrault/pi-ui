@@ -5,7 +5,7 @@
 
 import { bodyLinesFor, COMPACT_LEVEL, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
 import { frameAt, type GlyphSet } from "./glyphs.ts";
-import { cellPadding, metricColumns, type MemberCells, type MemberColumns } from "./columns.ts";
+import { cellPadding, metricColumns, tableFits, type MemberCells, type MemberColumns } from "./columns.ts";
 import { blockBodyIndent, cutMark, type ComponentLike, type RenderKit, type RenderTheme } from "./kit.ts";
 import {
   cleanOutput,
@@ -218,11 +218,11 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, width: number) {
   // MCP labels already read `server/tool`; repeating it as the title is noise.
   if (title && title !== label) pieces.push({ kind: "title", text: theme.fg("accent", title) });
   if (summary) pieces.push({ kind: "summary", text: theme.fg("dim", summary) });
-  // As a group member, tokens, rates and duration fill the group's columns as one piece.
-  pieces.push({
-    kind: "tokens",
-    text: styleMetric(theme, input.columns ? metricColumns(toolRowCells(input), input.columns) : tokens),
-  });
+  // As a group member, tokens, rates and duration fill the group's columns as one piece, or,
+  // when the group's rows are too narrow for the table, leave the row to its description.
+  if (!input.columns) pieces.push({ kind: "tokens", text: styleMetric(theme, tokens) });
+  else if (tableFits(input.columns, width))
+    pieces.push({ kind: "tokens", text: styleMetric(theme, metricColumns(toolRowCells(input), input.columns)) });
   const error = errorHeadline(input, meta);
   if (error) pieces.push({ kind: "error", text: theme.fg("error", error) });
   const duration =

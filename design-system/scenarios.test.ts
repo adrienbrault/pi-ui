@@ -54,3 +54,12 @@ test("a collapsed mixed group is one summary row with the failure counted", () =
   expect(rows[summary]).toContain("1 failed");
   expect(rows[summary + 1]).toBe("");
 });
+
+test("an opened group too narrow for its table leaves every member to its description", () => {
+  const rows = render("scenario.fold", "opened", 60);
+  const summary = rows.findIndex((row) => row.includes("Thought"));
+  const members = rows.slice(summary + 1, summary + 7);
+  expect(members.some((row) => row.includes("out "))).toBe(false);
+  expect(members[0]).toMatch(/^ {2}✻ think · Start from the planner/);
+  expect(members[1]).toBe("  ● read  · extensions/fold.ts");
+});

@@ -60,3 +60,17 @@ export function metricColumns(cells: MemberCells, columns: MemberColumns): strin
     .join("")
     .replace(/^ \u00b7 /, "");
 }
+
+/** Columns a member row's description keeps before the group's table gives way. */
+export const MIN_DESCRIPTION = 16;
+
+/**
+ * Whether member rows this wide have room for the table beside a description:
+ * one answer for the whole group, so either every row shows its numbers or
+ * none does. A row is a glyph, the label column, ` · `, the description,
+ * ` · ` and the table.
+ */
+export function tableFits(columns: MemberColumns, width: number): boolean {
+  const table = metricColumns({ label: "" }, columns).length;
+  return width - (2 + columns.label + 3) - MIN_DESCRIPTION - 3 - table >= 0;
+}
