@@ -7,17 +7,18 @@
  * stats each one, notes each tracked file's blob in the index, and reads the content of the files
  * git does not hold as they are: untracked files, and tracked files that differ from the index.
  * After the command (`tool_result`, which can add `details`), the files whose stat changed are
- * diffed old to new with pi's own patch helper. Nothing is written to the repository: every git
+ * diffed old to new as pi's edit tool diffs, with a bound on the diff's work. Nothing is written to the repository: every git
  * call takes `--no-optional-locks`, and none of them creates objects or touches the index.
  *
  * Everything is bounded: git calls and the snapshot have a deadline, reads have per-file and
- * total caps, and a repository with too many files is skipped. Any failure skips quietly.
+ * total caps, each diff has a time and an edit-length bound, and a repository with too many files
+ * is skipped. Any failure skips quietly.
  */
 
 import { execFile, spawn } from "node:child_process";
 import { lstat, readFile } from "node:fs/promises";
 import { join, posix } from "node:path";
-import * as coding from "@earendil-works/pi-coding-agent";
+import { createTwoFilesPatch, FILE_HEADERS_ONLY } from "diff";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { toolMeta } from "../render/tools.ts";
 import type { FileChange, FileChanges } from "../render/tool-row.ts";
@@ -25,8 +26,8 @@ import type { FileChange, FileChanges } from "../render/tool-row.ts";
 /** Runs git in `cwd`; its stdout, or undefined when git is missing, fails or overruns `timeout`. */
 export type Git = (args: string[], cwd: string, timeout: number, input?: string) => Promise<Buffer | undefined>;
 
-/** A unified patch from `before` to `after`, headed by `path`. */
-export type Patch = (path: string, before: string, after: string) => string;
+/** A unified patch from `before` to `after`, headed by `path`; undefined when it would take longer than `timeoutMs`. */
+export type Patch = (path: string, before: string, after: string, timeoutMs: number) => string | undefined;
 
 export interface Limits {
   /** The snapshot before a command, and the collection after it, each finish within this. */
@@ -72,11 +73,34 @@ export const runGit: Git = (args, cwd, timeout, input) =>
     child.stdin.end(input);
   });
 
-/** pi's patch helper, the one its edit tool uses; guarded, since older installs may lack it. */
-const piPatch: Patch | undefined =
-  typeof (coding as { generateUnifiedPatch?: unknown }).generateUnifiedPatch === "function"
-    ? (path, before, after) => coding.generateUnifiedPatch(path, before, after)
-    : undefined;
+/**
+ * The diff's bounds. jsdiff's Myers search runs synchronously and a deadline cannot interrupt it:
+ * reversing 12,000 lines took 53 s. Both bounds make jsdiff give up and return undefined. The time
+ * is checked once per edit length; the edit-length bound (lines removed plus lines added) caps the
+ * work of each of those steps, and turns away only edits whose patch could not fit the patch text
+ * budget anyway, at two bytes or more per changed line. A new file of 32,000 short lines diffs in
+ * about 30 ms, within the time.
+ */
+export const PATCH_TIMEOUT_MS = 50;
+export const PATCH_MAX_EDIT_LINES = LIMITS.maxPatchBytes / 2;
+
+/**
+ * pi's `generateUnifiedPatch`, the helper its edit tool uses (jsdiff's two-file patch with file
+ * headers only and four lines of context), with the diff's bounds added.
+ */
+export function boundedPatch(
+  path: string,
+  before: string,
+  after: string,
+  timeoutMs = PATCH_TIMEOUT_MS,
+): string | undefined {
+  return createTwoFilesPatch(path, path, before, after, undefined, undefined, {
+    context: 4,
+    headerOptions: FILE_HEADERS_ONLY,
+    timeout: timeoutMs,
+    maxEditLength: PATCH_MAX_EDIT_LINES,
+  });
+}
 
 /** A work tree before a command: paths are relative to its top level. */
 export interface Snapshot {
@@ -170,39 +194,6 @@ export async function takeSnapshot(
   return { root, prefix, stats, blobs, saved };
 }
 
-/**
- * Steps a diff may cost before it is skipped. jsdiff's Myers search runs synchronously, in about
- * (lines on the shorter side) × (lines changed) steps, some 9 million a second here: a 256 KB file
- * rewritten line for line took 12 s, and every other line changed 6 s, while a new file of the
- * same size took 13 ms. This bound keeps one file near 100 ms.
- */
-export const DIFF_BUDGET = 1_000_000;
-
-/**
- * Whether diffing `before` against `after` stays within `budget`. The lines left once the common
- * opening and ending are trimmed bound the change from above; lines on one side and not the other
- * (counted with repeats) bound it from below. Within the upper bound the diff is cheap; past the
- * lower one it is not. Between the two, the change is a few scattered edits or lines moved about,
- * and is diffed: only a large reordering is slow there.
- */
-export function diffWithinBudget(before: string, after: string, budget = DIFF_BUDGET): boolean {
-  const old = before.split("\n");
-  const next = after.split("\n");
-  let start = 0;
-  while (start < old.length && start < next.length && old[start] === next[start]) start++;
-  let end = 0;
-  while (end < old.length - start && end < next.length - start && old.at(-1 - end) === next.at(-1 - end)) end++;
-  const shorter = Math.min(old.length, next.length) - start - end + 1;
-  const upper = old.length + next.length - 2 * (start + end);
-  if (shorter * upper <= budget) return true;
-  const counts = new Map<string, number>();
-  for (const line of old) counts.set(line, (counts.get(line) ?? 0) + 1);
-  for (const line of next) counts.set(line, (counts.get(line) ?? 0) - 1);
-  let lower = 0;
-  for (const count of counts.values()) lower += Math.abs(count);
-  return shorter * lower <= budget;
-}
-
 /** Binary content: a NUL byte in its first 8000 bytes, as git decides. */
 const binary = (content: Buffer) => content.subarray(0, 8000).includes(0);
 
@@ -231,7 +222,7 @@ async function readBlobs(git: Git, root: string, ids: string[], timeout: number)
 export async function collectChanges(
   snapshot: Snapshot,
   git: Git = runGit,
-  patch: Patch | undefined = piPatch,
+  patch: Patch = boundedPatch,
   limits: Limits = LIMITS,
 ): Promise<FileChanges | undefined> {
   const deadline = Date.now() + limits.deadlineMs;
@@ -281,7 +272,7 @@ export async function collectChanges(
     if (size <= limits.maxFileBytes) after = await readFile(join(root, path)).catch(() => undefined);
     // Touched, rewritten with the same bytes: nothing changed that a diff could show.
     if (before && after && before.equals(after)) continue;
-    if (!before || !after || !patch) {
+    if (!before || !after) {
       files.push({ path: shown, kind, note: "too large" });
       continue;
     }
@@ -289,14 +280,11 @@ export async function collectChanges(
       files.push({ path: shown, kind, note: "binary" });
       continue;
     }
-    const [oldText, newText] = [before.toString("utf8"), after.toString("utf8")];
-    // The diff runs synchronously: one that would stall the session is reported without it.
-    if (!diffWithinBudget(oldText, newText)) {
-      files.push({ path: shown, kind, note: "too large" });
-      continue;
-    }
-    const text = patch(shown, oldText, newText);
-    if (patchBytes + text.length > limits.maxPatchBytes) {
+    // The diff runs synchronously, so it gets at most what is left of the deadline: one that would
+    // stall the session gives up and is reported without it.
+    const timeout = Math.min(PATCH_TIMEOUT_MS, remaining(deadline));
+    const text = patch(shown, before.toString("utf8"), after.toString("utf8"), timeout);
+    if (text === undefined || patchBytes + text.length > limits.maxPatchBytes) {
       files.push({ path: shown, kind, note: "too large" });
       continue;
     }
@@ -334,7 +322,7 @@ export function installFileChanges(
   options: { git?: Git; patch?: Patch; limits?: Limits } = {},
 ): void {
   const git = options.git ?? runGit;
-  const patch = options.patch ?? piPatch;
+  const patch = options.patch ?? boundedPatch;
   const limits = options.limits ?? LIMITS;
   const pending = new Map<string, Promise<Snapshot | undefined>>();
   pi.on("tool_call", async (event, ctx) => {

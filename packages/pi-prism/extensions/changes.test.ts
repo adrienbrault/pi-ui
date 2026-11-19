@@ -4,9 +4,10 @@ import { createHash } from "node:crypto";
 import { cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import * as coding from "@earendil-works/pi-coding-agent";
 import {
+  boundedPatch,
   collectChanges,
-  diffWithinBudget,
   installFileChanges,
   LIMITS,
   recordedChanges,
@@ -176,10 +177,19 @@ describe("a shell command's file changes", () => {
 const lines = (count: number, tag: string) => Array.from({ length: count }, (_, i) => `${tag} ${i}`).join("\n");
 
 describe("the diff's cost", () => {
-  test("a new file, a deleted one and a one-line edit of a large file are diffed", () => {
-    expect(diffWithinBudget("", lines(8000, "a"))).toBe(true);
-    expect(diffWithinBudget(lines(8000, "a"), "")).toBe(true);
-    expect(diffWithinBudget(lines(8000, "a"), lines(8000, "a").replace("a 100\n", "A 100\n"))).toBe(true);
+  test("a patch reads as pi's own, the one its edit tool records", () => {
+    const cases: Array<[string, string]> = [
+      ["", lines(12_000, "a")],
+      [lines(8000, "a"), ""],
+      [lines(8000, "a"), lines(8000, "a").replace("a 100\n", "A 100\n")],
+      ["one\ntwo\nthree", "one\nTWO\nthree\nfour"],
+      ["crlf\r\nline\r\n", "crlf\r\nLINE\r\n"],
+      ["same\n", "same"],
+    ];
+    for (const [before, after] of cases)
+      expect(boundedPatch("dir/file.ts", before, after)).toBe(
+        coding.generateUnifiedPatch("dir/file.ts", before, after),
+      );
   });
 
   test("scattered edits across a large file are diffed", () => {
@@ -187,16 +197,41 @@ describe("the diff's cost", () => {
       .split("\n")
       .map((line, index) => (index % 1000 === 0 ? line.toUpperCase() : line))
       .join("\n");
-    expect(diffWithinBudget(lines(8000, "a"), edited)).toBe(true);
+    expect(boundedPatch("f", lines(8000, "a"), edited)).toContain("+A 1000\n");
   });
 
-  test("a large file rewritten line for line is not: jsdiff would stall for seconds", () => {
-    expect(diffWithinBudget(lines(8000, "a"), lines(8000, "b"))).toBe(false);
-    const interleaved = lines(8000, "a")
-      .split("\n")
-      .map((line, index) => (index % 2 ? line.toUpperCase() : line))
-      .join("\n");
-    expect(diffWithinBudget(lines(8000, "a"), interleaved)).toBe(false);
+  test("a new file, or a long block added to one, diffs whatever its length within the patch budget", () => {
+    expect(boundedPatch("f", "", lines(20_000, "a"))).toContain("@@ -0,0 +1,20000 @@\n");
+    expect(boundedPatch("f", lines(100, "a"), `${lines(100, "a")}\n${lines(15_000, "b")}`)).toContain("+b 14999");
+  });
+
+  test("a diff that would stall the session gives up within its bound", () => {
+    // Reordering keeps every line, so no estimate from counts sees it: unbounded, jsdiff took over 25 s.
+    const reversed = lines(12_000, "a").split("\n").toReversed().join("\n");
+    const started = performance.now();
+    expect(boundedPatch("f", lines(12_000, "a"), reversed)).toBeUndefined();
+    expect(performance.now() - started).toBeLessThan(200);
+    expect(boundedPatch("f", lines(8000, "a"), lines(8000, "b"))).toBeUndefined();
+  });
+
+  test("a file whose diff gives up is reported without one", async () => {
+    const root = repository();
+    writeFileSync(join(root, "long.txt"), `${lines(12_000, "a")}\n`);
+    git(root, "add", "long.txt");
+    git(root, "commit", "-q", "-m", "long");
+    const before = await takeSnapshot(root);
+    await tick();
+    writeFileSync(join(root, "long.txt"), `${lines(12_000, "a").split("\n").toReversed().join("\n")}\n`);
+    writeFileSync(join(root, "clean.txt"), "one\nTWO\nthree\n");
+    const changes = await collectChanges(before!);
+    expect(changes?.files.find((file) => file.path === "long.txt")).toEqual({
+      path: "long.txt",
+      kind: "modified",
+      note: "too large",
+    });
+    expect(changes?.files.find((file) => file.path === "clean.txt")?.patch).toBe(
+      coding.generateUnifiedPatch("clean.txt", "one\ntwo\nthree\n", "one\nTWO\nthree\n"),
+    );
   });
 });
 

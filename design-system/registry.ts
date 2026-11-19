@@ -29,6 +29,7 @@ import {
   toolMeta,
   toolTokenLabel,
 } from "../packages/pi-prism/render/tools.ts";
+import { boundedPatch } from "../packages/pi-prism/extensions/changes.ts";
 import type { PiInstall } from "./lib/pi.ts";
 import { stack } from "./lib/surface.ts";
 import {
@@ -203,12 +204,10 @@ const detailSource = (fold: number) =>
 
 /**
  * A bash that wrote two files in its git work tree, as the extension records it: each patch made
- * by the pi install's own `generateUnifiedPatch`, the helper its edit tool uses.
+ * by the extension's own `boundedPatch`, which writes patches as pi's edit tool does.
  */
-const changedFilesRow = (ctx: RenderCtx): ToolRowInput => {
-  const patch = (path: string, before: string, after: string): string =>
-    ctx.pi.modules.coding.generateUnifiedPatch(path, before, after);
-  return bashRow({
+const changedFilesRow = (): ToolRowInput =>
+  bashRow({
     args: {
       command:
         "printf 'Edits: 5\\nLines: 12\\n' > ./tmp/one.txt; sed -i '' 's/DISTANCE = 10/DISTANCE = 12/' packages/pi-prism/render/detail.ts",
@@ -221,13 +220,12 @@ const changedFilesRow = (ctx: RenderCtx): ToolRowInput => {
         {
           path: "packages/pi-prism/render/detail.ts",
           kind: "modified",
-          patch: patch("packages/pi-prism/render/detail.ts", detailSource(10), detailSource(12)),
+          patch: boundedPatch("packages/pi-prism/render/detail.ts", detailSource(10), detailSource(12)),
         },
-        { path: "tmp/one.txt", kind: "created", patch: patch("tmp/one.txt", "", "Edits: 5\nLines: 12\n") },
+        { path: "tmp/one.txt", kind: "created", patch: boundedPatch("tmp/one.txt", "", "Edits: 5\nLines: 12\n") },
       ],
     },
   });
-};
 
 const editRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
   name: "edit",
@@ -706,14 +704,14 @@ const oursEntries: EntryDef[] = [
         "changes",
         "changed two files",
         0,
-        (ctx) => changedFilesRow(ctx),
+        () => changedFilesRow(),
         "files the command created or changed in its git work tree follow the output: a path row, then the diff read like an edit's",
       ),
       levelState(
         "changes-l4",
         "changed two files, aged L4",
         4,
-        (ctx) => changedFilesRow(ctx),
+        () => changedFilesRow(),
         "the diffs share the row budget with the output: an older block keeps fewer of their lines",
       ),
     ],
