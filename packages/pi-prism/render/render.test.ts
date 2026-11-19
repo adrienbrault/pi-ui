@@ -15,6 +15,7 @@ import { groupSegments, renderGroupMember, renderGroupRow } from "./group-row.ts
 import {
   leavingRow,
   previewBar,
+  previewLineCount,
   previewText,
   renderToolRow,
   toolHeader,
@@ -220,12 +221,14 @@ describe("tool row heights", () => {
       "@@ -40,5 +51,9 @@",
       "+export const FOLD_DISTANCE = 8;",
     ].join("\n");
-    const body = renderToolRow(api, { name: "edit", status: "success", level: 1, output: diff }).render(80).slice(1);
+    const body = renderToolRow(api, { name: "edit", status: "success", level: 3, output: diff }).render(80).slice(1);
     const text = body.join("\n");
     expect(text).toContain("DetailLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6");
     expect(text).toContain("FOLD_DISTANCE = 8");
-    expect(text).toContain("⋮  5 more lines");
+    // Only the three unchanged lines are hidden: the headers were never lines of the file.
+    expect(text).toContain("⋮  3 more lines");
     expect(text).not.toContain("unchanged context one");
+    expect(text).not.toContain("index 51aa02f");
   });
 
   test("written file content is not coloured as a diff", () => {
@@ -410,16 +413,15 @@ describe("diff line numbers", () => {
       "+came",
       " tail",
     ].join("\n");
+    // The row header names the file and the gutter numbers the lines: file and hunk headers are
+    // noise. A faint divider in the number column marks the jump between hunks.
     expect(editBody(patch)).toEqual([
-      "    --- a.ts",
-      "    +++ a.ts",
-      "    @@ -9,3 +9,4 @@",
       "     9   keep nine",
       "    10  -old ten",
       "    10  +new ten",
       "    11  +new eleven",
       "    12   keep",
-      "    @@ -40,2 +41,2 @@",
+      "     ⋮",
       "    40  -gone",
       "    41  +came",
       "    42   tail",
@@ -428,23 +430,47 @@ describe("diff line numbers", () => {
 
   test("a removed line that reads like a file header still takes its number", () => {
     expect(editBody("@@ -1,2 +1,1 @@\n--- a comment\n-two\n+one")).toEqual([
-      "    @@ -1,2 +1,1 @@",
       "    1  --- a comment",
       "    2  -two",
       "    1  +one",
     ]);
   });
 
+  test("a changed line that reads like a header keeps its change colours and survives a preview", () => {
+    const tokens = {
+      ...api,
+      theme: {
+        ...theme,
+        style: (text: string, options: { bg?: string }) => (options.bg ? `<${options.bg}>${text}` : text),
+      },
+    };
+    const patch = [
+      "--- a.sql",
+      "+++ a.sql",
+      "@@ -1,8 +1,8 @@",
+      " one",
+      " two",
+      " three",
+      "--- old comment",
+      "+++ new counter",
+      " four",
+      " five",
+      " six",
+    ].join("\n");
+    const rows = renderToolRow(tokens, { name: "edit", status: "success", level: 4, output: patch })
+      .render(80)
+      .slice(1)
+      .map((row) => row.trimEnd());
+    expect(rows).toEqual([
+      "    <toolErrorBg>4  --- old comment",
+      "    <toolSuccessBg>4  +++ new counter",
+      "    ⋮  6 more lines",
+    ]);
+  });
+
   test("pi's numbered diff moves its numbers into the gutter", () => {
     const diff = ["  9 a", "-10 b", "+10 B", " 11 c", "    ...", " 20 d"].join("\n");
-    expect(editBody(diff)).toEqual([
-      "     9   a",
-      "    10  -b",
-      "    10  +B",
-      "    11   c",
-      "        ...",
-      "    20   d",
-    ]);
+    expect(editBody(diff)).toEqual(["     9   a", "    10  -b", "    10  +B", "    11   c", "     ⋮", "    20   d"]);
     // Too narrow for the gutter: the signs stay, the numbers go.
     expect(editBody(diff, 26).slice(0, 2)).toEqual(["     a", "    -b"]);
   });
@@ -455,12 +481,39 @@ describe("diff line numbers", () => {
       .render(80)
       .slice(1)
       .map((row) => row.trimEnd());
-    expect(rows).toEqual(["    @@ -1,6 +1,6 @@", "    3  -three", "    3  +THREE", "    ⋮  4 more lines"]);
+    expect(rows).toEqual(["    3  -three", "    3  +THREE", "    ⋮  4 more lines"]);
   });
 
   test("a shell diff keeps its text as it came", () => {
     const rows = shell("git diff", "@@ -9,1 +9,1 @@\n-old\n+new");
     expect(rows).toEqual(["    @@ -9,1 +9,1 @@", "    -old", "    +new"]);
+  });
+
+  test("a shell diff tells its headers from changed lines by the hunk counts, not the prefix", () => {
+    const tokens = { ...api, theme: { ...theme, fg: (token: string, text: string) => `<${token}>${text}` } };
+    const rows = renderToolRow(tokens, {
+      name: "bash",
+      status: "success",
+      level: 0,
+      args: { command: "git diff" },
+      output: "--- a/q.sql\n+++ b/q.sql\n@@ -1,1 +1,1 @@\n--- old\n+++ new",
+    })
+      .render(80)
+      .slice(1)
+      .map((row) => row.trim());
+    expect(rows).toEqual([
+      "<dim>--- a/q.sql",
+      "<dim>+++ b/q.sql",
+      "<accent>@@ -1,1 +1,1 @@",
+      "<error>--- old",
+      "<success>+++ new",
+    ]);
+  });
+
+  test("an edit's headers are not lines it could open to show", () => {
+    const input = { name: "edit", status: "success", level: 4, output: "--- a\n+++ a\n@@ -1 +1 @@\n-x\n+y" } as const;
+    expect(previewLineCount(input)).toBe(2);
+    expect(toolRowLayout(api, input, 80).omission).toBeUndefined();
   });
 });
 
@@ -945,7 +998,7 @@ describe("omission notices", () => {
       read: ["⋮ 37 more lines"],
       readHead: ["↓ 39 more lines"],
       alone: ["↓ 2 more lines"],
-      diff: ["↓ 27 more lines"],
+      diff: ["↓ 26 more lines"],
       command: ["↓ 500 more lines"],
       settled: ["↑ 7 more lines"],
       streaming: ["↑ 7 more lines"],
@@ -969,9 +1022,9 @@ describe("omission notices", () => {
   });
 
   test("unchanged context dropped between a diff's changes is marked as between them", () => {
-    const small = ["@@ -1,4 +1,4 @@", " context one", "-old", "+new", " context two", " context three"].join("\n");
+    const small = ["@@ -1,5 +1,5 @@", " one", "-old", "+new", " two", " three", " four"].join("\n");
     const rows = renderToolRow(api, { name: "edit", status: "success", level: 3, output: small }).render(80);
-    expect(rows.at(-1)?.trim()).toBe("⋮  3 more lines");
+    expect(rows.at(-1)?.trim()).toBe("⋮  4 more lines");
   });
 
   test("a lit notice turns the text colour on every block kind", () => {

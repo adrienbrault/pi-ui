@@ -65,22 +65,6 @@ export function toolLabel(name: string): string {
   return oneLine(toolMeta(name).label);
 }
 
-/** Diff lines keep their meaning under decay: additions green, removals red. */
-function diffTone(line: string): "success" | "error" | "accent" | "dim" | undefined {
-  if (
-    line.startsWith("+++ ") ||
-    line.startsWith("--- ") ||
-    line.startsWith("diff --git") ||
-    line.startsWith("index ")
-  ) {
-    return "dim";
-  }
-  if (line.startsWith("@@")) return "accent";
-  if (line.startsWith("+")) return "success";
-  if (line.startsWith("-")) return "error";
-  return undefined;
-}
-
 function statusGlyph(api: RenderApi, input: ToolRowInput): string {
   const { theme, glyphs } = api;
   switch (input.status) {
@@ -341,6 +325,12 @@ interface Selected {
   path?: string;
   /** A row that is neither output nor a notice: grep's divider between groups, or a path row. */
   rule?: "divider" | "path";
+  /** A diff row's colour, read from its place in the patch: additions green, removals red. */
+  tone?: "success" | "error" | "accent" | "dim";
+  /** An edit-style change row: its tone is a background, the full width of the code column. */
+  bg?: boolean;
+  /** Unchanged context or patch metadata: the first rows a diff preview drops. */
+  context?: boolean;
 }
 
 /** One cell of a block's scroll bar, drawn in column 1. */
@@ -360,10 +350,6 @@ export function previewBar(total: number, shown: ReadonlySet<number>, rows: numb
     return "fill";
   });
 }
-
-/** Diff metadata and unchanged context are the first rows to go. */
-const DIFF_NOISE = /^(diff --git|index |new file|deleted file|similarity |rename |--- |\+\+\+ )/;
-const isDiffContext = (line: string): boolean => DIFF_NOISE.test(line) || line.startsWith(" ");
 
 /**
  * Between two numbered rows a notice counts the numbers it skips, blank lines
@@ -386,17 +372,39 @@ const notice = (count: number, side: OmissionSide): Selected => ({ line: "", not
 function selectDiff(lines: Selected[], show: number): Selected[] {
   if (lines.length <= show) return lines;
 
-  const essential = lines.filter(({ line }) => !isDiffContext(line));
+  const essential = lines.filter((row) => !row.context);
   const contextHidden = lines.length - essential.length;
   if (essential.length + 1 <= show) {
     // The dropped context sat between the changes kept in order.
-    return [...essential, notice(contextHidden, "between")];
+    return tidyDividers([...essential, notice(contextHidden, "between")]);
   }
 
   // Still too long: read the evidence in order, and say how much is left below it.
-  const kept = show - 1;
-  const hidden = lines.length - kept;
-  return [...essential.slice(0, kept), notice(hidden, "below")];
+  const kept = essential.slice(0, show - 1);
+  return tidyDividers([...kept, notice(lineCount(lines) - lineCount(kept), "below")]);
+}
+
+/** Lines among rows: a divider or a path row stands for no line. */
+const lineCount = (rows: Selected[]): number => rows.filter((row) => !row.rule).length;
+
+/** Each line's position among the body's lines, for the bar and the fade; rules have none. */
+function indexLines(rows: Selected[]): Selected[] {
+  let index = 0;
+  return rows.map((row) => (row.rule ? row : { ...row, index: index++ }));
+}
+
+/**
+ * A divider marks a jump between two kept hunks of one file: never the first or last row, never
+ * beside a notice (which already says lines are missing there) or a path row, never twice in a row.
+ */
+function tidyDividers(rows: Selected[]): Selected[] {
+  const gap = (row: Selected | undefined) => !row || !!row.notice || !!row.rule;
+  const kept: Selected[] = [];
+  rows.forEach((row, index) => {
+    if (row.rule === "divider" && (gap(kept.at(-1)) || gap(rows[index + 1]))) return;
+    kept.push(row);
+  });
+  return kept;
 }
 
 /** Reads keep their opening and their end; the notice marks the cut between them. */
@@ -497,8 +505,22 @@ function takesRow(line: ShellLine): boolean {
  */
 export function previewLineCount(input: ToolRowInput): number {
   const raw = previewText(input);
-  const view = shellViewOf(input, cleanOutput(raw));
+  const text = cleanOutput(raw);
+  // A diff's rows are its lines and the dividers between hunks; an edit's headers take none.
+  if (isDiff(input, text)) return diffRows(logicalLines(text), input.name === "edit").length;
+  const view = shellViewOf(input, text);
   return view ? view.lines.filter(takesRow).length : nonEmptyLineCount(raw);
+}
+
+/** Whether a body reads as a diff: an edit's patch, or a shell command's output that is one. */
+function isDiff(input: ToolRowInput, text: string): boolean {
+  const cls = toolMeta(input.name).cls;
+  return (
+    !input.error &&
+    // A write previews the file it wrote: its `-`/`+` lines are content, not changes.
+    ((DIFF_HINT.test(text) && (cls === "edit" || cls === "shell")) ||
+      (input.name === "edit" && /^[+-] *\d+ /m.test(text)))
+  );
 }
 
 /**
@@ -550,81 +572,126 @@ function withPaths(selected: Selected[]): Selected[] {
 const HUNK = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/;
 const NUMBERED_ROW = /^[ +-] *(\d+) /;
 
+/** A patch line's role, read from where it sits: a hunk's lines are counted from its header. */
+type DiffKind = "header" | "hunk" | "add" | "del" | "context" | "meta";
+
+interface DiffLine {
+  kind: DiffKind;
+  line: string;
+  /** The line without its sign, and without the number pi's display diff writes after it. */
+  code: string;
+  /** The line's number in its file: removed lines in the old file, the rest in the new. */
+  number?: number;
+  /** Which hunk the line belongs to; a `hunk` line starts the next one. */
+  hunk: number;
+}
+
+/** File headers git and `diff -u` write before a file's first hunk. */
+const DIFF_HEADER =
+  /^(diff --git|index |new file|deleted file|old mode|new mode|similarity |dissimilarity |rename |copy |Binary files |--- |\+\+\+ )/;
+/** pi's display diff marks the unchanged lines it skips with an indented `...`. */
+const DISPLAY_GAP = /^ +\.\.\.$/;
+
 /**
- * Each diff line's number in its file: pi's display diff writes it after the sign; a unified
- * patch counts from its hunk headers, removed lines in the old file, added and unchanged ones
- * in the new. A hunk ends when both its sides are counted, so a removed line reading `--- ` is
- * still a line, not a file header.
+ * Each patch line's role and number. A unified patch counts from its hunk headers, so a hunk ends
+ * when both its sides are counted: a removed line reading `--- x` (`-- x` in SQL or Lua) is a line
+ * of the file, not a file header. pi's display diff writes each number after the sign.
  */
-function diffLineNumbers(lines: string[], numbered: boolean): Array<number | undefined> {
-  if (numbered) return lines.map((line) => NUMBERED_ROW.exec(line)?.[1]).map((n) => (n ? Number(n) : undefined));
+function parseDiff(lines: string[], numbered: boolean): DiffLine[] {
+  let hunk = 0;
+  if (numbered) {
+    return lines.map((line): DiffLine => {
+      if (DISPLAY_GAP.test(line)) return { kind: "hunk", line, code: line, hunk: ++hunk };
+      const match = NUMBERED_ROW.exec(line);
+      if (!match) return { kind: "meta", line, code: line, hunk };
+      const kind = line[0] === "+" ? "add" : line[0] === "-" ? "del" : "context";
+      return { kind, line, code: line.replace(NUMBERED_ROW, ""), number: Number(match[1]), hunk };
+    });
+  }
   let oldLine = 0;
   let newLine = 0;
   let oldLeft = 0;
   let newLeft = 0;
-  return lines.map((line) => {
-    const hunk = HUNK.exec(line);
-    if (hunk) {
-      oldLine = Number(hunk[1]);
-      oldLeft = hunk[2] === undefined ? 1 : Number(hunk[2]);
-      newLine = Number(hunk[3]);
-      newLeft = hunk[4] === undefined ? 1 : Number(hunk[4]);
-      return undefined;
+  return lines.map((line): DiffLine => {
+    const header = HUNK.exec(line);
+    if (header) {
+      oldLine = Number(header[1]);
+      oldLeft = header[2] === undefined ? 1 : Number(header[2]);
+      newLine = Number(header[3]);
+      newLeft = header[4] === undefined ? 1 : Number(header[4]);
+      return { kind: "hunk", line, code: line, hunk: ++hunk };
     }
-    if (oldLeft <= 0 && newLeft <= 0) return undefined;
+    // `\ No newline at end of file` belongs to the line before it.
+    if (line.startsWith("\\")) return { kind: "meta", line, code: line, hunk };
+    if (oldLeft <= 0 && newLeft <= 0)
+      return { kind: DIFF_HEADER.test(line) ? "header" : "meta", line, code: line, hunk };
+    const code = line.slice(1);
     if (line.startsWith("+")) {
       newLeft--;
-      return newLine++;
+      return { kind: "add", line, code, number: newLine++, hunk };
     }
     if (line.startsWith("-")) {
       oldLeft--;
-      return oldLine++;
+      return { kind: "del", line, code, number: oldLine++, hunk };
     }
-    // `\ No newline at end of file` belongs to the line before it.
-    if (line.startsWith("\\")) return undefined;
     oldLeft--;
     newLeft--;
     oldLine++;
-    return newLine++;
+    return { kind: "context", line, code, number: newLine++, hunk };
   });
 }
 
 /**
- * An edit's diff rows, each side of a hunk highlighted independently so removed syntax cannot
- * bleed into additions. An edit's lines carry their numbers for the gutter; pi's display diff
- * gives its own up, so a row reads sign then code.
+ * A diff's rows. An edit's rows carry their numbers for the gutter and read sign then code. Its
+ * file and hunk headers go: the row header names the file and the gutter numbers the lines, and a
+ * divider in the number column marks the jump between hunks. Each side of a hunk is highlighted on
+ * its own, so removed syntax cannot bleed into additions. A shell command's diff keeps its text as
+ * it came, coloured by the same reading of the patch.
  */
-function editDiffRows(api: RenderApi, lines: string[], language: string | undefined, edit: boolean): Selected[] {
-  const numbered = !lines.some((line) => line.startsWith("@@ "));
-  const numbers = edit ? diffLineNumbers(lines, numbered) : [];
-  const lift = edit && numbered;
-  const rows = lines.map((line, raw): Selected => {
-    const number = numbers[raw];
-    if (number === undefined) return { line };
-    return { line, number, ...(lift ? { styled: line[0] + line.replace(NUMBERED_ROW, "") } : {}) };
-  });
-  const highlight = api.kit.highlight;
-  if (!language || !highlight) return rows;
-  const prefix = numbered ? NUMBERED_ROW : /^[ +-]/;
-  for (let start = 0; start < rows.length; start++) {
-    if (!numbered && !rows[start]!.line.startsWith("@@ ")) continue;
-    const first = numbered ? start : start + 1;
-    let end = first;
-    while (end < rows.length && prefix.test(rows[end]!.line)) end++;
-    if (end === first) continue;
-    const hunk = rows.slice(first, end);
-    for (const side of ["-", "+"]) {
-      const code = hunk.filter(({ line }) => line[0] === side || line[0] === " ");
-      if (!code.length) continue;
-      const styled = highlight(code.map(({ line }) => line.replace(prefix, "")).join("\n"), language, api.theme);
-      code.forEach((row, index) => {
-        const sign = lift ? row.line[0] : row.line.match(prefix)![0];
-        row.styled = sign + (styled[index] ?? row.line.replace(prefix, ""));
-      });
-    }
-    start = end - 1;
+function diffRows(lines: string[], edit: boolean, highlight?: (source: string) => string[] | undefined): Selected[] {
+  const parsed = parseDiff(lines, edit && !lines.some((line) => line.startsWith("@@ ")));
+  const rows: Selected[] = [];
+  /** The patch line behind each numbered row: its side and hunk, for highlighting. */
+  const code = new Map<Selected, DiffLine>();
+  for (const source of parsed) {
+    // Blank lines carry no evidence and take no row, but every line keeps its number in the file.
+    if (!source.line.trim()) continue;
+    const change = source.kind === "add" ? "success" : source.kind === "del" ? "error" : undefined;
+    if (!edit) {
+      const tone = change ?? (source.kind === "hunk" ? "accent" : source.kind === "header" ? "dim" : undefined);
+      const context = source.kind === "context" || source.kind === "header";
+      rows.push({ line: source.line, ...(tone ? { tone } : {}), ...(context ? { context } : {}) });
+    } else if (source.kind === "hunk") rows.push({ line: "", rule: "divider" });
+    else if (source.number !== undefined) {
+      const row: Selected = {
+        line: source.line,
+        styled: source.line[0] + source.code,
+        number: source.number,
+        ...(change ? { tone: change, bg: true } : { context: true }),
+      };
+      code.set(row, source);
+      rows.push(row);
+    } else if (source.kind !== "header") rows.push({ line: source.line, tone: "dim", context: true });
   }
-  return rows;
+  if (highlight) {
+    const hunks = new Map<number, Array<[Selected, DiffLine]>>();
+    for (const entry of code) {
+      const hunk = hunks.get(entry[1].hunk);
+      if (hunk) hunk.push(entry);
+      else hunks.set(entry[1].hunk, [entry]);
+    }
+    for (const hunk of hunks.values()) {
+      for (const side of ["del", "add"]) {
+        const sided = hunk.filter(([, source]) => source.kind === side || source.kind === "context");
+        if (!sided.length) continue;
+        const styled = highlight(sided.map(([, source]) => source.code).join("\n")) ?? [];
+        sided.forEach(([row, source], index) => {
+          row.styled = row.line[0] + (styled[index] ?? source.code);
+        });
+      }
+    }
+  }
+  return tidyDividers(rows);
 }
 
 /**
@@ -687,11 +754,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
   const meta = toolMeta(input.name);
   const text = cleanOutput(input.error ? errorDetail(input, meta) : previewText(input));
   const source = logicalLines(text);
-  const diff =
-    !input.error &&
-    // A write previews the file it wrote: its `-`/`+` lines are content, not changes.
-    ((DIFF_HINT.test(text) && ["edit", "shell"].includes(meta.cls)) ||
-      (input.name === "edit" && /^[+-] *\d+ /m.test(text)));
+  const diff = isDiff(input, text);
   const shell = !input.error && !diff ? shellRows(api, input, text) : undefined;
   // Bound grammar work on oversized tool results. pi reads normally stop at 50 KiB.
   const language =
@@ -717,13 +780,18 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
 
   const streamingWrite = input.name === "write" && input.status === "pending" && !input.expanded;
   const trend = streamingWrite || meta.trend === "tail" ? selectTail : selectHead;
-  const diffRows = diff
-    ? editDiffRows(api, source, language, input.name === "edit")
-        .filter(({ line }) => line.trim())
-        .map((row, index) => ({ ...row, index }))
+  const highlight = kit.highlight;
+  const changes = diff
+    ? indexLines(
+        diffRows(
+          source,
+          input.name === "edit",
+          language && highlight ? (code) => highlight(code, language, theme) : undefined,
+        ),
+      )
     : [];
   const indexed = lines.map((line, index): Selected => ({ ...line, index }));
-  const pick = (show: number) => (diff ? selectDiff(diffRows, show) : trend(indexed, show));
+  const pick = (show: number) => (diff ? selectDiff(changes, show) : trend(indexed, show));
   const paths = !!shell?.view.paths;
   // Path rows take rows too: keep fewer lines until the lines and their path rows fit.
   const select = (show: number): Selected[] => {
@@ -764,7 +832,10 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
     return indent + kit.truncateToWidth(omissionStyle(theme, aligned, input.lit), inner, mark);
   };
   /** `digits` is the gutter's number width; 0 when the block has no gutter. */
-  const paint = ({ line, styled, notice: hidden, number, rule, path }: Selected, digits: number): string[] => {
+  const paint = (
+    { line, styled, notice: hidden, number, rule, path, tone, bg }: Selected,
+    digits: number,
+  ): string[] => {
     if (hidden) return [noticeRow(omittedLinesLabel(hidden.count, hidden.side, api.glyphs), digits)];
     // grep's divider sits in the number column, like a notice's glyph; a path row starts where the numbers start.
     if (rule === "divider") {
@@ -791,14 +862,14 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
       if (cut !== content) clipped = true;
       parts = [cut];
     }
-    const tone = diff ? diffTone(line) : undefined;
     return parts.map((part, row) => {
       // The number heads the line's first row; its wrapped rows keep the column blank.
       const lead = !gutter ? "" : row ? " ".repeat(gutter) : `${theme.fg("dim", String(number).padStart(digits))}  `;
-      if (diff && input.name === "edit" && (tone === "success" || tone === "error")) {
-        const bg = tone === "success" ? "toolSuccessBg" : "toolErrorBg";
+      if (bg && (tone === "success" || tone === "error")) {
         const padding = " ".repeat(Math.max(0, room - kit.visibleWidth(part)));
-        return indent + theme.style(lead + part + padding, { bg });
+        return (
+          indent + theme.style(lead + part + padding, { bg: tone === "success" ? "toolSuccessBg" : "toolErrorBg" })
+        );
       }
       return indent + lead + (tone ? theme.fg(tone, part) : theme.fg("toolOutput", part));
     });
@@ -817,7 +888,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
   };
 
   // A notice counts against the budget: total body rows never exceed it.
-  const show = Math.min(budget, diff ? diffRows.length : paths ? withPaths(indexed).length : lines.length);
+  const show = Math.min(budget, diff ? changes.length : paths ? withPaths(indexed).length : lines.length);
   let selected = select(show);
   let items = layout(selected);
   if (wrap && rowCount(items) > budget) {
@@ -857,7 +928,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
   return {
     rows,
     clipped,
-    bar: previewBar(diff ? diffRows.length : lines.length, shown, rows.length),
+    bar: previewBar(diff ? lineCount(changes) : lines.length, shown, rows.length),
     // One row per selected line, then the file note: a preview never wraps.
     sources: [...selected.map((item) => item.index), ...(fileNote ? [undefined] : [])],
     ...(omission === -1 ? {} : { omission }),
