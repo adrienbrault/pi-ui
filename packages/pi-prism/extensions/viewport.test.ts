@@ -1,9 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import { stripTerminalSequences } from "@earendil-works/pi-tui";
 import {
+  barTokens,
   decorateViewport,
   expandedRegions,
   expandedSpans,
+  hoveredRegions,
   offscreenHistory,
   paintBarCell,
   scrollBarRows,
@@ -126,5 +128,42 @@ describe("scroll bar of an open block", () => {
     expect(paintBarCell("ab", "#", 4)).toBe("ab");
     expect(paintBarCell("界x", "#", 4)).toBe("界x");
     expect(paintBarCell(" x", "#", 1)).toBe(" x");
+  });
+});
+
+describe("hovered open block", () => {
+  test("its span is marked, and the document paints its bar in the hovered colours", () => {
+    const doc = Object.assign(documentWith(4), {
+      render: (width: number) => Array.from({ length: 6 }, (_, row) => `    row ${row}`.padEnd(width)),
+    });
+    const block = doc.mouseLayout.children[1]!.component;
+    let hovered = false;
+    hoveredRegions.set(block, () => hovered);
+    expect(expandedSpans(doc, 0, 10)).toEqual([{ start: 2, end: 6 }]);
+    hovered = true;
+    expect(expandedSpans(doc, 0, 10)).toEqual([{ start: 2, end: 6, hovered: true }]);
+    const view = { children: [doc], viewportHeight: 10, scrollTop: 0, isFollowingEnd: false };
+    decorateViewport(
+      { mode: "fullscreen", getPrimaryScrollView: () => view },
+      { bar: (kind, over) => (over ? (kind === "fill" ? "H" : "h") : kind === "fill" ? "#" : ":") },
+    );
+    expect(doc.render(20).map((line) => stripTerminalSequences(line)[1])).toEqual([" ", " ", "H", "h", "h", "h"]);
+    hovered = false;
+    expect(doc.render(20).map((line) => stripTerminalSequences(line)[1])).toEqual([" ", " ", "#", ":", ":", ":"]);
+  });
+
+  test("a hovered bar paints accent on selectedBg; at rest pi's scrollbar pair", () => {
+    const colors = { scrollbarThumb: "#97a0a5", scrollbarTrack: "#484e52" };
+    expect(barTokens(colors)).toEqual({ fill: "scrollbarThumb", track: "scrollbarTrack" });
+    expect(barTokens(colors, true)).toEqual({ fill: "accent", track: "selectedBg" });
+  });
+
+  test("when pi's system theme gives both scrollbar tokens one grey, the thumb takes the accent", () => {
+    // Before the terminal reports its colours: both tokens resolve to the same faint grey.
+    const grey = { kind: "rgb", r: 114, g: 114, b: 115 };
+    expect(barTokens({ scrollbarThumb: { ...grey }, scrollbarTrack: { ...grey } })).toEqual({
+      fill: "accent",
+      track: "scrollbarTrack",
+    });
   });
 });

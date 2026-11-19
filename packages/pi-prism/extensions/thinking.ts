@@ -51,7 +51,9 @@ import {
 import {
   decorateViewport,
   expandedRegions,
+  hoveredRegions,
   insideExpanded,
+  insideHovered,
   offscreenHistory,
   paintBar,
   paintBarCell,
@@ -431,6 +433,7 @@ function decorate(
         region.prismHover = hover;
         bindHover(region, component, hover, foldOf);
         expandedRegions.set(region, (row) => !!hover.expanded && (foldOf().mode !== "anchor" || row > 0));
+        hoveredRegions.set(region, () => hover.target === "thought");
       }
       // Keep our marker and body in both states; expanding must not hand the
       // run back to pi's bare markdown. The click stays owned by MouseRegion.
@@ -531,6 +534,7 @@ function compactToolMember(component: ToolComponentLike, key: string, theme: Ren
     (row) =>
       !!component.selfRenderContainer && insideExpanded(component.selfRenderContainer, row - (skippedSpacer ? 0 : 1)),
   );
+  hoveredRegions.set(component, () => !!component.selfRenderContainer && insideHovered(component.selfRenderContainer));
   component.render = function (width) {
     const lines = render.call(this, width);
     const plan = toolPlan(key);
@@ -890,7 +894,7 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
     try {
       const activeTheme = theme;
       decorateViewport(tui, {
-        bar: (cell) => styleBarCell(activeTheme, cell),
+        bar: (cell, hovered) => styleBarCell(activeTheme, cell, hovered),
       });
       const head = patchTree(tui, theme, liveToolEnds, distances, catching, commit, countBlocks, frameMs, fading);
       if (head !== fading) {

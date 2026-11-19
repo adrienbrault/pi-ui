@@ -46,6 +46,15 @@ export function offscreenHistory(root: TranscriptTui): Set<object> {
 
 /** Mouse regions of open blocks, keyed to which of their rows are open: those rows carry the scroll bar. */
 export const expandedRegions = new WeakMap<object, (row: number) => boolean>();
+/** The same regions, keyed to whether the pointer is over their block: its bar takes the hovered colours. */
+export const hoveredRegions = new WeakMap<object, () => boolean>();
+
+/** Whether any region inside `container` has the pointer over its block. */
+export function insideHovered(container: MeasuredContainer): boolean {
+  if (hoveredRegions.get(container)?.()) return true;
+  if (container.child) return insideHovered(container.child);
+  return (container.mouseLayout?.children ?? []).some((child) => insideHovered(child.component));
+}
 const pinnedDocuments = new WeakSet<object>();
 
 export function insideExpanded(container: MeasuredContainer, row: number, height = 0): boolean {
@@ -65,6 +74,8 @@ export function insideExpanded(container: MeasuredContainer, row: number, height
 export interface Span {
   start: number;
   end: number;
+  /** The pointer is over the block. */
+  hovered?: true;
 }
 
 /** Open blocks that reach into the viewport `[top, top + height)`, in document rows. */
@@ -73,13 +84,14 @@ export function expandedSpans(container: MeasuredContainer, top: number, height:
   const visit = (node: MeasuredContainer, start: number, rows: number): void => {
     const expanded = expandedRegions.get(node);
     if (expanded) {
+      const hovered = hoveredRegions.get(node)?.() ?? false;
       // Every row of a region counts, through its last; the pass one past the end closes a span.
       let open: number | undefined;
       for (let row = 0; row <= rows; row++) {
         const inside = row < rows && expanded(row);
         if (inside && open === undefined) open = row;
         if (!inside && open !== undefined) {
-          spans.push({ start: start + open, end: start + row });
+          spans.push({ start: start + open, end: start + row, ...(hovered ? { hovered: true as const } : {}) });
           open = undefined;
         }
       }
@@ -95,9 +107,22 @@ export function expandedSpans(container: MeasuredContainer, top: number, height:
   return spans.filter((span) => span.start < top + height && span.end > top);
 }
 
-/** One cell of a scroll bar in pi's own scrollbar colours. */
-export function styleBarCell(theme: RenderTheme, cell: BarCell): string {
-  return theme.style(" ", { bg: theme.colors?.[cell === "fill" ? "scrollbarThumb" : "scrollbarTrack"] });
+/**
+ * The theme tokens a scroll bar paints with. At rest, pi's own scrollbar pair;
+ * pi's system theme gives both one grey until the terminal reports its
+ * colours, and the thumb then takes `accent` so it stays visible. Hovered, an
+ * open block's bar switches to `accent` on `selectedBg`, a pair far apart in
+ * lightness in both shipped themes, so the thumb still shows the reader's place.
+ */
+export function barTokens(colors: Record<string, unknown> | undefined, hovered = false): Record<BarCell, string> {
+  if (hovered) return { fill: "accent", track: "selectedBg" };
+  const collapsed = JSON.stringify(colors?.scrollbarThumb) === JSON.stringify(colors?.scrollbarTrack);
+  return { fill: collapsed ? "accent" : "scrollbarThumb", track: "scrollbarTrack" };
+}
+
+/** One cell of a scroll bar, in the colours `barTokens` picks. */
+export function styleBarCell(theme: RenderTheme, cell: BarCell, hovered = false): string {
+  return theme.style(" ", { bg: theme.colors?.[barTokens(theme.colors, hovered)[cell]] });
 }
 
 /** A block's scroll bar sits in the second cell of each row: column 0 keeps its glyph or indent. */
@@ -151,8 +176,8 @@ export function scrollBarRows(spans: Span[], top: number, height: number): Map<n
 }
 
 export interface ViewportPaint {
-  /** One styled cell of the open block's scroll bar. */
-  bar: (cell: BarCell) => string;
+  /** One styled cell of the open block's scroll bar, in the hovered colours while the pointer is over it. */
+  bar: (cell: BarCell, hovered: boolean) => string;
 }
 
 /** Fullscreen only: the scrolled viewport is known there, and not in inline mode. */
@@ -168,11 +193,13 @@ export function decorateViewport(root: TranscriptTui, paint: ViewportPaint): voi
     if (height <= 0 || width <= 0) return lines;
     const top =
       !scroll.isFollowingEnd && scroll.scrollTop !== undefined ? scroll.scrollTop : Math.max(0, lines.length - height);
-    const bar = scrollBarRows(expandedSpans(doc, top, height), top, height);
+    const spans = expandedSpans(doc, top, height);
+    const bar = scrollBarRows(spans, top, height);
     if (bar.size === 0) return lines;
+    const hovered = (row: number) => spans.some((span) => span.hovered && row >= span.start && row < span.end);
     const frame = lines.slice();
     for (const [row, cell] of bar) {
-      if (frame[row] !== undefined) frame[row] = paintBarCell(frame[row]!, paint.bar(cell), width);
+      if (frame[row] !== undefined) frame[row] = paintBarCell(frame[row]!, paint.bar(cell, hovered(row)), width);
     }
     return frame;
   };

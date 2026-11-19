@@ -47,7 +47,7 @@ import {
   toolPlan,
 } from "./fold.ts";
 import { claimHover, isOmissionRow, releaseHover } from "./hover.ts";
-import { expandedRegions, paintBar, paintBarCell, styleBarCell } from "./viewport.ts";
+import { expandedRegions, hoveredRegions, paintBar, paintBarCell, styleBarCell } from "./viewport.ts";
 import { fadeLine, paintLeaving, toolFade } from "./fade.ts";
 import { installThinkingRenderer, scheduleThinkingFold } from "./thinking.ts";
 
@@ -293,7 +293,10 @@ function region(inner: Component, record: BlockRecord, part: "header" | "body" |
       return { handled: true, render: false };
     return onMouse(record, event);
   });
-  if (part !== "header") expandedRegions.set(surface, () => record.expansion === 1);
+  if (part !== "header") {
+    expandedRegions.set(surface, () => record.expansion === 1);
+    hoveredRegions.set(surface, () => record.hover);
+  }
   return surface;
 }
 
@@ -470,6 +473,7 @@ function groupComponent(record: BlockRecord, theme: Theme): Component {
   };
   const surface = new MouseRegion(inner, (event) => onGroupMouse(record, event));
   expandedRegions.set(surface, (row) => record.expansion === 1 && (record.mode === "hidden" || row > 0));
+  hoveredRegions.set(surface, () => record.hover);
   return surface;
 }
 
