@@ -1016,25 +1016,25 @@ describe("omission notices", () => {
 });
 
 describe("preview bar", () => {
-  test("a tail of a long log fills only the bottom of the bar", () => {
+  test("a tail of a long log fills the hidden lines above it", () => {
     const layout = toolRowLayout(api, { name: "bash", status: "success", level: 0, output: many(160) }, 80);
-    expect(layout.bar).toEqual(["track", "track", "track", "track", "track", "track", "track", "fill"]);
+    expect(layout.bar).toEqual(["fill", "fill", "fill", "fill", "fill", "fill", "fill", "track"]);
     expect(layout.bar).toHaveLength(layout.rows.length - 1);
-    // The notice heads the tail, beside a track cell; the filled cell sits beside the newest line.
+    // The notice heads the tail beside filled cells; the newest lines sit beside a track cell.
     expect(layout.rows[1]).toMatch(/↑ 153 more lines$/);
     expect(layout.sources?.[0]).toBeUndefined();
   });
 
-  test("a read shows its opening and its end as two filled ends", () => {
+  test("a read cut in the middle fills the middle", () => {
     const layout = toolRowLayout(api, { name: "read", status: "success", level: 4, output: OUTPUT }, 80);
-    expect(layout.bar).toEqual(["fill", "track", "track", "fill"]);
+    expect(layout.bar).toEqual(["track", "fill", "fill", "track"]);
   });
 
-  test("a preview that shows everything is filled, and an open row has no preview bar", () => {
+  test("a preview that shows everything fills nothing, and an open row has no preview bar", () => {
     expect(toolRowLayout(api, { name: "bash", status: "success", level: 0, output: many(3) }, 80).bar).toEqual([
-      "fill",
-      "fill",
-      "fill",
+      "track",
+      "track",
+      "track",
     ]);
     expect(
       toolRowLayout(
@@ -1045,15 +1045,15 @@ describe("preview bar", () => {
     ).toBeUndefined();
   });
 
-  test("a settled thought's bar covers its body rows, notice included, and fills where its tail sits", () => {
+  test("a settled thought's bar covers its body rows, notice included, and fills what its tail hides", () => {
     const text = Array.from({ length: 10 }, (_, index) => `thought ${index + 1}`).join("\n");
     const layout = thinkingLayout(api, { phase: "aged", level: 3, text, width: 80 });
     const rows = layout.label.split("\n");
     // The notice above three kept lines: ten sources over four cells, the last three shown,
-    // so the filled cell sits beside the newest row and the notice's cell is track.
+    // so the cells above the newest row are filled and the newest row's cell is track.
     expect(rows[1]).toContain("↑ 7 more lines");
     expect(rows.at(-1)).toContain("thought 10");
-    expect(layout.bar).toEqual(["track", "track", "track", "fill"]);
+    expect(layout.bar).toEqual(["fill", "fill", "fill", "track"]);
     expect(layout.bar).toHaveLength(rows.length - 1);
   });
 
@@ -1062,7 +1062,7 @@ describe("preview bar", () => {
     const layout = thinkingLayout(api, { phase: "thinking", level: 0, text, width: 40 });
     const rows = layout.label.split("\n");
     expect(rows[1]?.trim()).toBe("↑ 94 more lines");
-    expect(layout.bar).toEqual(["track", "track", "track", "track", "track", "track", "fill"]);
+    expect(layout.bar).toEqual(["fill", "fill", "fill", "fill", "fill", "fill", "track"]);
     expect(layout.bar).toHaveLength(rows.length - 1);
   });
 
@@ -1071,21 +1071,21 @@ describe("preview bar", () => {
     const text = Array.from({ length: 12 }, (_, index) => `- item ${index + 1}`).join("\n");
     const layout = thinkingLayout(markdown, { phase: "aged", level: 3, text, width: 80 });
     expect(layout.label).toContain("↑ 9 more lines");
-    expect(layout.bar).toEqual(["track", "track", "track", "fill"]);
+    expect(layout.bar).toEqual(["fill", "fill", "fill", "track"]);
   });
 
-  test("a thought shown whole is filled; inline and open thoughts have no preview bar", () => {
+  test("a thought shown whole fills nothing; inline and open thoughts have no preview bar", () => {
     const short = "one\ntwo";
-    expect(thinkingLayout(api, { phase: "aged", level: 0, text: short, width: 80 }).bar).toEqual(["fill", "fill"]);
+    expect(thinkingLayout(api, { phase: "aged", level: 0, text: short, width: 80 }).bar).toEqual(["track", "track"]);
     expect(thinkingLayout(api, { phase: "aged", level: 7, text: OUTPUT, width: 80 }).bar).toBeUndefined();
     expect(
       thinkingLayout(api, { phase: "aged", level: 1, text: OUTPUT, width: 80, expanded: true }).bar,
     ).toBeUndefined();
   });
 
-  test("each cell stands for an equal share of the lines", () => {
-    expect(previewBar(10, new Set([4, 5]), 5)).toEqual(["track", "track", "fill", "track", "track"]);
-    expect(previewBar(3, new Set([2]), 6)).toEqual(["track", "track", "track", "track", "fill", "fill"]);
+  test("each cell stands for an equal share of the lines and fills when none of them show", () => {
+    expect(previewBar(10, new Set([4, 5]), 5)).toEqual(["fill", "fill", "track", "fill", "fill"]);
+    expect(previewBar(3, new Set([2]), 6)).toEqual(["fill", "fill", "fill", "fill", "track", "track"]);
   });
 });
 

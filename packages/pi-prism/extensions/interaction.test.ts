@@ -336,7 +336,7 @@ describe("tool renderers", () => {
     }
   });
 
-  test("hovering a block that can open shows where its preview sits in the whole output", () => {
+  test("hovering a block that can open fills the part of its bar its preview hides", () => {
     const tool = resolver()("bash", () => undefined) as Renderers;
     const context = { ...ctx, state: {} };
     tool.renderCall(ctx.args, barred, context);
@@ -345,8 +345,9 @@ describe("tool renderers", () => {
     expect(idle.some((row) => row.includes("48;5;"))).toBe(false);
     body.handleMouse?.({ ...move(), y: 1 });
     const hovered = body.render(80);
-    // Seven of 40 lines shown, all at the end: each cell stands for five lines, so the last two fill.
-    expect(hovered.map(barCell)).toEqual(["track", "track", "track", "track", "track", "track", "fill", "fill"]);
+    // Seven of 40 lines shown, all at the end: each cell stands for five lines, so the six cells above
+    // the shown lines fill with what a click would reveal.
+    expect(hovered.map(barCell)).toEqual(["fill", "fill", "fill", "fill", "fill", "fill", "track", "track"]);
     expect(plainRows(hovered)).toEqual(plainRows(idle));
   });
 
@@ -1417,8 +1418,8 @@ describe("thought interaction", () => {
     expect(idle.map(barCell).every((cell) => cell === "none")).toBe(true);
     thought.mouse("move", 3);
     const hovered = thought.rows();
-    // Forty lines over seven cells; the last six are shown, so only the bottom cell fills.
-    expect(hovered.map(barCell)).toEqual(["none", "track", "track", "track", "track", "track", "track", "fill"]);
+    // Forty lines over seven cells; the last six are shown, so every cell above the bottom one fills.
+    expect(hovered.map(barCell)).toEqual(["none", "fill", "fill", "fill", "fill", "fill", "fill", "track"]);
     expect(plainRows(hovered).map((row) => row.slice(0, 1) + row.slice(2))).toEqual(
       plainRows(idle).map((row) => row.slice(0, 1) + row.slice(2)),
     );

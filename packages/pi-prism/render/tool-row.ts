@@ -347,17 +347,17 @@ interface Selected {
 export type BarCell = "fill" | "track";
 
 /**
- * A preview's position in the whole body, one cell per preview row: each cell
- * stands for an equal share of the source lines and is filled when the preview
- * shows any of them. A tail of a long log fills only the bottom cell.
+ * What a preview hides, one cell per preview row: each cell stands for an equal
+ * share of the source lines and is filled when the preview shows none of them,
+ * so the filled cells are what a click would reveal. A read cut in the middle
+ * fills the middle; a log tail fills everything above its last cell.
  */
 export function previewBar(total: number, shown: ReadonlySet<number>, rows: number): BarCell[] {
   return Array.from({ length: rows }, (_, row): BarCell => {
-    if (shown.size >= total) return "fill";
     const from = Math.floor((row * total) / rows);
     const to = Math.max(from + 1, Math.floor(((row + 1) * total) / rows));
-    for (let index = from; index < to; index++) if (shown.has(index)) return "fill";
-    return "track";
+    for (let index = from; index < to; index++) if (shown.has(index) || index >= total) return "track";
+    return "fill";
   });
 }
 
