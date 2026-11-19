@@ -114,6 +114,8 @@ describe("expansion cycle", () => {
   });
 });
 
+const plainRows = (rows: string[]) => rows.map((row) => stripTerminalSequences(row).trimEnd());
+
 const move = (): TuiMouseEvent => ({ ...click(), type: "move", button: "none" });
 
 describe("tool renderers", () => {
@@ -187,7 +189,29 @@ describe("tool renderers", () => {
     body.handleMouse?.({ ...move(), y: 1 });
     expect(header.render(80)[0]).not.toStartWith("\x1b[45m");
     header.handleMouse?.(move());
-    expect(body.render(80).at(-1)).toContain("\x1b[45m    + 34 lines\x1b[49m [ click · expand ]");
+    // Column 0 belongs to the preview bar; the footer tint resumes after it.
+    expect(body.render(80).at(-1)).toContain("\x1b[45m   + 34 lines\x1b[49m [ click · expand ]");
+  });
+
+  test("hovering a block that can open shows where its preview sits in the whole output", () => {
+    const tool = resolver()("bash", () => undefined) as Renderers;
+    const context = { ...ctx, state: {} };
+    const barred = {
+      ...theme,
+      colors: { ...theme.colors, scrollbarThumb: "1", scrollbarTrack: "2" },
+      style: (text: string, options?: { bg?: string }) =>
+        options?.bg ? `\x1b[48;5;${options.bg}m${text}\x1b[49m` : text,
+    };
+    tool.renderCall(ctx.args, barred, context);
+    const body = tool.renderResult(result, {}, barred, context);
+    const idle = body.render(80);
+    expect(idle.some((row) => row.includes("48;5;"))).toBe(false);
+    body.handleMouse?.({ ...move(), y: 1 });
+    const hovered = body.render(80);
+    // Six of 40 lines shown, all at the end: each cell stands for a seventh of the output, so only the last fills.
+    const cells = hovered.map((row) => (row.includes("48;5;1m") ? "fill" : row.includes("48;5;2m") ? "track" : "none"));
+    expect(cells).toEqual(["track", "track", "track", "track", "track", "track", "fill"]);
+    expect(plainRows(hovered)).toEqual(plainRows(idle));
   });
 
   test("only one hovered row keeps the chip", () => {

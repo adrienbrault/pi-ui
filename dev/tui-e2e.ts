@@ -697,6 +697,13 @@ ${visible}`);
       pane = capture();
     }
     assert(pane.includes("long output line 80.") && !pane.includes("long output line 159."), "expected middle of expanded bash output");
+    // Mid-block, column 0 of the open rows is the scroll bar: track above, fill below, both painted.
+    const leading = tmux("capture-pane", "-e", "-p", "-t", SESSION)
+      .split("\n")
+      .filter((line) => line.includes("long output line"))
+      .map((line) => /^((?:\x1b\[[0-9;:]*m)*)/.exec(line)?.[1] ?? "");
+    assert(leading.every((codes) => /\b48[;:]/.test(codes)), `every open row should paint its first column\n${leading.map((codes) => JSON.stringify(codes)).join("\n")}`);
+    assert(new Set(leading).size === 2, `mid-block the bar should show both fill and track\n${[...new Set(leading)].map((codes) => JSON.stringify(codes)).join("\n")}`);
     const pinned = rowOf(pane, "[ click · collapse ]");
     mouse(0, 5, pinned);
     mouse(0, 5, pinned, true);
@@ -707,7 +714,7 @@ ${visible}`);
       await Bun.sleep(50);
     }
     await waitFor("+ 154 lines");
-    console.log("long bash output collapses from its pinned viewport control");
+    console.log("long bash output shows its scroll bar and collapses from its pinned viewport control");
     tmux("kill-server");
     const fold = join(dir, "fold.jsonl");
     fixture(fold, 12);

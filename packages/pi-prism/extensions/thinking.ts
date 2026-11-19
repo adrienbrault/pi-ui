@@ -25,7 +25,14 @@ import { estimatedTokens, toolMeta } from "../render/tools.ts";
 import { composeThinkingLabel, thinkingFrame, type ThinkingLabelInput } from "../render/thinking.ts";
 import { advanceTailWindow, isDropping, planTailWindow, type TailWindow } from "../render/window.ts";
 import { type FoldPlan, type FoldUnit, planFolds, setGroupOpen, thinkingPlan, toolInfo, toolPlan } from "./fold.ts";
-import { expandedRegions, insideExpanded, pinCollapse, offscreenHistory, type TranscriptTui } from "./viewport.ts";
+import {
+  decorateViewport,
+  expandedRegions,
+  insideExpanded,
+  offscreenHistory,
+  styleBarCell,
+  type TranscriptTui,
+} from "./viewport.ts";
 import { installThinkingClock, thinkingTime, type TimedMessage } from "./thinking-time.ts";
 import { highlightGroupRow, claimHover, clearHover, onSpacerMouse, releaseHover } from "./hover.ts";
 
@@ -763,7 +770,10 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
     if (!tui || !theme) return;
     try {
       const activeTheme = theme;
-      pinCollapse(tui, (width) => chipLine(activeTheme, "", "click · collapse", width));
+      decorateViewport(tui, {
+        chip: (width) => chipLine(activeTheme, "", "click · collapse", width),
+        bar: (cell) => styleBarCell(activeTheme, cell),
+      });
       if (patchTree(tui, theme, liveToolEnds, distances, advance) && !decayTimer) {
         decayTimer = setTimeout(() => {
           decayTimer = undefined;

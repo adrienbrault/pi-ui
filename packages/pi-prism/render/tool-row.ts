@@ -216,6 +216,26 @@ interface Selected {
   /** A notice row rather than a body row. */
   notice?: boolean;
   styled?: string;
+  /** Position among the body's non-empty source lines. */
+  index?: number;
+}
+
+/** One cell of a block's column-0 scroll bar. */
+export type BarCell = "fill" | "track";
+
+/**
+ * A preview's position in the whole body, one cell per preview row: each cell
+ * stands for an equal share of the source lines and is filled when the preview
+ * shows any of them. A tail of a long log fills only the bottom cell.
+ */
+export function previewBar(total: number, shown: ReadonlySet<number>, rows: number): BarCell[] {
+  return Array.from({ length: rows }, (_, row): BarCell => {
+    if (shown.size >= total) return "fill";
+    const from = Math.floor((row * total) / rows);
+    const to = Math.max(from + 1, Math.floor(((row + 1) * total) / rows));
+    for (let index = from; index < to; index++) if (shown.has(index)) return "fill";
+    return "track";
+  });
 }
 
 /** Diff metadata and unchanged context are the first rows to go. */
@@ -244,29 +264,29 @@ function selectDiff(lines: Selected[], show: number): Selected[] {
 }
 
 /** Reads keep their opening and their end; the notice marks the cut between them. */
-function selectHead(lines: string[], show: number): Selected[] {
-  if (lines.length <= show) return lines.map((line) => ({ line }));
+function selectHead(lines: Selected[], show: number): Selected[] {
+  if (lines.length <= show) return lines;
   const room = show - 1;
   const head = Math.ceil(room / 2);
   const tail = room - head;
   const hidden = lines.length - head - tail;
   // `slice(-0)` is `slice(0)`: a zero tail would spill the whole file.
   const keptTail = tail > 0 ? lines.slice(-tail) : [];
-  return [...lines.slice(0, head).map((line) => ({ line })), notice(hidden), ...keptTail.map((line) => ({ line }))];
+  return [...lines.slice(0, head), notice(hidden), ...keptTail];
 }
 
 /** Logs keep the end: the last line is the one that explains the run. */
-function selectTail(lines: string[], show: number): Selected[] {
-  if (lines.length <= show) return lines.map((line) => ({ line }));
+function selectTail(lines: Selected[], show: number): Selected[] {
+  if (lines.length <= show) return lines;
   if (show === 1) {
-    const useful = lines.findLast((line) => {
+    const useful = lines.findLast(({ line }) => {
       const text = cleanOutput(line).trim();
       return /^.{2}/u.test(text) && !/^[\s()[\]{},;]+$/u.test(text);
     });
-    return useful ? [{ line: useful }] : [notice(lines.length)];
+    return useful ? [useful] : [notice(lines.length)];
   }
   const kept = show - 1;
-  return [...lines.slice(-kept).map((line) => ({ line })), notice(lines.length - kept)];
+  return [...lines.slice(-kept), notice(lines.length - kept)];
 }
 
 const DIFF_HINT = /^(diff --git|@@ )/m;
@@ -335,6 +355,8 @@ interface BodyLayout {
   rows: string[];
   /** A preview cut a line at the terminal width, so opening the row shows more. */
   clipped: boolean;
+  /** For a preview: where its rows sit in the whole body, one cell per body row (the last rows). */
+  bar?: BarCell[];
 }
 
 /** Cut wrapped rows to `room`, ending the last kept row with an ellipsis. */
@@ -374,8 +396,13 @@ function body(api: RenderApi, input: ToolRowInput, width: number, budget: number
 
   const streamingWrite = input.name === "write" && input.status === "pending" && !input.expanded;
   const trend = streamingWrite || meta.trend === "tail" ? selectTail : selectHead;
-  const diffRows = diff ? editDiffRows(api, source, language).filter(({ line }) => line.trim()) : [];
-  const select = (show: number) => (diff ? selectDiff(diffRows, show) : trend(lines, show));
+  const diffRows = diff
+    ? editDiffRows(api, source, language)
+        .filter(({ line }) => line.trim())
+        .map((row, index) => ({ ...row, index }))
+    : [];
+  const indexed = lines.map((line, index): Selected => ({ line, index }));
+  const select = (show: number) => (diff ? selectDiff(diffRows, show) : trend(indexed, show));
 
   const indent = blockBodyIndent(width);
   const inner = Math.max(1, width - indent.length);
@@ -443,7 +470,9 @@ function body(api: RenderApi, input: ToolRowInput, width: number, budget: number
     room -= kept.length;
     return kept;
   });
-  return { rows, clipped };
+  if (wrap) return { rows, clipped };
+  const shown = new Set(selected.flatMap((item) => (item.index === undefined ? [] : [item.index])));
+  return { rows, clipped, bar: previewBar(diff ? diffRows.length : lines.length, shown, rows.length) };
 }
 
 /** The header, an expanded row's full command, and the body: one row budget for all. */
@@ -471,8 +500,8 @@ export function toolRowLayout(api: RenderApi, input: ToolRowInput, width: number
     rows.push(...command);
     budget -= command.length;
   }
-  const { rows: bodyRows, clipped } = body(api, input, width, budget);
-  return { rows: rows.concat(bodyRows), clipped };
+  const { rows: bodyRows, clipped, bar } = body(api, input, width, budget);
+  return { rows: rows.concat(bodyRows), clipped, ...(bar ? { bar } : {}) };
 }
 
 export function renderToolRow(api: RenderApi, input: ToolRowInput): ComponentLike {

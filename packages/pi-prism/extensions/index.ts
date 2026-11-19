@@ -31,7 +31,7 @@ import {
 } from "../render/tool-row.ts";
 import { type FoldMode, type LiveFoldGroup, registerToolInfo, resetFolds, setGroupOpen, toolPlan } from "./fold.ts";
 import { claimHover, highlightGroupRow, isOmissionRow, releaseHover } from "./hover.ts";
-import { expandedRegions } from "./viewport.ts";
+import { expandedRegions, paintBar, styleBarCell } from "./viewport.ts";
 import { installThinkingRenderer, scheduleThinkingFold } from "./thinking.ts";
 
 /**
@@ -382,6 +382,9 @@ function bodyComponent(record: BlockRecord, theme: Theme, includeHeader = false)
           (record.hoverRow === undefined || record.hoverRow === record.expandRow)
         )
           rows[record.expandRow] = expandHint(theme, rows[record.expandRow]!, width);
+        // Hovering a block that can open shows where its preview sits in the whole output.
+        if (hint === "click · expand" && record.hover && layout.bar?.length)
+          paintBar(rows, rows.length - layout.bar.length, layout.bar, (cell) => styleBarCell(api.theme, cell), width);
       }
       return includeHeader ? highlightHeadingFromFooter(record, rows, theme, width) : rows;
     }) as Component,

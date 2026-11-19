@@ -11,7 +11,7 @@ import {
 import { groupVerb, mcpLabel, toolMeta, groupNoun, toolTokenLabel } from "./tools.ts";
 import { formatDuration, headLines, omittedCount, tailLines } from "./text.ts";
 import { groupSegments, renderGroupMember, renderGroupRow } from "./group-row.ts";
-import { renderToolRow, toolRowLayout } from "./tool-row.ts";
+import { previewBar, renderToolRow, toolRowLayout } from "./tool-row.ts";
 import { thinkingFrame, thinkingLabel, thinkingLayout } from "./thinking.ts";
 import { glyphsFor } from "./glyphs.ts";
 import { planTranscript, type BlockShape } from "./layout.ts";
@@ -498,6 +498,39 @@ describe("full body budget", () => {
     expect(toolRowLayout(api, long, 80).clipped).toBe(true);
     expect(toolRowLayout(api, { ...long, output: "short" }, 80).clipped).toBe(false);
     expect(toolRowLayout(api, { ...long, expanded: true, full: true }, 80).clipped).toBe(false);
+  });
+});
+
+describe("preview bar", () => {
+  test("a tail of a long log fills only the bottom of the bar", () => {
+    const layout = toolRowLayout(api, { name: "bash", status: "success", level: 0, output: many(160) }, 80);
+    expect(layout.bar).toEqual(["track", "track", "track", "track", "track", "track", "fill"]);
+    expect(layout.bar).toHaveLength(layout.rows.length - 1);
+  });
+
+  test("a read shows its opening and its end as two filled ends", () => {
+    const layout = toolRowLayout(api, { name: "read", status: "success", level: 3, output: OUTPUT }, 80);
+    expect(layout.bar).toEqual(["fill", "track", "track", "fill"]);
+  });
+
+  test("a preview that shows everything is filled, and an open row has no preview bar", () => {
+    expect(toolRowLayout(api, { name: "bash", status: "success", level: 0, output: many(3) }, 80).bar).toEqual([
+      "fill",
+      "fill",
+      "fill",
+    ]);
+    expect(
+      toolRowLayout(
+        api,
+        { name: "bash", status: "success", level: 0, output: many(160), expanded: true, full: true },
+        80,
+      ).bar,
+    ).toBeUndefined();
+  });
+
+  test("each cell stands for an equal share of the lines", () => {
+    expect(previewBar(10, new Set([4, 5]), 5)).toEqual(["track", "track", "fill", "track", "track"]);
+    expect(previewBar(3, new Set([2]), 6)).toEqual(["track", "track", "track", "track", "fill", "fill"]);
   });
 });
 
