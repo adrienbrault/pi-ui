@@ -87,7 +87,7 @@ describe("scroll bar of an open block", () => {
     const view = { children: [doc], viewportHeight: 10, scrollTop: 7, isFollowingEnd: false };
     decorateViewport(
       { mode: "fullscreen", getPrimaryScrollView: () => view },
-      { chip: () => "", bar: (kind) => (kind === "fill" ? "#" : ":") },
+      { bar: (kind) => (kind === "fill" ? "#" : ":") },
     );
     const lines = doc.render(20).map(stripTerminalSequences);
     expect(lines.slice(7, 17).map((line) => line[0])).toEqual([":", ":", ":", ":", ":", "#", "#", "#", "#", "#"]);

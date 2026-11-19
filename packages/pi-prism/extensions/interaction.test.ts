@@ -114,6 +114,14 @@ describe("expansion cycle", () => {
   });
 });
 
+/** A theme whose scroll bar cells are visible in the output: thumb 1, track 2. */
+const barred = {
+  ...theme,
+  colors: { ...theme.colors, scrollbarThumb: "1", scrollbarTrack: "2" },
+  style: (text: string, options?: { bg?: string }) => (options?.bg ? `\x1b[48;5;${options.bg}m${text}\x1b[49m` : text),
+};
+const hasBar = (rows: string[]) => rows.some((row) => row.includes("\x1b[48;5;"));
+
 const plainRows = (rows: string[]) => rows.map((row) => stripTerminalSequences(row).trimEnd());
 
 const move = (): TuiMouseEvent => ({ ...click(), type: "move", button: "none" });
@@ -149,22 +157,19 @@ describe("tool renderers", () => {
     }
   });
 
-  test("hovering a tool puts the chip beside the footer and keeps its header clear", () => {
+  test("hovering a tool paints no chip, and any row opens and closes it", () => {
     const renderers = resolver()("bash", () => undefined) as Renderers;
     const context = { ...ctx, state: {} };
     const header = renderers.renderCall(ctx.args, theme, context);
     const body = renderers.renderResult(result, {}, theme, context);
 
-    expect(header.render(80)[0]).not.toContain("[ click");
-    body.handleMouse?.(move());
-    expect(body.render(80).at(-1)).not.toContain("[ click");
     body.handleMouse?.({ ...move(), y: 6 });
-    expect(header.render(80)[0]).not.toContain("[ click");
-    expect(body.render(80).at(-1)).toMatch(/\+ 34 lines \[ click · expand \]/);
-    body.handleMouse?.(click());
+    expect([...header.render(80), ...body.render(80)].join("\n")).not.toContain("[ click");
+    body.handleMouse?.({ ...click(), y: 2 });
+    expect(body.render(80)).toHaveLength(40);
+    expect(body.render(80).join("\n")).not.toContain("[ click");
+    body.handleMouse?.({ ...click(), y: 20 });
     expect(body.render(80)).toHaveLength(7);
-    body.handleMouse?.({ ...click(), y: 6 });
-    expect(body.render(80).at(-1)).toContain("[ click · collapse ]");
   });
 
   test("a grouped hover covers the indent, gap and trailing cells on just the pointed row", () => {
@@ -177,31 +182,21 @@ describe("tool renderers", () => {
     ]);
   });
 
-  test("bash heading hover paints the footer text alongside the action chip", () => {
+  test("hover leaves the heading and the footer unpainted", () => {
     const tool = resolver()("bash", () => undefined) as Renderers;
     const context = { ...ctx, state: {} };
     const painted = { ...theme, bg: (_token: string, text: string) => "\x1b[45m" + text + "\x1b[49m" };
     const header = tool.renderCall(ctx.args, painted, context);
     const body = tool.renderResult(result, {}, painted, context);
-    body.render(80);
-    body.handleMouse?.({ ...move(), y: 6 });
-    expect(header.render(80)[0]).toStartWith("\x1b[45m");
-    body.handleMouse?.({ ...move(), y: 1 });
-    expect(header.render(80)[0]).not.toStartWith("\x1b[45m");
-    header.handleMouse?.(move());
-    // Column 0 belongs to the preview bar; the footer tint resumes after it.
-    expect(body.render(80).at(-1)).toContain("\x1b[45m   + 34 lines\x1b[49m [ click · expand ]");
+    for (const target of [header, body]) {
+      target.handleMouse?.({ ...move(), y: target === body ? 6 : 0 });
+      expect([...header.render(80), ...body.render(80)].join("\n")).not.toContain("\x1b[45m");
+    }
   });
 
   test("hovering a block that can open shows where its preview sits in the whole output", () => {
     const tool = resolver()("bash", () => undefined) as Renderers;
     const context = { ...ctx, state: {} };
-    const barred = {
-      ...theme,
-      colors: { ...theme.colors, scrollbarThumb: "1", scrollbarTrack: "2" },
-      style: (text: string, options?: { bg?: string }) =>
-        options?.bg ? `\x1b[48;5;${options.bg}m${text}\x1b[49m` : text,
-    };
     tool.renderCall(ctx.args, barred, context);
     const body = tool.renderResult(result, {}, barred, context);
     const idle = body.render(80);
@@ -214,29 +209,20 @@ describe("tool renderers", () => {
     expect(plainRows(hovered)).toEqual(plainRows(idle));
   });
 
-  test("only one hovered row keeps the chip", () => {
+  test("only one hovered block shows its bar", () => {
     const renderers = resolver()("bash", () => undefined) as Renderers;
-    const first = {
-      ...ctx,
-      args: { command: "first" },
-      state: undefined as unknown as { expansion: number; hover: boolean },
-    };
-    renderers.renderCall(first.args, theme, first);
-    const firstBody = renderers.renderResult(result, {}, theme, first);
+    const first = { ...ctx, args: { command: "first" }, state: undefined as unknown as object };
+    renderers.renderCall(first.args, barred, first);
+    const firstBody = renderers.renderResult(result, {}, barred, first);
     firstBody.handleMouse?.({ ...move(), y: 6 });
-    expect(firstBody.render(80).at(-1)).toContain("[ click");
+    expect(hasBar(firstBody.render(80))).toBe(true);
 
-    const second = {
-      ...ctx,
-      args: { command: "second" },
-      state: undefined as unknown as { expansion: number; hover: boolean },
-    };
-    renderers.renderCall(second.args, theme, second);
-    const secondBody = renderers.renderResult(result, {}, theme, second);
+    const second = { ...ctx, args: { command: "second" }, state: undefined as unknown as object };
+    renderers.renderCall(second.args, barred, second);
+    const secondBody = renderers.renderResult(result, {}, barred, second);
     secondBody.handleMouse?.({ ...move(), y: 6 });
-
-    expect(secondBody.render(80).at(-1)).toContain("[ click");
-    expect(firstBody.render(80).at(-1)).not.toContain("[ click");
+    expect(hasBar(secondBody.render(80))).toBe(true);
+    expect(hasBar(firstBody.render(80))).toBe(false);
   });
 
   test("write previews streamed arguments before a result and expands the completed source", () => {
@@ -265,7 +251,7 @@ describe("tool renderers", () => {
       call
         .render(80)
         .slice(1)
-        .map((line) => line.replace(" [ click · collapse ]", "").trim()),
+        .map((line) => line.trim()),
     ).toEqual(output.split("\n"));
   });
 
@@ -286,7 +272,7 @@ describe("tool renderers", () => {
         .map((row) => row.slice(4))
         .join(""),
     ).toBe("abcdefghij".repeat(12));
-    expect(rows.at(-1)?.trim()).toBe("echo second [ click · collapse ]");
+    expect(rows.at(-1)?.trim()).toBe("echo second");
     header.handleMouse?.(click());
     expect(body.render(40)).toEqual([]);
   });
@@ -295,21 +281,21 @@ describe("tool renderers", () => {
     const tool = resolver()("bash", () => undefined) as Renderers;
     const text = Array.from({ length: 30 }, (_, index) => `token${index}`).join(" ");
     const context = { ...ctx, state: {} };
-    const header = tool.renderCall(context.args, theme, context);
-    const body = tool.renderResult({ content: [{ type: "text", text }] }, {}, theme, context);
+    const header = tool.renderCall(context.args, barred, context);
+    const body = tool.renderResult({ content: [{ type: "text", text }] }, {}, barred, context);
     const preview = body.render(60);
     expect(preview).toHaveLength(1);
     expect(preview[0]).toContain("…");
     body.handleMouse?.({ ...click(), type: "move", y: 0 });
-    expect(body.render(60)[0]).toContain("click · expand");
+    expect(hasBar(body.render(60))).toBe(true);
     body.handleMouse?.({ ...click(), y: 0 });
     const open = body.render(60);
     expect(open.length).toBeGreaterThan(1);
     expect(open.join(" ")).toContain("token29");
     header.handleMouse?.(click());
-    // Collapsed again; the pointer still rests on the row, so its chip stays lit.
+    // Collapsed again; the pointer still rests on the row, so its bar stays lit.
     expect(body.render(60)).toHaveLength(1);
-    expect(body.render(60)[0]).toContain("click · expand");
+    expect(hasBar(body.render(60))).toBe(true);
   });
 
   test("owned tools claim the row and grow the body on click", () => {

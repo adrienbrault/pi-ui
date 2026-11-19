@@ -771,7 +771,6 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
     try {
       const activeTheme = theme;
       decorateViewport(tui, {
-        chip: (width) => chipLine(activeTheme, "", "click · collapse", width),
         bar: (cell) => styleBarCell(activeTheme, cell),
       });
       if (patchTree(tui, theme, liveToolEnds, distances, advance) && !decayTimer) {

@@ -153,6 +153,12 @@ function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
 }
 
+/** Whether the row holding `needle` paints a background in column 0: the scroll bar. */
+function barred(needle: string): boolean {
+  const line = tmux("capture-pane", "-e", "-p", "-t", SESSION).split("\n").find((row) => row.includes(needle)) ?? "";
+  return /\b48[;:]/.test(/^((?:\x1b\[[0-9;:]*m)*)/.exec(line)?.[1] ?? "");
+}
+
 function count(pane: string, needle: string): number {
   return pane.split("\n").filter((line) => line.includes(needle)).length;
 }
@@ -202,14 +208,13 @@ async function decayScenario(sessionPath: string): Promise<void> {
   mouse(35, 5, rowOf(pane, headers[0] ?? ""));
   await Bun.sleep(400);
   pane = capture();
-  const hovered = lineWith(pane, "+ 2 lines");
-  assert(hovered.includes("[ click · expand ]"), `header hover should show the action on the footer\n${hovered}\n${pane}`);
+  assert(barred("+ 2 lines") && !pane.includes("[ click"), `header hover should show only the preview bar\n${pane}`);
 
   const gap = rowOf(pane, headers[1]!) - 1;
   assert(pane.split("\n")[gap - 1]?.trim() === "", "expected a blank row between commands");
   mouse(35, 5, gap);
   await Bun.sleep(150);
-  assert(!capture().includes("[ click"), "the tool spacer must clear the previous hover");
+  assert(!barred("+ 2 lines"), "the tool spacer must clear the previous hover");
   mouse(0, 5, gap);
   mouse(0, 5, gap, true);
   await Bun.sleep(150);
@@ -227,8 +232,7 @@ async function decayScenario(sessionPath: string): Promise<void> {
   mouse(35, 5, rowOf(pane, headers[3] ?? ""));
   await Bun.sleep(400);
   pane = capture();
-  const newestHeader = lineWith(pane, headers[3] ?? "");
-  assert(!newestHeader.includes("[ click"), `a row showing its whole body must stay inert\n${newestHeader}\n${pane}`);
+  assert(!barred("output 3 line"), `a row showing its whole body must stay inert\n${pane}`);
 }
 
 function thinkingFixture(path: string): void {
@@ -628,7 +632,8 @@ async function thinkingScenario(sessionPath: string): Promise<void> {
   }
   assert(pane.includes("scattering detail 65"), `expected to scroll through expanded thinking\n${pane}`);
   assert(!pane.includes("thought line 10"), "the natural collapse footer must be off screen");
-  const collapseRow = rowOf(pane, "[ click · collapse ]");
+  // No pinned chip: a click on any visible row of the open thought closes it.
+  const collapseRow = rowOf(pane, "scattering detail 65");
   mouse(0, 5, collapseRow);
   mouse(0, 5, collapseRow, true);
   await Bun.sleep(400);
@@ -678,7 +683,7 @@ ${visible}`);
     const decay = join(dir, "decay.jsonl");
     fixture(decay, 4, [{ output: ["A","B","C","D","E"].map(letter => "output 0 line " + letter).join("\n") }]);
     await decayScenario(decay);
-    console.log("decay ok: three content lines at the oldest, full newest, hover chip and click reveal");
+    console.log("decay ok: three content lines at the oldest, full newest, hover bar and click reveal");
 
     tmux("kill-server");
     const long = join(dir, "long.jsonl");
@@ -704,17 +709,17 @@ ${visible}`);
       .map((line) => /^((?:\x1b\[[0-9;:]*m)*)/.exec(line)?.[1] ?? "");
     assert(leading.every((codes) => /\b48[;:]/.test(codes)), `every open row should paint its first column\n${leading.map((codes) => JSON.stringify(codes)).join("\n")}`);
     assert(new Set(leading).size === 2, `mid-block the bar should show both fill and track\n${[...new Set(leading)].map((codes) => JSON.stringify(codes)).join("\n")}`);
-    const pinned = rowOf(pane, "[ click · collapse ]");
-    mouse(0, 5, pinned);
-    mouse(0, 5, pinned, true);
+    const inside = rowOf(pane, "long output line 80.");
+    mouse(0, 5, inside);
+    mouse(0, 5, inside, true);
     await Bun.sleep(200);
-    assert(!capture().includes("long output line 80."), "the pinned control should close the block");
+    assert(!capture().includes("long output line 80."), "a click inside the open block should close it");
     for (let i = 0; i < 60 && !capture().includes("+ 154 lines"); i++) {
       mouse(64, 20, 15);
       await Bun.sleep(50);
     }
     await waitFor("+ 154 lines");
-    console.log("long bash output shows its scroll bar and collapses from its pinned viewport control");
+    console.log("long bash output shows its scroll bar and collapses from a click inside it");
     tmux("kill-server");
     const fold = join(dir, "fold.jsonl");
     fixture(fold, 12);

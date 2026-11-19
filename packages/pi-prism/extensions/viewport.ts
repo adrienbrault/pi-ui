@@ -1,4 +1,4 @@
-import { compositeTuiLine, visibleWidth } from "@earendil-works/pi-tui";
+import { compositeTuiLine } from "@earendil-works/pi-tui";
 import type { RenderTheme } from "../render/kit.ts";
 import type { BarCell } from "../render/tool-row.ts";
 
@@ -44,7 +44,7 @@ export function offscreenHistory(root: TranscriptTui): Set<object> {
   return history;
 }
 
-/** Mouse regions that can collapse the block beneath a pinned chip. */
+/** Mouse regions of open blocks: a click inside one collapses it, and its rows carry the scroll bar. */
 export const expandedRegions = new WeakMap<object, (row: number) => boolean>();
 const pinnedDocuments = new WeakSet<object>();
 
@@ -135,8 +135,6 @@ export function scrollBarRows(spans: Span[], top: number, height: number): Map<n
 }
 
 export interface ViewportPaint {
-  /** The collapse chip pinned to the last row when an open block runs past the viewport. */
-  chip: (width: number) => string;
   /** One styled cell of the open block's scroll bar. */
   bar: (cell: BarCell) => string;
 }
@@ -154,16 +152,9 @@ export function decorateViewport(root: TranscriptTui, paint: ViewportPaint): voi
     if (height <= 0 || width <= 0) return lines;
     const top =
       !scroll.isFollowingEnd && scroll.scrollTop !== undefined ? scroll.scrollTop : Math.max(0, lines.length - height);
-    let frame = lines;
-    const bottom = top + height - 1;
-    if (!scroll.isFollowingEnd && bottom < lines.length - 1 && insideExpanded(doc, bottom)) {
-      frame = lines.slice();
-      const overlay = paint.chip(width);
-      frame[bottom] = compositeTuiLine(lines[bottom]!, overlay, 0, visibleWidth(overlay), width);
-    }
     const bar = scrollBarRows(expandedSpans(doc, top, height), top, height);
-    if (bar.size === 0) return frame;
-    if (frame === lines) frame = lines.slice();
+    if (bar.size === 0) return lines;
+    const frame = lines.slice();
     for (const [row, cell] of bar) {
       if (frame[row] !== undefined) frame[row] = compositeTuiLine(frame[row]!, paint.bar(cell), 0, 1, width);
     }

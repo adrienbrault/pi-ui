@@ -299,7 +299,8 @@ function region(inner: Component, record: BlockRecord, part: "header" | "body" |
     if (
       event.type === "click" &&
       !record.expansion &&
-      !(heading ? record.commandClipped || record.expandRow !== undefined : row === record.expandRow)
+      // Any row of a block that can open opens it.
+      !(record.commandClipped || record.expandRow !== undefined)
     )
       return { handled: true, render: false };
     return onMouse(record, event);
@@ -329,32 +330,13 @@ function expandHint(theme: Theme, line: string, width: number): string {
   return withChip(theme, tintText(theme, "toolPendingBg", line), "click · expand", width);
 }
 
-function highlightHeadingFromFooter(record: BlockRecord, rows: string[], theme: Theme, width: number): string[] {
-  if (!record.expansion && record.hover && record.hoverRow !== undefined && record.hoverRow === record.expandRow)
-    highlightGroupRow(rows, 0, width, theme.bg("toolPendingBg", " ").split(" ")[0]!);
-  return rows;
-}
-
 function headerComponent(record: BlockRecord, theme: Theme): Component {
   const api = { kit: KIT, theme: theme as unknown as RenderTheme, glyphs: GLYPHS };
   return region(
     KIT.component((width) => {
       const header = toolHeader(api, inputFor(record), width);
       record.commandClipped = !!header.hiddenCommand;
-      return highlightHeadingFromFooter(
-        record,
-        [
-          record.hover &&
-          record.hoverRow === undefined &&
-          record.commandClipped &&
-          record.expandRow === undefined &&
-          !record.expansion
-            ? expandHint(theme, header.line, width)
-            : header.line,
-        ],
-        theme,
-        width,
-      );
+      return [header.line];
     }) as Component,
     record,
   );
@@ -366,27 +348,19 @@ function bodyComponent(record: BlockRecord, theme: Theme, includeHeader = false)
     KIT.component((width) => {
       const layout = toolRowLayout({ ...api, owner: record }, inputFor(record), width);
       const rows = layout.rows.slice(includeHeader ? 0 : 1);
-      if (record.expansion === 1) collapseFooter(theme, rows, width);
-      else {
-        // The chip sits on the omission notice: last for tails, at the cut for head-and-tail reads.
-        const omission = rows.findLastIndex(isOmissionRow);
-        const hint =
-          record.commandClipped || omission !== -1 || layout.clipped
-            ? "click · expand"
-            : hintFor(record.expansion, nonEmptyLineCount(previewText(record)), levelOf(record));
-        record.expandRow = hint && rows.length ? (omission === -1 ? rows.length - 1 : omission) : undefined;
-        if (
-          hint &&
-          record.hover &&
-          record.expandRow !== undefined &&
-          (record.hoverRow === undefined || record.hoverRow === record.expandRow)
-        )
-          rows[record.expandRow] = expandHint(theme, rows[record.expandRow]!, width);
-        // Hovering a block that can open shows where its preview sits in the whole output.
-        if (hint === "click · expand" && record.hover && layout.bar?.length)
-          paintBar(rows, rows.length - layout.bar.length, layout.bar, (cell) => styleBarCell(api.theme, cell), width);
-      }
-      return includeHeader ? highlightHeadingFromFooter(record, rows, theme, width) : rows;
+      if (record.expansion === 1) return rows;
+      // The omission notice: last for tails, at the cut for head-and-tail reads.
+      const omission = rows.findLastIndex(isOmissionRow);
+      const expandable =
+        record.commandClipped ||
+        omission !== -1 ||
+        layout.clipped ||
+        actionFor(record.expansion, nonEmptyLineCount(previewText(record)), levelOf(record)) !== null;
+      record.expandRow = expandable && rows.length ? (omission === -1 ? rows.length - 1 : omission) : undefined;
+      // Hover shows only the scroll bar: where the preview sits in the whole output.
+      if (expandable && record.hover && layout.bar?.length)
+        paintBar(rows, rows.length - layout.bar.length, layout.bar, (cell) => styleBarCell(api.theme, cell), width);
+      return rows;
     }) as Component,
     record,
     includeHeader ? "combined" : "body",
