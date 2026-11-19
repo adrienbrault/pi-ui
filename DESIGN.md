@@ -1,23 +1,23 @@
 # Design system contract
 
-This file is for both audiences. Humans use the gallery to judge; agents use the contract to change code without inventing a second visual language.
+This file is for both audiences. Humans review cards in the terminal with `bun run ds:show`; agents use the contract to change code without inventing a second visual language.
 
 ## The rule that keeps it honest
 
-The gallery renders the **real** components:
+Every card renders the **real** components:
 
 - base pi components come from the pi install resolved at build time;
 - pi-code and pi-open-tui come from vendored snapshots pinned by version;
 - ours comes from `packages/pi-prism/render/*`, the exact module the extension ships.
 
-A card is therefore a fixture, not an illustration. If the implementation changes, `bun run ds` changes the card. If a card looks wrong, the product looks wrong.
+A card is therefore a fixture, not an illustration. If the implementation changes, `bun run ds` changes the card's fixture. If a card looks wrong, the product looks wrong.
 
 ## Adding a component
 
 1. Pick the semantic token first. Use pi's theme tokens (`accent`, `muted`, `dim`, `success`, `error`, `warning`, `toolTitle`, `toolOutput`, `thinkingText`, …). Never hardcode a hex value.
 2. Put the pure renderer in `packages/pi-prism/render/`. It takes data + a render context (`theme`, `width`, `detail`, `expanded`) and returns a `Component` (or lines). No I/O, no timers, no global state.
 3. Register it in `design-system/registry.ts`: id, title, group, description, and one render function per state (`pending`, `running`, `success`, `error`, `partial`, `expanded`, `aged0`…`aged6`).
-4. Render it. `bun run ds`. Check it at 40/80/120 columns, dark and light.
+4. Render it. `bun run ds:show <id> --width 40` (and 80, 120), dark and `--theme light`.
 5. Add a fixture. The build writes `design-system/fixtures/frames.json`, keyed `<state>/<theme>/<width>/<glyph>`; commit it. `bun run ds:check` fails when the goldens no longer match what the renderers produce.
 6. If the component participates in a story, add it to a scenario in `design-system/registry.ts`.
 
@@ -44,7 +44,7 @@ distance ≥ 5 folded into a group summary
 ```
 
 The tail budget (8 above) is configurable. `setTailLines()` moves the whole
-ladder, and the gallery exposes it as a live slider (`/api/cells`).
+ladder.
 
 Rules:
 
@@ -106,7 +106,7 @@ Rules:
 - Measure with `visibleWidth`/`truncateToWidth`; never `String.length`.
 - Every line must fit the supplied width exactly; no overflow, no ANSI bleed across lines.
 - Glyph sets: `nerd`, `unicode`, `ascii`. A card must render in all three; ASCII is the accessibility floor.
-- Motion: spinner frames and pulse cadence are data, not CSS. The gallery plays them back; `prefers-reduced-motion` freezes them.
+- Motion: spinner frames and pulse cadence are data. Registry states carry them as frames; `ds:show` prints the last frame and the fixtures record the first.
 
 ## Definitions
 

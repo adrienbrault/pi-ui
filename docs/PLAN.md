@@ -7,7 +7,7 @@ Status: agreed direction. Working package name `pi-prism` (rename later; nothing
 | Decision | Choice |
 |---|---|
 | Transcript control | Runtime decorator over the live TUI layout root, behind capability probes and version guards |
-| Design system | Render-truth: real components rendered to ANSI → HTML, no hand-drawn mockups |
+| Design system | Render-truth: real components rendered to ANSI, no hand-drawn mockups; reviewed in the terminal |
 | Packaging | Standalone full replacement of the pi UI (staged; transcript first, chrome later) |
 | Decay unit | Block index within the current run; whole runs collapse and group beyond it |
 
@@ -54,29 +54,28 @@ The remaining hard part is grouping across rows: each `ToolExecutionComponent` o
 design-system/
   lib/pi.ts        resolve the pi install to render against (env → pinned repo install → nvm/global)
   lib/theme.ts     load dark/light theme JSON, resolve vars, initTheme + setThemeInstance
-  lib/surface.ts   component → string[] → ANSI→HTML; width/theme cache
+  lib/surface.ts   render kit + stack: component → string[]
   registry.ts      variant × component × state × width × theme
   scenarios.ts     compositions: cold start, long run, failing bash, thinking-heavy, MCP, compaction…
-  build.ts         writes web/index.html, spec.json, fixtures/*.ansi.json
-  web/             generated output (gitignored or committed, decide)
+  build.ts         writes fixtures/frames.json; --check guards drift
+  show.ts          prints cards to the terminal as raw ANSI
 ```
 
-Every card is real output, not a drawing: base pi components from the resolved install, pi-code and pi-open-tui from vendored snapshots pinned by version, ours from the same `packages/pi-prism/render` module the extension will ship. That last point is the contract: **the design system and the implementation share one renderer module**, so the gallery cannot drift from the product.
+Every card is real output, not a drawing: base pi components from the resolved install, pi-code and pi-open-tui from vendored snapshots pinned by version, ours from the same `packages/pi-prism/render` module the extension will ship. That last point is the contract: **the design system and the implementation share one renderer module**, so the cards cannot drift from the product.
 
-Axes exposed in the UI:
+Axes every card renders across:
 
 - variant: base / open-tui / pi-code / ours
 - state: pending, running (animated), success, error, partial, expanded, aged L0–L5
-- width: 40 / 80 / 120
-- theme: dark / light / system
-- motion: play/pause (spinner frames, pulse cadence, streaming tail)
+- width: 40 / 60 / 80 / 100 / 120
+- theme: dark / light
+- glyphs: unicode / ascii
 
-Scenarios get a turn scrubber so you can watch 12 rows fold into 3 summary lines as turns accrue.
+The browser gallery (HTML page, tail slider, session playback scrubber on localhost:4173) was removed: it was too far from the terminal experience. Cards are now reviewed in the terminal with `bun run ds:show [filter] [--width N] [--theme dark|light] [--ascii]`.
 
 Outputs for agents:
 
-- `spec.json`: tokens, component ids, props, states, max-line budgets, glyph sets, scenario ids.
-- `fixtures/*.ansi.json`: golden frames, consumed by tests so rendering changes are reviewable.
+- `fixtures/frames.json`: golden frames, checked by `ds:check` so rendering changes are reviewable.
 - `DESIGN.md`: how to add a component (token → renderer → registry entry → fixture → scenario).
 
 ### B. Implementation: `packages/pi-prism`
@@ -99,7 +98,7 @@ Standalone body budget: 7 → 6 → 5 → 4 → group
 The four-row preview fits three content lines and one omission notice.
 ```
 
-- Count newer blocks across the whole transcript. Show eight 90 ms fade frames per departing visible row, including each row of a folding block and apply offscreen changes immediately.
+- Count newer blocks across the whole transcript. Show four 90 ms fade frames (360 ms) per departing visible row, including each row of a folding block and apply offscreen changes immediately.
 - The live block is pinned to L0 regardless of its own length.
 - Recompute on structural events only: `message_start`, `tool_execution_start/end`, `turn_end`, `agent_settled`. Never per token.
 - Hysteresis: a block must cross the boundary for two consecutive recomputes before changing level, so stream chatter does not flicker heights.
@@ -159,8 +158,8 @@ pi-extensions/
 
 | Phase | Deliverable | Exit criteria |
 |---|---|---|
-| P0 | Repo skeleton, render-truth harness, first gallery (thinking + read/bash/edit rows + decay demo) | `bun run ds` emits a working `index.html`; base-pi rows match the terminal |
-| P1 | Full component coverage + 4 variants + scenarios + fixtures + `spec.json` | Every block we intend to own is in the gallery; agents have DESIGN.md + spec |
+| P0 | Repo skeleton, render-truth harness, first gallery (thinking + read/bash/edit rows + decay demo) | `bun run ds` emits a working `index.html`; base-pi rows match the terminal (the gallery was later replaced by `ds:show`) |
+| P1 | Full component coverage + 4 variants + scenarios + fixtures + `spec.json` | Every block we intend to own is in the gallery; agents have DESIGN.md + spec (`spec.json` went with the gallery; the registry and fixtures carry the spec) |
 | P2 | Decay engine + tool renderers + thinking tails (extension, decorator for per-message only) | A real session folds rows by age; widths/themes/restore behave |
 | P3 | Grouping + click-to-expand + pins | `Read 4 files, ran 2 shell commands` collapses and expands in a live session |
 | P4 | Chrome: footer ladder, inline footer, editor frame, header | Standalone replaces open-tui's chrome; feature parity checklist green |

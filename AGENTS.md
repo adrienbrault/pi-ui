@@ -6,8 +6,8 @@
 
 ```bash
 bun run check        # tsgo + oxlint + biome + bun test + fixture drift — under a second
-bun run ds           # re-render design-system/web/index.html + spec.json + fixtures
-bun run dev          # gallery server + rebuild on change (localhost:4173)
+bun run ds           # regenerate the golden fixtures
+bun run ds:show read # print cards whose id contains "read" as ANSI (--width N, --theme dark|light, --ascii)
 ```
 
 `check` runs, in order: `tsgo` (native TypeScript preview) → `oxlint` → `biome format` → `bun test` → `ds:check`. A red gate means do not commit. If `tsgo` disagrees with an editor, `bun run typecheck:slow` falls back to classic `tsc`.
@@ -19,12 +19,10 @@ bun run dev          # gallery server + rebuild on change (localhost:4173)
 | `packages/pi-prism/render/` | Pure renderers: detail ladder, tool rows, group rows, thinking labels. No I/O, no timers, no globals. |
 | `packages/pi-prism/extensions/` | The live session: a tool-renderer resolver that owns tool rows, paints the hover hint, and cycles expansion on click. |
 | `design-system/registry.ts` | Every card and scenario, declared once. |
-| `design-system/lib/` | Resolving the pi install, theme init, component → lines → HTML. |
-| `design-system/build.ts` | Renders every cell, writes the gallery and fixtures. `--check` guards drift. |
-| `design-system/api.ts` | Live re-render of ours-cards at another tail budget, for the slider. |
-| `design-system/session.ts` | One scripted session expanded into playback frames (streaming tokens/args/output). |
+| `design-system/lib/` | Resolving the pi install, theme init, the render kit and `stack`. |
+| `design-system/build.ts` | Renders every cell and writes the fixtures. `--check` guards drift. |
+| `design-system/show.ts` | Prints matching cards to the terminal as raw ANSI, for review. A multi-frame state prints its last frame. |
 | `design-system/fixtures/` | Golden ANSI snapshots. Tracked. Never hand-edit. |
-| `design-system/web/` | Generated gallery. Not tracked; rebuild it. |
 | `docs/PLAN.md` | Decisions, architecture, phases P0–P5, risks. |
 | `DESIGN.md` | Component contract for both audiences. |
 
@@ -32,7 +30,7 @@ bun run dev          # gallery server + rebuild on change (localhost:4173)
 
 Breaking any of these is a design regression, not a style preference.
 
-1. **Render truth.** Every card renders real components: base pi from the resolved install, ours from `packages/pi-prism/render`. No mockups, no screenshots of mockups. If the implementation changes, `bun run ds` changes the card.
+1. **Render truth.** Every card renders real components: base pi from the resolved install, ours from `packages/pi-prism/render`. No mockups, no screenshots of mockups. If the implementation changes, `bun run ds` changes the card's fixture and `bun run ds:show` prints the new card.
 2. Failed calls fold with their peers. Each affected summary segment includes its failure count, and opening the group reveals the failed calls in order.
 3. **The body budget is total.** A row's height is capped by its detail level; an expanded row's "… N more lines" notice counts against that cap, not on top of it.
 4. **Fixtures are golden.** `ds:check` fails when committed fixtures disagree with what the renderers produce. Change a renderer → `bun run ds` → commit the fixtures in the same change.
@@ -42,7 +40,6 @@ Breaking any of these is a design regression, not a style preference.
 
 ## Gotchas
 
-- **HTML export ignores OSC 8 and OSC 133.** `design-system/lib/surface.ts` strips shell-integration markers and rewrites OSC 8 hyperlinks into anchors (carrying SGR state across the link boundary). Without it, escape sequences leak into the page as text.
 - **Theme init order.** pi's theme needs `initTheme('dark')` and a `Theme` instance installed before any component renders; see `design-system/lib/theme.ts`.
 - **Per-message thinking tails** require walking the TUI tree and calling `AssistantMessageComponent.setHideThinkingBlock()` / `setHiddenThinkingLabel()`. pi's own `setHiddenThinkingLabel` on `ctx.ui` is global-only.
 - **Grouping needs a spacer fix.** pi tool rows emit a leading `Spacer(1)`; a group row must neutralise it rather than delete real layout children.
@@ -54,7 +51,7 @@ Breaking any of these is a design regression, not a style preference.
 2. Write the pure renderer in `packages/pi-prism/render/`, returning a `ComponentLike` via `RenderKit`.
 3. Add a test in `render.test.ts` — row counts, width fitting, and the failure cases.
 4. Register the card in `design-system/registry.ts` (id, title, group, description, one render fn per state).
-5. `bun run ds`, inspect at 40/80/120 columns in dark and light, then `bun run check`.
+5. `bun run ds`, inspect with `bun run ds:show <id> --width 40|80|120`, with and without `--theme light`, then `bun run check`.
 
 ## Where decisions live
 

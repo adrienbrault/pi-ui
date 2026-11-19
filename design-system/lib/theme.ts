@@ -1,7 +1,6 @@
 /**
  * Theme plumbing. pi's Theme class and the shipped dark/light JSON give the
- * gallery the same palette the terminal uses, including the export colors used
- * for the page chrome.
+ * fixtures the same palette the terminal uses.
  */
 
 import { readFileSync } from "node:fs";
@@ -15,15 +14,12 @@ export interface ThemeJson {
   appearance?: "dark" | "light";
   vars?: Record<string, string>;
   colors: Record<string, string>;
-  export?: { pageBg?: string; cardBg?: string; infoBg?: string };
 }
 
 export interface InstalledTheme {
   name: ThemeName;
   json: ThemeJson;
   theme: any;
-  pageBg: string;
-  cardBg: string;
 }
 
 export function loadThemeJson(pi: PiInstall, name: ThemeName): ThemeJson {
@@ -70,16 +66,5 @@ export function installTheme(pi: PiInstall, json: ThemeJson): InstalledTheme {
     name: (json.name as ThemeName) ?? "dark",
     json,
     theme,
-    pageBg: json.export?.pageBg ?? "#14121a",
-    cardBg: json.export?.cardBg ?? "#181620",
   };
-}
-
-/** CSS custom properties from pi's resolved tokens, for agent-side consumers. */
-export function cssTokens(installed: InstalledTheme): Record<string, string> {
-  try {
-    return installed.theme.colors as Record<string, string>;
-  } catch {
-    return {};
-  }
 }

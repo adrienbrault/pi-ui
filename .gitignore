@@ -2,6 +2,3 @@ node_modules/
 *.log
 .DS_Store
 bun.lockb
-
-# Generated gallery; rebuild with `bun run ds`. Fixtures stay tracked as goldens.
-design-system/web/

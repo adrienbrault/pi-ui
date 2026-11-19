@@ -1,6 +1,6 @@
 /**
  * Component registry: every card is a render function over real components.
- * The gallery, spec.json and fixtures all derive from this file.
+ * The golden fixtures and `bun run ds:show` both derive from this file.
  */
 
 import { formatDuration } from "../packages/pi-prism/render/text.ts";
@@ -9,21 +9,9 @@ import { glyphsFor } from "../packages/pi-prism/render/glyphs.ts";
 import { groupSegments, renderGroupRow } from "../packages/pi-prism/render/group-row.ts";
 import type { RenderKit } from "../packages/pi-prism/render/kit.ts";
 import type { DetailLevel } from "../packages/pi-prism/render/detail.ts";
-import { FOLD_DISTANCE, detailFor, tailLinesFor } from "../packages/pi-prism/render/detail.ts";
-import { thinkingLabel, thinkingLayout } from "../packages/pi-prism/render/thinking.ts";
-import { planTranscript, type TranscriptItem, type BlockShape } from "../packages/pi-prism/render/layout.ts";
-import {
-  FRAME_LABELS,
-  PLAYBACK,
-  SESSION_STEPS,
-  playbackGroupDuration,
-  partialLines,
-  partialText,
-  streamingArgKey,
-  type PlaybackFrame,
-  type SessionStep,
-} from "./session.ts";
-import { renderToolLine, renderToolRow, type ToolRowInput } from "../packages/pi-prism/render/tool-row.ts";
+import { FOLD_DISTANCE, detailFor } from "../packages/pi-prism/render/detail.ts";
+import { thinkingLabel } from "../packages/pi-prism/render/thinking.ts";
+import { renderToolRow, type ToolRowInput } from "../packages/pi-prism/render/tool-row.ts";
 import {
   callTokens,
   estimatedTokens,
@@ -47,7 +35,7 @@ import {
 } from "./fixtures-data.ts";
 
 export type Variant = "base" | "open-tui" | "pi-code" | "ours";
-export type Group = "session" | "transcript" | "tools" | "thinking" | "groups" | "glyphs" | "scenarios";
+export type Group = "transcript" | "tools" | "thinking" | "groups" | "glyphs" | "scenarios";
 
 export interface RenderCtx {
   pi: PiInstall;
@@ -66,34 +54,6 @@ export interface StateDef {
   /** Render this many animation frames instead of one still. */
   frames?: number;
   render: (ctx: RenderCtx, frame: number) => string[];
-  /** Folded groups, split into header + member blocks a click can toggle. */
-  reveal?: (ctx: RenderCtx, frame: number) => RevealGroup[];
-  /** Blocks outside groups whose full body a click can restore. */
-  toggles?: (ctx: RenderCtx, frame: number) => ToggleSpec[];
-}
-
-/** A collapsed block plus the bodies successive clicks swap in. */
-export interface ToggleSpec {
-  row: number;
-  count: number;
-  /** Opening steps: the capped body, then the whole body. */
-  opens: string[][];
-  key: string;
-}
-
-/** A revealed group: its header row plus member blocks in two states. */
-export interface RevealMember {
-  /** Header row only. */
-  collapsed: string[];
-  /** Header plus a taste of the body, ending in a "show all" cue. */
-  preview: string[];
-  /** The whole body, the same view the live tail gets. */
-  expanded: string[];
-}
-
-export interface RevealGroup {
-  header: string[];
-  members: RevealMember[];
 }
 
 export interface EntryDef {
@@ -103,18 +63,6 @@ export interface EntryDef {
   variant: Variant;
   description: string;
   states: StateDef[];
-  /** Cards sharing a sync key share one playhead (session lanes). */
-  sync?: string;
-  /** Cards sharing a stage key render side by side under one control bar. */
-  stage?: string;
-  /** Per-frame captions, shown by the stage control bar. */
-  frameLabels?: string[];
-  /** Per-frame duration in ms at 100 tok/s, so playback keeps real pacing. */
-  frameCosts?: number[];
-  /** Render at this width regardless of the gallery width control. */
-  fixedWidth?: number;
-  /** Skip in fixtures/frames.json: scenarios, not golden rows. */
-  fixture?: false;
 }
 
 /** A duck-typed TUI stub: tool rows only need requestRender. */
@@ -183,36 +131,6 @@ function baseTool(
   component.markExecutionStarted();
   component.updateResult(result, options.partial ?? false);
   if (options.expanded) component.setExpanded(true);
-  return component;
-}
-
-/**
- * A tool call captured mid-flight: arguments may still be arriving and the
- * output may be partial, exactly the states pi renders while streaming.
- */
-function baseToolStreaming(
-  pi: PiInstall,
-  name: string,
-  args: Record<string, unknown>,
-  output: string,
-  options: { argsComplete: boolean; partial: boolean; isError: boolean },
-): any {
-  const component = new pi.modules.coding.ToolExecutionComponent(
-    name,
-    "call-1",
-    args,
-    { outputPad: 1, showImages: true },
-    definitionFor(pi, name),
-    STUB_TUI,
-    cwd,
-  );
-  component.updateArgs(args);
-  if (options.argsComplete) component.setArgsComplete();
-  component.markExecutionStarted();
-  component.updateResult(
-    { content: [{ type: "text", text: output }], details: {}, isError: options.isError },
-    options.partial,
-  );
   return component;
 }
 
@@ -814,452 +732,18 @@ function decayStack(ctx: RenderCtx, offset: number): string[] {
   return stack(ctx.width, components, 1);
 }
 
-/**
- * What a click on the decay group opens: the same folded rows, but split into a
- * toggleable header and per-member blocks. Collapsed = header only.
- */
-function decayReveal(ctx: RenderCtx, offset: number): RevealGroup[] {
-  const rows = decayRows.map((row, index) => ({
-    row,
-    distance: offset + (decayRows.length - 1 - index),
-  }));
-  const folded = rows.filter(({ distance }) => distance >= FOLD_DISTANCE);
-  if (folded.length === 0) return [];
-  const segments = groupSegments(
-    folded.map(({ row }) => ({
-      cls: toolMeta(row.name).cls,
-      failed: row.status === "error",
-      durationMs: row.durationMs,
-    })),
-  );
-  const tokens = sumTokens(folded.map(({ row }) => toolTokenCounts(row)));
-  const durationMs = folded.reduce((sum, { row }) => sum + (row.durationMs ?? 0), 0);
-  return [
-    {
-      header: renderGroupRow(ours(ctx), { segments, expanded: true, durationMs, tokens }).render(ctx.width),
-      members: folded.map(({ row }) => {
-        const collapsed = renderToolLine(ours(ctx), row).render(ctx.width);
-        const preview = renderToolRow(ours(ctx), { ...row, level: 4 }).render(ctx.width);
-        const expanded = renderToolRow(ours(ctx), { ...row, expanded: true }).render(ctx.width);
-        return {
-          collapsed,
-          // A member with nothing hidden offers no opening at all.
-          preview:
-            expanded.length > preview.length
-              ? [...preview, ours(ctx).theme.fg("dim", `▸ show all ${expanded.length} lines`)]
-              : collapsed,
-          expanded,
-        };
-      }),
-    },
-  ];
-}
-
 const scenarioEntries: EntryDef[] = [
   {
     id: "scenario.decay",
     title: "Decay ladder",
     group: "scenarios",
     variant: "ours",
-    description: "Scrub through the transcript to see older previews shrink and fold into a group.",
+    description: "Nine distances from the tail: older previews shrink and fold into a group.",
     states: Array.from({ length: 9 }, (_, offset) => ({
       id: `d${offset}`,
       label: `distance ${offset}`,
       render: (ctx) => decayStack(ctx, offset),
-      reveal: (ctx) => decayReveal(ctx, offset),
     })),
-  },
-];
-
-// ---------------------------------------------------------------------------
-// Session replay: one script, two renderers, one playhead
-// ---------------------------------------------------------------------------
-
-/** Session lanes render at a fixed width and height so the eye can stay put. */
-const SESSION_WIDTH = 80;
-
-/** A step's shape as the planner sees it; a partial failure is not final yet. */
-function stepShape(step: SessionStep, index: number, frame: PlaybackFrame): BlockShape {
-  if (step.kind === "thinking") return { cls: "thinking" };
-  if (step.kind === "tool") {
-    const failed = index === frame.step ? !frame.partial && step.tool.failed : step.tool.failed;
-    return { cls: toolMeta(step.tool.name).cls, failed };
-  }
-  return { cls: "prose" };
-}
-
-/**
- * Completed steps render the same rows for every later frame. The replay is
- * long, so remember them per cell: build cost becomes live-step cost.
- */
-const finishedPieces = new Map<string, SessionPiece>();
-const finishedGroups = new Map<string, string[]>();
-const finishedMembers = new Map<string, string[]>();
-let framePieces: { key: string; pieces: SessionPiece[]; plan: TranscriptItem[] } | undefined;
-let frameArrangement:
-  | { pieces: SessionPiece[]; gap: number; value: { lines: string[]; toggles: ToggleSpec[] } }
-  | undefined;
-let baseComponents = new Map<string, any>();
-
-/** What a step shows at this frame: complete for past steps, streamed for the live one. */
-function stepProgress(step: SessionStep, index: number, frame: PlaybackFrame) {
-  const live = index === frame.step;
-  if (step.kind === "prefill") {
-    return { live, chars: 0, lines: 0, partial: false };
-  }
-  if (step.kind === "tool") {
-    const outputLines = (step.tool.output ?? "").split("\n").length;
-    return {
-      live,
-      chars: live ? frame.chars : (step.tool.title ?? "").length,
-      lines: live ? frame.lines : outputLines,
-      partial: live ? frame.partial : false,
-    };
-  }
-  return {
-    live,
-    chars: live ? frame.chars : step.text.length,
-    lines: 0,
-    partial: live ? frame.partial : false,
-  };
-}
-
-/** Bare pi: append everything, preview caps only, thinking collapses on completion. */
-function sessionBase(ctx: RenderCtx, frameIndex: number): string[] {
-  const frame = PLAYBACK[frameIndex];
-  if (!frame) throw new Error(`session frame ${frameIndex} out of range`);
-  const steps = SESSION_STEPS.slice(0, frame.step + 1);
-  const components = steps.map((step, index) => {
-    const progress = stepProgress(step, index, frame);
-    // Completed steps are identical for every later frame: remember the block.
-    const memoKey = `${ctx.themeName}:${ctx.glyphMode}:${ctx.width}:${index}`;
-    if (!progress.partial && !progress.live) {
-      const hit = baseComponents.get(memoKey);
-      if (hit) return hit;
-    }
-    const built = (() => {
-      switch (step.kind) {
-        case "prefill":
-          return ctx.kit.component(() => []);
-        case "user":
-          return new ctx.pi.modules.coding.UserMessageComponent(
-            partialText(step.text, progress.chars),
-            ctx.pi.modules.coding.getMarkdownTheme(),
-            1,
-          );
-        case "thinking":
-          return baseAssistant(ctx.pi, [{ type: "thinking", thinking: partialText(step.text, progress.chars) }], true);
-        case "text":
-          return baseAssistant(ctx.pi, [{ type: "text", text: partialText(step.text, progress.chars) }], false);
-        case "tool": {
-          const key = streamingArgKey(step.tool.name);
-          const fullArg = String(step.tool.args[key] ?? "");
-          const streamedArgs = { ...step.tool.args };
-          if (progress.partial && progress.chars < fullArg.length) streamedArgs[key] = fullArg.slice(0, progress.chars);
-          const output = partialLines(step.tool.output ?? "", progress.lines);
-          return baseToolStreaming(ctx.pi, step.tool.name, streamedArgs, output, {
-            argsComplete: progress.chars >= fullArg.length,
-            partial: progress.partial,
-            isError: !progress.partial && (step.tool.failed ?? false),
-          });
-        }
-      }
-    })();
-    if (!progress.partial && !progress.live) baseComponents.set(memoKey, built);
-    return built;
-  });
-  return stack(SESSION_WIDTH, components);
-}
-
-/** Ours: the same events, aged by distance from the tail, streaming as they land. */
-interface SessionPiece {
-  lines: string[];
-  opens?: string[][];
-  key?: string;
-}
-
-function playbackGroupTokens(indices: number[]) {
-  return sumTokens(
-    indices.map((index) => {
-      const step = SESSION_STEPS[index];
-      if (step?.kind === "tool") return toolTokenCounts(step.tool);
-      if (step?.kind === "thinking") return { outputTokens: estimatedTokens(step.text.length), inputTokens: 0 };
-      throw new Error(`unexpected folded step ${index}`);
-    }),
-  );
-}
-
-function sessionFrame(ctx: RenderCtx, frameIndex: number) {
-  const frame = PLAYBACK[frameIndex];
-  if (!frame) throw new Error(`session frame ${frameIndex} out of range`);
-  const frameKey = `${ctx.themeName}:${ctx.glyphMode}:${tailLinesFor()}:${frameIndex}`;
-  if (framePieces?.key === frameKey) return framePieces;
-  const steps = SESSION_STEPS.slice(0, frame.step + 1);
-  const renderBlock = (item: Extract<TranscriptItem, { kind: "block" }>): SessionPiece => {
-    const step = steps[item.index];
-    if (!step) throw new Error(`session frame ${frameIndex}: missing step ${item.index}`);
-    const progress = stepProgress(step, item.index, frame);
-    const live = progress.partial && progress.live;
-    const memoKey = `${ctx.themeName}:${ctx.glyphMode}:${tailLinesFor()}:${item.index}:${item.level}`;
-    if (!progress.partial) {
-      const memo = finishedPieces.get(memoKey);
-      if (memo) return memo;
-    }
-    const remember = (piece: SessionPiece): SessionPiece => {
-      if (!progress.partial) finishedPieces.set(memoKey, piece);
-      return piece;
-    };
-
-    switch (step.kind) {
-      case "prefill":
-        return remember({ lines: [] });
-      case "user":
-        return remember({
-          lines: new ctx.pi.modules.coding.UserMessageComponent(
-            partialText(step.text, progress.chars),
-            ctx.pi.modules.coding.getMarkdownTheme(),
-            1,
-          ).render(SESSION_WIDTH),
-        });
-      case "text":
-        return remember({
-          // Prose sits flush: the indent belongs to tool bodies and thinking tails.
-          lines: baseAssistant(
-            ctx.pi,
-            [{ type: "text", text: partialText(step.text, progress.chars) }],
-            false,
-            "Thinking...",
-            0,
-          ).render(SESSION_WIDTH),
-        });
-      case "thinking": {
-        const text = partialText(step.text, progress.chars);
-        const durationMs = live ? frame.elapsedMs : playbackGroupDuration([item.index]);
-        const { label, canToggle } = thinkingLayout(ours(ctx), {
-          phase: live ? "thinking" : "done",
-          level: item.level,
-          text,
-          width: SESSION_WIDTH,
-          durationMs,
-          frame: frameIndex % 10,
-        });
-        const piece: SessionPiece = { lines: thinkingBlock(ctx, label).render(SESSION_WIDTH) };
-        if (!live && canToggle) {
-          const expandedLines = thinkingLabel(ours(ctx), {
-            phase: "done",
-            level: 0,
-            text,
-            width: SESSION_WIDTH,
-            durationMs,
-            frame: frameIndex % 10,
-            expanded: true,
-          }).split("\n");
-          piece.opens = [expandedLines];
-        }
-        if (piece.opens) piece.key = `think:${item.index}`;
-        return remember(piece);
-      }
-      case "tool": {
-        const input: ToolRowInput = {
-          name: step.tool.name,
-          args: progress.partial
-            ? {
-                ...step.tool.args,
-                [streamingArgKey(step.tool.name)]: partialText(
-                  String(step.tool.args[streamingArgKey(step.tool.name)] ?? ""),
-                  progress.chars,
-                ),
-              }
-            : step.tool.args,
-          status: progress.partial ? "running" : step.tool.failed ? "error" : "success",
-          level: item.level,
-          title: partialText(step.tool.title ?? "", progress.chars),
-          summary: progress.partial ? "" : step.tool.summary,
-          output: partialLines(step.tool.output ?? "", progress.lines),
-          durationMs: progress.partial ? frame.elapsedMs : step.tool.durationMs,
-          frame: frameIndex % 10,
-        };
-        const piece: SessionPiece = { lines: renderToolRow(ours(ctx), input).render(SESSION_WIDTH) };
-        if (!progress.partial) {
-          const capped = renderToolRow(ours(ctx), { ...input, expanded: true }).render(SESSION_WIDTH);
-          const whole = renderToolRow(ours(ctx), { ...input, full: true }).render(SESSION_WIDTH);
-          // A row only offers opening when opening reveals rows it is hiding.
-          if (capped.length > piece.lines.length) {
-            piece.opens = whole.length > capped.length ? [capped, whole] : [capped];
-            piece.key = `tool:${item.index}`;
-          }
-        }
-        return remember(piece);
-      }
-    }
-  };
-  const plan = planTranscript(steps.map((step, index) => stepShape(step, index, frame)));
-  const pieces = plan.map((item) => {
-    if (item.kind === "group") {
-      const groupKey = `${ctx.themeName}:${ctx.glyphMode}:${item.indices.join(",")}`;
-      const memo = finishedGroups.get(groupKey);
-      if (memo) return { lines: memo };
-      const durationMs = playbackGroupDuration(item.indices);
-      const lines = renderGroupRow(ours(ctx), {
-        segments: item.segments,
-        durationMs,
-        tokens: playbackGroupTokens(item.indices),
-      }).render(SESSION_WIDTH);
-      finishedGroups.set(groupKey, lines);
-      return { lines };
-    }
-
-    return renderBlock(item);
-  });
-  framePieces = { key: frameKey, pieces, plan };
-  return framePieces;
-}
-
-/** Strip SGR and OSC to ask the only question a gap cares about: is there text? */
-// oxlint-disable-next-line no-control-regex -- escape sequences are the input domain
-const ANSI_ONLY = /\x1b\[[\d;]*m|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)/g;
-// oxlint-disable-next-line no-control-regex -- same domain: detecting marker rows
-const ESCAPE = /\x1b/g;
-const visibleText = (line: string): string => line.replace(ANSI_ONLY, "").trim();
-const hasText = (line: string): boolean => visibleText(line) !== "";
-
-/**
- * Pi pads its components and emits OSC 133 prompt markers on rows of their own.
- * Both show up as blank rows here: drop the marker rows, trim the padding, and
- * leave the one gap the transcript itself adds.
- */
-function trimEdgeBlanks(lines: string[]): string[] {
-  const kept = lines.filter((line) => !(visibleText(line) === "" && ESCAPE.test(line)));
-  let start = 0;
-  let end = kept.length;
-  while (start < end && !hasText(kept[start] ?? "")) start++;
-  while (end > start && !hasText(kept[end - 1] ?? "")) end--;
-  return kept.slice(start, end);
-}
-
-/** Lay pieces out like the transcript: one blank row between blocks. */
-function arrangePieces(pieces: SessionPiece[], gap = 1): { lines: string[]; toggles: ToggleSpec[] } {
-  if (frameArrangement?.pieces === pieces && frameArrangement.gap === gap) return frameArrangement.value;
-  const lines: string[] = [];
-  const toggles: ToggleSpec[] = [];
-  // An empty piece (a text delta with no characters yet) must not claim a gap.
-  const visible = pieces
-    .map((piece) => ({ piece, body: trimEdgeBlanks(piece.lines) }))
-    .filter(({ body }) => body.length > 0);
-  visible.forEach(({ piece, body }, index) => {
-    if (index > 0) for (let row = 0; row < gap; row++) lines.push("");
-    const row = lines.length;
-    lines.push(...body);
-    if (piece.opens && piece.key) {
-      toggles.push({ row, count: body.length, opens: piece.opens, key: piece.key });
-    }
-  });
-  const value = { lines, toggles };
-  frameArrangement = { pieces, gap, value };
-  return value;
-}
-
-function sessionOurs(ctx: RenderCtx, frameIndex: number): string[] {
-  return arrangePieces(sessionFrame(ctx, frameIndex).pieces).lines;
-}
-
-function sessionToggles(ctx: RenderCtx, frameIndex: number): ToggleSpec[] {
-  return arrangePieces(sessionFrame(ctx, frameIndex).pieces).toggles;
-}
-
-/**
- * What a click on a folded run opens: a header row plus every member as a block
- * that can itself be expanded (body) or collapsed (header only).
- */
-function sessionReveal(ctx: RenderCtx, frameIndex: number): RevealGroup[] {
-  const { plan } = sessionFrame(ctx, frameIndex);
-  return plan.flatMap((item) => {
-    if (item.kind !== "group") return [];
-    const durationMs = playbackGroupDuration(item.indices);
-    const header = renderGroupRow(ours(ctx), {
-      segments: item.segments,
-      tokens: playbackGroupTokens(item.indices),
-      expanded: true,
-      durationMs,
-    }).render(SESSION_WIDTH);
-    const members: RevealMember[] = item.indices.flatMap((index) => {
-      const step = SESSION_STEPS[index];
-      if (!step || step.kind !== "tool") return [];
-      const input: ToolRowInput = {
-        name: step.tool.name,
-        args: step.tool.args,
-        status: step.tool.failed ? "error" : "success",
-        title: step.tool.title,
-        summary: step.tool.summary,
-        output: step.tool.output,
-        durationMs: step.tool.durationMs,
-        level: 4,
-      };
-      const memberKey = `${ctx.themeName}:${ctx.glyphMode}:${index}`;
-      let variants = finishedMembers.get(memberKey);
-      if (!variants) {
-        variants = [
-          renderToolLine(ours(ctx), input).render(SESSION_WIDTH).join("\n"),
-          renderToolRow(ours(ctx), input).render(SESSION_WIDTH).join("\n"),
-          renderToolRow(ours(ctx), { ...input, expanded: true })
-            .render(SESSION_WIDTH)
-            .join("\n"),
-        ];
-        finishedMembers.set(memberKey, variants);
-      }
-      const [collapsed = [], preview = [], expanded = []] = variants.map((body) => body.split("\n"));
-      return [
-        {
-          collapsed,
-          preview:
-            expanded.length > preview.length
-              ? [...preview, ours(ctx).theme.fg("dim", `▸ show all ${expanded.length} lines`)]
-              : collapsed,
-          expanded,
-        },
-      ];
-    });
-    return [{ header, members }];
-  });
-}
-
-const sessionEntries: EntryDef[] = [
-  {
-    id: "session.base",
-    title: "Bare pi",
-    group: "session",
-    variant: "base",
-    description: "Thinking collapses to one label; every tool block keeps its full preview, and the box padding stays.",
-    sync: "session",
-    stage: "session",
-    frameLabels: FRAME_LABELS,
-    frameCosts: PLAYBACK.map((frame) => frame.ms),
-    fixedWidth: SESSION_WIDTH,
-    fixture: false,
-    states: [{ id: "default", label: "replay", frames: PLAYBACK.length, render: sessionBase }],
-  },
-  {
-    id: "session.ours",
-    title: "pi-prism",
-    group: "session",
-    variant: "ours",
-    description: "The same frames graded by distance: bodies shrink, runs fold with failure counts.",
-    sync: "session",
-    stage: "session",
-    frameLabels: FRAME_LABELS,
-    frameCosts: PLAYBACK.map((frame) => frame.ms),
-    fixedWidth: SESSION_WIDTH,
-    fixture: false,
-    states: [
-      {
-        id: "default",
-        label: "replay",
-        frames: PLAYBACK.length,
-        render: sessionOurs,
-        reveal: sessionReveal,
-        toggles: sessionToggles,
-      },
-    ],
   },
 ];
 
@@ -1609,18 +1093,8 @@ const glyphEntries: EntryDef[] = [
   },
 ];
 
-export const ENTRIES: EntryDef[] = [
-  ...sessionEntries,
-  ...baseEntries,
-  ...oursEntries,
-  ...scenarioEntries,
-  ...glyphEntries,
-];
+export const ENTRIES: EntryDef[] = [...baseEntries, ...oursEntries, ...scenarioEntries, ...glyphEntries];
 
 export const WIDTHS = [40, 60, 80, 100, 120] as const;
 export const GLYPH_MODES: GlyphMode[] = ["unicode", "ascii"];
 export const THEME_NAMES = ["dark", "light"] as const;
-
-export function glyphsForCtx(mode: GlyphMode): GlyphSet {
-  return glyphsFor(mode);
-}

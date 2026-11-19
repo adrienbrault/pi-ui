@@ -1,5 +1,5 @@
 /**
- * Resolve the pi install the gallery and the golden fixtures render against.
+ * Resolve the pi install the golden fixtures and `ds:show` render against.
  *
  * Order: explicit env, the repo-local install pinned in pi-prism's
  * devDependencies, then the newest nvm global install, then homebrew/system
@@ -27,7 +27,6 @@ export interface PiModules {
   coding: any;
   tui: any;
   theme: any;
-  exportHtml: any;
 }
 
 const PKG = "@earendil-works/pi-coding-agent";
@@ -106,7 +105,6 @@ async function loadPi(): Promise<PiInstall> {
     coding: await imp(join(root, "dist", "index.js")),
     tui: await imp(join(tuiRoot, "dist", "index.js")),
     theme: await imp(join(root, "dist", "modes", "interactive", "theme", "theme.js")),
-    exportHtml: await imp(join(root, "dist", "core", "export-html", "ansi-to-html.js")),
   };
   return {
     root,

@@ -15,5 +15,5 @@
     "verbatimModuleSyntax": true
   },
   "include": ["design-system/**/*.ts", "packages/**/*.ts"],
-  "exclude": ["node_modules", "design-system/web"]
+  "exclude": ["node_modules"]
 }

@@ -15,9 +15,3 @@ jobs:
           bun-version: latest
       - run: bun install --frozen-lockfile
       - run: bun run check
-      - run: bun run ds
-      - uses: actions/upload-artifact@v4
-        with:
-          name: design-system
-          path: design-system/web/
-          retention-days: 30

@@ -6,11 +6,9 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "bun design-system/dev.ts",
     "ds": "bun design-system/build.ts",
     "ds:check": "bun design-system/build.ts --check",
-    "ds:watch": "bun --watch design-system/build.ts",
-    "ds:serve": "bun design-system/serve.ts",
+    "ds:show": "bun design-system/show.ts",
     "typecheck": "tsgo -p tsconfig.json --noEmit",
     "typecheck:slow": "tsc -p tsconfig.json --noEmit",
     "lint": "oxlint --deny-warnings design-system packages",
