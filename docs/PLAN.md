@@ -102,7 +102,7 @@ The four-row preview fits three content lines and one omission notice.
 - The newest group of the run lists one row per member up to five rows (`FORMING_ROWS`). At the sixth it collapses: its member rows leave bottom to top, one fade per row, as any departing row does.
 - The live block is pinned to L0 regardless of its own length.
 - Recompute on structural events only: `message_start`, `tool_execution_start/end`, `turn_end`, `agent_settled`, plus once when a fade step completes. Never per token. A fade tick repaints only the fading block; it never walks the transcript.
-- Hysteresis: a block must cross the boundary for two consecutive recomputes before changing level, so stream chatter does not flicker heights.
+- Hysteresis: an unanimated level change (an offscreen block, or a block catching up more than one step) needs two consecutive recomputes that agree, so stream chatter does not flicker heights. A completed fade commits its step directly, and a group's forming state follows its member count directly.
 - Clicking a standalone tool pins it at its expanded form until clicked again; the pin is keyed by tool call id or message id, so it survives re-render and restore.
 
 #### Taxonomy
