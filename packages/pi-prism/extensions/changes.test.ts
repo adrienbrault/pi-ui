@@ -173,6 +173,119 @@ describe("a shell command's file changes", () => {
   });
 });
 
+/** A git that runs the real one and records each call: its arguments, its input and the bytes it returned. */
+function recording() {
+  const calls: Array<{ args: string[]; input: string; bytes: number }> = [];
+  const spy: Git = async (args, cwd, timeout, input, maxBytes) => {
+    const output = await runGit(args, cwd, timeout, input, maxBytes);
+    calls.push({ args, input: input ?? "", bytes: output?.length ?? 0 });
+    return output;
+  };
+  /** The blob ids whose contents were read. */
+  const read = () =>
+    calls.filter((call) => call.args.includes("--batch")).flatMap((call) => call.input.split("\n").filter(Boolean));
+  return { spy, calls, read };
+}
+
+/** The blob a tracked file holds in the index. */
+const blobOf = (root: string, path: string) => git(root, "rev-parse", `:${path}`).trim();
+
+/** Commit `files` (name to content) to the repository at `root`. */
+function commit(root: string, files: Record<string, string>) {
+  for (const [name, content] of Object.entries(files)) writeFileSync(join(root, name), content);
+  git(root, "add", ...Object.keys(files));
+  git(root, "commit", "-q", "-m", "files");
+}
+
+describe("old contents are read only for the files shown", () => {
+  test("a tracked file past the per-file cap is never read from git", async () => {
+    const root = repository();
+    commit(root, { "asset.txt": "x\n".repeat(200_000) });
+    const id = blobOf(root, "asset.txt");
+    const before = await takeSnapshot(root);
+    await tick();
+    writeFileSync(join(root, "asset.txt"), "small now\n");
+    const { spy, calls, read } = recording();
+    const changes = await collectChanges(before!, spy);
+    expect(changes?.files).toEqual([{ path: "asset.txt", kind: "modified", note: "too large" }]);
+    expect(read()).not.toContain(id);
+    expect(Math.max(...calls.map((call) => call.bytes))).toBeLessThan(10_000);
+  });
+
+  test("a deleted file's old contents are not read", async () => {
+    const root = repository();
+    commit(root, { "asset.txt": "x\n".repeat(200_000) });
+    const before = await takeSnapshot(root);
+    unlinkSync(join(root, "asset.txt"));
+    unlinkSync(join(root, "src", "gone.ts"));
+    const { spy, calls } = recording();
+    const changes = await collectChanges(before!, spy);
+    expect(changes?.files.map(({ path, kind }) => `${kind} ${path}`)).toEqual([
+      "deleted asset.txt",
+      "deleted src/gone.ts",
+    ]);
+    expect(calls.filter((call) => call.args[0] === "cat-file")).toEqual([]);
+  });
+
+  test("past the listing cap, the files counted are not read", async () => {
+    const root = repository();
+    const names = Array.from({ length: 60 }, (_, index) => `f${String(index).padStart(2, "0")}.txt`);
+    commit(root, Object.fromEntries(names.map((name) => [name, `${name} before\n`])));
+    const before = await takeSnapshot(root);
+    await tick();
+    for (const name of names) writeFileSync(join(root, name), `${name} after\n`);
+    const { spy, read } = recording();
+    const changes = await collectChanges(before!, spy);
+    expect(changes?.files).toHaveLength(LIMITS.maxListed);
+    expect(changes?.more).toBe(10);
+    expect(read().toSorted()).toEqual(
+      names
+        .slice(0, LIMITS.maxListed)
+        .map((name) => blobOf(root, name))
+        .toSorted(),
+    );
+  });
+
+  test("files rewritten with the same bytes leave their place in the listing to the next ones", async () => {
+    const root = repository();
+    commit(root, { "a.txt": "a\n", "b.txt": "b\n", "c.txt": "c\n", "d.txt": "d\n" });
+    const before = await takeSnapshot(root);
+    await tick();
+    for (const name of ["a", "b", "c"]) writeFileSync(join(root, `${name}.txt`), `${name}\n`);
+    writeFileSync(join(root, "d.txt"), "D\n");
+    writeFileSync(join(root, "e.txt"), "e\n");
+    const changes = await collectChanges(before!, runGit, undefined, { ...LIMITS, maxListed: 2 });
+    expect(changes).toEqual({
+      files: [
+        { path: "d.txt", kind: "modified", patch: expect.stringContaining("-d\n+D\n") },
+        { path: "e.txt", kind: "created", patch: expect.stringContaining("+e\n") },
+      ],
+    });
+  });
+
+  test("old contents read from git stop at their total cap", async () => {
+    const root = repository();
+    commit(root, { "a.txt": "a\n".repeat(500), "b.txt": "b\n".repeat(500), "c.txt": "c\n".repeat(500) });
+    const before = await takeSnapshot(root);
+    await tick();
+    for (const name of ["a", "b", "c"]) writeFileSync(join(root, `${name}.txt`), `${name}\n`.repeat(501));
+    const { spy, read } = recording();
+    const changes = await collectChanges(before!, spy, undefined, { ...LIMITS, maxBlobBytes: 2500 });
+    expect(changes?.files.map((file) => file.note ?? "patch")).toEqual(["patch", "patch", "too large"]);
+    expect(read()).not.toContain(blobOf(root, "c.txt"));
+  });
+
+  test("git's output past the reader's cap is cut off, and the call fails", async () => {
+    const root = repository();
+    commit(root, { "asset.txt": "x\n".repeat(200_000) });
+    const id = blobOf(root, "asset.txt");
+    expect((await runGit(["cat-file", "--batch"], root, 5000, `${id}\n`))?.length).toBeGreaterThan(400_000);
+    const started = performance.now();
+    expect(await runGit(["cat-file", "--batch"], root, 5000, `${id}\n`, 1000)).toBeUndefined();
+    expect(performance.now() - started).toBeLessThan(1000);
+  });
+});
+
 /** `count` numbered lines, each starting with `tag`. */
 const lines = (count: number, tag: string) => Array.from({ length: count }, (_, i) => `${tag} ${i}`).join("\n");
 

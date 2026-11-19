@@ -15,7 +15,7 @@
  * is skipped. Any failure skips quietly.
  */
 
-import { execFile, spawn } from "node:child_process";
+import { spawn } from "node:child_process";
 import { lstat, readFile } from "node:fs/promises";
 import { join, posix } from "node:path";
 import { createTwoFilesPatch, FILE_HEADERS_ONLY } from "diff";
@@ -23,8 +23,17 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { toolMeta } from "../render/tools.ts";
 import type { FileChange, FileChanges } from "../render/tool-row.ts";
 
-/** Runs git in `cwd`; its stdout, or undefined when git is missing, fails or overruns `timeout`. */
-export type Git = (args: string[], cwd: string, timeout: number, input?: string) => Promise<Buffer | undefined>;
+/**
+ * Runs git in `cwd`; its stdout, or undefined when git is missing, fails, overruns `timeout` or
+ * writes more than `maxBytes`.
+ */
+export type Git = (
+  args: string[],
+  cwd: string,
+  timeout: number,
+  input?: string,
+  maxBytes?: number,
+) => Promise<Buffer | undefined>;
 
 /** A unified patch from `before` to `after`, headed by `path`; undefined when it would take longer than `timeoutMs`. */
 export type Patch = (path: string, before: string, after: string, timeoutMs: number) => string | undefined;
@@ -43,6 +52,8 @@ export interface Limits {
   maxListed: number;
   /** Patch text recorded on one result, across files. */
   maxPatchBytes: number;
+  /** Old content read from git after a command, across files: past it, changes are reported without diffs. */
+  maxBlobBytes: number;
 }
 
 export const LIMITS: Limits = {
@@ -53,24 +64,43 @@ export const LIMITS: Limits = {
   maxSavedFiles: 2000,
   maxListed: 50,
   maxPatchBytes: 256 * 1024,
+  maxBlobBytes: 4 * 1024 * 1024,
 };
 
-export const runGit: Git = (args, cwd, timeout, input) =>
+/** What one git call may write before it is stopped: a listing of `maxFiles` paths fits many times over. */
+const GIT_MAX_BYTES = 64 * 1024 * 1024;
+
+export const runGit: Git = (args, cwd, timeout, input, maxBytes = GIT_MAX_BYTES) =>
   new Promise((resolve) => {
-    const options = { cwd, timeout, env: { ...process.env, GIT_TERMINAL_PROMPT: "0", GIT_OPTIONAL_LOCKS: "0" } };
-    const argv = ["--no-optional-locks", ...args];
-    if (input === undefined) {
-      execFile("git", argv, { ...options, encoding: "buffer", maxBuffer: 64 * 1024 * 1024 }, (error, stdout) =>
-        resolve(error ? undefined : stdout),
-      );
-      return;
-    }
-    const child = spawn("git", argv, { ...options, stdio: ["pipe", "pipe", "ignore"] });
+    const child = spawn("git", ["--no-optional-locks", ...args], {
+      cwd,
+      timeout,
+      env: { ...process.env, GIT_TERMINAL_PROMPT: "0", GIT_OPTIONAL_LOCKS: "0" },
+      stdio: [input === undefined ? "ignore" : "pipe", "pipe", "ignore"],
+    });
     const chunks: Buffer[] = [];
-    child.stdout.on("data", (chunk: Buffer) => chunks.push(chunk));
-    child.on("error", () => resolve(undefined));
-    child.on("close", (code) => resolve(code === 0 ? Buffer.concat(chunks) : undefined));
-    child.stdin.end(input);
+    let bytes = 0;
+    let settled = false;
+    const settle = (output: Buffer | undefined) => {
+      if (settled) return;
+      settled = true;
+      resolve(output);
+    };
+    child.stdout?.on("data", (chunk: Buffer) => {
+      bytes += chunk.length;
+      if (bytes <= maxBytes) {
+        chunks.push(chunk);
+        return;
+      }
+      // Past the cap nothing more is read: the call fails and git is stopped.
+      settle(undefined);
+      child.kill();
+    });
+    child.on("error", () => settle(undefined));
+    child.on("close", (code) => settle(code === 0 ? Buffer.concat(chunks) : undefined));
+    // Killed mid-input, git closes its end of the pipe: the failed write is expected.
+    child.stdin?.on("error", () => {});
+    child.stdin?.end(input);
   });
 
 /**
@@ -197,11 +227,35 @@ export async function takeSnapshot(
 /** Binary content: a NUL byte in its first 8000 bytes, as git decides. */
 const binary = (content: Buffer) => content.subarray(0, 8000).includes(0);
 
-/** The blobs' contents by id, through one `git cat-file --batch`. */
-async function readBlobs(git: Git, root: string, ids: string[], timeout: number): Promise<Map<string, Buffer>> {
+/** Room for one object's header in `git cat-file` output: `<id> <type> <size>\n`, with its trailing newline. */
+const HEADER_BYTES = 128;
+
+/** The size of each blob among `ids`, through one `git cat-file --batch-check`; missing ids are left out. */
+async function blobSizes(git: Git, root: string, ids: string[], timeout: number): Promise<Map<string, number>> {
+  const sizes = new Map<string, number>();
+  if (!ids.length) return sizes;
+  const format = "--batch-check=%(objectname) %(objecttype) %(objectsize)";
+  const output = await git(["cat-file", format], root, timeout, `${ids.join("\n")}\n`, ids.length * HEADER_BYTES);
+  for (const line of output?.toString("utf8").split("\n") ?? []) {
+    // `<id> blob <size>`, or `<id> missing`.
+    const [id, type, size] = line.split(" ");
+    if (id && type === "blob" && size) sizes.set(id, Number(size));
+  }
+  return sizes;
+}
+
+/** The blobs' contents by id, through one `git cat-file --batch` that may write no more than `sizes` add up to. */
+async function readBlobs(
+  git: Git,
+  root: string,
+  sizes: Map<string, number>,
+  timeout: number,
+): Promise<Map<string, Buffer>> {
   const blobs = new Map<string, Buffer>();
+  const ids = [...sizes.keys()];
   if (!ids.length) return blobs;
-  const output = await git(["cat-file", "--batch"], root, timeout, `${ids.join("\n")}\n`);
+  const cap = ids.reduce((total, id) => total + HEADER_BYTES + (sizes.get(id) ?? 0), 0);
+  const output = await git(["cat-file", "--batch"], root, timeout, `${ids.join("\n")}\n`, cap);
   if (!output) return blobs;
   let at = 0;
   for (const id of ids) {
@@ -242,55 +296,81 @@ export async function collectChanges(
   if (!changed.length) return undefined;
   changed.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
 
-  const held = changed.flatMap(({ path, kind }) => {
-    const id = kind !== "created" && !snapshot.saved.has(path) ? snapshot.blobs.get(path) : undefined;
-    return id ? [id] : [];
-  });
-  const blobs = await readBlobs(git, root, [...new Set(held)], remaining(deadline));
   const files: FileChange[] = [];
-  let more = 0;
   let patchBytes = 0;
-  for (const { path, kind, size } of changed) {
-    if (files.length >= limits.maxListed || Date.now() > deadline) {
-      more += 1;
-      continue;
+  let blobBytes = 0;
+  /** The old contents git holds for `window`'s modified files, read only within the caps. */
+  const readOld = async (window: typeof changed): Promise<Map<string, Buffer>> => {
+    // A deleted file shows no patch; a file too large now, or once the patch text is spent, shows none either.
+    if (patchBytes >= limits.maxPatchBytes) return new Map();
+    const wanted = window.flatMap(({ path, kind, size }) => {
+      const id =
+        kind === "modified" && size <= limits.maxFileBytes && !snapshot.saved.has(path)
+          ? snapshot.blobs.get(path)
+          : undefined;
+      return id ? [id] : [];
+    });
+    const sizes = await blobSizes(git, root, [...new Set(wanted)], remaining(deadline));
+    const approved = new Map<string, number>();
+    for (const [id, size] of sizes) {
+      if (size > limits.maxFileBytes || blobBytes + size > limits.maxBlobBytes) continue;
+      blobBytes += size;
+      approved.set(id, size);
     }
-    const shown = posix.relative(`/${snapshot.prefix}`, `/${path}`) || path;
-    if (kind === "deleted") {
-      files.push({ path: shown, kind });
-      continue;
+    return readBlobs(git, root, approved, remaining(deadline));
+  };
+  // In path order, a window at a time: each takes as many files as the listing has room for, and
+  // reads only those files' old contents. A file rewritten with the same bytes is not listed, and
+  // its place goes to the next window.
+  let next = 0;
+  while (next < changed.length && files.length < limits.maxListed && Date.now() <= deadline) {
+    const window = changed.slice(next, next + limits.maxListed - files.length);
+    next += window.length;
+    // oxlint-disable-next-line no-await-in-loop -- each window depends on how the last one filled the listing
+    const blobs = await readOld(window);
+    for (const [index, { path, kind, size }] of window.entries()) {
+      if (Date.now() > deadline) {
+        next -= window.length - index;
+        break;
+      }
+      const shown = posix.relative(`/${snapshot.prefix}`, `/${path}`) || path;
+      if (kind === "deleted") {
+        files.push({ path: shown, kind });
+        continue;
+      }
+      const before =
+        kind === "created"
+          ? Buffer.alloc(0)
+          : snapshot.saved.has(path)
+            ? snapshot.saved.get(path)
+            : blobs.get(snapshot.blobs.get(path) ?? "");
+      let after: Buffer | undefined;
+      // One at a time, in path order: the patch budget goes in that order.
+      // oxlint-disable-next-line no-await-in-loop
+      if (size <= limits.maxFileBytes) after = await readFile(join(root, path)).catch(() => undefined);
+      // Touched, rewritten with the same bytes: nothing changed that a diff could show.
+      if (before && after && before.equals(after)) continue;
+      if (!before || !after) {
+        files.push({ path: shown, kind, note: "too large" });
+        continue;
+      }
+      if (binary(before) || binary(after)) {
+        files.push({ path: shown, kind, note: "binary" });
+        continue;
+      }
+      // The diff runs synchronously, so it gets at most what is left of the deadline: one that would
+      // stall the session gives up and is reported without it.
+      const timeout = Math.min(PATCH_TIMEOUT_MS, remaining(deadline));
+      const text = patch(shown, before.toString("utf8"), after.toString("utf8"), timeout);
+      if (text === undefined || patchBytes + text.length > limits.maxPatchBytes) {
+        files.push({ path: shown, kind, note: "too large" });
+        continue;
+      }
+      patchBytes += text.length;
+      files.push({ path: shown, kind, patch: text });
     }
-    const before =
-      kind === "created"
-        ? Buffer.alloc(0)
-        : snapshot.saved.has(path)
-          ? snapshot.saved.get(path)
-          : blobs.get(snapshot.blobs.get(path) ?? "");
-    let after: Buffer | undefined;
-    // In path order, one at a time: the loop stops at the listing cap, and the patch budget goes in order.
-    // oxlint-disable-next-line no-await-in-loop
-    if (size <= limits.maxFileBytes) after = await readFile(join(root, path)).catch(() => undefined);
-    // Touched, rewritten with the same bytes: nothing changed that a diff could show.
-    if (before && after && before.equals(after)) continue;
-    if (!before || !after) {
-      files.push({ path: shown, kind, note: "too large" });
-      continue;
-    }
-    if (binary(before) || binary(after)) {
-      files.push({ path: shown, kind, note: "binary" });
-      continue;
-    }
-    // The diff runs synchronously, so it gets at most what is left of the deadline: one that would
-    // stall the session gives up and is reported without it.
-    const timeout = Math.min(PATCH_TIMEOUT_MS, remaining(deadline));
-    const text = patch(shown, before.toString("utf8"), after.toString("utf8"), timeout);
-    if (text === undefined || patchBytes + text.length > limits.maxPatchBytes) {
-      files.push({ path: shown, kind, note: "too large" });
-      continue;
-    }
-    patchBytes += text.length;
-    files.push({ path: shown, kind, patch: text });
   }
+  const more = changed.length - next;
   if (!files.length && !more) return undefined;
   return { files, ...(more ? { more } : {}) };
 }
