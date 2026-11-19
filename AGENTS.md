@@ -34,7 +34,7 @@ Breaking any of these is a design regression, not a style preference.
 2. Failed calls fold with their peers. Each affected summary segment includes its failure count, and opening the group reveals the failed calls in order.
 3. **The body budget is total.** A row's height is capped by its detail level; an expanded row's "… N more lines" notice counts against that cap, not on top of it.
 4. **Fixtures are golden.** `ds:check` fails when committed fixtures disagree with what the renderers produce. Change a renderer → `bun run ds` → commit the fixtures in the same change.
-5. **Decay only on structural events.** Targets are recomputed only on structural events (`message_start`, `tool_execution_start/end`, `turn_end`, `agent_settled`) and when a fade step completes, never per token. An unanimated level change needs two agreeing recomputes; a completed fade commits its step directly; a click pins a block expanded until clicked again.
+5. **Decay only on structural events.** Targets are recomputed only on structural events (`message_start`, `tool_execution_start/end`, `turn_end`, `agent_settled`) and when a fade step completes, never per token. An unanimated level change needs two agreeing recomputes; a completed fade commits its step directly; a group's forming state follows its member count directly; a click pins a block expanded until clicked again.
 6. **Theme tokens only.** Use pi's semantic tokens (`accent`, `muted`, `dim`, `success`, `error`, `warning`, `toolTitle`, `toolOutput`, `thinkingText`, …). Never hardcode hex.
 7. **Duck-type pi internals.** Multiple `pi-tui` copies can be loaded at once; `instanceof` lies across them. Probe capabilities and guard versions instead.
 
