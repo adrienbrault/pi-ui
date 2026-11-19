@@ -26,6 +26,8 @@ export interface DecayFrame {
   hurry?: boolean;
   /** Blocks in the transcript when a collapse started: more later means new blocks arrived. */
   blocks?: number;
+  /** The tool call id that also indexes this frame. */
+  key?: string;
 }
 
 export const DECAY_FRAME_MS = 90;
@@ -68,14 +70,17 @@ export function startFade(
   keepHeading = false,
 ): DecayFrame {
   const frame: DecayFrame = { folding, phase: 0, removed: 0, foldRows: 0, frameMs, keepHeading };
+  if (key !== undefined) frame.key = key;
   decayFrames.set(component, frame);
   if (key !== undefined) toolFrames.set(key, frame);
   return frame;
 }
 
-export function endFade(component: object, key: string | undefined): void {
+/** End a component's fade, and its call-id entry unless a rebuilt component with that id owns a newer one. */
+export function endFade(component: object): void {
+  const frame = decayFrames.get(component);
   decayFrames.delete(component);
-  if (key !== undefined) toolFrames.delete(key);
+  if (frame?.key !== undefined && toolFrames.get(frame.key) === frame) toolFrames.delete(frame.key);
 }
 
 export function resetFades(): void {

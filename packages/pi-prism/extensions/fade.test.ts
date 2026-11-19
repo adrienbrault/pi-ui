@@ -35,7 +35,7 @@ describe("fade advance", () => {
     const frame = startFade(component, "call", false);
     expect(toolFade("call")).toBe(frame);
     expect(fadeOf(component)).toBe(frame);
-    endFade(component, "call");
+    endFade(component);
     expect(toolFade("call")).toBeUndefined();
     expect(fadeOf(component)).toBeUndefined();
     startFade(component, "fold", true);

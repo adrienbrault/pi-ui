@@ -671,7 +671,6 @@ function patchTree(
   for (const unit of units) {
     const target = Math.min(FOLD_DISTANCE, unit.distance);
     const previous = distances.get(unit.component);
-    const key = unit.kind === "tool" ? unit.key : undefined;
     unit.distance = target;
     if (previous !== undefined && previous < target && !history.has(unit.component) && !unit.boundary) {
       const fading = fadeOf(unit.component);
@@ -679,7 +678,7 @@ function patchTree(
         // The fade has run its course: this walk commits the step, and a block
         // that fell further behind meanwhile takes the rest with it.
         committed = unit;
-        endFade(unit.component, key);
+        endFade(unit.component);
         repaint.add(unit.component);
       } else if (fading || target - previous === 1) {
         // One step behind, or mid-row: animate in turn.
@@ -692,7 +691,7 @@ function patchTree(
     distances.set(unit.component, unit.distance);
   }
   // A collapse that has run its course: the group now shows only its summary.
-  if (commit && fadeOf(commit) && !units.some((unit) => unit.component === commit)) endFade(commit, undefined);
+  if (commit && fadeOf(commit) && !units.some((unit) => unit.component === commit)) endFade(commit);
   let collapsing: LiveFoldGroup | undefined;
   const changed = planFolds(units, committed?.component, (group, shownRows) => {
     // Offscreen, or nothing left to animate: the group collapses at once.
@@ -721,13 +720,13 @@ function patchTree(
       collapse = current;
       const frame = fadeOf(current)!;
       if (units.length > (frame.blocks ?? units.length)) frame.hurry = true;
-    } else endFade(current, undefined);
+    } else endFade(current);
   }
   // A fade in progress keeps the floor; otherwise the oldest waiting block takes it.
   const head = collapse ? undefined : (waiting.find((unit) => fadeOf(unit.component)) ?? waiting[0]);
   for (const unit of units) {
     if (unit === head || !fadeOf(unit.component)) continue;
-    endFade(unit.component, unit.kind === "tool" ? unit.key : undefined);
+    endFade(unit.component);
     repaint.add(unit.component);
   }
   if (head && !fadeOf(head.component)) {

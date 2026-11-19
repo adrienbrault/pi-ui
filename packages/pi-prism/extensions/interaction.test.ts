@@ -8,6 +8,7 @@ import {
   type TuiMouseEvent,
 } from "@earendil-works/pi-tui";
 import { toolPlan } from "./fold.ts";
+import { toolFade } from "./fade.ts";
 import prism, { actionFor } from "./index.ts";
 
 // Syntax highlighting reads pi's global theme; do not depend on another test file installing it.
@@ -205,7 +206,7 @@ function fadeSession(name: string, text = output, onVisit?: () => void) {
     dispatch("session_shutdown", "");
     jest.useRealTimers();
   };
-  return { add, dispatch, close };
+  return { add, dispatch, close, children };
 }
 
 /** Five folded rows in a forming group, then the sixth block joins and the collapse begins. */
@@ -662,6 +663,30 @@ describe("tool renderers", () => {
       jest.advanceTimersByTime(60);
       expect(toolPlan("walk-0")?.level).toBe(1);
       expect(visits).toBe(before + 2 * walk);
+    } finally {
+      session.close();
+    }
+  });
+
+  test("a transcript rebuilt mid-fade leaves no frame behind for the new rows", () => {
+    const session = fadeSession("bash");
+    try {
+      session.add("rebuilt-0");
+      session.dispatch("agent_settled");
+      jest.advanceTimersByTime(1);
+      session.add("rebuilt-1");
+      session.dispatch("agent_settled");
+      jest.advanceTimersByTime(90);
+      expect(toolFade("rebuilt-0")).toBeDefined();
+      // pi clears the chat and renders every entry again (compaction, tree navigation, settings).
+      session.children.length = 0;
+      const again = session.add("rebuilt-0");
+      session.add("rebuilt-1");
+      session.dispatch("agent_settled");
+      jest.advanceTimersByTime(10_000);
+      expect(toolFade("rebuilt-0")).toBeUndefined();
+      // No row keeps the faded colour.
+      expect(again.render(80).join("")).not.toContain("38;2;");
     } finally {
       session.close();
     }
