@@ -44,14 +44,14 @@ export function offscreenHistory(root: TranscriptTui): Set<object> {
   return history;
 }
 
-/** Mouse regions of open blocks: a click inside one collapses it, and its rows carry the scroll bar. */
+/** Mouse regions of open blocks, keyed to which of their rows are open: those rows carry the scroll bar. */
 export const expandedRegions = new WeakMap<object, (row: number) => boolean>();
 const pinnedDocuments = new WeakSet<object>();
 
 export function insideExpanded(container: MeasuredContainer, row: number, height = 0): boolean {
   if (row < 0) return false;
   const expanded = expandedRegions.get(container);
-  if (expanded) return row < height - 1 && expanded(row);
+  if (expanded) return row < height && expanded(row);
   // Pi wraps result components in a MouseRegion that forwards local coordinates unchanged.
   if (container.child) return insideExpanded(container.child, row, height);
   for (const child of container.mouseLayout?.children ?? []) {
@@ -73,10 +73,10 @@ export function expandedSpans(container: MeasuredContainer, top: number, height:
   const visit = (node: MeasuredContainer, start: number, rows: number): void => {
     const expanded = expandedRegions.get(node);
     if (expanded) {
-      // Same convention as insideExpanded: a region's last row is not part of the open body.
+      // Every row of a region counts, through its last; the pass one past the end closes a span.
       let open: number | undefined;
-      for (let row = 0; row <= rows - 1; row++) {
-        const inside = row < rows - 1 && expanded(row);
+      for (let row = 0; row <= rows; row++) {
+        const inside = row < rows && expanded(row);
         if (inside && open === undefined) open = row;
         if (!inside && open !== undefined) {
           spans.push({ start: start + open, end: start + row });

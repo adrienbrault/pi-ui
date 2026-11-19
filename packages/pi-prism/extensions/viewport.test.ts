@@ -51,12 +51,11 @@ test("fully offscreen blocks age while a single visible row protects the whole b
 function documentWith(blockRows: number) {
   const block = {};
   expandedRegions.set(block, () => true);
-  // The region's last row is its footer and does not count, as in insideExpanded.
   return {
     mouseLayout: {
       children: [
         { component: {}, height: 2 },
-        { component: block, height: blockRows + 1 },
+        { component: block, height: blockRows },
       ],
     },
   };
