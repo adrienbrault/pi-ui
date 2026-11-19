@@ -5,7 +5,10 @@
  * as text and SGR mouse sequences are injected as literal input, which is what
  * a terminal would send. The scenarios cover:
  *
- * - A full screen of recent calls retains complete previews.
+ * - A full screen of recent calls retains complete previews; the run's one small
+ *   group lists its member, and a new prompt folds the next block row by row.
+ * - A thought and two commands in the newest small group: the forming group lists
+ *   them as consecutive member rows under its summary.
  * - 7 calls: the decay ladder, the hover chip, click expansion, inert rows.
  * - 12 calls: rows past FOLD_DISTANCE collapse into one summary; the summary
  *   opens its members; a member then expands its own body.
@@ -392,7 +395,7 @@ async function thinkingFoldScenario(sessionPath: string): Promise<void> {
   assert(pane.includes("thought old-3"), `the thought summary should open its members\n${pane}`);
 }
 
-function combinedFoldFixture(path: string): void {
+function combinedFoldFixture(path: string, thoughtCount = 3, callCount = 16): void {
   const now = Date.now();
   const entries: Entry[] = [];
   let parentId: string | null = null;
@@ -418,7 +421,7 @@ function combinedFoldFixture(path: string): void {
   add({ type: "thinking_level_change", id: "thinking", parentId, timestamp: new Date(now).toISOString(), thinkingLevel: "medium" });
   message("user", now, { role: "user", content: [{ type: "text", text: "Run the long chain." }], timestamp: now });
 
-  for (let index = 0; index < 3; index += 1) {
+  for (let index = 0; index < thoughtCount; index += 1) {
     message(`thought-${index}`, now + 1000 + index, {
       role: "assistant",
       api: "openai-completions",
@@ -432,7 +435,7 @@ function combinedFoldFixture(path: string): void {
     });
   }
 
-  const calls = Array.from({ length: 16 }, (_, index) => ({
+  const calls = Array.from({ length: callCount }, (_, index) => ({
     type: "toolCall",
     id: `call-${index}`,
     name: "bash",
@@ -536,6 +539,24 @@ async function combinedFoldScenario(sessionPath: string): Promise<void> {
     assert(pane.split("\n")[first - 1 + i]?.trim() === `ordered detail ${i}`, "expanded thought should keep source order");
   }
   assert(rowOf(pane, "thought combo-1") === first + 20 && rowOf(pane, "thought combo-2") === first + 21, "the final sentence and following sibling should retain their place");
+}
+
+/** The newest small group lists its members under the summary until it holds six rows. */
+async function formingScenario(sessionPath: string, members: string[], survivor: string): Promise<void> {
+  await openHistory(sessionPath, 60);
+  await waitFor("Chain done.");
+  await Bun.sleep(600);
+  const pane = capture();
+  const summary = rowOf(pane, "ran 2 shell commands");
+  const summaryLine = lineWith(pane, "ran 2 shell commands");
+  const column = summaryLine.search(/\S/);
+  assert(summaryLine.includes("▾") && !summaryLine.includes("[ click"), `a forming group is open without a pinned chip\n${pane}`);
+  for (const [index, member] of members.entries()) {
+    const line = pane.split("\n")[summary + index] ?? "";
+    assert(line.includes(member) && line.search(/\S/) === column + 2, `expected consecutive member row ${member}\n${pane}`);
+  }
+  assert((pane.split("\n")[summary + members.length] ?? "").trim() === "", `the member rows end at the blank before the next block\n${pane}`);
+  assert(lineWith(pane, survivor).search(/\S/) === column, `a surviving tool aligns with the summary\n${pane}`);
 }
 
 async function foldScenario(sessionPath: string): Promise<void> {
@@ -669,15 +690,18 @@ async function main(): Promise<void> {
     const visible = capture();
     assert(visible.includes("Ran 1 shell command") && !visible.includes("output 0 line A") && visible.includes("output 5 line B"), `visible history should age while the newest preview stays open
 ${visible}`);
+    // The run's only group is forming: its member row sits under the summary.
+    assert(lineWith(visible, "Ran 1 shell command").includes("▾") && visible.split("\n")[rowOf(visible, "Ran 1 shell command")]?.includes("echo command-0 ·"), `a one-member forming group should list its member\n${visible}`);
     tmux("send-keys", "-t", SESSION, "new run for animation", "Enter");
+    // The new prompt ends the run: the one-step-behind block folds row by row, later blocks catch up at once.
     await waitFor("Ran 1 shell command", 8000, screen => {
       const start = screen.indexOf("echo command-1");
-      const end = screen.indexOf("echo command-2");
-      if (start < 0 || end < start) return false;
-      const folding = screen.slice(start, end);
+      const end = screen.slice(start).search(/Ran \d+ shell commands?/);
+      if (start < 0 || end < 0) return false;
+      const folding = screen.slice(start, start + end);
       return folding.includes("animated line 39") && !folding.includes("+ 37 lines");
     });
-    await waitFor("Ran 2 shell commands", 8000);
+    await waitFor("Ran 6 shell commands", 8000);
     tmux("kill-server");
 
     const decay = join(dir, "decay.jsonl");
@@ -720,6 +744,12 @@ ${visible}`);
     }
     await waitFor("+ 154 lines");
     console.log("long bash output shows its scroll bar and collapses from a click inside it");
+    tmux("kill-server");
+    const forming = join(dir, "forming.jsonl");
+    combinedFoldFixture(forming, 1, 6);
+    await formingScenario(forming, ["thought combo-0", "echo combo-0 ·", "echo combo-1 ·"], "echo combo-2 ·");
+    console.log("forming ok: the newest small group lists its thought and tool members under its summary");
+
     tmux("kill-server");
     const fold = join(dir, "fold.jsonl");
     fixture(fold, 12);
