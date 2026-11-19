@@ -220,7 +220,7 @@ interface Selected {
   index?: number;
 }
 
-/** One cell of a block's column-0 scroll bar. */
+/** One cell of a block's scroll bar, drawn in column 1. */
 export type BarCell = "fill" | "track";
 
 /**

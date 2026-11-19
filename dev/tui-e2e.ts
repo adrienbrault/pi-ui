@@ -156,10 +156,41 @@ function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
 }
 
-/** Whether the row holding `needle` paints a background in column 0: the scroll bar. */
+/** The SGR background of each visible column of a captured row; undefined where none is set. */
+function backgrounds(line: string): Array<string | undefined> {
+  const cells: Array<string | undefined> = [];
+  let bg: string | undefined;
+  for (const [, params, text] of line.matchAll(/\x1b\[([0-9;:]*)m|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)|([^\x1b]+)/g)) {
+    if (params === undefined && text === undefined) continue;
+    if (params === undefined) {
+      for (const _ of text ?? "") cells.push(bg);
+      continue;
+    }
+    const codes = params === "" ? ["0"] : params.split(/[;:]/);
+    for (let i = 0; i < codes.length; i++) {
+      const code = Number(codes[i]);
+      if (code === 0 || code === 49) bg = undefined;
+      else if ((code >= 40 && code <= 47) || (code >= 100 && code <= 107)) bg = String(code);
+      else if (code === 48) {
+        const kind = codes[i + 1];
+        const size = kind === "5" ? 2 : kind === "2" ? 4 : 1;
+        bg = codes.slice(i, i + 1 + size).join(";");
+        i += size;
+      } else if (code === 38) i += codes[i + 1] === "5" ? 2 : codes[i + 1] === "2" ? 4 : 1;
+    }
+  }
+  return cells;
+}
+
+/** The scroll bar cell of a captured row: the background of column 1, the second cell. */
+function barOf(line: string): string | undefined {
+  return backgrounds(line)[1];
+}
+
+/** Whether the row holding `needle` paints the scroll bar in column 1 and leaves column 0 alone. */
 function barred(needle: string): boolean {
   const line = tmux("capture-pane", "-e", "-p", "-t", SESSION).split("\n").find((row) => row.includes(needle)) ?? "";
-  return /\b48[;:]/.test(/^((?:\x1b\[[0-9;:]*m)*)/.exec(line)?.[1] ?? "");
+  return barOf(line) !== undefined && backgrounds(line)[0] === undefined;
 }
 
 function count(pane: string, needle: string): number {
@@ -726,13 +757,13 @@ ${visible}`);
       pane = capture();
     }
     assert(pane.includes("long output line 80.") && !pane.includes("long output line 159."), "expected middle of expanded bash output");
-    // Mid-block, column 0 of the open rows is the scroll bar: track above, fill below, both painted.
-    const leading = tmux("capture-pane", "-e", "-p", "-t", SESSION)
+    // Mid-block, column 1 of the open rows is the scroll bar: track above, fill below, both painted.
+    const open = tmux("capture-pane", "-e", "-p", "-t", SESSION)
       .split("\n")
-      .filter((line) => line.includes("long output line"))
-      .map((line) => /^((?:\x1b\[[0-9;:]*m)*)/.exec(line)?.[1] ?? "");
-    assert(leading.every((codes) => /\b48[;:]/.test(codes)), `every open row should paint its first column\n${leading.map((codes) => JSON.stringify(codes)).join("\n")}`);
-    assert(new Set(leading).size === 2, `mid-block the bar should show both fill and track\n${[...new Set(leading)].map((codes) => JSON.stringify(codes)).join("\n")}`);
+      .filter((line) => line.includes("long output line"));
+    const cells = open.map(barOf);
+    assert(cells.every((cell) => cell !== undefined) && open.every((line) => backgrounds(line)[0] === undefined), `every open row should paint column 1 and only column 1\n${cells.join("\n")}`);
+    assert(new Set(cells).size === 2, `mid-block the bar should show both fill and track\n${[...new Set(cells)].join("\n")}`);
     const inside = rowOf(pane, "long output line 80.");
     mouse(0, 5, inside);
     mouse(0, 5, inside, true);

@@ -1,6 +1,13 @@
 import { describe, expect, test } from "bun:test";
 import { stripTerminalSequences } from "@earendil-works/pi-tui";
-import { decorateViewport, expandedRegions, expandedSpans, offscreenHistory, scrollBarRows } from "./viewport.ts";
+import {
+  decorateViewport,
+  expandedRegions,
+  expandedSpans,
+  offscreenHistory,
+  paintBarCell,
+  scrollBarRows,
+} from "./viewport.ts";
 
 test("fully offscreen blocks age while a single visible row protects the whole block", () => {
   const old = {},
@@ -80,7 +87,7 @@ describe("scroll bar of an open block", () => {
     expect([...bar.values()]).toEqual(["fill", "fill", "fill", "fill"]);
   });
 
-  test("the document render paints column zero of the visible open rows", () => {
+  test("the document render paints column 1 of the visible open rows and leaves column 0 alone", () => {
     const doc = Object.assign(documentWith(20), {
       render: (width: number) => Array.from({ length: 23 }, (_, row) => `    row ${row}`.padEnd(width)),
     });
@@ -90,8 +97,18 @@ describe("scroll bar of an open block", () => {
       { bar: (kind) => (kind === "fill" ? "#" : ":") },
     );
     const lines = doc.render(20).map(stripTerminalSequences);
-    expect(lines.slice(7, 17).map((line) => line[0])).toEqual([":", ":", ":", ":", ":", "#", "#", "#", "#", "#"]);
-    expect(lines[6]?.[0]).toBe(" ");
-    expect(lines[17]?.[0]).toBe(" ");
+    expect(lines.slice(7, 17).map((line) => line[1])).toEqual([":", ":", ":", ":", ":", "#", "#", "#", "#", "#"]);
+    expect(lines.slice(7, 17).every((line) => line[0] === " " && line.slice(2, 4) === "  ")).toBe(true);
+    expect(lines[6]?.[1]).toBe(" ");
+    expect(lines[17]?.[1]).toBe(" ");
+  });
+
+  test("a bar cell takes column 1 only where the row has a space or nothing there", () => {
+    expect(stripTerminalSequences(paintBarCell("✻ think", "#", 10))).toBe("✻#think   ");
+    expect(stripTerminalSequences(paintBarCell("  ▸ Ran 2", "#", 10))).toBe(" #▸ Ran 2 ");
+    expect(stripTerminalSequences(paintBarCell("", "#", 4))).toBe(" #  ");
+    expect(paintBarCell("ab", "#", 4)).toBe("ab");
+    expect(paintBarCell("界x", "#", 4)).toBe("界x");
+    expect(paintBarCell(" x", "#", 1)).toBe(" x");
   });
 });

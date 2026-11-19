@@ -1,4 +1,4 @@
-import { compositeTuiLine } from "@earendil-works/pi-tui";
+import { compositeTuiLine, stripTerminalSequences, visibleWidth } from "@earendil-works/pi-tui";
 import type { RenderTheme } from "../render/kit.ts";
 import type { BarCell } from "../render/tool-row.ts";
 
@@ -100,7 +100,22 @@ export function styleBarCell(theme: RenderTheme, cell: BarCell): string {
   return theme.style(" ", { bg: theme.colors?.[cell === "fill" ? "scrollbarThumb" : "scrollbarTrack"] });
 }
 
-/** Paint column 0 of `rows[from + i]` with `cells[i]`. */
+/** A block's scroll bar sits in the second cell of each row: column 0 keeps its glyph or indent. */
+export const BAR_COLUMN = 1;
+
+/**
+ * Composite one styled bar cell into column 1 of `row`. Every block kind has a
+ * space there (after a heading's marker, or inside an indent); a row whose
+ * column 1 holds a glyph keeps it and goes unpainted.
+ */
+export function paintBarCell(row: string, cell: string, width: number): string {
+  if (width <= BAR_COLUMN) return row;
+  const [first, second] = [...stripTerminalSequences(row)];
+  if ((first !== undefined && visibleWidth(first) > BAR_COLUMN) || (second !== undefined && second !== " ")) return row;
+  return compositeTuiLine(row, cell, BAR_COLUMN, 1, width);
+}
+
+/** Paint the bar column of `rows[from + i]` with `cells[i]`. */
 export function paintBar(
   rows: string[],
   from: number,
@@ -110,12 +125,12 @@ export function paintBar(
 ): void {
   cells.forEach((cell, index) => {
     const row = rows[from + index];
-    if (row !== undefined) rows[from + index] = compositeTuiLine(row, paint(cell), 0, 1, width);
+    if (row !== undefined) rows[from + index] = paintBarCell(row, paint(cell), width);
   });
 }
 
 /**
- * The scroll bar drawn in column 0 of an open block's visible rows. The fill
+ * The scroll bar drawn in column 1 of an open block's visible rows. The fill
  * rises from the bottom of the visible slice: empty at the block's end, full
  * once its first row is on screen. Its edge is always within the viewport.
  */
@@ -156,7 +171,7 @@ export function decorateViewport(root: TranscriptTui, paint: ViewportPaint): voi
     if (bar.size === 0) return lines;
     const frame = lines.slice();
     for (const [row, cell] of bar) {
-      if (frame[row] !== undefined) frame[row] = compositeTuiLine(frame[row]!, paint.bar(cell), 0, 1, width);
+      if (frame[row] !== undefined) frame[row] = paintBarCell(frame[row]!, paint.bar(cell), width);
     }
     return frame;
   };

@@ -118,6 +118,29 @@ const barred = {
 };
 const hasBar = (rows: string[]) => rows.some((row) => row.includes("\x1b[48;5;"));
 
+/** The `barred` background of each visible column: "1" thumb or fill, "2" track, undefined unpainted. */
+function backgrounds(row: string): Array<string | undefined> {
+  const cells: Array<string | undefined> = [];
+  let bg: string | undefined;
+  // oxlint-disable-next-line no-control-regex -- walking SGR state is the point
+  for (const [, params, text] of row.matchAll(/\x1b\[([0-9;]*)m|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)|([^\x1b]+)/g)) {
+    if (params === undefined && text === undefined) continue;
+    if (params !== undefined) {
+      const codes = params.split(";");
+      if (codes[0] === "48" && codes[1] === "5") bg = codes[2];
+      else if (codes.includes("49") || codes.includes("0") || params === "") bg = undefined;
+    } else for (const _ of text ?? "") cells.push(bg);
+  }
+  return cells;
+}
+
+/** What the scroll bar shows on a row: column 1 carries it, and no other column is painted. */
+function barCell(row: string): "fill" | "track" | "none" {
+  const cells = backgrounds(row);
+  if (cells.some((cell, column) => column !== 1 && cell !== undefined)) throw new Error(`painted off the bar: ${row}`);
+  return cells[1] === "1" ? "fill" : cells[1] === "2" ? "track" : "none";
+}
+
 const plainRows = (rows: string[]) => rows.map((row) => stripTerminalSequences(row).trimEnd());
 
 const move = (): TuiMouseEvent => ({ ...click(), type: "move", button: "none" });
@@ -290,8 +313,7 @@ describe("tool renderers", () => {
     body.handleMouse?.({ ...move(), y: 1 });
     const hovered = body.render(80);
     // Seven of 40 lines shown, all at the end: each cell stands for five lines, so the last two fill.
-    const cells = hovered.map((row) => (row.includes("48;5;1m") ? "fill" : row.includes("48;5;2m") ? "track" : "none"));
-    expect(cells).toEqual(["track", "track", "track", "track", "track", "track", "fill", "fill"]);
+    expect(hovered.map(barCell)).toEqual(["track", "track", "track", "track", "track", "track", "fill", "fill"]);
     expect(plainRows(hovered)).toEqual(plainRows(idle));
   });
 
