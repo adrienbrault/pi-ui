@@ -287,7 +287,7 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, width: number) {
   const room = width - kit.visibleWidth(compose(others)) - kit.visibleWidth(sep);
   // Whether a closed header cuts the title; an opened one reports the same, so the row stays openable.
   const truncated = !!titlePiece && kit.visibleWidth(compose(pieces)) > width;
-  const command = input.name === "bash" ? cleanOutput(String(input.args?.command ?? title)) : "";
+  const command = meta.cls === "shell" ? cleanOutput(String(input.args?.command ?? title)) : "";
   const hiddenCommand = command && (truncated || command !== title) ? command : undefined;
   /** Opened: the command's rows after the header, each starting in `column`. */
   let continuation: { column: number; rows: string[] } | undefined;

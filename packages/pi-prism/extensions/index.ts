@@ -19,7 +19,7 @@ import { renderGroupMember, renderGroupRow } from "../render/group-row.ts";
 import { installThroughput } from "./throughput.ts";
 import { KIT } from "./kit.ts";
 import { cutMark, type RenderTheme } from "../render/kit.ts";
-import { callTokens, ownsTool, toolTokenCounts } from "../render/tools.ts";
+import { callTokens, ownsTool, toolMeta, toolTokenCounts } from "../render/tools.ts";
 import { nonEmptyLineCount } from "../render/text.ts";
 import {
   previewText,
@@ -520,7 +520,12 @@ export default function prism(pi: ExtensionAPI): void {
 
   pi.on("tool_execution_start", (event, ctx) => {
     const { toolCallId } = event;
-    if (ctx.mode !== "tui" || event.toolName !== "bash" || event.parentToolCallId || runningBash.has(toolCallId))
+    if (
+      ctx.mode !== "tui" ||
+      toolMeta(event.toolName).cls !== "shell" ||
+      event.parentToolCallId ||
+      runningBash.has(toolCallId)
+    )
       return;
     const startedAt = performance.now();
     const timer = setInterval(() => records.get(toolCallId)?.invalidate(), 100);

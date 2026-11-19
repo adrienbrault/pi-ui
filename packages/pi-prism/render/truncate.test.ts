@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import type { RenderKit } from "./kit.ts";
-import { truncateMiddle } from "./tool-row.ts";
+import { glyphsFor } from "./glyphs.ts";
+import type { RenderKit, RenderTheme } from "./kit.ts";
+import { toolRowLayout, truncateMiddle } from "./tool-row.ts";
 
 /** A kit that measures like a terminal: wide characters take two columns. */
 const kit: RenderKit = {
@@ -17,6 +18,13 @@ const kit: RenderKit = {
   visibleWidth: (text) => Bun.stringWidth(text),
   component: (build) => ({ render: (width) => build(width), invalidate: () => {} }),
 };
+const theme: RenderTheme = {
+  fg: (_t, text) => text,
+  bold: (text) => text,
+  italic: (text) => text,
+  style: (text) => text,
+};
+const api = { kit, theme, glyphs: glyphsFor("unicode") };
 
 describe("middle truncation", () => {
   test("wide characters are measured in columns, keeping both ends", () => {
@@ -34,5 +42,19 @@ describe("middle truncation", () => {
     const { text: cut } = truncateMiddle(kit, `${family}${"a".repeat(30)}${family}`, 12, "…", (part) => part);
     expect(cut.startsWith(family)).toBe(true);
     expect(cut.endsWith(family)).toBe(true);
+  });
+});
+
+describe("shell-class commands", () => {
+  test("a clipped PowerShell command opens to its full text, like bash", () => {
+    const command = `Get-ChildItem -Recurse -Filter *.ts | ${"Select-String -Pattern needle | ".repeat(6)}Measure-Object`;
+    for (const name of ["bash", "powershell"]) {
+      const closed = toolRowLayout(api, { name, status: "success", level: 0, args: { command } }, 60);
+      const opened = toolRowLayout(api, { name, status: "success", level: 0, expanded: true, args: { command } }, 60);
+      expect(closed.rows).toHaveLength(1);
+      expect(opened.rows.length).toBeGreaterThan(1);
+      expect(closed.rows[0]).toContain("…");
+      expect(opened.rows.slice(1).join(" ")).toContain("Measure-Object");
+    }
   });
 });
