@@ -35,6 +35,9 @@ import {
   type FoldUnit,
   joinsFormingGroup,
   keepGroupOpen,
+  type LiveFoldGroup,
+  memberRowFade,
+  memberRows,
   planFolds,
   setGroupOpen,
   thinkingPlan,
@@ -54,6 +57,7 @@ import { highlightGroupRow, claimHover, clearHover, onSpacerMouse, releaseHover 
 import {
   advanceFade,
   endFade,
+  fadeLine,
   FADE_FRAMES,
   fadeDurationMs,
   nextPace,
@@ -301,6 +305,8 @@ function labelComponent(
   levelOf: () => DetailLevel,
   foldOf: () => FoldPlan,
   expanded: boolean,
+  /** This run's place among the message's thinking rows. */
+  ordinal: number,
 ): Component {
   return {
     render(width: number): string[] {
@@ -373,6 +379,10 @@ function labelComponent(
       }
       const memberLines = () => {
         const rows = renderGroupMember(KIT, width, thoughtLines);
+        // A collapsing group drops its member rows from the bottom, one fade each.
+        const collapse = memberRowFade(group, owner, ordinal);
+        if (collapse?.gone) return [];
+        if (collapse?.phase) return rows.map((row) => fadeLine(row, collapse.phase, theme));
         return hover.target === "thought"
           ? highlightGroupRow(
               rows,
@@ -479,6 +489,7 @@ function decorate(
         levelOf,
         foldOf,
         !isHidden,
+        regionIndex - 1,
       );
       if (fold.mode === "hidden") suppressThinkingSpacer(children, region);
     }
@@ -598,6 +609,7 @@ function patchTree(
   distances: WeakMap<object, number>,
   commit: object | undefined,
   frameMs: number,
+  current?: object,
 ): object | undefined {
   const ordered: unknown[] = [];
   const queue: unknown[] = [root];
@@ -728,8 +740,38 @@ function patchTree(
     }
     distances.set(unit.component, unit.distance);
   }
+  // A collapse that has run its course: the group now shows only its summary.
+  if (commit && fadeOf(commit) && !units.some((unit) => unit.component === commit)) endFade(commit, undefined);
+  let collapsing: LiveFoldGroup | undefined;
+  const changed = planFolds(units, committed?.component, (group, shownRows) => {
+    // Offscreen, or nothing left to animate: the group collapses at once.
+    const total = memberRows(group.members);
+    const removed = Math.max(0, total - shownRows);
+    if (total - removed <= 0 || group.members.every((member) => history.has(member.component))) return;
+    const frame = startFade(group, undefined, true, frameMs);
+    frame.foldRows = total;
+    frame.removed = removed;
+    group.open = true;
+    collapsing = group;
+  });
+  const planned = (group: object) =>
+    units.some((unit) => (unit.kind === "tool" ? toolPlan(unit.key) : thinkingPlan(unit.component))?.group === group);
+  // A running collapse keeps the floor until it ends; new blocks hurry it.
+  let collapse: object | undefined = collapsing;
+  if (
+    !collapse &&
+    current &&
+    current !== commit &&
+    fadeOf(current) &&
+    !units.some((unit) => unit.component === current)
+  ) {
+    if (planned(current)) {
+      collapse = current;
+      fadeOf(current)!.hurry = true;
+    } else endFade(current, undefined);
+  }
   // A fade in progress keeps the floor; otherwise the oldest waiting block takes it.
-  const head = waiting.find((unit) => fadeOf(unit.component)) ?? waiting[0];
+  const head = collapse ? undefined : (waiting.find((unit) => fadeOf(unit.component)) ?? waiting[0]);
   for (const unit of units) {
     if (unit === head || !fadeOf(unit.component)) continue;
     endFade(unit.component, unit.kind === "tool" ? unit.key : undefined);
@@ -746,7 +788,6 @@ function patchTree(
     );
     repaint.add(head.component);
   }
-  const changed = planFolds(units, committed?.component);
 
   for (const component of ordered) {
     if (!isAssistant(component)) continue;
@@ -757,7 +798,7 @@ function patchTree(
     (component as { invalidate?: () => void }).invalidate?.();
   }
   if (changed.size > 0) (root as { requestRender?: () => void }).requestRender?.();
-  return head?.component;
+  return collapse ?? head?.component;
 }
 
 /** Wire the decorator to the live TUI. Safe to call once at extension load. */
@@ -786,7 +827,8 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
     decayTimer = undefined;
     const frame = fading && fadeOf(fading);
     if (!fading || !frame) return;
-    if (advanceFade(frame)) {
+    // Hurried, a collapse ends with the row that was fading.
+    if (advanceFade(frame) || (frame.hurry && frame.phase === 0)) {
       patch(fading);
       return;
     }
@@ -803,7 +845,7 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
       decorateViewport(tui, {
         bar: (cell) => styleBarCell(activeTheme, cell),
       });
-      const head = patchTree(tui, theme, liveToolEnds, distances, commit, frameMs());
+      const head = patchTree(tui, theme, liveToolEnds, distances, commit, frameMs(), fading);
       if (head !== fading) {
         clearTimeout(decayTimer);
         decayTimer = undefined;

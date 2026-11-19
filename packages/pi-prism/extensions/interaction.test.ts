@@ -193,6 +193,25 @@ function fadeSession(name: string, text = output, onVisit?: () => void) {
   return { add, dispatch, close };
 }
 
+/** Five folded rows in a forming group, then the sixth block joins and the collapse begins. */
+function collapseStart(session: ReturnType<typeof fadeSession>) {
+  const shells = Array.from({ length: 10 }, (_, index) => {
+    const shell = session.add("collapse-" + index);
+    session.dispatch("agent_settled");
+    jest.advanceTimersByTime(10_000);
+    return shell;
+  });
+  expect(toolPlan("collapse-0")?.group).toMatchObject({ forming: true });
+  expect(toolPlan("collapse-0")?.group?.members).toHaveLength(5);
+  const rows = () => shells.slice(0, 6).map((shell) => shell.render(80).length);
+  expect(rows()).toEqual([2, 1, 1, 1, 1, 5]);
+  // The sixth block folds through its heading, then the group collapses.
+  session.add("collapse-10");
+  session.dispatch("agent_settled");
+  for (let tick = 0; tick < 60 && toolPlan("collapse-5")?.mode === "normal"; tick++) jest.advanceTimersByTime(90);
+  return { shells, rows };
+}
+
 describe("tool renderers", () => {
   test("leaves unowned tools to the next resolver", () => {
     const base = { renderShell: "default" };
@@ -545,6 +564,45 @@ describe("tool renderers", () => {
       const member = joiner.render(80).map(stripTerminalSequences);
       expect(member).toHaveLength(1);
       expect(member[0]).toMatch(/^ {2}● bash · bun test/);
+    } finally {
+      session.close();
+    }
+  });
+
+  test("new blocks mid-collapse let the fading row finish, then the group closes", () => {
+    const session = fadeSession("bash");
+    try {
+      const { rows } = collapseStart(session);
+      jest.advanceTimersByTime(180);
+      session.add("collapse-11");
+      session.dispatch("agent_settled");
+      jest.advanceTimersByTime(180);
+      expect(rows()[0]).toBe(1);
+      expect(toolPlan("collapse-0")?.group?.open).toBe(false);
+    } finally {
+      session.close();
+    }
+  });
+
+  test("a forming group that reaches six rows collapses one row per fade, bottom to top", () => {
+    const session = fadeSession("bash");
+    try {
+      const { shells, rows } = collapseStart(session);
+      expect(rows()).toEqual([2, 1, 1, 1, 1, 0]);
+      jest.advanceTimersByTime(90);
+      // The bottom member row fades over a whole fade before it leaves.
+      expect(rows()).toEqual([2, 1, 1, 1, 1, 0]);
+      expect(stripTerminalSequences(shells[4]!.render(80)[0]!)).toContain("bun test");
+      expect(shells[4]!.render(80)[0]).toContain("38;2;140;140;140");
+      jest.advanceTimersByTime(270);
+      expect(rows()).toEqual([2, 1, 1, 1, 0, 0]);
+      jest.advanceTimersByTime(360);
+      expect(rows()).toEqual([2, 1, 1, 0, 0, 0]);
+      jest.advanceTimersByTime(720);
+      expect(rows()).toEqual([2, 0, 0, 0, 0, 0]);
+      jest.advanceTimersByTime(360);
+      expect(rows()).toEqual([1, 0, 0, 0, 0, 0]);
+      expect(toolPlan("collapse-0")?.group).toMatchObject({ forming: false, open: false });
     } finally {
       session.close();
     }

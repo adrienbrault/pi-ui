@@ -34,6 +34,7 @@ import {
   type FoldMode,
   keepGroupOpen,
   type LiveFoldGroup,
+  memberRowFade,
   registerToolInfo,
   resetFolds,
   setGroupOpen,
@@ -41,7 +42,7 @@ import {
 } from "./fold.ts";
 import { claimHover, highlightGroupRow, isOmissionRow, releaseHover } from "./hover.ts";
 import { expandedRegions, paintBar, styleBarCell } from "./viewport.ts";
-import { paintLeaving, toolFade } from "./fade.ts";
+import { fadeLine, paintLeaving, toolFade } from "./fade.ts";
 import { installThinkingRenderer, scheduleThinkingFold } from "./thinking.ts";
 
 /**
@@ -422,6 +423,10 @@ function memberLines(member: BlockRecord, theme: Theme, width: number): string[]
     collapseFooter(theme, detail, innerWidth);
     return detail;
   });
+  // A collapsing group drops its member rows from the bottom, one fade each.
+  const collapse = member.group && typeof member.key === "string" ? memberRowFade(member.group, member.key) : undefined;
+  if (collapse?.gone) return [];
+  if (collapse?.phase) return rows.map((row) => fadeLine(row, collapse.phase, theme as unknown as RenderTheme));
   return member.hover
     ? highlightGroupRow(rows, member.hoverRow, width, theme.bg("toolPendingBg", " ").split(" ")[0]!)
     : rows;

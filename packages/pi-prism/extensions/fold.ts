@@ -10,6 +10,7 @@
 
 import { detailFor, FOLD_DISTANCE, FORMING_ROWS, settleLevel, type DetailLevel } from "../render/detail.ts";
 import { groupSegments, type GroupSegment } from "../render/group-row.ts";
+import { fadeOf } from "./fade.ts";
 import type { ToolStatus } from "../render/tool-row.ts";
 import { sumTokens, type TokenCounts, type GroupClass } from "../render/tools.ts";
 
@@ -141,7 +142,7 @@ export function keepGroupOpen(group: LiveFoldGroup): void {
 }
 
 /** Rows a group lists when open: a tool is one, a thought one per run. */
-function memberRows(units: FoldMember[]): number {
+export function memberRows(units: FoldMember[]): number {
   return units.reduce((sum, unit) => sum + (unit.kind === "thinking" ? Math.max(1, unit.count) : 1), 0);
 }
 
@@ -200,7 +201,8 @@ function buildGroup(units: FoldUnit[], previous: LiveFoldGroup | undefined, form
     const group = previous!;
     group.choice = groupChoice(group.members);
     group.forming = forming;
-    group.open = group.choice ?? forming;
+    // A collapsing group stays open until its last member row has left.
+    group.open = group.choice ?? (forming || !!fadeOf(group));
     return group;
   }
   const members = units.map((unit) => ({ ...unit }));
@@ -234,6 +236,28 @@ function previousPlan(unit: FoldUnit): FoldPlan | undefined {
 }
 
 /**
+ * How a member's row looks while its group collapses: gone once the collapse
+ * has passed it, fading at the frame's phase while it is the bottom row, else
+ * as usual. A thought has one row per run. Undefined when the group is not
+ * collapsing.
+ */
+export function memberRowFade(
+  group: LiveFoldGroup,
+  member: string | object,
+  run = 0,
+): { gone: boolean; phase: number } | undefined {
+  const frame = fadeOf(group);
+  if (!frame) return undefined;
+  let row = run;
+  for (const item of group.members) {
+    if (item.kind === "tool" ? item.key === member : item.component === member) break;
+    row += memberRows([item]);
+  }
+  const fading = frame.foldRows - frame.removed - 1;
+  return { gone: row > fading, phase: row === fading ? frame.phase : 0 };
+}
+
+/**
  * Whether the unit at `index`, stepping to the fold distance, joins a group that
  * still forms: the newest group of the current run, at most FORMING_ROWS rows
  * once it counts the joiner. Such a block keeps its heading as its member row.
@@ -257,7 +281,12 @@ export function joinsFormingGroup(units: FoldUnit[], index: number): boolean {
  * newest group of the current run forms: it lists its members while it holds at
  * most FORMING_ROWS rows.
  */
-export function planFolds(units: FoldUnit[], animated?: object): Set<object> {
+export function planFolds(
+  units: FoldUnit[],
+  animated?: object,
+  /** A group that listed its members because it was forming no longer forms. */
+  onCollapse?: (group: LiveFoldGroup, shownRows: number) => void,
+): Set<object> {
   const nextTools = new Map<string, FoldPlan>();
   const changed = new Set<object>();
   const assign = (unit: FoldUnit, mode: FoldMode, group?: LiveFoldGroup): void => {
@@ -299,7 +328,10 @@ export function planFolds(units: FoldUnit[], animated?: object): Set<object> {
     const forming = block === newest && block.at(-1)!.currentRun !== false && memberRows(block) <= FORMING_ROWS;
     const previous = previousPlan(block[0]!)?.group;
     const wasOpen = previous?.open;
+    const wasForming = previous?.forming && previous.choice === undefined;
+    const shownRows = previous ? memberRows(previous.members) : 0;
     const group = buildGroup(block, previous, forming);
+    if (wasForming && wasOpen && !group.forming && group.choice === undefined) onCollapse?.(group, shownRows);
     // A reused group that opens or closes must render its members again.
     if (group === previous && wasOpen !== group.open) for (const unit of block) changed.add(unit.component);
     block.forEach((unit, index) => {

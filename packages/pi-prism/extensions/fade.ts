@@ -22,6 +22,8 @@ export interface DecayFrame {
   frameMs: number;
   /** A fold into a forming group: the heading stays, as the member row. */
   keepHeading?: boolean;
+  /** New blocks arrived mid-collapse: finish the row that is fading, then the rest at once. */
+  hurry?: boolean;
 }
 
 export const DECAY_FRAME_MS = 90;
