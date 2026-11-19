@@ -6,14 +6,21 @@
 import { formatDuration } from "../packages/pi-prism/render/text.ts";
 import type { GlyphSet, GlyphMode } from "../packages/pi-prism/render/glyphs.ts";
 import { glyphsFor } from "../packages/pi-prism/render/glyphs.ts";
-import { groupSegments, renderGroupRow } from "../packages/pi-prism/render/group-row.ts";
+import { groupSegments, renderGroupMember, renderGroupRow } from "../packages/pi-prism/render/group-row.ts";
 import type { RenderKit } from "../packages/pi-prism/render/kit.ts";
 import type { DetailLevel } from "../packages/pi-prism/render/detail.ts";
-import { FOLD_DISTANCE } from "../packages/pi-prism/render/detail.ts";
+import { COMPACT_LEVEL, FOLD_DISTANCE } from "../packages/pi-prism/render/detail.ts";
 import { blockDistances, type PlanBlock } from "../packages/pi-prism/render/layout.ts";
-import { planFolds, resetFolds, toolPlan } from "../packages/pi-prism/extensions/fold.ts";
+import {
+  type FoldUnit,
+  planFolds,
+  resetFolds,
+  setGroupOpen,
+  thinkingPlan,
+  toolPlan,
+} from "../packages/pi-prism/extensions/fold.ts";
 import { thinkingLabel } from "../packages/pi-prism/render/thinking.ts";
-import { renderToolRow, type ToolRowInput } from "../packages/pi-prism/render/tool-row.ts";
+import { renderToolRow, toolHeader, type ToolRowInput } from "../packages/pi-prism/render/tool-row.ts";
 import {
   callTokens,
   estimatedTokens,
@@ -686,56 +693,140 @@ const decayRows: ScenarioRow[] = [
   { ...mcpRow({ title: "memory/search" }), key: "mcp-1" },
 ];
 
-/** A transcript block planned by the live fold planner and rendered by ours. */
-interface PlannedTool {
-  row: ScenarioRow;
-  distance: number;
-}
+const planOf = (unit: FoldUnit) => (unit.kind === "tool" ? toolPlan(unit.key) : thinkingPlan(unit.component));
+
+/** A scripted transcript block. Tools and thoughts are planned; the rest anchor. */
+type ScenarioBlock =
+  | { kind: "tool"; row: ScenarioRow; startedAt?: number }
+  | { kind: "thinking"; key: string; text: string; durationMs: number; startedAt?: number }
+  | { kind: "prose"; text: string }
+  | { kind: "user"; text: string };
+
+type Rendered = { render(width: number): string[] };
 
 /**
- * Plan tool rows with `planFolds`, the module the live session uses, and stack
- * what it decides: a row at its level, or one summary where a group starts.
+ * Plan a scripted run with `planFolds`, the module the live session uses, and
+ * stack what it decides: a block at its level, or one summary where a group
+ * starts, with one row per member under it when the group is open. `offset`
+ * ages every block, as later blocks would.
  */
-function plannedTools(ctx: RenderCtx, blocks: PlannedTool[]): Array<{ render(width: number): string[] }> {
-  resetFolds();
-  planFolds(
-    blocks.map(({ row, distance }) => ({
-      kind: "tool",
-      key: row.key,
-      component: row,
-      count: 1,
-      cls: toolMeta(row.name).cls,
-      failed: row.status === "error",
-      tokens: toolTokenCounts(row),
-      activeMs: row.durationMs,
-      distance,
-      invalidate: () => {},
-    })),
+function plannedStack(
+  ctx: RenderCtx,
+  blocks: ScenarioBlock[],
+  { offset = 0, open = false }: { offset?: number; open?: boolean } = {},
+): Rendered[] {
+  const api = ours(ctx);
+  const distances = blockDistances(
+    blocks.map(
+      (block): PlanBlock => (block.kind === "tool" || block.kind === "thinking" ? { kind: block.kind } : block),
+    ),
   );
-  const components: Array<{ render(width: number): string[] }> = [];
-  for (const { row } of blocks) {
-    const plan = toolPlan(row.key);
+  // Thought plans are keyed by component: fresh objects keep cells independent.
+  const units = new Map<ScenarioBlock, FoldUnit>();
+  blocks.forEach((block, index) => {
+    if (block.kind !== "tool" && block.kind !== "thinking") return;
+    const { distance, startsRun } = distances[index]!;
+    const durationMs = block.kind === "tool" ? block.row.durationMs : block.durationMs;
+    const timing =
+      block.startedAt !== undefined && durationMs !== undefined
+        ? { startedAt: block.startedAt, endedAt: block.startedAt + durationMs }
+        : {};
+    units.set(block, {
+      kind: block.kind,
+      key: block.kind === "tool" ? block.row.key : block.key,
+      component: {},
+      count: 1,
+      cls: block.kind === "tool" ? toolMeta(block.row.name).cls : "thinking",
+      failed: block.kind === "tool" && block.row.status === "error",
+      tokens:
+        block.kind === "tool"
+          ? toolTokenCounts(block.row)
+          : { outputTokens: estimatedTokens(block.text.length), inputTokens: 0 },
+      activeMs: durationMs,
+      ...timing,
+      distance: Math.min(FOLD_DISTANCE, offset + distance),
+      startsRun,
+      invalidate: () => {},
+    });
+  });
+  resetFolds();
+  planFolds([...units.values()]);
+  for (const unit of units.values()) {
+    const group = planOf(unit)?.group;
+    if (open && group && !group.open) setGroupOpen(group, true);
+  }
+
+  const thought = (block: Extract<ScenarioBlock, { kind: "thinking" }>, level: DetailLevel, width: number) =>
+    thinkingLabel(api, { phase: "aged", level, text: block.text, width, durationMs: block.durationMs }).split("\n");
+  const member = (block: ScenarioBlock, width: number): string[] =>
+    renderGroupMember(ctx.kit, width, (inner) =>
+      block.kind === "tool"
+        ? [toolHeader(api, { ...block.row, level: COMPACT_LEVEL }, inner).line]
+        : block.kind === "thinking"
+          ? thought(block, COMPACT_LEVEL, inner)
+          : [],
+    );
+
+  const components: Rendered[] = [];
+  for (const block of blocks) {
+    if (block.kind === "user") {
+      components.push(
+        new ctx.pi.modules.coding.UserMessageComponent(block.text, ctx.pi.modules.coding.getMarkdownTheme(), 1),
+      );
+      continue;
+    }
+    if (block.kind === "prose") {
+      components.push(baseAssistant(ctx.pi, [{ type: "text", text: block.text }], true));
+      continue;
+    }
+    const unit = units.get(block)!;
+    const plan = planOf(unit);
     if (plan?.mode === "hidden") continue;
     const group = plan?.group;
     if (plan?.mode === "anchor" && group) {
-      // Scripted rows carry no timestamps, so the span is their summed run time.
-      const durationMs = group.members.reduce((sum, member) => sum + (member.activeMs ?? 0), 0);
-      components.push(renderGroupRow(ours(ctx), { segments: group.segments, durationMs, tokens: group.tokens }));
+      const members = blocks.filter((candidate) => {
+        const candidateUnit = units.get(candidate);
+        return candidateUnit && group.members.some((item) => item.component === candidateUnit.component);
+      });
+      components.push(
+        ctx.kit.component((width) => [
+          ...renderGroupRow(api, {
+            segments: group.segments,
+            tokens: group.tokens,
+            expanded: group.open,
+            // Untimed scripts read as the summed run time.
+            durationMs: group.durationMs ?? group.members.reduce((sum, item) => sum + (item.activeMs ?? 0), 0),
+          }).render(width),
+          // Members stack under the summary with no blank rows, as they do live.
+          ...(group.open ? members.flatMap((item) => member(item, width)) : []),
+        ]),
+      );
       continue;
     }
-    components.push(renderToolRow(ours(ctx), { ...row, level: plan?.level ?? 0 }));
+    const level = plan?.level ?? 0;
+    components.push(
+      block.kind === "tool"
+        ? renderToolRow(api, { ...block.row, level })
+        : thinkingBlock(
+            ctx,
+            thinkingLabel(api, {
+              phase: "aged",
+              level,
+              text: block.text,
+              width: ctx.width,
+              durationMs: block.durationMs,
+            }),
+          ),
+    );
   }
   return components;
 }
 
 function decayStack(ctx: RenderCtx, offset: number): string[] {
-  const distances = blockDistances(decayRows.map((): PlanBlock => ({ kind: "tool" })));
-  const components = plannedTools(
+  const components = plannedStack(
     ctx,
-    decayRows.map((row, index) => ({
-      row,
-      distance: Math.min(FOLD_DISTANCE, offset + distances[index]!.distance),
-    })),
+    decayRows.map((row) => ({ kind: "tool", row })),
+    { offset },
   );
 
   components.push(
@@ -754,6 +845,62 @@ function decayStack(ctx: RenderCtx, offset: number): string[] {
   return stack(ctx.width, components, 1);
 }
 
+/** A finished run, then a new prompt: the older run folds into one mixed group. */
+const foldRun: ScenarioBlock[] = [
+  {
+    kind: "thinking",
+    key: "plan",
+    text: "Start from the planner.\n**choosing where the fold starts**",
+    durationMs: 4200,
+    startedAt: 0,
+  },
+  { kind: "tool", row: { ...readRow({ title: "extensions/fold.ts" }), key: "fold-read" }, startedAt: 4300 },
+  {
+    kind: "tool",
+    row: {
+      name: "grep",
+      args: { pattern: "planFolds", path: "packages" },
+      status: "success",
+      level: 0,
+      title: "planFolds in packages",
+      output: "extensions/fold.ts:210\nextensions/thinking.ts:744",
+      durationMs: 60,
+      key: "fold-grep",
+    },
+    startedAt: 4700,
+  },
+  {
+    kind: "tool",
+    row: {
+      ...bashRow({ title: "bun test fold", status: "error", error: "1 fail\nexit code 1", durationMs: 900 }),
+      key: "fold-bash",
+    },
+    startedAt: 4800,
+  },
+  {
+    kind: "thinking",
+    key: "retry",
+    text: "The test pinned the old tail.\n**after a failed call, fix the literal**",
+    durationMs: 2100,
+    startedAt: 5800,
+  },
+  {
+    kind: "tool",
+    row: { ...editRow({ title: "extensions/fold.test.ts", summary: "+1 −1" }), key: "fold-edit" },
+    startedAt: 8000,
+  },
+  { kind: "prose", text: "The planner tests pass at the default tail." },
+  { kind: "user", text: "Now plan the fixtures with it." },
+  {
+    kind: "thinking",
+    key: "next",
+    text: "**the fixtures should call planFolds**",
+    durationMs: 1500,
+    startedAt: 20_000,
+  },
+  { kind: "tool", row: { ...readRow({ title: "design-system/registry.ts" }), key: "next-read" }, startedAt: 21_600 },
+];
+
 const scenarioEntries: EntryDef[] = [
   {
     id: "scenario.decay",
@@ -766,6 +913,22 @@ const scenarioEntries: EntryDef[] = [
       label: `distance ${offset}`,
       render: (ctx) => decayStack(ctx, offset),
     })),
+  },
+  {
+    id: "scenario.fold",
+    title: "Mixed group",
+    group: "scenarios",
+    variant: "ours",
+    description:
+      "A finished run folds thoughts and tools, a failure among them, into one summary; opening it lists every member.",
+    states: [
+      { id: "collapsed", label: "collapsed", render: (ctx) => stack(ctx.width, plannedStack(ctx, foldRun), 1) },
+      {
+        id: "opened",
+        label: "opened",
+        render: (ctx) => stack(ctx.width, plannedStack(ctx, foldRun, { open: true }), 1),
+      },
+    ],
   },
 ];
 
