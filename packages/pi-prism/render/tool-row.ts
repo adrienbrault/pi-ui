@@ -235,7 +235,7 @@ function selectDiff(lines: Selected[], show: number): Selected[] {
   return [...essential.slice(0, kept), notice(hidden)];
 }
 
-/** Reads keep their opening and their end; the middle is usually boilerplate. */
+/** Reads keep their opening and their end; the notice marks the cut between them. */
 function selectHead(lines: string[], show: number): Selected[] {
   if (lines.length <= show) return lines.map((line) => ({ line }));
   const room = show - 1;
@@ -244,7 +244,7 @@ function selectHead(lines: string[], show: number): Selected[] {
   const hidden = lines.length - head - tail;
   // `slice(-0)` is `slice(0)`: a zero tail would spill the whole file.
   const keptTail = tail > 0 ? lines.slice(-tail) : [];
-  return [...lines.slice(0, head).map((line) => ({ line })), ...keptTail.map((line) => ({ line })), notice(hidden)];
+  return [...lines.slice(0, head).map((line) => ({ line })), notice(hidden), ...keptTail.map((line) => ({ line }))];
 }
 
 /** Logs keep the end: the last line is the one that explains the run. */

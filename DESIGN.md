@@ -56,14 +56,14 @@ Rules:
 - Hysteresis: two consecutive recomputes must agree before a level changes.
 - Bodies spend their budget on evidence: diffs shed unchanged context lines
   before hiding any hunk, reads keep their opening and their end, and logs and thinking previews keep their newest lines.
-  Omission notices appear below the retained content.
+  An omission notice sits where lines were removed: below a tail, and between the opening and the end of a read.
 - Hovering a group summary or a member of an open group highlights the full width of the terminal row under the pointer, including its indentation and trailing space. Under an open group summary, member headers occupy consecutive rows two columns in,
   starting immediately below the summary. Tool and thinking bodies begin four columns past their own heading marker, two columns past the heading label. Output, omission notices, and wrapped Markdown share this inset.
 - A click opens a block all the way, and the next click folds it back: a folded
   member shows its header until clicked, then its whole body. Any block with a
   truncated body (a kept tool row, a one-line thinking run) toggles the same
   way. Standalone tools stay expanded until clicked again. An opened group member stays
-  expanded as turns finish and new members join the group. Clicking the heading or the bottom action row opens the block. Hovering the bottom action row also highlights its heading. Hovering either shows `click · expand` beside the omission notice, or on the last preview row for shorter layouts. Expanded blocks and open groups display `click · collapse` even when the pointer leaves. In fullscreen, scrolling the footer of an expanded detail below the viewport pins its collapse action to the last visible transcript row.
+  expanded as turns finish and new members join the group. Clicking the heading or the action row opens the block. The action row is the omission notice, or the last preview row for shorter layouts. Hovering the action row also highlights its heading. Hovering either shows `click · expand` on the action row. Expanded blocks and open groups display `click · collapse` even when the pointer leaves. In fullscreen, scrolling the footer of an expanded detail below the viewport pins its collapse action to the last visible transcript row.
 - Thinking runs decay on the same visual ladder: the number of blocks that
   follow them in the run sets their level, so an older thought keeps a tail
   instead of collapsing to one line prematurely. A streaming preview clamps

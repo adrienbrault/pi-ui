@@ -97,10 +97,11 @@ describe("head truncation", () => {
       output: lines.join("\n"),
       level: 4,
     }).render(80);
-    // Level 4 leaves three body rows: head, tail, notice.
+    // Level 4 leaves three body rows: head, the notice at the cut, tail.
     expect(rows.length).toBe(4);
-    expect(rows[2]).toContain("e");
-    expect(rows[3]).toMatch(/\+ \d+ lines?$/m);
+    expect(rows[1]).toContain("a");
+    expect(rows[2]).toMatch(/\+ 3 lines$/m);
+    expect(rows[3]).toContain("e");
   });
 });
 
@@ -187,9 +188,7 @@ describe("tool row heights", () => {
   test("reads truncate in the middle, keeping head and tail", () => {
     const lines = renderToolRow(api, { name: "read", status: "success", level: 3, output: OUTPUT }).render(80);
     const body = lines.slice(1);
-    expect(body[0]).toContain("line 1");
-    expect(body.at(-2)).toContain("line 40");
-    expect(body.at(-1)).toMatch(/\+ \d+ lines?$/m);
+    expect(body).toEqual(["    line 1", "    line 2", "    + 37 lines", "    line 40"]);
   });
 
   test("diffs drop context lines before they hide changes", () => {

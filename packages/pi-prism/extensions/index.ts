@@ -363,11 +363,13 @@ function bodyComponent(record: BlockRecord, theme: Theme, includeHeader = false)
         .slice(includeHeader ? 0 : 1);
       if (record.expansion === 1) collapseFooter(theme, rows, width);
       else {
+        // The chip sits on the omission notice: last for tails, at the cut for head-and-tail reads.
+        const omission = rows.findLastIndex(isOmissionRow);
         const hint =
-          record.commandClipped || isOmissionRow(rows.at(-1) ?? "")
+          record.commandClipped || omission !== -1
             ? "click · expand"
             : hintFor(record.expansion, nonEmptyLineCount(previewText(record)), levelOf(record));
-        record.expandRow = hint && rows.length ? rows.length - 1 : undefined;
+        record.expandRow = hint && rows.length ? (omission === -1 ? rows.length - 1 : omission) : undefined;
         if (
           hint &&
           record.hover &&
