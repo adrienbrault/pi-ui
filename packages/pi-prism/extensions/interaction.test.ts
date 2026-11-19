@@ -534,6 +534,28 @@ describe("tool renderers", () => {
     }
   });
 
+  test("a fast session fades its rows faster", () => {
+    const session = fadeSession("read");
+    try {
+      // Three tool starts 400 ms apart: a row fades over 100 ms, not 360.
+      for (const id of ["pace-0", "pace-1", "pace-2"]) {
+        session.dispatch("tool_execution_start", { toolCallId: id, toolName: "read" }, { mode: "tui" });
+        jest.advanceTimersByTime(400);
+      }
+      session.add("quick-0");
+      session.dispatch("agent_settled");
+      jest.advanceTimersByTime(1);
+      session.add("quick-1");
+      jest.advanceTimersByTime(1);
+      jest.advanceTimersByTime(74);
+      expect(toolPlan("quick-0")?.level).toBe(0);
+      jest.advanceTimersByTime(26);
+      expect(toolPlan("quick-0")?.level).toBe(1);
+    } finally {
+      session.close();
+    }
+  });
+
   test("a tool whose next level keeps every line steps on the first tick", () => {
     const session = fadeSession("bash", "one\ntwo");
     try {

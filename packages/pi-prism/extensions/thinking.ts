@@ -43,8 +43,10 @@ import { installThinkingClock, thinkingTime, type TimedMessage } from "./thinkin
 import { highlightGroupRow, claimHover, clearHover, onSpacerMouse, releaseHover } from "./hover.ts";
 import {
   advanceFade,
-  DECAY_FRAME_MS,
   endFade,
+  FADE_FRAMES,
+  fadeDurationMs,
+  nextPace,
   fadeOf,
   paintFold,
   paintLeaving,
@@ -580,7 +582,8 @@ function patchTree(
   theme: RenderTheme,
   liveToolEnds: ReadonlyMap<string, number>,
   distances: WeakMap<object, number>,
-  commit?: object,
+  commit: object | undefined,
+  frameMs: number,
 ): object | undefined {
   const ordered: unknown[] = [];
   const queue: unknown[] = [root];
@@ -713,7 +716,12 @@ function patchTree(
     repaint.add(unit.component);
   }
   if (head && !fadeOf(head.component)) {
-    startFade(head.component, head.kind === "tool" ? head.key : undefined, head.distance + 1 === FOLD_DISTANCE);
+    startFade(
+      head.component,
+      head.kind === "tool" ? head.key : undefined,
+      head.distance + 1 === FOLD_DISTANCE,
+      frameMs,
+    );
     repaint.add(head.component);
   }
   const changed = planFolds(units, committed?.component);
@@ -743,6 +751,15 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
   // The block whose fade is running. A tick touches only it; a finished step walks once.
   let fading: object | undefined;
   let decayTimer: ReturnType<typeof setTimeout> | undefined;
+  // The average gap between new blocks in this run sets how long a row takes to fade.
+  let pace: number | undefined;
+  let lastBlockAt: number | undefined;
+  const frameMs = (): number => fadeDurationMs(pace) / FADE_FRAMES;
+  const blockStarted = (): void => {
+    const now = performance.now();
+    if (lastBlockAt !== undefined) pace = nextPace(pace, now - lastBlockAt);
+    lastBlockAt = now;
+  };
   const tick = (): void => {
     decayTimer = undefined;
     const frame = fading && fadeOf(fading);
@@ -751,9 +768,11 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
       patch(fading);
       return;
     }
+    // A fold's next row starts a new fade: it reads the current pace.
+    if (frame.phase === 0) frame.frameMs = frameMs();
     (fading as { invalidate?: () => void }).invalidate?.();
     tui?.requestRender?.();
-    decayTimer = setTimeout(tick, DECAY_FRAME_MS);
+    decayTimer = setTimeout(tick, frame.frameMs);
   };
   const patch = (commit?: object): void => {
     if (!tui || !theme) return;
@@ -762,13 +781,13 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
       decorateViewport(tui, {
         bar: (cell) => styleBarCell(activeTheme, cell),
       });
-      const head = patchTree(tui, theme, liveToolEnds, distances, commit);
+      const head = patchTree(tui, theme, liveToolEnds, distances, commit, frameMs());
       if (head !== fading) {
         clearTimeout(decayTimer);
         decayTimer = undefined;
         fading = head;
       }
-      if (fading && !decayTimer) decayTimer = setTimeout(tick, DECAY_FRAME_MS);
+      if (fading && !decayTimer) decayTimer = setTimeout(tick, fadeOf(fading)?.frameMs ?? frameMs());
     } catch {
       // Keep pi's native label if the tree shape changed.
     }
@@ -807,7 +826,13 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
     }
   });
 
-  pi.on("message_start", () => {
+  pi.on("message_start", (event) => {
+    const role = (event as { message?: { role?: string } }).message?.role;
+    // A user message starts a new run, and a new pace.
+    if (role === "user") {
+      pace = undefined;
+      lastBlockAt = undefined;
+    } else if (role === "assistant") blockStarted();
     // A user message starts a new run: patch so older thoughts floor.
     schedule();
   });
@@ -818,7 +843,10 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
       schedule();
     }
   });
-  pi.on("tool_execution_start", schedule);
+  pi.on("tool_execution_start", (event) => {
+    if (!(event as { parentToolCallId?: string }).parentToolCallId) blockStarted();
+    schedule();
+  });
   pi.on("tool_execution_end", schedule);
   pi.on("turn_end", () => patch());
   pi.on("agent_settled", () => patch());
@@ -826,6 +854,8 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
     clearTimeout(decayTimer);
     decayTimer = undefined;
     fading = undefined;
+    pace = undefined;
+    lastBlockAt = undefined;
     resetFades();
   });
 }

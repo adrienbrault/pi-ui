@@ -18,11 +18,33 @@ export interface DecayFrame {
   foldRows: number;
   /** The step drops no row: nothing to fade, so the next tick commits it. */
   idle?: boolean;
+  /** Time between ticks, read from the session's pace when each row starts. */
+  frameMs: number;
 }
 
 export const DECAY_FRAME_MS = 90;
-// Four 90 ms frames: a departing row is gone in 360 ms.
+// Four frames per departing row: 360 ms until the session's pace is known.
 export const FADE_FRAMES = 4;
+/** A departing row fades over this share of the recent gap between new blocks. */
+export const FADE_SHARE_OF_PACE = 1 / 4;
+export const MIN_FADE_MS = 80;
+export const MAX_FADE_MS = 480;
+/** Weight of the newest gap in the pace's moving average. */
+export const PACE_ALPHA = 0.3;
+/** A longer gap is a pause, not a pace: it does not slow the next run's fades. */
+export const IDLE_GAP_MS = 60_000;
+
+/** How long one row takes to fade, given the average gap between new blocks. */
+export function fadeDurationMs(pace?: number): number {
+  if (pace === undefined) return FADE_FRAMES * DECAY_FRAME_MS;
+  return Math.min(MAX_FADE_MS, Math.max(MIN_FADE_MS, pace * FADE_SHARE_OF_PACE));
+}
+
+/** Fold one gap between new blocks into the pace; the first gap seeds it. */
+export function nextPace(pace: number | undefined, gapMs: number): number | undefined {
+  if (!Number.isFinite(gapMs) || gapMs < 0 || gapMs > IDLE_GAP_MS) return pace;
+  return pace === undefined ? gapMs : pace + PACE_ALPHA * (gapMs - pace);
+}
 
 // Keep each departing row in the layout until its final fade frame.
 const decayFrames = new WeakMap<object, DecayFrame>();
@@ -32,8 +54,13 @@ export function fadeOf(component: object): DecayFrame | undefined {
   return decayFrames.get(component);
 }
 
-export function startFade(component: object, key: string | undefined, folding: boolean): DecayFrame {
-  const frame: DecayFrame = { folding, phase: 0, removed: 0, foldRows: 0 };
+export function startFade(
+  component: object,
+  key: string | undefined,
+  folding: boolean,
+  frameMs = DECAY_FRAME_MS,
+): DecayFrame {
+  const frame: DecayFrame = { folding, phase: 0, removed: 0, foldRows: 0, frameMs };
   decayFrames.set(component, frame);
   if (key !== undefined) toolFrames.set(key, frame);
   return frame;

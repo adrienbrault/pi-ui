@@ -49,7 +49,7 @@ ladder.
 
 Rules:
 
-- Completed previews age as newer blocks arrive, including on screen. Visible previews step down one at a time. Each departing line fades in place. A block folds from bottom to top, one row at a time, ending with its heading.
+- Completed previews age as newer blocks arrive, including on screen. Visible previews step down one at a time. Each departing line fades in place. A departing row fades over a quarter of the recent gap between new blocks in the run, between 80 and 480 ms, and over 360 ms until that pace is known, so a fast model's transcript settles quickly and a slow one's steps are easy to follow. A block folds from bottom to top, one row at a time, ending with its heading.
 - With the default budget, a long preview keeps at least three content lines until it joins its group. Short outputs use only the lines they have. Tool calls and thoughts fold together.
 - The group timer spans the earliest member start through the latest finish, including model responses and overlapping tools. Sessions with incomplete timing omit the group timer.
 - Failed calls fold with their peers. Each affected summary segment includes its failure count, and opening the group reveals the failed calls in order.

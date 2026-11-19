@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { advanceFade, endFade, FADE_FRAMES, fadeOf, startFade, toolFade } from "./fade.ts";
+import { advanceFade, endFade, FADE_FRAMES, fadeDurationMs, fadeOf, nextPace, startFade, toolFade } from "./fade.ts";
 
 /** Tick until the step completes; the states seen before each tick. */
 function ticks(frame: ReturnType<typeof startFade>): Array<[number, number]> {
@@ -40,5 +40,21 @@ describe("fade advance", () => {
     expect(fadeOf(component)).toBeUndefined();
     startFade(component, "fold", true);
     expect(toolFade("fold")).toBeUndefined();
+  });
+});
+
+describe("fade pace", () => {
+  test("a row fades over a quarter of the recent gap between blocks, within 80 to 480 ms", () => {
+    expect(fadeDurationMs()).toBe(360);
+    expect(fadeDurationMs(8000)).toBe(480);
+    expect(fadeDurationMs(600)).toBe(150);
+    expect(fadeDurationMs(200)).toBe(80);
+  });
+
+  test("the pace is a moving average seeded by its first gap, and an idle gap is ignored", () => {
+    expect(nextPace(undefined, 400)).toBe(400);
+    expect(nextPace(400, 1400)).toBeCloseTo(700);
+    expect(nextPace(400, 60_001)).toBe(400);
+    expect(nextPace(undefined, 60_001)).toBeUndefined();
   });
 });
