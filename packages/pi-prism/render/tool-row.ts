@@ -336,6 +336,18 @@ export function previewBar(total: number, shown: ReadonlySet<number>, rows: numb
 const DIFF_NOISE = /^(diff --git|index |new file|deleted file|similarity |rename |--- |\+\+\+ )/;
 const isDiffContext = (line: string): boolean => DIFF_NOISE.test(line) || line.startsWith(" ");
 
+/**
+ * Between two numbered rows a notice counts the numbers it skips, blank lines
+ * included, so it agrees with the jump the reader sees in the gutter.
+ */
+function spanCount(selected: Selected[], index: number): Selected {
+  const item = selected[index]!;
+  const before = selected[index - 1]?.number;
+  const after = selected[index + 1]?.number;
+  if (!item.notice || before === undefined || after === undefined || after <= before) return item;
+  return { ...item, notice: { ...item.notice, count: after - before - 1 } };
+}
+
 const notice = (count: number, side: OmissionSide): Selected => ({ line: "", notice: { count, side } });
 
 /**
@@ -629,13 +641,25 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
   let clipped = false;
   // Wrapping is the costly step and a selection can repeat lines: do each once per width.
   const wrapped = new Map<string, string[]>();
+  /**
+   * A notice row. Beside numbered code its glyph sits right-aligned in the
+   * number column and its words start in the code column, so the gutter and
+   * the code stay two clean columns.
+   */
+  const noticeRow = (label: string, digits: number): string => {
+    const space = label.indexOf(" ");
+    const aligned =
+      digits && space > 0
+        ? " ".repeat(Math.max(0, digits - kit.visibleWidth(label.slice(0, space)))) +
+          label.slice(0, space) +
+          "  " +
+          label.slice(space + 1)
+        : label;
+    return indent + kit.truncateToWidth(omissionStyle(theme, aligned), inner, mark);
+  };
   /** `digits` is the gutter's number width; 0 when the block has no gutter. */
   const paint = ({ line, styled, notice: hidden, number }: Selected, digits: number): string[] => {
-    if (hidden) {
-      // A notice starts where the gutter starts: it counts lines, it is not one.
-      const label = omittedLinesLabel(hidden.count, hidden.side, api.glyphs);
-      return [indent + kit.truncateToWidth(omissionStyle(theme, label), inner, mark)];
-    }
+    if (hidden) return [noticeRow(omittedLinesLabel(hidden.count, hidden.side, api.glyphs), digits)];
     const gutter = digits && number !== undefined ? digits + 2 : 0;
     const room = inner - gutter;
     const content = styled ?? line;
@@ -673,7 +697,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
   };
   const layout = (selected: Selected[]) => {
     const digits = gutterDigits(selected);
-    return selected.map((item) => paint(item, digits));
+    return selected.map((item, index) => paint(digits && !diff ? spanCount(selected, index) : item, digits));
   };
 
   // A notice counts against the budget: total body rows never exceed it.
@@ -708,10 +732,8 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
     room -= kept.length;
     return kept;
   });
-  if (fileNote) {
-    const label = `${omittedLinesLabel(fileNote, "below", api.glyphs)} in file`;
-    rows.push(indent + kit.truncateToWidth(omissionStyle(theme, label), inner, mark));
-  }
+  if (fileNote)
+    rows.push(noticeRow(`${omittedLinesLabel(fileNote, "below", api.glyphs)} in file`, gutterDigits(selected)));
   if (wrap) return { rows, clipped };
   const shown = new Set(selected.flatMap((item) => (item.index === undefined ? [] : [item.index])));
   // The file note hides lines no click can show; only a notice among the selected lines opens.

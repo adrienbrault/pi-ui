@@ -444,7 +444,7 @@ describe("tool renderers", () => {
     const text = "one\ntwo\nthree\n\n[121 more lines in file. Use offset=4 to continue.]";
     const body = renderers.renderResult({ content: [{ type: "text", text }] }, {}, barred, context);
     const idle = body.render(80);
-    expect(idle.map(stripTerminalSequences).at(-1)?.trim()).toBe("↓ 121 more lines in file");
+    expect(idle.map(stripTerminalSequences).at(-1)?.trim()).toBe("↓  121 more lines in file");
     body.handleMouse?.({ ...move(), y: 1 });
     expect(hasBar(body.render(80))).toBe(false);
     body.handleMouse?.({ ...click(), y: 1 });

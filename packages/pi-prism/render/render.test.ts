@@ -127,7 +127,7 @@ describe("head truncation", () => {
     // Level 5 leaves three body rows: head, the notice at the cut, tail.
     expect(rows.length).toBe(4);
     expect(rows[1]).toContain("a");
-    expect(rows[2]).toMatch(/⋮ 3 more lines$/m);
+    expect(rows[2]).toMatch(/⋮  3 more lines$/m);
     expect(rows[3]).toContain("e");
   });
 });
@@ -198,7 +198,7 @@ describe("tool row heights", () => {
   test("reads truncate in the middle, keeping head and tail", () => {
     const lines = renderToolRow(api, { name: "read", status: "success", level: 4, output: OUTPUT }).render(80);
     const body = lines.slice(1);
-    expect(body).toEqual(["     1  line 1", "     2  line 2", "    ⋮ 37 more lines", "    40  line 40"]);
+    expect(body).toEqual(["     1  line 1", "     2  line 2", "     ⋮  37 more lines", "    40  line 40"]);
   });
 
   test("diffs drop context lines before they hide changes", () => {
@@ -218,7 +218,7 @@ describe("tool row heights", () => {
     const text = body.join("\n");
     expect(text).toContain("DetailLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6");
     expect(text).toContain("FOLD_DISTANCE = 8");
-    expect(text).toContain("⋮ 5 more lines");
+    expect(text).toContain("⋮  5 more lines");
     expect(text).not.toContain("unchanged context one");
   });
 
@@ -307,7 +307,7 @@ describe("line numbers", () => {
 
   test("the numbers show the jump across the omission notice", () => {
     const body = readRow(numbered(21, 400), { offset: 400 }, { level: 4 }).render(80).slice(1);
-    expect(body).toEqual(["    400  line 400", "    401  line 401", "    ⋮ 18 more lines", "    420  line 420"]);
+    expect(body).toEqual(["    400  line 400", "    401  line 401", "      ⋮  18 more lines", "    420  line 420"]);
   });
 
   test("numbers align to the widest one shown", () => {
@@ -449,7 +449,7 @@ describe("diff line numbers", () => {
       .render(80)
       .slice(1)
       .map((row) => row.trimEnd());
-    expect(rows).toEqual(["    @@ -1,6 +1,6 @@", "    3  -three", "    3  +THREE", "    ⋮ 4 more lines"]);
+    expect(rows).toEqual(["    @@ -1,6 +1,6 @@", "    3  -three", "    3  +THREE", "    ⋮  4 more lines"]);
   });
 
   test("a shell diff keeps its text as it came", () => {
@@ -471,7 +471,7 @@ describe("pi's read trailer", () => {
       "    1  alpha",
       "    2  beta",
       "    3  gamma",
-      "    ↓ 121 more lines in file",
+      "    ↓  121 more lines in file",
     ]);
     expect(layout.sources).toEqual([0, 1, 2, undefined]);
     // Nothing is hidden that opening the row would show.
@@ -484,7 +484,7 @@ describe("pi's read trailer", () => {
       "[Showing lines 1-3 of 124. Use offset=4 to continue.]",
       "[Showing lines 1-3 of 124 (50.0KB limit). Use offset=4 to continue.]",
     ]) {
-      expect(trailed(`alpha\nbeta\ngamma\n\n${note}`).rows.at(-1)).toBe("    ↓ 121 more lines in file");
+      expect(trailed(`alpha\nbeta\ngamma\n\n${note}`).rows.at(-1)).toBe("    ↓  121 more lines in file");
     }
   });
 
@@ -492,9 +492,9 @@ describe("pi's read trailer", () => {
     const layout = trailed(numbered(40) + more, { level: 4 });
     expect(layout.rows.slice(1)).toEqual([
       "     1  line 1",
-      "    ⋮ 38 more lines",
+      "     ⋮  38 more lines",
       "    40  line 40",
-      "    ↓ 121 more lines in file",
+      "     ↓  121 more lines in file",
     ]);
     expect(layout.omission).toBe(2);
     // Each level drops the line the next level would drop without the notice.
@@ -510,18 +510,18 @@ describe("pi's read trailer", () => {
 
   test("the file note never leaves a read without code", () => {
     // Three rows: one line, the notice for the rest of the read, the note for the rest of the file.
-    expect(body(numbered(40), 5)).toEqual(["    1  line 1", "    ↓ 39 more lines", "    ↓ 121 more lines in file"]);
+    expect(body(numbered(40), 5)).toEqual(["    1  line 1", "    ↓  39 more lines", "    ↓  121 more lines in file"]);
     // Two rows: the note would leave the code a notice alone, so it gives way.
-    expect(body(numbered(40), 6)).toEqual(["    1  line 1", "    ↓ 39 more lines"]);
+    expect(body(numbered(40), 6)).toEqual(["    1  line 1", "    ↓  39 more lines"]);
     expect(body("alpha\nbeta", 6)).toEqual(["    1  alpha", "    2  beta"]);
-    expect(body("alpha", 6)).toEqual(["    1  alpha", "    ↓ 121 more lines in file"]);
+    expect(body("alpha", 6)).toEqual(["    1  alpha", "    ↓  121 more lines in file"]);
   });
 
   test("an opened read ends with the note", () => {
     const rows = trailed(numbered(12) + more, { expanded: true, full: true }).rows;
     expect(rows).toHaveLength(14);
     expect(rows.at(-2)).toBe("    12  line 12");
-    expect(rows.at(-1)).toBe("    ↓ 121 more lines in file");
+    expect(rows.at(-1)).toBe("     ↓  121 more lines in file");
   });
 
   test("only a read's own trailer is taken out", () => {
@@ -907,13 +907,13 @@ describe("omission notices", () => {
   const command = Array.from({ length: 900 }, (_, index) => `echo step ${index + 1}`).join("\n");
   const thoughts = Array.from({ length: 10 }, (_, index) => `thought ${index + 1}`).join("\n");
   const long = Array.from({ length: 420 }, (_, i) => `part ${i}`).join("\n");
-  /** Every notice row an api renders, trimmed, in order. */
+  /** Every notice row an api renders, trimmed and with its gutter spacing squeezed, in order. */
   const notices = (glyphs: ReturnType<typeof glyphsFor>) => {
     const glyphed = { ...api, glyphs };
     const body = (input: Parameters<typeof renderToolRow>[1]) =>
       renderToolRow(glyphed, input)
         .render(80)
-        .map((line) => line.trim())
+        .map((line) => line.trim().replace(/\s+/g, " "))
         .filter((line) => /more lines?$/.test(line));
     const thought = (input: Parameters<typeof thinkingLabel>[1]) =>
       thinkingLabel(glyphed, input)
@@ -965,7 +965,7 @@ describe("omission notices", () => {
   test("unchanged context dropped between a diff's changes is marked as between them", () => {
     const small = ["@@ -1,4 +1,4 @@", " context one", "-old", "+new", " context two", " context three"].join("\n");
     const rows = renderToolRow(api, { name: "edit", status: "success", level: 3, output: small }).render(80);
-    expect(rows.at(-1)?.trim()).toBe("⋮ 3 more lines");
+    expect(rows.at(-1)?.trim()).toBe("⋮  3 more lines");
   });
 
   test("every notice is italic and faint, apart from the grey output", () => {
