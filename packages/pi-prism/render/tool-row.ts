@@ -39,8 +39,7 @@ export interface ToolRowInput extends TokenRates {
 }
 
 /** Diff lines keep their meaning under decay: additions green, removals red. */
-function diffTone(line: string, cls: string): "success" | "error" | "accent" | "dim" | undefined {
-  if (cls !== "edit" && cls !== "write") return undefined;
+function diffTone(line: string): "success" | "error" | "accent" | "dim" | undefined {
   if (
     line.startsWith("+++ ") ||
     line.startsWith("--- ") ||
@@ -333,7 +332,8 @@ function body(api: RenderApi, input: ToolRowInput, width: number): string[] {
   const source = logicalLines(text);
   const diff =
     !input.error &&
-    ((DIFF_HINT.test(text) && ["edit", "write", "shell"].includes(meta.cls)) ||
+    // A write previews the file it wrote: its `-`/`+` lines are content, not changes.
+    ((DIFF_HINT.test(text) && ["edit", "shell"].includes(meta.cls)) ||
       (input.name === "edit" && /^[+-] *\d+ /m.test(text)));
   // Bound grammar work on oversized tool results. pi reads normally stop at 50 KiB.
   const language =
@@ -359,7 +359,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number): string[] {
   return selected.map(({ line, styled, notice: isNotice }) => {
     const content = kit.truncateToWidth(styled ?? line, Math.max(1, width - indent.length), "…");
     if (isNotice) return indent + theme.fg("dim", content);
-    const tone = diffTone(line, diff ? "edit" : meta.cls);
+    const tone = diff ? diffTone(line) : undefined;
     if (diff && input.name === "edit" && (tone === "success" || tone === "error")) {
       const bg = tone === "success" ? "toolSuccessBg" : "toolErrorBg";
       const padding = " ".repeat(Math.max(0, width - indent.length - kit.visibleWidth(content)));

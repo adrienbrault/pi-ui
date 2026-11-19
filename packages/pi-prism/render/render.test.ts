@@ -213,6 +213,21 @@ describe("tool row heights", () => {
     expect(text).not.toContain("unchanged context one");
   });
 
+  test("written file content is not coloured as a diff", () => {
+    const tokens = { ...api, theme: { ...theme, fg: (token: string, text: string) => `<${token}>${text}` } };
+    for (const content of ["# Notes\n- first item\n+ second item\n--- \nplain", "@@ not a hunk\n-1\n+1"]) {
+      const body = renderToolRow(tokens, {
+        name: "write",
+        status: "success",
+        level: 0,
+        args: { path: "notes.md", content },
+      })
+        .render(80)
+        .slice(1);
+      expect(body.every((line) => line.includes("<toolOutput>"))).toBe(true);
+    }
+  });
+
   test("a pinned row outgrows the ladder but stays finite", () => {
     expect(
       renderToolRow(api, { name: "bash", status: "success", level: 6, expanded: true, output: OUTPUT }).render(80),
