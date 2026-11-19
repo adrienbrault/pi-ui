@@ -281,7 +281,7 @@ describe("thinking labels", () => {
 
   test("opening a tail excerpt restores the beginning and keeps the preview at the end", () => {
     const input = { phase: "aged", level: 7, width: 80, text: OUTPUT } as const;
-    expect(thinkingLabel(api, input)).toContain("… line 40");
+    expect(thinkingLabel(api, input)).toMatch(/^✻ think · line 1 line 2 .* … .*line 39 line 40 · /);
     expect(
       thinkingLabel(api, { ...input, expanded: true })
         .split("\n")
@@ -310,6 +310,24 @@ describe("thinking labels", () => {
   test("live label stays within the pool of rows", () => {
     const label = thinkingLabel(api, { phase: "thinking", level: 0, text: OUTPUT, width: 80, frame: 3 });
     expect(label.split("\n").length).toBeLessThanOrEqual(8);
+  });
+
+  test("a one-row thought that fits whole shows all of it and cannot open", () => {
+    const layout = thinkingLayout(api, { phase: "aged", level: 7, text: "first\nlast", width: 80 });
+    expect(layout.label).toMatch(/^✻ think · first last · +\d+ tokens$/);
+    expect(layout.canToggle).toBe(false);
+  });
+
+  test("a one-row thought too long for the row keeps its start and its end", () => {
+    for (const width of [80, 120]) {
+      const layout = thinkingLayout(api, { phase: "aged", level: 7, text: OUTPUT, width, durationMs: 12400 });
+      expect(layout.label).toMatch(/^✻ think · line 1 .* … .*line 40 · +\d+ tokens/);
+      expect(layout.label.length).toBe(width);
+      expect(layout.canToggle).toBe(true);
+    }
+    const narrow = thinkingLayout(api, { phase: "aged", level: 7, text: OUTPUT, width: 40, durationMs: 12400 });
+    expect(narrow.label).toMatch(/^✻ think · li … 0 · /);
+    expect(narrow.label.length).toBe(40);
   });
 
   test("aged level 7 is exactly one line and keeps the last thought", () => {
@@ -928,8 +946,11 @@ describe("cut mark", () => {
     expect(rows[1]).toEndWith(MARK + "</toolOutput>");
   });
 
-  test("an inline thought's excerpt follows the mark when earlier lines are omitted", () => {
-    const label = thinkingLabel(taggedApi, { phase: "aged", level: COMPACT_LEVEL, text: "first\nlast", width: 80 });
-    expect(label).toContain(`${MARK}<thinkingText>last</thinkingText>`);
+  test("an inline thought cut in the middle paints each kept side on its own", () => {
+    const text = `${"opening ".repeat(10)}\n${"closing ".repeat(10)}end`;
+    const label = thinkingLabel(taggedApi, { phase: "aged", level: COMPACT_LEVEL, text, width: 80 });
+    expect(label).toMatch(
+      /<thinkingText>opening [a-z ]+<\/thinkingText><b:text> … <\/b><thinkingText>[a-z ]+end<\/thinkingText>/,
+    );
   });
 });

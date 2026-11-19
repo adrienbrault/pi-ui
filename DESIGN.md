@@ -82,7 +82,7 @@ Rules:
   affordance, the status glyph keeps the outcome colour.
 - Opening a group shows each collapsed thinking member as one inline row, regardless of its age. Clicking a truncated thought opens its body.
 - A fully visible thought has no hover bar or click action. An inline
-  thought with omitted opening lines marks its tail with the cut mark. Opening it
+  thought, one row, shows the start and the end of its reasoning as the reader would see it (rendered Markdown, no markup) on one line, with the cut mark in the middle when it does not fit, like a long command; one that fits whole is fully visible. Opening it
   shows the source in reading order, up to 400 body rows including any omission notice.
 - Edit diffs use the file’s syntax colors for code. Added and removed lines retain their signs and use the theme’s success and error backgrounds.
 - Header token counts, rates and latency align to the right. Tool headers use normal text contrast for numbers, the theme’s keyword color for `out` and type color for `in`, and muted units and separators.

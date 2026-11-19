@@ -10,7 +10,7 @@
 import { bodyLinesFor, COMPACT_LEVEL, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
 import { frameAt, type GlyphSet } from "./glyphs.ts";
 import { blockBodyIndent, cutMark, type RenderKit, type RenderTheme } from "./kit.ts";
-import { previewBar, type BarCell } from "./tool-row.ts";
+import { previewBar, truncateMiddle, type BarCell } from "./tool-row.ts";
 import { estimatedTokens, formatRate } from "./tools.ts";
 import {
   cleanOutput,
@@ -63,6 +63,8 @@ interface Header {
   source: string[];
   formatted: string[] | undefined;
   last: string;
+  /** Every source line on one line, in plain text. */
+  flat: string;
   marker: string;
   dot: string;
   metrics: string;
@@ -83,7 +85,10 @@ function headerFor(api: ThinkingApi, input: ThinkingLabelInput): Header {
       ? kit.markdown(cleanOutput(input.text), bodyWidth, theme, api.owner).map((row) => row.trimEnd())
       : undefined;
   const source = formatted?.length ? formatted : logicalLines(cleanThinking(input.text));
-  const last = source.findLast((line) => (formatted ? cleanOutput(line) : line).trim()) ?? "";
+  const plain = (line: string) => (formatted ? cleanOutput(line) : line).trim();
+  const last = source.findLast((line) => plain(line)) ?? "";
+  // The whole thought on one line, as the reader sees it: rendered Markdown, no markup.
+  const flat = source.map(plain).filter(Boolean).join(" ");
   const glyph = input.phase === "thinking" ? frameAt(glyphs, input.frame ?? 0) : glyphs.thinking;
   const marker = `${theme.fg("accent", glyph)} ${theme.style(MARKER, { fg: "toolTitle", bold: true })}`;
   const dot = theme.fg("dim", glyphs.dot);
@@ -106,7 +111,7 @@ function headerFor(api: ThinkingApi, input: ThinkingLabelInput): Header {
     const gap = Math.max(0, input.width - kit.visibleWidth(prefix + metrics));
     return clampLine(api, prefix + " ".repeat(gap) + metrics, input.width);
   };
-  return { indent, bodyWidth, source, formatted, last, marker, dot, metrics, heading };
+  return { indent, bodyWidth, source, formatted, last, flat, marker, dot, metrics, heading };
 }
 
 /**
@@ -126,6 +131,8 @@ export interface ThinkingFrame {
   canToggle: boolean;
   indent: string;
   last: string;
+  /** The whole thought on one line, in plain text. */
+  flat: string;
   formatted: boolean;
   marker: string;
   dot: string;
@@ -182,6 +189,7 @@ export function thinkingFrame(
     canToggle,
     indent: header.indent,
     last: header.last,
+    flat: header.flat,
     formatted: !!header.formatted,
     marker: header.marker,
     dot: header.dot,
@@ -214,23 +222,15 @@ export function composeThinkingLabel(
   const notice = (hidden: number) => theme.fg("dim", `${frame.indent}${omittedLinesLabel(hidden)}`);
 
   if (bodyLinesFor(input.level) <= 1 && !input.expanded) {
-    // Omitted opening lines: the cut mark stands between the heading and the excerpt.
-    const lead = frame.sourceCount > 1 ? cutMark(theme) : " ";
-    const inline = frame.last
-      ? `${frame.marker} ${frame.dot}${lead}${frame.formatted ? frame.last : theme.fg("thinkingText", frame.last)}`
-      : frame.marker;
-    const canToggle =
-      frame.sourceCount > 1 ||
-      (!!frame.last && kit.visibleWidth(inline + ` ${frame.dot} ` + frame.metrics) > input.width);
+    // One row: the start and the end of the reasoning, cut in the middle like a command.
+    const prefix = `${frame.marker} ${frame.dot} `;
+    const room = input.width - kit.visibleWidth(frame.metrics) - 3 - kit.visibleWidth(prefix);
+    const excerpt = frame.flat
+      ? truncateMiddle(kit, frame.flat, Math.max(0, room), cutMark(theme), (part) => theme.fg("thinkingText", part))
+      : undefined;
     return {
-      label: frame.heading(
-        clampLine(
-          api,
-          inline,
-          Math.max(kit.visibleWidth(frame.marker), input.width - kit.visibleWidth(frame.metrics) - 3),
-        ),
-      ),
-      canToggle,
+      label: frame.heading(excerpt?.text ? prefix + excerpt.text : frame.marker),
+      canToggle: !!excerpt?.cut,
     };
   }
 

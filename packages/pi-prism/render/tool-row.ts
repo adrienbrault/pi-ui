@@ -80,7 +80,7 @@ function statusGlyph(api: RenderApi, input: ToolRowInput): string {
  * Keep the opening and the end: a shell command's verb and target both matter.
  * Each kept side is painted on its own, so the mark's style never leaks into it.
  */
-function truncateMiddle(
+export function truncateMiddle(
   kit: RenderKit,
   text: string,
   width: number,
