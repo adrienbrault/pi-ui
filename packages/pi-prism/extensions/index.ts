@@ -23,6 +23,7 @@ import { callTokens, ownsTool, toolTokenCounts } from "../render/tools.ts";
 import { nonEmptyLineCount } from "../render/text.ts";
 import {
   previewText,
+  leavingRow,
   toolHeader,
   toolRowLayout,
   renderToolRow,
@@ -32,7 +33,7 @@ import {
 import { type FoldMode, type LiveFoldGroup, registerToolInfo, resetFolds, setGroupOpen, toolPlan } from "./fold.ts";
 import { claimHover, highlightGroupRow, isOmissionRow, releaseHover } from "./hover.ts";
 import { expandedRegions, paintBar, styleBarCell } from "./viewport.ts";
-import { installThinkingRenderer, scheduleThinkingFold } from "./thinking.ts";
+import { installThinkingRenderer, paintLeaving, scheduleThinkingFold, toolFade } from "./thinking.ts";
 
 /**
  * Duck-typed on purpose: pi ships several tui copies, so structural types beat
@@ -346,9 +347,21 @@ function bodyComponent(record: BlockRecord, theme: Theme, includeHeader = false)
   const api = { kit: KIT, theme: theme as unknown as RenderTheme, glyphs: GLYPHS };
   return region(
     KIT.component((width) => {
-      const layout = toolRowLayout({ ...api, owner: record }, inputFor(record), width);
-      const rows = layout.rows.slice(includeHeader ? 0 : 1);
+      const input = inputFor(record);
+      const layout = toolRowLayout({ ...api, owner: record }, input, width);
+      let rows = layout.rows.slice(includeHeader ? 0 : 1);
       if (record.expansion === 1) return rows;
+      // A step down fades the row the next level drops, found by the renderer.
+      const fade = typeof record.key === "string" ? toolFade(record.key) : undefined;
+      if (fade) {
+        const leaving = leavingRow(api, input, width);
+        rows = paintLeaving(
+          rows,
+          leaving === undefined ? undefined : leaving - (includeHeader ? 0 : 1),
+          fade,
+          api.theme,
+        );
+      }
       // The omission notice: last for tails, at the cut for head-and-tail reads.
       const omission = rows.findLastIndex(isOmissionRow);
       const expandable =

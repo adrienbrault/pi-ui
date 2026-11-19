@@ -16,13 +16,18 @@
 import type { Component } from "@earendil-works/pi-tui";
 import { mixColors, stripTerminalSequences, truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
-import { COMPACT_LEVEL, bodyLinesFor, detailFor, FOLD_DISTANCE, type DetailLevel } from "../render/detail.ts";
+import { COMPACT_LEVEL, FOLD_DISTANCE, type DetailLevel } from "../render/detail.ts";
 import { glyphsFor } from "../render/glyphs.ts";
 import { renderGroupMember, renderGroupRow } from "../render/group-row.ts";
 import { KIT } from "./kit.ts";
 import type { RenderTheme } from "../render/kit.ts";
 import { estimatedTokens, toolMeta } from "../render/tools.ts";
-import { composeThinkingLabel, thinkingFrame, type ThinkingLabelInput } from "../render/thinking.ts";
+import {
+  composeThinkingLabel,
+  thinkingFrame,
+  thinkingLeavingRow,
+  type ThinkingLabelInput,
+} from "../render/thinking.ts";
 import { advanceTailWindow, isDropping, planTailWindow, type TailWindow } from "../render/window.ts";
 import { blockDistances, type PlanBlock } from "../render/layout.ts";
 import { type FoldPlan, type FoldUnit, planFolds, setGroupOpen, thinkingPlan, toolInfo, toolPlan } from "./fold.ts";
@@ -37,11 +42,39 @@ import {
 import { installThinkingClock, thinkingTime, type TimedMessage } from "./thinking-time.ts";
 import { highlightGroupRow, claimHover, clearHover, onSpacerMouse, releaseHover } from "./hover.ts";
 
+interface DecayFrame {
+  folding: boolean;
+  phase: number;
+  removed: number;
+  foldRows: number;
+  /** The step drops no row: nothing to fade, so the next tick commits it. */
+  idle?: boolean;
+}
+
 // Keep each departing row in the layout until its final fade frame.
-const decayFrames = new WeakMap<
-  object,
-  { folding: boolean; phase: number; removed: number; foldRows: number; budget: number; tail: boolean }
->();
+const decayFrames = new WeakMap<object, DecayFrame>();
+/** The same frames by tool call id: the body renderer knows the id, not the shell. */
+const toolFrames = new Map<string, DecayFrame>();
+
+/** A tool's step-down fade, if one is running: its body paints the leaving row. */
+export function toolFade(key: string): DecayFrame | undefined {
+  const frame = toolFrames.get(key);
+  return frame && !frame.folding ? frame : undefined;
+}
+
+/**
+ * Paint the row a step drops at the frame's phase. An undefined row means the
+ * step drops nothing, and the frame goes idle.
+ */
+export function paintLeaving(rows: string[], row: number | undefined, frame: DecayFrame, theme: RenderTheme): string[] {
+  if (row === undefined || row < 0 || row >= rows.length) {
+    frame.idle = true;
+    return rows;
+  }
+  const lines = rows.slice();
+  lines[row] = fadeLine(lines[row]!, frame.phase, theme);
+  return lines;
+}
 const DECAY_FRAME_MS = 90;
 // Four 90 ms frames: a departing row is gone in 360 ms.
 const FADE_FRAMES = 4;
@@ -57,25 +90,17 @@ function fadeLine(line: string, phase: number, theme: RenderTheme): string {
   return palette.style(remaining, { fg });
 }
 
-function paintDecay(rows: string[], theme: RenderTheme, component: object): string[] {
+/** A block joining a group folds from the bottom, one row per fade, ending with its heading. */
+function paintFold(rows: string[], theme: RenderTheme, component: object): string[] {
   const frame = decayFrames.get(component);
-  if (!frame || !rows.length) return rows;
+  if (!frame?.folding || !rows.length) return rows;
   const lines = rows.slice();
   const heading = lines.findIndex((line) => visibleWidth(line) > 0);
   if (heading < 0) return rows;
-  const footer = lines.length - 1;
-  if (frame.folding) {
-    frame.foldRows = lines.length - heading;
-    lines.length = Math.max(heading + 1, lines.length - frame.removed);
-    const last = lines.length - 1;
-    lines[last] = fadeLine(lines[last]!, frame.phase, theme);
-    return lines;
-  }
-  const notice = /\+ \d+ lines?/.test(lines[footer]!);
-  if (!notice && footer - heading < frame.budget) return rows;
-  const bodyEnd = notice ? footer : lines.length;
-  const first = frame.tail ? heading + 1 : heading + Math.ceil((bodyEnd - heading - 1) / 2);
-  if (first < bodyEnd) lines[first] = fadeLine(lines[first]!, frame.phase, theme);
+  frame.foldRows = lines.length - heading;
+  lines.length = Math.max(heading + 1, lines.length - frame.removed);
+  const last = lines.length - 1;
+  lines[last] = fadeLine(lines[last]!, frame.phase, theme);
   return lines;
 }
 
@@ -321,6 +346,7 @@ function labelComponent(
       const group = plan.group;
       if (plan.mode === "hidden" && !group?.open) return [];
       const api = { kit: KIT, theme, glyphs: GLYPHS };
+      let settled: ThinkingLabelInput | undefined;
       const thoughtLines = (innerWidth: number): string[] => {
         const timing = thinkingTime(message, run.first, streaming);
         const level: DetailLevel = group ? COMPACT_LEVEL : streaming ? 0 : levelOf();
@@ -335,6 +361,7 @@ function labelComponent(
           frame: Math.floor(Date.now() / 120),
           expanded,
         };
+        settled = input;
         const animate = timing.running && streaming && !expanded && !group;
         if (!animate) {
           clearTimeout(erase.timer);
@@ -376,10 +403,12 @@ function labelComponent(
         }
         return lines;
       };
-      if (!group)
-        return streaming || expanded || decayFrames.get(owner)?.folding
-          ? thoughtLines(width)
-          : paintDecay(thoughtLines(width), theme, owner);
+      if (!group) {
+        const lines = thoughtLines(width);
+        const frame = decayFrames.get(owner);
+        if (streaming || expanded || !frame || frame.folding || !settled) return lines;
+        return paintLeaving(lines, thinkingLeavingRow(api, settled), frame, theme);
+      }
       const memberLines = () => {
         const rows = renderGroupMember(KIT, width, thoughtLines);
         return hover.target === "thought"
@@ -514,7 +543,7 @@ function patchInstance(component: AssistantLike, theme: RenderTheme, repaint: ()
   if (render) {
     component.render = function (width) {
       const rows = render.call(this, width);
-      return decayFrames.get(this)?.folding ? paintDecay(rows, theme, this) : rows;
+      return paintFold(rows, theme, this);
     };
   }
 
@@ -572,7 +601,7 @@ function compactToolMember(component: ToolComponentLike, key: string, theme: Ren
     const lines = render.call(this, width);
     const plan = toolPlan(key);
     skippedSpacer = plan?.mode === "hidden" && plan.group?.open === true && lines[0] === "";
-    return skippedSpacer ? lines.slice(1) : paintDecay(lines, theme, component);
+    return skippedSpacer ? lines.slice(1) : paintFold(lines, theme, component);
   };
   component.handleMouse = function (event) {
     if (!skippedSpacer && event.y === 0) {
@@ -718,17 +747,12 @@ function patchTree(
       unit.distance = previous;
       if (!pending) {
         if (!frame) {
-          decayFrames.set(unit.component, {
-            folding: previous + 1 === FOLD_DISTANCE,
-            phase: 0,
-            removed: 0,
-            foldRows: 0,
-            budget: bodyLinesFor(detailFor(previous)),
-            tail: unit.kind === "thinking" || toolMeta(toolInfo(unit.key)?.name ?? "").trend === "tail",
-          });
+          const created: DecayFrame = { folding: previous + 1 === FOLD_DISTANCE, phase: 0, removed: 0, foldRows: 0 };
+          decayFrames.set(unit.component, created);
+          if (unit.kind === "tool") toolFrames.set(unit.key, created);
           repaint.add(unit.component);
         } else if (advance) {
-          if (frame.phase < FADE_FRAMES - 1) frame.phase++;
+          if (frame.phase < FADE_FRAMES - 1 && !frame.idle) frame.phase++;
           else if (frame.folding && frame.removed + 1 < frame.foldRows) {
             frame.removed++;
             frame.phase = 0;
@@ -736,6 +760,7 @@ function patchTree(
             unit.distance++;
             committed = unit;
             decayFrames.delete(unit.component);
+            if (unit.kind === "tool") toolFrames.delete(unit.key);
           }
           repaint.add(unit.component);
         }
@@ -743,6 +768,7 @@ function patchTree(
       pending = true;
     } else if (frame) {
       decayFrames.delete(unit.component);
+      if (unit.kind === "tool") toolFrames.delete(unit.key);
       repaint.add(unit.component);
     }
     distances.set(unit.component, unit.distance);
@@ -841,5 +867,6 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
   pi.on("session_shutdown", () => {
     clearTimeout(decayTimer);
     decayTimer = undefined;
+    toolFrames.clear();
   });
 }

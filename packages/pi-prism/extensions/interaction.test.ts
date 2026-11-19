@@ -122,6 +122,60 @@ const plainRows = (rows: string[]) => rows.map((row) => stripTerminalSequences(r
 
 const move = (): TuiMouseEvent => ({ ...click(), type: "move", button: "none" });
 
+const fadeTheme = {
+  ...theme,
+  colors: { ...theme.colors, toolOutput: rgbColor(210, 210, 210), toolPendingBg: rgbColor(0, 0, 0) },
+  // Renderers also pass token names; only colours resolve, as in the fade.
+  style: (text: string, options: TextStyle) =>
+    typeof options.fg === "object" ? styleText(text, { fg: options.fg }, "truecolor") : text,
+};
+
+/** A live session under fake timers whose transcript is tool shells of one kind. */
+function fadeSession(name: string, text = output) {
+  jest.useFakeTimers();
+  const handlers = new Map<string, Array<(...args: any[]) => void>>();
+  const dispatch = (event: string, ...args: unknown[]) => {
+    for (const handler of handlers.get(event) ?? []) handler(...args);
+  };
+  const tool = resolver((event, handler) => handlers.set(event, [...(handlers.get(event) ?? []), handler]))(
+    name,
+    () => undefined,
+  ) as Renderers;
+  const children: object[] = [];
+  dispatch(
+    "session_start",
+    {},
+    {
+      hasUI: true,
+      mode: "tui",
+      ui: {
+        setWidget: (_: string, factory?: (root: object, theme: object) => void) => factory?.({ children }, fadeTheme),
+      },
+    },
+  );
+  const add = (toolCallId: string) => {
+    const args = name === "read" ? { path: "notes.txt" } : ctx.args;
+    const context = { ...ctx, args, toolCallId, state: {} };
+    const header = tool.renderCall(args, fadeTheme, context);
+    const body = tool.renderResult({ content: [{ type: "text", text }] }, {}, fadeTheme, context);
+    const shell = {
+      toolCallId,
+      toolName: name,
+      rendererState: {},
+      selfRenderHeight: 8,
+      handleMouse() {},
+      render: (w: number) => [...header.render(w), ...body.render(w)],
+    };
+    children.push(shell);
+    return shell;
+  };
+  const close = () => {
+    dispatch("session_shutdown", "");
+    jest.useRealTimers();
+  };
+  return { add, dispatch, close };
+}
+
 describe("tool renderers", () => {
   test("leaves unowned tools to the next resolver", () => {
     const base = { renderShell: "default" };
@@ -392,54 +446,14 @@ describe("tool renderers", () => {
   });
 
   test("visible tools paint successive fade frames before shrinking and before entering a group", () => {
-    jest.useFakeTimers();
-    const handlers = new Map<string, Array<(...args: any[]) => void>>();
-    const dispatch = (name: string, ...args: unknown[]) => {
-      for (const handler of handlers.get(name) ?? []) handler(...args);
-    };
-    const tool = resolver((name, handler) => handlers.set(name, [...(handlers.get(name) ?? []), handler]))(
-      "bash",
-      () => undefined,
-    ) as Renderers;
-    const fadeTheme = {
-      ...theme,
-      colors: { ...theme.colors, toolOutput: rgbColor(210, 210, 210), toolPendingBg: rgbColor(0, 0, 0) },
-      style: (text: string, options: TextStyle) => styleText(text, options, "truecolor"),
-    };
-    const makeShell = (toolCallId: string) => {
-      const context = { ...ctx, toolCallId, state: {} };
-      const header = tool.renderCall(ctx.args, theme, context);
-      const body = tool.renderResult(result, {}, theme, context);
-      return {
-        toolCallId,
-        toolName: "bash",
-        rendererState: {},
-        selfRenderHeight: 8,
-        handleMouse() {},
-        render: (w: number) => [...header.render(w), ...body.render(w)],
-      };
-    };
+    const session = fadeSession("bash");
     try {
-      const children: ReturnType<typeof makeShell>[] = [];
-      dispatch(
-        "session_start",
-        {},
-        {
-          hasUI: true,
-          mode: "tui",
-          ui: {
-            setWidget: (_: string, factory?: (root: object, theme: object) => void) =>
-              factory?.({ children }, fadeTheme),
-          },
-        },
-      );
-      const oldest = makeShell("animated-0");
-      children.push(oldest);
-      dispatch("agent_settled");
+      const oldest = session.add("animated-0");
+      session.dispatch("agent_settled");
       jest.advanceTimersByTime(1);
       for (let i = 1; i <= 5; i++) {
-        children.push(makeShell("animated-" + i));
-        dispatch("agent_settled");
+        session.add("animated-" + i);
+        session.dispatch("agent_settled");
         const first = oldest.render(80);
         jest.advanceTimersByTime(90);
         const second = oldest.render(80);
@@ -460,8 +474,48 @@ describe("tool renderers", () => {
       }
       expect(toolPlan(oldest.toolCallId)?.mode).toBe("anchor");
     } finally {
-      dispatch("session_shutdown", "");
-      jest.useRealTimers();
+      session.close();
+    }
+  });
+
+  test("a read fades the line that leaves, not the notice at its cut", () => {
+    const session = fadeSession("read");
+    try {
+      const oldest = session.add("read-0");
+      session.dispatch("agent_settled");
+      jest.advanceTimersByTime(1);
+      for (let step = 1; step <= 4; step++) {
+        session.add("read-" + step);
+        session.dispatch("agent_settled");
+        const first = oldest.render(80);
+        jest.advanceTimersByTime(90);
+        const fading = oldest.render(80).filter((line, index) => line !== first[index]);
+        expect(fading).toHaveLength(1);
+        const line = stripTerminalSequences(fading[0]!).trim();
+        expect(line).toMatch(/^line \d+$/);
+        jest.advanceTimersByTime(10000);
+        expect(oldest.render(80).map((row) => stripTerminalSequences(row).trim())).not.toContain(line);
+      }
+    } finally {
+      session.close();
+    }
+  });
+
+  test("a tool whose next level keeps every line steps on the first tick", () => {
+    const session = fadeSession("bash", "one\ntwo");
+    try {
+      const oldest = session.add("short-0");
+      session.dispatch("agent_settled");
+      jest.advanceTimersByTime(1);
+      session.add("short-1");
+      session.dispatch("agent_settled");
+      const first = oldest.render(80);
+      jest.advanceTimersByTime(90);
+      expect(oldest.render(80)).toEqual(first);
+      jest.advanceTimersByTime(90);
+      expect(toolPlan("short-0")?.level).toBe(1);
+    } finally {
+      session.close();
     }
   });
 
