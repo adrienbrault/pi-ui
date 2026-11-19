@@ -157,24 +157,16 @@ function count(pane: string, needle: string): number {
 }
 
 function start(sessionPath: string, height: number, budget = 7): void {
-  const wrapper = sessionPath + ".extension.ts";
-  writeFileSync(wrapper, `import prism from "${ROOT}/packages/pi-prism/extensions/index.ts";
-import { setTailLines } from "${ROOT}/packages/pi-prism/render/detail.ts";
-export default function(pi) {
-  setTailLines(${budget});
-  prism(pi);
-  pi.on("before_provider_request", () => { throw new Error("Offline test turn"); });
-}`);
 
   tmux("-f", "/dev/null", "new-session", "-d", "-s", SESSION, "-x", String(WIDTH), "-y", String(height), "-c", ROOT);
   tmux("set", "-g", "extended-keys", "on");
   // Keep pi's startup warning from moving the row between capture and mouse dispatch.
   tmux("set", "-sq", "extended-keys-format", "csi-u");
+  // Only pi-prism and an offline stand-in provider load; see dev/e2e-extension.ts.
   const pi = [
-    "env PI_OFFLINE=1 PI_SKIP_VERSION_CHECK=1",
+    `env PI_OFFLINE=1 PI_SKIP_VERSION_CHECK=1 PRISM_E2E_TAIL=${budget}`,
     "pi --no-extensions --tui-mode fullscreen",
-    `-e ${join(process.env.HOME ?? "", ".pi/agent/extensions/flan-gateway.ts")}`,
-    `-e ${wrapper}`,
+    `-e ${join(ROOT, "dev", "e2e-extension.ts")}`,
     `--session ${sessionPath}`,
   ].join(" ");
   tmux("send-keys", "-t", SESSION, pi, "Enter");
