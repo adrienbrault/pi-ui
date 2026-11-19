@@ -4,6 +4,7 @@ import { blockDistances, type PlanBlock } from "../render/layout.ts";
 import type { GroupClass } from "../render/tools.ts";
 import {
   type FoldUnit,
+  type LiveFoldGroup,
   joinsOpenGroup,
   keepGroupOpen,
   planFolds,
@@ -245,6 +246,22 @@ describe("forming group", () => {
     planFolds([...folded(2, "a"), unit("tool", "edge", 8), ...folded(2, "b")]);
     expect(toolPlan("b1")?.group?.members).toHaveLength(5);
     expect(toolPlan("b1")?.group?.open).toBe(true);
+  });
+
+  test("a forming group merging with a closed one lets the rows it listed leave", () => {
+    const edge = { ...unit("tool", "edge", 8), boundary: true };
+    const units = [...folded(3, "a"), edge, ...folded(3, "b")];
+    const collapses: string[][] = [];
+    const onCollapse = (group: LiveFoldGroup, shown: Set<object>) =>
+      collapses.push(group.members.filter((member) => shown.has(member.component)).map((member) => member.key));
+    planFolds(units, undefined, onCollapse);
+    expect(toolPlan("a0")?.group).toMatchObject({ forming: false, open: false });
+    expect(toolPlan("b0")?.group).toMatchObject({ forming: true, open: true });
+    // The edge finishes: one group of seven rows, too many to form.
+    edge.boundary = false;
+    planFolds(units, undefined, onCollapse);
+    expect(toolPlan("a0")?.group?.members).toHaveLength(7);
+    expect(collapses).toEqual([["b0", "b1", "b2"]]);
   });
 
   test("a block joins a forming group while the group still fits five rows with it", () => {

@@ -237,9 +237,9 @@ function previousPlan(unit: FoldUnit): FoldPlan | undefined {
 
 /**
  * How a member's row looks while its group collapses: gone once the collapse
- * has passed it, fading at the frame's phase while it is the bottom row, else
- * as usual. A thought has one row per run. Undefined when the group is not
- * collapsing.
+ * has passed it or when it was not listed as the collapse began, fading at the
+ * frame's phase while it is the bottom listed row, else as usual. A thought has
+ * one row per run. Undefined when the group is not collapsing.
  */
 export function memberRowFade(
   group: LiveFoldGroup,
@@ -247,10 +247,18 @@ export function memberRowFade(
   run = 0,
 ): { gone: boolean; phase: number } | undefined {
   const frame = fadeOf(group);
-  if (!frame) return undefined;
-  let row = run;
+  if (!frame?.shown) return undefined;
+  let row = 0;
   for (const item of group.members) {
-    if (item.kind === "tool" ? item.key === member : item.component === member) break;
+    const mine = item.kind === "tool" ? item.key === member : item.component === member;
+    if (!frame.shown.has(item.component)) {
+      if (mine) return { gone: true, phase: 0 };
+      continue;
+    }
+    if (mine) {
+      row += run;
+      break;
+    }
     row += memberRows([item]);
   }
   const fading = frame.foldRows - frame.removed - 1;
@@ -288,8 +296,8 @@ export function joinsOpenGroup(units: FoldUnit[], index: number): boolean {
 export function planFolds(
   units: FoldUnit[],
   animated?: object,
-  /** A group that listed its members because it was forming no longer forms. */
-  onCollapse?: (group: LiveFoldGroup, shownRows: number) => void,
+  /** A group that listed its members because it was forming no longer forms; `shown` were listed. */
+  onCollapse?: (group: LiveFoldGroup, shown: Set<object>) => void,
 ): Set<object> {
   const nextTools = new Map<string, FoldPlan>();
   const changed = new Set<object>();
@@ -330,12 +338,17 @@ export function planFolds(
       continue;
     }
     const forming = block === newest && block.at(-1)!.currentRun !== false && memberRows(block) <= FORMING_ROWS;
+    // Members that a forming group listed, whichever group they belonged to: merging
+    // a closed group with a forming one must still let the forming rows leave.
+    const shown = new Set<object>();
+    for (const unit of block) {
+      const before = previousPlan(unit)?.group;
+      if (before?.forming && before.open && before.choice === undefined) shown.add(unit.component);
+    }
     const previous = previousPlan(block[0]!)?.group;
     const wasOpen = previous?.open;
-    const wasForming = previous?.forming && previous.choice === undefined;
-    const shownRows = previous ? memberRows(previous.members) : 0;
     const group = buildGroup(block, previous, forming);
-    if (wasForming && wasOpen && !group.forming && group.choice === undefined) onCollapse?.(group, shownRows);
+    if (shown.size && !group.forming && group.choice === undefined) onCollapse?.(group, shown);
     // A reused group that opens or closes must render its members again.
     if (group === previous && wasOpen !== group.open) for (const unit of block) changed.add(unit.component);
     block.forEach((unit, index) => {

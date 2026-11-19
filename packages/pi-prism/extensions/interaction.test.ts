@@ -7,7 +7,7 @@ import {
   type TextStyle,
   type TuiMouseEvent,
 } from "@earendil-works/pi-tui";
-import { toolPlan } from "./fold.ts";
+import { setGroupOpen, toolPlan } from "./fold.ts";
 import { toolFade } from "./fade.ts";
 import prism, { actionFor } from "./index.ts";
 
@@ -208,6 +208,19 @@ function fadeSession(name: string, text = output, onVisit?: () => void) {
   };
   return { add, dispatch, close, children };
 }
+
+/** An assistant message with prose only: a block that keeps its own row and splits the run. */
+const prose = () => ({
+  updateContent() {},
+  contentContainer: { children: [] },
+  thinkingVisibilityOverrides: new Map(),
+  lastMessage: { content: [{ type: "text", text: "note" }] },
+  invalidate() {},
+  render: () => ["note"],
+});
+
+/** A user message: it ends the run. */
+const user = () => ({ text: "next", markdownTheme: {}, render: () => ["next"] });
 
 /** Five folded rows in a forming group, then the sixth block joins and the collapse begins. */
 function collapseStart(session: ReturnType<typeof fadeSession>) {
@@ -687,6 +700,84 @@ describe("tool renderers", () => {
       expect(toolFade("rebuilt-0")).toBeUndefined();
       // No row keeps the faded colour.
       expect(again.render(80).join("")).not.toContain("38;2;");
+    } finally {
+      session.close();
+    }
+  });
+
+  test("a newer block never folds past an older block that is still on its way", () => {
+    for (const settled of [8, 10]) {
+      const session = fadeSession("bash");
+      try {
+        const ids = Array.from({ length: settled + 2 }, (_, index) => `pass-${settled}-${index}`);
+        const shells = ids.slice(0, settled).map((id) => {
+          const shell = session.add(id);
+          session.dispatch("agent_settled");
+          jest.advanceTimersByTime(10_000);
+          return shell;
+        });
+        // The oldest standalone block starts folding, then one more block arrives mid-fold.
+        const joiner = shells[settled - 5]!;
+        shells.push(session.add(ids[settled]!));
+        session.dispatch("agent_settled");
+        jest.advanceTimersByTime(180);
+        shells.push(session.add(ids[settled + 1]!));
+        session.dispatch("agent_settled");
+        let joinerRows = joiner.render(80).length;
+        let groupRows = shells[0]!.render(80).length;
+        let shrank = false;
+        for (let tick = 0; tick < 80; tick++) {
+          const modes = ids.map((id) => toolPlan(id)?.mode);
+          // Grouped blocks stay above standalone ones: no newer block joins a group ahead of an older one.
+          expect(modes.slice(modes.indexOf("normal")).every((mode) => mode === "normal")).toBe(true);
+          const rows = joiner.render(80).length;
+          expect(rows).toBeLessThanOrEqual(joinerRows);
+          joinerRows = rows;
+          // The forming group grows; it never collapses and then forms again.
+          const anchorRows = shells[0]!.render(80).length;
+          if (anchorRows < groupRows) shrank = true;
+          if (shrank) expect(anchorRows).toBeLessThanOrEqual(groupRows);
+          groupRows = anchorRows;
+          jest.advanceTimersByTime(90);
+        }
+      } finally {
+        session.close();
+      }
+    }
+  });
+
+  test("a collapse that starts while another runs waits for it, and both groups close", () => {
+    const session = fadeSession("bash");
+    try {
+      const shells: Array<ReturnType<typeof session.add>> = [];
+      const add = (id: string) => {
+        shells.push(session.add(id));
+        session.dispatch("agent_settled");
+        jest.advanceTimersByTime(10_000);
+      };
+      for (let index = 0; index < 3; index++) add("first-" + index);
+      session.children.push(prose());
+      session.dispatch("agent_settled");
+      for (let index = 0; index < 5; index++) add("second-" + index);
+      // A sixth block makes the second group form, so the first stops forming and collapses.
+      shells.push(session.add("second-5"));
+      session.dispatch("agent_settled");
+      for (let tick = 0; tick < 40 && toolPlan("second-0")?.mode === "normal"; tick++) jest.advanceTimersByTime(90);
+      jest.advanceTimersByTime(400);
+      const first = () => shells.slice(0, 3).map((shell) => shell.render(80).length);
+      expect(first()).toEqual([2, 1, 0]);
+      // A user message ends the second group's forming mid-collapse of the first.
+      session.children.push(user());
+      session.dispatch("message_start", { message: { role: "user" } });
+      jest.advanceTimersByTime(10_000);
+      session.dispatch("agent_settled");
+      expect(first()).toEqual([1, 0, 0]);
+      expect(toolPlan("first-0")?.group?.open).toBe(false);
+      expect(shells[3]!.render(80)).toHaveLength(1);
+      expect(toolPlan("second-0")?.group?.open).toBe(false);
+      setGroupOpen(toolPlan("first-0")!.group!, true);
+      session.dispatch("agent_settled");
+      expect(first()).toEqual([2, 1, 1]);
     } finally {
       session.close();
     }

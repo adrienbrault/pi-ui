@@ -26,6 +26,8 @@ export interface DecayFrame {
   hurry?: boolean;
   /** Blocks in the transcript when a collapse started: more later means new blocks arrived. */
   blocks?: number;
+  /** A group collapse: the members whose rows were listed when it started. The others are gone. */
+  shown?: Set<object>;
   /** The tool call id that also indexes this frame. */
   key?: string;
 }
@@ -81,6 +83,15 @@ export function endFade(component: object): void {
   const frame = decayFrames.get(component);
   decayFrames.delete(component);
   if (frame?.key !== undefined && toolFrames.get(frame.key) === frame) toolFrames.delete(frame.key);
+}
+
+/** Hand a collapse to the group that replaced the collapsing one. */
+export function moveFade(from: object, to: object): DecayFrame | undefined {
+  const frame = decayFrames.get(from);
+  if (!frame) return undefined;
+  decayFrames.delete(from);
+  decayFrames.set(to, frame);
+  return frame;
 }
 
 export function resetFades(): void {

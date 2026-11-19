@@ -64,6 +64,7 @@ import {
   fadeDurationMs,
   nextPace,
   fadeOf,
+  moveFade,
   paintFold,
   paintLeaving,
   resetFades,
@@ -547,6 +548,10 @@ function isUserComponent(component: unknown): boolean {
   );
 }
 
+function groupOf(unit: FoldUnit): LiveFoldGroup | undefined {
+  return (unit.kind === "tool" ? toolPlan(unit.key) : thinkingPlan(unit.component))?.group;
+}
+
 /**
  * Walk the TUI in visual order, then read the ladder backwards: each component
  * knows how many blocks follow it in its run. This is what restored transcripts
@@ -668,67 +673,112 @@ function patchTree(
   let committed: FoldUnit | undefined;
   // Visible blocks behind their target, in visual order: they step down one at a time.
   const waiting: FoldUnit[] = [];
+  // Nothing overtakes an older block that is still on its way: a newer block of
+  // the run goes no further than the distance an older one is held at.
+  let cap = Infinity;
   for (const unit of units) {
+    if (unit.startsRun) cap = Infinity;
     const target = Math.min(FOLD_DISTANCE, unit.distance);
     const previous = distances.get(unit.component);
     unit.distance = target;
     if (previous !== undefined && previous < target && !history.has(unit.component) && !unit.boundary) {
       const fading = fadeOf(unit.component);
+      const allowed = Math.max(previous, Math.min(target, cap));
       if (commit === unit.component && fading) {
         // The fade has run its course: this walk commits the step, and a block
         // that fell further behind meanwhile takes the rest with it.
         committed = unit;
         endFade(unit.component);
         repaint.add(unit.component);
+        unit.distance = allowed;
       } else if (fading || target - previous === 1) {
         // One step behind, or mid-row: animate in turn.
         unit.distance = previous;
-        waiting.push(unit);
+      } else {
+        // More than one step behind and not fading: catch up without animation,
+        // through the usual two agreeing recomputes, as offscreen blocks do.
+        unit.distance = allowed;
       }
-      // More than one step behind and not fading: catch up without animation,
-      // through the usual two agreeing recomputes, as offscreen blocks do.
+      if (unit.distance < target) {
+        waiting.push(unit);
+        cap = Math.min(cap, unit.distance);
+      }
     }
     distances.set(unit.component, unit.distance);
   }
   // A collapse that has run its course: the group now shows only its summary.
   if (commit && fadeOf(commit) && !units.some((unit) => unit.component === commit)) endFade(commit);
-  let collapsing: LiveFoldGroup | undefined;
-  const changed = planFolds(units, committed?.component, (group, shownRows) => {
+  const changed = planFolds(units, committed?.component, (group, shown) => {
+    const rows = memberRows(group.members.filter((member) => shown.has(member.component)));
     // Offscreen, or nothing left to animate: the group collapses at once.
-    const total = memberRows(group.members);
-    const removed = Math.max(0, total - shownRows);
-    if (total - removed <= 0 || group.members.every((member) => history.has(member.component))) return;
+    if (rows === 0 || group.members.every((member) => history.has(member.component))) return;
     const frame = startFade(group, undefined, true, frameMs);
-    frame.foldRows = total;
-    frame.removed = removed;
+    frame.foldRows = rows;
+    frame.shown = shown;
     frame.blocks = units.length;
     group.open = true;
-    collapsing = group;
   });
-  const planned = (group: object) =>
-    units.some((unit) => (unit.kind === "tool" ? toolPlan(unit.key) : thinkingPlan(unit.component))?.group === group);
-  // A running collapse keeps the floor until it ends; only new blocks hurry it.
-  let collapse: object | undefined = collapsing;
-  if (
-    !collapse &&
-    current &&
-    current !== commit &&
-    fadeOf(current) &&
-    !units.some((unit) => unit.component === current)
-  ) {
-    if (planned(current)) {
-      collapse = current;
-      const frame = fadeOf(current)!;
-      if (units.length > (frame.blocks ?? units.length)) frame.hurry = true;
-    } else endFade(current);
-  }
-  // A fade in progress keeps the floor; otherwise the oldest waiting block takes it.
-  const head = collapse ? undefined : (waiting.find((unit) => fadeOf(unit.component)) ?? waiting[0]);
+  // Collapses in visual order; a group sits where its first member does.
+  const collapses: LiveFoldGroup[] = [];
   for (const unit of units) {
-    if (unit === head || !fadeOf(unit.component)) continue;
+    const group = groupOf(unit);
+    if (group?.anchor.component === unit.component && fadeOf(group)) collapses.push(group);
+  }
+  // A fade in progress keeps the floor until it ends: nothing pre-empts it.
+  let floor: object | undefined;
+  if (current && current !== commit && fadeOf(current)) {
+    const old = current as Partial<LiveFoldGroup>;
+    if (waiting.some((unit) => unit.component === current) || collapses.includes(old as LiveFoldGroup)) {
+      floor = current;
+    } else if (old.members) {
+      // The collapsing group gained or lost members: the group that replaced it
+      // finishes the fading row, then closes.
+      const members = new Set(old.members.map((member) => member.component));
+      const successor = units
+        .map(groupOf)
+        .find(
+          (group) =>
+            group &&
+            !fadeOf(group) &&
+            group.choice === undefined &&
+            !group.forming &&
+            group.members.some((member) => members.has(member.component)),
+        );
+      const frame = successor && moveFade(current, successor);
+      if (successor && frame) {
+        frame.foldRows = memberRows(successor.members.filter((member) => frame.shown?.has(member.component)));
+        frame.removed = Math.min(frame.removed, Math.max(0, frame.foldRows - 1));
+        frame.hurry = true;
+        successor.open = true;
+        for (const member of successor.members) changed.add(member.component);
+        collapses.push(successor);
+        floor = successor;
+      }
+    }
+    if (floor === undefined) {
+      endFade(current);
+      repaint.add(current);
+    }
+  }
+  // Otherwise the oldest block or collapse on its way takes the floor.
+  if (floor === undefined) {
+    for (const unit of units) {
+      const group = groupOf(unit);
+      if (group && collapses.includes(group)) floor = group;
+      else if (waiting.includes(unit)) floor = unit.component;
+      if (floor) break;
+    }
+  }
+  // A collapse hurries when new blocks arrive or another collapse waits: the fading row finishes, the rest close at once.
+  const floorFrame = collapses.includes(floor as LiveFoldGroup) ? fadeOf(floor!) : undefined;
+  if (floorFrame && (units.length > (floorFrame.blocks ?? units.length) || collapses.length > 1))
+    floorFrame.hurry = true;
+  for (const unit of units) {
+    if (unit.component === floor || !fadeOf(unit.component)) continue;
     endFade(unit.component);
     repaint.add(unit.component);
   }
+  const head = waiting.find((unit) => unit.component === floor);
   if (head && !fadeOf(head.component)) {
     const folding = head.distance + 1 === FOLD_DISTANCE;
     startFade(
@@ -750,7 +800,7 @@ function patchTree(
     (component as { invalidate?: () => void }).invalidate?.();
   }
   if (changed.size > 0) (root as { requestRender?: () => void }).requestRender?.();
-  return collapse ?? head?.component;
+  return floor;
 }
 
 /** Wire the decorator to the live TUI. Safe to call once at extension load. */
