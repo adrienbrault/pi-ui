@@ -585,11 +585,6 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
   const { theme, kit } = api;
   const empty: BodyLayout = { rows: [], clipped: false };
   if (total <= 0) return empty;
-  // The lines pi's read left in the file: a notice on the last row, which the code may not take.
-  // A one-row body keeps its own row for the code.
-  const remaining = input.name === "read" && !input.error ? splitReadTrailer(input.output ?? "").remaining : undefined;
-  const fileNote = remaining && total > 1 ? remaining : undefined;
-  const budget = fileNote ? total - 1 : total;
 
   const meta = toolMeta(input.name);
   const text = cleanOutput(input.error ? errorDetail(input, meta) : previewText(input));
@@ -611,6 +606,11 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
     line.trim() ? [{ line: styledSource?.[raw] ?? line, ...(start === undefined ? {} : { number: start + raw }) }] : [],
   );
   if (lines.length === 0) return empty;
+  // The lines pi's read left in the file: a notice on the last row, which the code may not take.
+  // It gives way when the rows left would hold a notice and no line of code.
+  const remaining = input.name === "read" && !input.error ? splitReadTrailer(input.output ?? "").remaining : undefined;
+  const fileNote = remaining && total - 1 >= Math.min(2, lines.length) ? remaining : undefined;
+  const budget = fileNote ? total - 1 : total;
 
   const streamingWrite = input.name === "write" && input.status === "pending" && !input.expanded;
   const trend = streamingWrite || meta.trend === "tail" ? selectTail : selectHead;

@@ -506,6 +506,17 @@ describe("pi's read trailer", () => {
     expect(trailed(numbered(40) + more, { level: 7 }).rows.slice(1)).toEqual(["    ↓ 40 more lines"]);
   });
 
+  const body = (output: string, level: 5 | 6) => trailed(output + more, { level }).rows.slice(1);
+
+  test("the file note never leaves a read without code", () => {
+    // Three rows: one line, the notice for the rest of the read, the note for the rest of the file.
+    expect(body(numbered(40), 5)).toEqual(["    1  line 1", "    ↓ 39 more lines", "    ↓ 121 more lines in file"]);
+    // Two rows: the note would leave the code a notice alone, so it gives way.
+    expect(body(numbered(40), 6)).toEqual(["    1  line 1", "    ↓ 39 more lines"]);
+    expect(body("alpha\nbeta", 6)).toEqual(["    1  alpha", "    2  beta"]);
+    expect(body("alpha", 6)).toEqual(["    1  alpha", "    ↓ 121 more lines in file"]);
+  });
+
   test("an opened read ends with the note", () => {
     const rows = trailed(numbered(12) + more, { expanded: true, full: true }).rows;
     expect(rows).toHaveLength(14);
