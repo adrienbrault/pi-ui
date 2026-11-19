@@ -1,6 +1,8 @@
 /** Tool taxonomy: which class a tool belongs to, how it trends, how it reads. */
 
-export type ToolClass = "read" | "search" | "write" | "edit" | "shell" | "web" | "mcp" | "code" | "generic";
+import { formatDuration } from "./text.ts";
+
+export type ToolClass = "read" | "list" | "search" | "write" | "edit" | "shell" | "web" | "mcp" | "code" | "generic";
 
 export type Trend = "head" | "tail";
 
@@ -12,7 +14,7 @@ export interface ToolMeta {
 
 const META: Record<string, ToolMeta> = {
   read: { cls: "read", label: "read", trend: "head" },
-  ls: { cls: "read", label: "ls", trend: "head" },
+  ls: { cls: "list", label: "ls", trend: "head" },
   grep: { cls: "search", label: "grep", trend: "head" },
   find: { cls: "search", label: "find", trend: "head" },
   ffgrep: { cls: "search", label: "grep", trend: "head" },
@@ -130,19 +132,19 @@ export function toolTokenLabel(outputTokens: number, inputTokens: number, rates?
 /** Thinking folds with tool rows; its verb belongs to the same vocabulary. */
 export type GroupClass = ToolClass | "thinking";
 
-/** Group vocabulary: what N collapsed rows of this class become. */
+/** Group vocabulary: what one collapsed row of this class is called. */
 export function groupNoun(cls: GroupClass): string {
   switch (cls) {
     case "read":
-      return "file";
-    case "search":
-      return "search";
     case "write":
-      return "file";
     case "edit":
       return "file";
+    case "list":
+      return "directory";
+    case "search":
+      return "pattern";
     case "shell":
-      return "command";
+      return "shell command";
     case "web":
       return "URL";
     case "mcp":
@@ -156,29 +158,42 @@ export function groupNoun(cls: GroupClass): string {
   }
 }
 
-export function groupVerb(cls: GroupClass, count: number): string {
+function pluralNoun(cls: GroupClass, count: number): string {
   const noun = groupNoun(cls);
-  const pluralNoun = count === 1 ? noun : `${noun}s`;
+  if (count === 1) return noun;
+  return noun.endsWith("y") ? `${noun.slice(0, -1)}ies` : `${noun}s`;
+}
+
+/**
+ * One segment of a group summary, lower case, to be joined into a sentence:
+ * `thought for 3m 40s`, `listed 3 directories`, `ran 30 shell commands for 2m 05s`.
+ * Thinking reads as time and shell commands carry their runtime when every
+ * member was timed (`durationMs`); otherwise thinking falls back to a count.
+ */
+export function groupVerb(cls: GroupClass, count: number, durationMs?: number): string {
+  const things = `${count} ${pluralNoun(cls, count)}`;
+  const time = durationMs === undefined ? "" : ` for ${formatDuration(durationMs)}`;
   switch (cls) {
     case "read":
-      return `Read ${count} ${pluralNoun}`;
+      return `read ${things}`;
+    case "list":
+      return `listed ${things}`;
     case "search":
-      return `Searched ${count} time${count === 1 ? "" : "s"}`;
+      return `searched for ${things}`;
     case "write":
-      return `Wrote ${count} ${pluralNoun}`;
+      return `wrote ${things}`;
     case "edit":
-      return `Edited ${count} ${pluralNoun}`;
+      return `edited ${things}`;
     case "shell":
-      return `Ran ${count} ${pluralNoun}`;
+      return `ran ${things}${time}`;
     case "web":
-      return `Fetched ${count} ${pluralNoun}`;
+      return `fetched ${things}`;
     case "mcp":
-      return `Called ${count} ${pluralNoun}`;
-    case "code":
-      return `Ran ${count} ${pluralNoun}`;
     case "generic":
-      return `Called ${count} ${pluralNoun}`;
+      return `called ${things}`;
+    case "code":
+      return `ran ${things}`;
     case "thinking":
-      return `Thought ${count} time${count === 1 ? "" : "s"}`;
+      return durationMs === undefined ? `thought ${count} time${count === 1 ? "" : "s"}` : `thought${time}`;
   }
 }

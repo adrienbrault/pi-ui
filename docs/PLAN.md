@@ -17,7 +17,7 @@ Make a long agentic session readable at a glance without losing the live detail:
 
 - The newest block streams with a bounded tail (max 8 lines).
 - Completed previews age as newer blocks arrive, including on screen. Visible previews step down one at a time before joining a group.
-- Older runs stop being a pile of one-liners and become one grouped summary: `Read 4 files · Ran 2 commands · 1 failed`.
+- Older runs stop being a pile of one-liners and become one grouped summary that reads as a sentence: `Thought for 3m 40s, listed 3 directories, ran 30 shell commands for 2m 05s (4 failed)`.
 - Clicking a collapsed group member opens it until clicked again. A standalone tool pin lasts until clicked again.
 - The same rules apply to thinking, tool calls (builtin + MCP + codemode), reads, writes, edits, and shell output.
 - The design system shows base pi, pi-open-tui, pi-code, and ours side by side, in every state, so design decisions are made against truth.
@@ -109,17 +109,18 @@ The four-row preview fits three content lines and one omission notice.
 
 | Class | Members | Collapsed form | Grouped summary |
 |---|---|---|---|
-| read | read, ls | `Read 3 lines · src/a.ts` | `Read 4 files` |
-| search | grep, find, ffgrep, fffind | `Grep 12 matches · "foo"` | `Searched 3 times` |
+| read | read | `Read 3 lines · src/a.ts` | `read 4 files` |
+| list | ls | `ls · src/` | `listed 3 directories` |
+| search | grep, find, ffgrep, fffind, multi_grep | `Grep 12 matches · "foo"` | `searched for 3 patterns` |
 | write | write | `Wrote 42 lines · b.ts` | `Wrote 2 files` |
 | edit | edit | `Edited +8/-2 · c.ts` | `Edited 3 files` |
-| shell | bash, powershell | last tail line + exit | `Ran 2 commands` |
+| shell | bash, powershell | last tail line + exit | `ran 2 shell commands for 9.3s` |
 | web | web_fetch, web_search, fetch_content | `Fetched example.com` | `Fetched 2 URLs` |
 | mcp | `mcp__*` | `mcp · server/tool` | `Called 2 MCP tools` |
 | code | codemode, tool_search | nested-call rollup (not built; not owned yet) | `Ran 1 script` |
-| think | thinking runs | tail lines + duration | `Thought 12s` |
+| think | thinking runs | tail lines + duration | `thought for 12s` (`thought 3 times` when untimed) |
 
-Failed calls fold with their peers. Each affected summary segment includes its failure count, and opening the group reveals the failed calls in order.
+Segments join into one sentence in encounter order, the first capitalised. A segment's time is the sum of its members' thinking or running time and appears only when every member was timed; thinking without time falls back to a count. Failed calls fold with their peers. Each affected summary segment includes its failure count, and opening the group reveals the failed calls in order.
 
 #### Coexistence and conflict
 
@@ -161,7 +162,7 @@ pi-extensions/
 | P0 | Repo skeleton, render-truth harness, first gallery (thinking + read/bash/edit rows + decay demo) | `bun run ds` emits a working `index.html`; base-pi rows match the terminal |
 | P1 | Full component coverage + 4 variants + scenarios + fixtures + `spec.json` | Every block we intend to own is in the gallery; agents have DESIGN.md + spec |
 | P2 | Decay engine + tool renderers + thinking tails (extension, decorator for per-message only) | A real session folds rows by age; widths/themes/restore behave |
-| P3 | Grouping + click-to-expand + pins | `Read 4 files · Ran 2 commands` collapses and expands in a live session |
+| P3 | Grouping + click-to-expand + pins | `Read 4 files, ran 2 shell commands` collapses and expands in a live session |
 | P4 | Chrome: footer ladder, inline footer, editor frame, header | Standalone replaces open-tui's chrome; feature parity checklist green |
 | P5 | Vision-floor parity, RFC, guards | Behaviour verified on two pi minor versions |
 

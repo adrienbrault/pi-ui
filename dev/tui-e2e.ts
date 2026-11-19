@@ -12,7 +12,8 @@
  * - A delegated tool stays visible while an untimed failure joins its group.
  * - Thinking followed by work: the thinking run decays on the same ladder, keeps
  *   a tail, and still opens all the way on click.
- * - Many old thoughts: the folded run becomes one `Thought N times` summary.
+ * - Many old thoughts: the folded run becomes one `Thought N times` summary
+ *   (untimed thoughts read as a count; timed ones as `Thought for 12s`).
  * - Thoughts and commands: both fold into one shared summary that opens both.
  *
  * Run: bun run e2e
@@ -474,7 +475,7 @@ async function combinedFoldScenario(sessionPath: string): Promise<void> {
   let pane = await waitFor("Chain done.");
   await Bun.sleep(600);
   pane = capture();
-  assert(lineWith(pane, "Thought 3 times").includes("Ran 12 commands"), `thoughts and commands should share one summary\n${pane}`);
+  assert(lineWith(pane, "Thought 3 times").includes("ran 12 shell commands"), `thoughts and commands should share one summary\n${pane}`);
   assert(lineWith(pane, "Thought 3 times").includes("1.0s"), "mixed group should span the first thought through the last folded result");
   assert(lineWith(pane, "Thought 3 times").includes("147 out / 48 in tokens"), "fold should total three thoughts, eight invocations and eight results");
   assert(!pane.includes("echo combo-0 ·"), `the oldest command leaked\n${pane}`);
@@ -541,23 +542,23 @@ async function foldScenario(sessionPath: string): Promise<void> {
 
   const folded = Array.from({ length: 8 }, (_, index) => `echo command-${index} ·`);
   const survivors = Array.from({ length: 4 }, (_, index) => `echo command-${index + 8} ·`);
-  assert(pane.includes("Ran 8 commands"), `folded rows should become one summary\n${pane}`);
+  assert(pane.includes("Ran 8 shell commands"), `folded rows should become one summary\n${pane}`);
   for (const header of folded) assert(count(pane, header) === 0, `folded member leaked: ${header}\n${pane}`);
   for (const header of survivors) assert(count(pane, header) === 1, `surviving row missing: ${header}\n${pane}`);
 
   pane = capture();
-  mouse(35, 5, rowOf(pane, "Ran 8 commands"));
+  mouse(35, 5, rowOf(pane, "Ran 8 shell commands"));
   await Bun.sleep(400);
   pane = capture();
-  assert(lineWith(pane, "Ran 8 commands").includes("[ click · expand ]"), `summary hover should show its action\n${pane}`);
+  assert(lineWith(pane, "Ran 8 shell commands").includes("[ click · expand ]"), `summary hover should show its action\n${pane}`);
 
   pane = capture();
-  const summaryRow = rowOf(pane, "Ran 8 commands");
+  const summaryRow = rowOf(pane, "Ran 8 shell commands");
   mouse(0, 5, summaryRow);
   mouse(0, 5, summaryRow, true);
   await Bun.sleep(400);
   pane = capture();
-  assert(lineWith(pane, "Ran 8 commands").includes("[ click · collapse ]"), "open group should show its collapse action");
+  assert(lineWith(pane, "Ran 8 shell commands").includes("[ click · collapse ]"), "open group should show its collapse action");
   for (const header of folded) assert(count(pane, header) === 1, `opened group should reveal ${header}\n${pane}`);
 
   pane = capture();
@@ -582,7 +583,7 @@ async function foldScenario(sessionPath: string): Promise<void> {
   mouse(0, 5, secondRow, true);
   pane = await waitFor("output 1 line A", 2000);
   assert(pane.includes("output 1 line B"), `a later member should reveal its whole body\n${pane}`);
-  const column = lineWith(pane, "Ran 8 commands").search(/\S/);
+  const column = lineWith(pane, "Ran 8 shell commands").search(/\S/);
   assert(lineWith(pane, folded[0]!).search(/\S/) === column + 2, `the anchor tool should be indented\n${pane}`);
   assert(lineWith(pane, "output 1 line B").search(/\S/) === column + 6, `tool output should nest under its member\n${pane}`);
 }
@@ -661,17 +662,17 @@ async function main(): Promise<void> {
     await waitFor("All six commands finished.");
     await Bun.sleep(350);
     const visible = capture();
-    assert(visible.includes("Ran 1 command") && !visible.includes("output 0 line A") && visible.includes("output 5 line B"), `visible history should age while the newest preview stays open
+    assert(visible.includes("Ran 1 shell command") && !visible.includes("output 0 line A") && visible.includes("output 5 line B"), `visible history should age while the newest preview stays open
 ${visible}`);
     tmux("send-keys", "-t", SESSION, "new run for animation", "Enter");
-    await waitFor("Ran 1 command", 8000, screen => {
+    await waitFor("Ran 1 shell command", 8000, screen => {
       const start = screen.indexOf("echo command-1");
       const end = screen.indexOf("echo command-2");
       if (start < 0 || end < start) return false;
       const folding = screen.slice(start, end);
       return folding.includes("animated line 39") && !folding.includes("+ 37 lines");
     });
-    await waitFor("Ran 2 commands", 8000);
+    await waitFor("Ran 2 shell commands", 8000);
     tmux("kill-server");
 
     const decay = join(dir, "decay.jsonl");
@@ -717,10 +718,10 @@ ${visible}`);
     const mixed = join(dir, "delegated-and-failed.jsonl");
     fixture(mixed, 12, [{ name: "custom_review_tool" }, {}, { error: "permission denied\nexit code 2" }]);
     await openHistory(mixed, 65);
-    let mixedPane = await waitFor("Ran 7 commands (1 failure)");
+    let mixedPane = await waitFor("Ran 7 shell commands", 15_000, (screen) => lineWith(screen, "Ran 7 shell commands").includes("(1 failed)"));
     assert(mixedPane.includes("custom_review_tool"), "the delegated row should keep its own renderer");
     assert(!mixedPane.includes("exit code 2"), "a grouped failure should fold");
-    const summary = rowOf(mixedPane, "Ran 7 commands");
+    const summary = rowOf(mixedPane, "Ran 7 shell commands");
     mouse(0, 5, summary);
     mouse(0, 5, summary, true);
     mixedPane = await waitFor("echo command-1 ·");

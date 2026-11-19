@@ -38,6 +38,25 @@ describe("live fold plan", () => {
     expect(toolPlan("c12")?.mode).toBe("normal");
   });
 
+  test("a summary totals thinking time and shell runtime, and a later timing refreshes it", () => {
+    const units = [
+      { ...unit("thinking", "t0", 14), count: 2, activeMs: 200_000 },
+      { ...unit("thinking", "t1", 12), activeMs: 20_000 },
+      ...Array.from({ length: 6 }, (_, index) => ({ ...unit("tool", `r${index}`, 11 - index), activeMs: 1000 })),
+    ];
+    planFolds(units);
+    expect(thinkingPlan(units[0]!.component)?.group?.segments).toEqual([
+      { cls: "thinking", count: 3, durationMs: 220_000 },
+      { cls: "shell", count: 6, durationMs: 6000 },
+    ]);
+    // One command whose runtime is unknown: the shell total would understate, so it is dropped.
+    planFolds(units.map((item) => (item.key === "r0" ? { ...item, activeMs: undefined } : item)));
+    expect(thinkingPlan(units[0]!.component)?.group?.segments).toEqual([
+      { cls: "thinking", count: 3, durationMs: 220_000 },
+      { cls: "shell", count: 6 },
+    ]);
+  });
+
   test("a boundary keeps its own row and starts a new group", () => {
     const units = [
       unit("tool", "a0", 9),

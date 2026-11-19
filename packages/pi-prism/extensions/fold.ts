@@ -2,7 +2,7 @@
  * Live fold planning, shared by thinking rows and tool rows.
  *
  * The design system plans one list of blocks, so a run of old thoughts and old
- * tool calls becomes a single summary (`Thought 3 times · Ran 8 commands`).
+ * tool calls becomes a single summary (`Thought for 12s, ran 8 shell commands`).
  * The live session has two owners for those rows, so they agree on one plan
  * here: patchTree walks the rendered TUI in visual order, hands the units to
  * this module, and both renderers read the result.
@@ -35,6 +35,8 @@ export interface FoldMember {
   tokens?: TokenCounts;
   startedAt?: number;
   endedAt?: number;
+  /** Time spent thinking or running; absent when it was not recorded. */
+  activeMs?: number;
   invalidate: () => void;
 }
 
@@ -139,7 +141,8 @@ function sameGroup(previous: LiveFoldGroup | undefined, units: FoldUnit[]): bool
       member.tokens?.inputTokens === unit.tokens?.inputTokens &&
       member.tokens?.outputTokens === unit.tokens?.outputTokens &&
       member.startedAt === unit.startedAt &&
-      member.endedAt === unit.endedAt
+      member.endedAt === unit.endedAt &&
+      member.activeMs === unit.activeMs
     );
   });
 }
@@ -169,12 +172,12 @@ function buildGroup(units: FoldUnit[], previous: LiveFoldGroup | undefined): Liv
     return previous!;
   }
   const members = units.map((unit) => ({ ...unit }));
-  const rows = members.flatMap((member) =>
-    Array.from({ length: member.kind === "thinking" ? member.count : 1 }, () => ({
-      cls: member.cls,
-      failed: member.failed,
-    })),
-  );
+  const rows = members.map((member) => ({
+    cls: member.cls,
+    count: member.kind === "thinking" ? member.count : 1,
+    failed: member.failed,
+    durationMs: member.activeMs,
+  }));
   const durationMs = elapsedMs(members);
   // A finishing tool can merge two groups or replace the summary anchor.
   const open = members.some(isOpen);

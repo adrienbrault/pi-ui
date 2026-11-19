@@ -689,7 +689,8 @@ const oursEntries: EntryDef[] = [
     title: "Group summary",
     group: "groups",
     variant: "ours",
-    description: "Contiguous collapsed rows of one class become one line. Failures keep their own count.",
+    description:
+      "Collapsed rows become one sentence. Thinking reads as time and shell commands carry their runtime when every member was timed. Failures keep their own count.",
     states: [
       {
         id: "collapsed",
@@ -698,15 +699,15 @@ const oursEntries: EntryDef[] = [
           renderGroupRow(ours(ctx), {
             tokens: { outputTokens: 135, inputTokens: 2840 },
             segments: groupSegments([
+              { cls: "thinking", count: 2, durationMs: 41_000 },
               { cls: "read" },
               { cls: "read" },
-              { cls: "read" },
-              { cls: "read" },
-              { cls: "shell" },
-              { cls: "shell" },
+              { cls: "list" },
+              { cls: "shell", durationMs: 8100 },
+              { cls: "shell", durationMs: 1200 },
               { cls: "edit" },
             ]),
-            durationMs: 610,
+            durationMs: 63_000,
           }).render(ctx.width),
       },
       {
@@ -775,7 +776,11 @@ function decayStack(ctx: RenderCtx, offset: number): string[] {
 
   const folded = rows.filter(({ distance }) => distance >= FOLD_DISTANCE);
   const segments = groupSegments(
-    folded.map(({ row }) => ({ cls: toolMeta(row.name).cls, failed: row.status === "error" })),
+    folded.map(({ row }) => ({
+      cls: toolMeta(row.name).cls,
+      failed: row.status === "error",
+      durationMs: row.durationMs,
+    })),
   );
   const tokens = sumTokens(folded.map(({ row }) => toolTokenCounts(row)));
   const durationMs = folded.reduce((sum, { row }) => sum + (row.durationMs ?? 0), 0);
@@ -821,7 +826,11 @@ function decayReveal(ctx: RenderCtx, offset: number): RevealGroup[] {
   const folded = rows.filter(({ distance }) => distance >= FOLD_DISTANCE);
   if (folded.length === 0) return [];
   const segments = groupSegments(
-    folded.map(({ row }) => ({ cls: toolMeta(row.name).cls, failed: row.status === "error" })),
+    folded.map(({ row }) => ({
+      cls: toolMeta(row.name).cls,
+      failed: row.status === "error",
+      durationMs: row.durationMs,
+    })),
   );
   const tokens = sumTokens(folded.map(({ row }) => toolTokenCounts(row)));
   const durationMs = folded.reduce((sum, { row }) => sum + (row.durationMs ?? 0), 0);

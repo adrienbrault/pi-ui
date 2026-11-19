@@ -92,11 +92,17 @@ export function squeeze(line: string): string {
   return line.replace(/\s+/g, " ").trim();
 }
 
-/** Use millisecond resolution for short operations and compact seconds for longer spans. */
+const pad = (value: number) => String(value).padStart(2, "0");
+
+/** Milliseconds for short operations, seconds under a minute, then `3m 40s` and `1h 02m`. */
 export function formatDuration(ms: number): string {
   if (ms > 0 && ms < 1) return "<1ms";
   const rounded = Math.round(ms);
   if (rounded < 1000) return `${rounded}ms`;
   const seconds = ms / 1000;
-  return seconds < 10 ? `${seconds.toFixed(1)}s` : `${Math.round(seconds)}s`;
+  if (seconds < 10) return `${seconds.toFixed(1)}s`;
+  const whole = Math.round(seconds);
+  if (whole < 60) return `${whole}s`;
+  if (whole < 3600) return `${Math.floor(whole / 60)}m ${pad(whole % 60)}s`;
+  return `${Math.floor(whole / 3600)}h ${pad(Math.floor((whole % 3600) / 60))}m`;
 }

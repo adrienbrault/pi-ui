@@ -160,6 +160,19 @@ interface ThinkingRun {
   chars: number;
 }
 
+/** Recorded thinking time of a message's runs; absent unless every run was timed. */
+function thinkingMs(message: AssistantLike | undefined, runs: ThinkingRun[]): number | undefined {
+  const recorded = message?.prismThinkingMs;
+  if (!recorded || runs.length === 0) return undefined;
+  let total = 0;
+  for (const run of runs) {
+    const elapsed = recorded[run.first];
+    if (elapsed === undefined) return undefined;
+    total += elapsed;
+  }
+  return total;
+}
+
 function thinkingRuns(message: AssistantLike): ThinkingRun[] {
   const content = message.content ?? [];
   const runs: ThinkingRun[] = [];
@@ -631,6 +644,7 @@ function patchTree(
         failed,
         endedAt,
         startedAt: endedAt !== undefined && info?.durationMs !== undefined ? endedAt - info.durationMs : undefined,
+        activeMs: info?.durationMs,
         distance: behind,
         boundary: !info || info.pinned || info.status === "pending" || info.status === "running",
         invalidate: () => (component as { invalidate?: () => void }).invalidate?.(),
@@ -667,6 +681,7 @@ function patchTree(
         message?.timestamp !== undefined && message.durationMs !== undefined
           ? message.timestamp + message.durationMs
           : undefined,
+      activeMs: thinkingMs(message, thoughts),
       distance: behind,
       boundary: !!component.isStreaming || runs === 0 || hasProse || pinned,
       invalidate: () => component.invalidate?.(),

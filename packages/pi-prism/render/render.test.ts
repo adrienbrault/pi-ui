@@ -10,7 +10,7 @@ import {
 } from "./detail.ts";
 import { groupVerb, mcpLabel, toolMeta, groupNoun, toolTokenLabel } from "./tools.ts";
 import { formatDuration, headLines, omittedCount, tailLines } from "./text.ts";
-import { renderGroupMember, renderGroupRow } from "./group-row.ts";
+import { groupSegments, renderGroupMember, renderGroupRow } from "./group-row.ts";
 import { renderToolRow, toolRowLayout } from "./tool-row.ts";
 import { thinkingFrame, thinkingLabel, thinkingLayout } from "./thinking.ts";
 import { glyphsFor } from "./glyphs.ts";
@@ -61,15 +61,19 @@ const api = { kit, theme, glyphs: glyphsFor("unicode") };
 
 const OUTPUT = Array.from({ length: 40 }, (_, index) => `line ${index + 1}`).join("\n");
 
-test("elapsed time changes units at one second", () => {
-  expect([0, 0.4, 4.6, 999, 1000, 7200, 193000].map(formatDuration)).toEqual([
+test("elapsed time changes units at one second, one minute and one hour", () => {
+  expect([0, 0.4, 4.6, 999, 1000, 7200, 59_400, 60_000, 193_000, 3_599_000, 3_725_000].map(formatDuration)).toEqual([
     "0ms",
     "<1ms",
     "5ms",
     "999ms",
     "1.0s",
     "7.2s",
-    "193s",
+    "59s",
+    "1m 00s",
+    "3m 13s",
+    "59m 59s",
+    "1h 02m",
   ]);
 });
 
@@ -382,12 +386,26 @@ describe("taxonomy", () => {
     expect(toolMeta("some_new_tool").cls).toBe("generic");
   });
 
-  test("group verbs pluralise", () => {
-    expect(groupVerb("read", 1)).toBe("Read 1 file");
-    expect(groupVerb("read", 4)).toBe("Read 4 files");
-    expect(groupVerb("shell", 2)).toBe("Ran 2 commands");
-    expect(groupVerb("search", 3)).toBe("Searched 3 times");
+  test("group phrases pluralise and read as part of a sentence", () => {
+    expect(groupVerb("read", 1)).toBe("read 1 file");
+    expect(groupVerb("read", 4)).toBe("read 4 files");
+    expect(groupVerb("list", 1)).toBe("listed 1 directory");
+    expect(groupVerb("list", 3)).toBe("listed 3 directories");
+    expect(groupVerb("shell", 2)).toBe("ran 2 shell commands");
+    expect(groupVerb("search", 1)).toBe("searched for 1 pattern");
+    expect(groupVerb("search", 3)).toBe("searched for 3 patterns");
     expect(groupNoun("mcp")).toBe("MCP tool");
+  });
+
+  test("thinking reads as time when every thought was timed, and as a count otherwise", () => {
+    expect(groupVerb("thinking", 3, 220_000)).toBe("thought for 3m 40s");
+    expect(groupVerb("thinking", 3)).toBe("thought 3 times");
+    expect(groupVerb("shell", 30, 125_000)).toBe("ran 30 shell commands for 2m 05s");
+    expect(groupVerb("read", 2, 40)).toBe("read 2 files");
+  });
+
+  test("ls lists directories in its own class", () => {
+    expect(toolMeta("ls")).toEqual({ cls: "list", label: "ls", trend: "head" });
   });
 });
 const LONG = "src/modes/interactive/components/assistant-message.js";
@@ -595,7 +613,7 @@ describe("transcript plan", () => {
     const [group] = planTranscript(blocks);
     if (group?.kind !== "group") throw new Error("expected folded commands");
     expect(group.indices).toEqual(Array.from({ length: 24 }, (_, index) => index));
-    expect(renderGroupRow(api, group).render(80)[0]).toContain("Ran 24 commands (4 failures)");
+    expect(renderGroupRow(api, group).render(80)[0]).toContain("Ran 24 shell commands (4 failed)");
   });
 
   test("recent failures keep their own line until old enough to fold", () => {
@@ -635,35 +653,63 @@ describe("group summary width", () => {
     for (let width = 12; width <= 120; width++) {
       const line = renderGroupRow(api, input).render(width)[0]!;
       expect(line.length).toBeLessThanOrEqual(width);
-      const perSegment = line.includes("(4 failures)") && line.includes("(1 failure)");
+      const perSegment = line.includes("(4 failed)") && line.includes("(1 failed)");
       if (!perSegment) {
         expect(line).toContain("5 failed");
         expect(line).not.toContain("tokens");
-        expect(line).not.toContain("93s");
+        expect(line).not.toContain("1m 33s");
       }
-      if (line.includes("tokens") || line.includes("93s")) expect(perSegment).toBe(true);
-      if (line.includes("tokens") && !line.includes("93s")) {
-        expect(renderGroupRow(api, { ...input, tokens: undefined }).render(width)[0]).toContain("93s");
+      if (line.includes("tokens") || line.includes("1m 33s")) expect(perSegment).toBe(true);
+      if (line.includes("tokens") && !line.includes("1m 33s")) {
+        expect(renderGroupRow(api, { ...input, tokens: undefined }).render(width)[0]).toContain("1m 33s");
       }
     }
   });
 
   test("a wide summary keeps every segment, its failures and the metrics", () => {
     const line = renderGroupRow(api, input).render(120)[0]!;
-    expect(line).toMatch(/^▸ Read 4 files · Ran 24 commands \(4 failures\) · Edited 2 files \(1 failure\) +· /);
-    expect(line).toEndWith("93s");
+    expect(line).toMatch(/^▸ Read 4 files, ran 24 shell commands \(4 failed\), edited 2 files \(1 failed\) +· /);
+    expect(line).toEndWith("1m 33s");
   });
 
   test("metrics go before any segment is cut, duration first", () => {
-    const title = "▸ Read 4 files · Ran 24 commands (4 failures) · Edited 2 files (1 failure)";
+    const title = "▸ Read 4 files, ran 24 shell commands (4 failed), edited 2 files (1 failed)";
     const tokens = renderGroupRow(api, { ...input, durationMs: undefined }).render(120)[0]!;
     const tokensOnly = tokens.slice(tokens.lastIndexOf("·") - 1);
     const line = renderGroupRow(api, input).render(title.length + tokensOnly.length)[0]!;
     expect(line).toStartWith(title);
     expect(line).toContain("tokens");
-    expect(line).not.toContain("93s");
-    expect(renderGroupRow(api, input).render(title.length + 6)[0]).toBe(`${title} · 93s`);
+    expect(line).not.toContain("1m 33s");
+    expect(renderGroupRow(api, input).render(title.length + " · 1m 33s".length)[0]).toBe(`${title} · 1m 33s`);
     expect(renderGroupRow(api, input).render(title.length)[0]).toBe(title);
+  });
+
+  test("a mixed run reads as one sentence with thinking and shell time", () => {
+    const line = renderGroupRow(api, {
+      segments: [
+        { cls: "thinking", count: 3, durationMs: 220_000 },
+        { cls: "search", count: 1 },
+        { cls: "list", count: 3 },
+        { cls: "shell", count: 30, failed: 4, durationMs: 125_000 },
+      ],
+    }).render(140)[0];
+    expect(line?.trimEnd()).toBe(
+      "▸ Thought for 3m 40s, searched for 1 pattern, listed 3 directories, ran 30 shell commands for 2m 05s (4 failed)",
+    );
+  });
+
+  test("segments total their members' time only when every member was timed", () => {
+    expect(
+      groupSegments([
+        { cls: "thinking", count: 2, durationMs: 1000 },
+        { cls: "shell", durationMs: 500 },
+        { cls: "thinking", durationMs: 3000 },
+        { cls: "shell" },
+      ]),
+    ).toEqual([
+      { cls: "thinking", count: 3, durationMs: 4000 },
+      { cls: "shell", count: 2 },
+    ]);
   });
 
   test("a summary without failures truncates as before", () => {
@@ -673,7 +719,7 @@ describe("group summary width", () => {
         { cls: "shell", count: 24 },
       ],
     }).render(16)[0];
-    expect(line).toBe("▸ Read 4 files …");
+    expect(line).toBe("▸ Read 4 files,…");
   });
 });
 

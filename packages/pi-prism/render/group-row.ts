@@ -12,6 +12,8 @@ export interface GroupSegment {
   cls: GroupClass;
   count: number;
   failed?: number;
+  /** Summed active time of the members; absent unless every member was timed. */
+  durationMs?: number;
 }
 
 export interface GroupRowInput {
@@ -21,8 +23,6 @@ export interface GroupRowInput {
   /** Elapsed wall time from the earliest member start to the latest member finish. */
   durationMs?: number;
 }
-
-const failureLabel = (count: number) => `${count} ${count === 1 ? "failure" : "failures"}`;
 
 /**
  * Fit order when the terminal is narrow: drop the duration, then the token
@@ -36,14 +36,18 @@ export function renderGroupRow(api: RenderApi, input: GroupRowInput): ComponentL
     const { theme, glyphs, kit } = api;
     const marker = theme.fg("dim", input.expanded ? glyphs.expanded : glyphs.collapsed);
     const dot = theme.fg("dim", ` ${glyphs.dot} `);
+    const comma = theme.fg("dim", ", ");
+    // One sentence: `Thought for 3m 40s, listed 3 directories, ran 2 shell commands for 9.1s (1 failed)`.
     const title = (withFailures: boolean) =>
       `${marker} ${input.segments
-        .map((segment) => {
-          const label = theme.style(groupVerb(segment.cls, segment.count), { fg: "toolOutput", bold: true });
+        .map((segment, index) => {
+          const phrase = groupVerb(segment.cls, segment.count, segment.durationMs);
+          const text = index === 0 ? phrase.charAt(0).toUpperCase() + phrase.slice(1) : phrase;
+          const label = theme.style(text, { fg: "toolOutput", bold: true });
           const failures = segment.failed ?? 0;
-          return withFailures && failures ? `${label} ${theme.fg("error", `(${failureLabel(failures)})`)}` : label;
+          return withFailures && failures ? `${label} ${theme.fg("error", `(${failures} failed)`)}` : label;
         })
-        .join(dot)}`;
+        .join(comma)}`;
     const alignRight = (left: string, right: string) =>
       left + " ".repeat(Math.max(0, width - kit.visibleWidth(left) - kit.visibleWidth(right))) + right;
 
@@ -76,16 +80,20 @@ export function renderGroupMember(kit: RenderKit, width: number, render: (innerW
   );
 }
 
-export function groupSegments(rows: Array<{ cls: GroupClass; failed?: boolean }>): GroupSegment[] {
-  const byClass = new Map<GroupClass, GroupSegment>();
+/** Merge rows by class in encounter order. A row may stand for several members (a message's thinking runs). */
+export function groupSegments(
+  rows: Array<{ cls: GroupClass; count?: number; failed?: boolean; durationMs?: number }>,
+): GroupSegment[] {
+  const byClass = new Map<GroupClass, GroupSegment & { untimed?: boolean }>();
   for (const row of rows) {
-    const existing = byClass.get(row.cls);
-    if (existing) {
-      existing.count += 1;
-      if (row.failed) existing.failed = (existing.failed ?? 0) + 1;
-    } else {
-      byClass.set(row.cls, { cls: row.cls, count: 1, ...(row.failed ? { failed: 1 } : {}) });
-    }
+    const segment = byClass.get(row.cls) ?? { cls: row.cls, count: 0 };
+    byClass.set(row.cls, segment);
+    segment.count += row.count ?? 1;
+    if (row.failed) segment.failed = (segment.failed ?? 0) + 1;
+    if (row.durationMs === undefined) segment.untimed = true;
+    else segment.durationMs = (segment.durationMs ?? 0) + row.durationMs;
   }
-  return [...byClass.values()];
+  return [...byClass.values()].map(({ untimed, durationMs, ...segment }) =>
+    untimed || durationMs === undefined ? segment : { ...segment, durationMs },
+  );
 }

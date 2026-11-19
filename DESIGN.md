@@ -52,6 +52,7 @@ Rules:
 - With the default budget, a long preview keeps at least three content lines until it joins its group. Short outputs use only the lines they have. Tool calls and thoughts fold together.
 - The group timer spans the earliest member start through the latest finish, including model responses and overlapping tools. Sessions with incomplete timing omit the group timer.
 - Failed calls fold with their peers. Each affected summary segment includes its failure count, and opening the group reveals the failed calls in order.
+- A group summary reads as one sentence: `Thought for 3m 40s, searched for 1 pattern, listed 3 directories, ran 30 shell commands for 2m 05s (4 failed)`. Thinking reads as its recorded thinking time and shell commands carry their summed runtime, so time spent reasoning and time spent running can be compared at a glance. Either appears only when every member was timed; untimed thinking reads as a count (`thought 3 times`). Token count and total elapsed time stay right-aligned.
 - A group summary that does not fit drops its duration, then its token count, before cutting any segment. When segments must be cut, the per-segment failure counts give way to one right-aligned total (`3 failed`), so failures are the last thing to leave the row.
 - Recompute on structural events only; never per token.
 - Hysteresis: two consecutive recomputes must agree before a level changes.
