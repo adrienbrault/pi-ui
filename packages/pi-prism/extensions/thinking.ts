@@ -696,15 +696,20 @@ function patchTree(
     const key = unit.kind === "tool" ? unit.key : undefined;
     unit.distance = target;
     if (previous !== undefined && previous < target && !history.has(unit.component) && !unit.boundary) {
-      unit.distance = previous;
-      // The fade has run its course: this walk commits the step.
-      if (commit === unit.component && fadeOf(unit.component)) {
-        unit.distance++;
+      const fading = fadeOf(unit.component);
+      if (commit === unit.component && fading) {
+        // The fade has run its course: this walk commits the step, and a block
+        // that fell further behind meanwhile takes the rest with it.
         committed = unit;
         endFade(unit.component, key);
         repaint.add(unit.component);
+      } else if (fading || target - previous === 1) {
+        // One step behind, or mid-row: animate in turn.
+        unit.distance = previous;
+        waiting.push(unit);
       }
-      if (unit.distance < target) waiting.push(unit);
+      // More than one step behind and not fading: catch up without animation,
+      // through the usual two agreeing recomputes, as offscreen blocks do.
     }
     distances.set(unit.component, unit.distance);
   }

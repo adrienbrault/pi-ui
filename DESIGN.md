@@ -56,7 +56,8 @@ Rules:
 - A group summary reads as one sentence: `Thought for 3m 40s, searched for 1 pattern, listed 3 directories, ran 30 shell commands for 2m 05s (4 failed)`. Thinking reads as its recorded thinking time and shell commands carry their summed runtime, so time spent reasoning and time spent running can be compared at a glance. Either appears only when every member was timed; untimed thinking reads as a count (`thought 3 times`). Token count and total elapsed time stay right-aligned.
 - A group summary that does not fit drops its duration, then its token count, before cutting any segment. When segments must be cut, the per-segment failure counts give way to one right-aligned total (`3 failed`), so failures are the last thing to leave the row.
 - Recompute on structural events only; never per token.
-- Hysteresis: two consecutive recomputes must agree before a level changes.
+- Hysteresis: two consecutive recomputes must agree before an unanimated level change. A completed fade commits its step directly.
+- Visible blocks fade one step at a time, in order. A block more than one step behind its target when the plan is recomputed catches up without animation, as offscreen blocks do; the block mid-fade finishes its row first, then takes its target, so a burst of new blocks never queues more than one animated step per block.
 - Bodies spend their budget on evidence: diffs shed unchanged context lines
   before hiding any hunk, reads keep their opening and their end, and logs and thinking previews keep their newest lines.
   An omission notice sits where lines were removed: below a tail, and between the opening and the end of a read.

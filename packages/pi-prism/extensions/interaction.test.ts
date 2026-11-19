@@ -534,6 +534,27 @@ describe("tool renderers", () => {
     }
   });
 
+  test("blocks more than one step behind catch up without animation", () => {
+    const session = fadeSession("bash");
+    try {
+      session.add("burst-0");
+      session.dispatch("agent_settled");
+      jest.advanceTimersByTime(1);
+      // Four new blocks inside one 360 ms fade.
+      for (let index = 1; index <= 4; index++) {
+        session.add("burst-" + index);
+        jest.advanceTimersByTime(1);
+        session.dispatch("agent_settled");
+        jest.advanceTimersByTime(20);
+      }
+      // The fading block finishes its row and takes its target; each other block animates one step at most.
+      jest.advanceTimersByTime(4 * 360);
+      expect([0, 1, 2, 3, 4].map((index) => toolPlan("burst-" + index)?.level)).toEqual([4, 3, 2, 1, 0]);
+    } finally {
+      session.close();
+    }
+  });
+
   test("a fast session fades its rows faster", () => {
     const session = fadeSession("read");
     try {
