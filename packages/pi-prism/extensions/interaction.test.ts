@@ -161,35 +161,37 @@ function fadeSession(name: string, text = output, onVisit?: () => void, screenRo
     () => undefined,
   ) as Renderers;
   const children: object[] = [];
-  dispatch(
-    "session_start",
-    {},
-    {
-      hasUI: true,
-      mode: "tui",
-      ui: {
-        setWidget: (_: string, factory?: (root: object, theme: object) => void) =>
-          factory?.(
-            {
-              get children() {
-                onVisit?.();
-                return children;
+  const start = () =>
+    dispatch(
+      "session_start",
+      {},
+      {
+        hasUI: true,
+        mode: "tui",
+        ui: {
+          setWidget: (_: string, factory?: (root: object, theme: object) => void) =>
+            factory?.(
+              {
+                get children() {
+                  onVisit?.();
+                  return children;
+                },
+                terminal: { rows: screenRows ?? 0 },
+                get mouseLayout() {
+                  if (screenRows === undefined) return undefined;
+                  const heights = children.map((component) => ({
+                    component,
+                    height: (component as Row).render(80).length,
+                  }));
+                  return { children: heights };
+                },
               },
-              terminal: { rows: screenRows ?? 0 },
-              get mouseLayout() {
-                if (screenRows === undefined) return undefined;
-                const heights = children.map((component) => ({
-                  component,
-                  height: (component as Row).render(80).length,
-                }));
-                return { children: heights };
-              },
-            },
-            fadeTheme,
-          ),
+              fadeTheme,
+            ),
+        },
       },
-    },
-  );
+    );
+  start();
   const add = (toolCallId: string) => {
     const args = name === "read" ? { path: "notes.txt" } : ctx.args;
     // pi calls the renderers again whenever a tool component is invalidated.
@@ -218,7 +220,7 @@ function fadeSession(name: string, text = output, onVisit?: () => void, screenRo
     dispatch("session_shutdown", "");
     jest.useRealTimers();
   };
-  return { add, dispatch, close, children };
+  return { add, dispatch, close, children, start };
 }
 
 /** An assistant message with prose only: a block that keeps its own row and splits the run. */
@@ -778,6 +780,29 @@ describe("tool renderers", () => {
       // Only the probe widget's removal was still pending: no fade timer runs on the dead session.
       jest.advanceTimersByTime(1000);
       expect(jest.getTimerCount()).toBe(0);
+    } finally {
+      session.close();
+    }
+  });
+
+  test("a session started after a shutdown probes the TUI again and plans its blocks", () => {
+    const session = fadeSession("bash");
+    try {
+      session.add("first-life-0");
+      session.dispatch("agent_settled");
+      session.dispatch("session_shutdown", "");
+      // /new, resume and fork: pi shuts the session down, then starts the next one in the same process.
+      session.children.length = 0;
+      session.start();
+      jest.advanceTimersByTime(1);
+      session.add("next-life-0");
+      session.dispatch("agent_settled");
+      jest.advanceTimersByTime(1);
+      session.add("next-life-1");
+      session.dispatch("agent_settled");
+      expect(toolFade("next-life-0")).toBeDefined();
+      jest.advanceTimersByTime(10_000);
+      expect(toolPlan("next-life-0")?.level).toBe(1);
     } finally {
       session.close();
     }

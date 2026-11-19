@@ -851,6 +851,8 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
   installThinkingClock(pi, () => tui?.requestRender?.());
   let theme: RenderTheme | undefined;
   let queued: ReturnType<typeof setTimeout> | undefined;
+  // Removes the probe widget once it has handed over the TUI; a new session's probe must not lose it early.
+  let unprobe: ReturnType<typeof setTimeout> | undefined;
   // Live tool components receive the execution event without its persisted result timestamp.
   const liveToolEnds = new Map<string, number>();
 
@@ -925,7 +927,9 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
       ctx.ui.setWidget(PROBE_WIDGET, (nextTui, nextTheme) => {
         tui = nextTui;
         theme = nextTheme as unknown as RenderTheme;
-        setTimeout(() => {
+        clearTimeout(unprobe);
+        unprobe = setTimeout(() => {
+          unprobe = undefined;
           try {
             ctx.ui.setWidget(PROBE_WIDGET, undefined);
           } catch {
@@ -957,6 +961,8 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
     // Nothing runs against the old session: the next session_start probes the TUI again.
     clearTimeout(queued);
     queued = undefined;
+    clearTimeout(unprobe);
+    unprobe = undefined;
     tui = undefined;
     theme = undefined;
     clearTimeout(decayTimer);
