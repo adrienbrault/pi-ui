@@ -30,7 +30,7 @@ bun run ds:show read # print cards whose id contains "read" as ANSI (--width N, 
 
 Breaking any of these is a design regression, not a style preference.
 
-1. **Render truth.** Every card renders real components: base pi from the resolved install, ours from `packages/pi-prism/render`. No mockups, no screenshots of mockups. If the implementation changes, `bun run ds` changes the card's fixture and `bun run ds:show` prints the new card.
+1. **Render truth.** Every card renders real components: base pi from the resolved install, ours from `packages/pi-prism/render`. No mockups, no screenshots of mockups. Fold layouts in fixtures are planned by `extensions/fold.ts`, the module the live session uses. If the implementation changes, `bun run ds` changes the card's fixture and `bun run ds:show` prints the new card.
 2. Failed calls fold with their peers. Each affected summary segment includes its failure count, and opening the group reveals the failed calls in order.
 3. **The body budget is total.** A row's height is capped by its detail level; an expanded row's "… N more lines" notice counts against that cap, not on top of it.
 4. **Fixtures are golden.** `ds:check` fails when committed fixtures disagree with what the renderers produce. Change a renderer → `bun run ds` → commit the fixtures in the same change.

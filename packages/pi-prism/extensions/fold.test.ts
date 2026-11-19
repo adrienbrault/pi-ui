@@ -1,5 +1,10 @@
-import { describe, expect, test } from "bun:test";
-import { type FoldUnit, planFolds, setGroupOpen, thinkingPlan, toolPlan } from "./fold.ts";
+import { beforeEach, describe, expect, test } from "bun:test";
+import { bodyLinesFor } from "../render/detail.ts";
+import { blockDistances, type PlanBlock } from "../render/layout.ts";
+import type { GroupClass } from "../render/tools.ts";
+import { type FoldUnit, planFolds, resetFolds, setGroupOpen, thinkingPlan, toolPlan } from "./fold.ts";
+
+beforeEach(resetFolds);
 
 function unit(kind: "thinking" | "tool", key: string, distance: number): FoldUnit {
   const component = { key };
@@ -14,7 +19,54 @@ function unit(kind: "thinking" | "tool", key: string, distance: number): FoldUni
   };
 }
 
+/** Tool units in visual order, distances from the shared rule. */
+function tools(classes: GroupClass[], failed: number[] = []): FoldUnit[] {
+  const distances = blockDistances(classes.map((): PlanBlock => ({ kind: "tool" })));
+  return classes.map((cls, index) => ({
+    ...unit("tool", `k${index}`, distances[index]!.distance),
+    cls,
+    failed: failed.includes(index),
+  }));
+}
+
 describe("live fold plan", () => {
+  test("the default keeps five recent blocks and reduces an eight-row preview to four before folding", () => {
+    const units = tools(Array<GroupClass>(12).fill("read"));
+    planFolds(units);
+    expect(toolPlan("k0")?.group?.members).toHaveLength(7);
+    expect(units.slice(7).map((item) => bodyLinesFor(toolPlan(item.key)!.level))).toEqual([4, 5, 6, 7, 8]);
+  });
+
+  test("prose after a tool does not age it into a group", () => {
+    const blocks: PlanBlock[] = [{ kind: "tool" }, ...Array.from({ length: 5 }, (): PlanBlock => ({ kind: "prose" }))];
+    planFolds([unit("tool", "lone", blockDistances(blocks)[0]!.distance)]);
+    expect(toolPlan("lone")?.mode).toBe("normal");
+  });
+
+  test("folded command totals include failures and count them", () => {
+    const units = tools(
+      Array.from({ length: 29 }, (): GroupClass => "shell"),
+      [0, 3, 12, 23],
+    );
+    planFolds(units);
+    expect(toolPlan("k0")?.group?.members).toHaveLength(24);
+    expect(toolPlan("k0")?.group?.segments).toEqual([{ cls: "shell", count: 24, failed: 4 }]);
+  });
+
+  test("a recent failure keeps its own row until old enough to fold", () => {
+    planFolds(tools(["read", "edit", "read", "read"], [1]));
+    expect(toolPlan("k1")).toMatchObject({ mode: "normal", level: 2 });
+  });
+
+  test("groups merge counts by class in encounter order", () => {
+    const classes: GroupClass[] = [...Array<GroupClass>(9).fill("read"), "edit", ...Array<GroupClass>(10).fill("read")];
+    planFolds(tools(classes));
+    expect(toolPlan("k0")?.group?.segments).toEqual([
+      { cls: "read", count: 14 },
+      { cls: "edit", count: 1 },
+    ]);
+  });
+
   test("thoughts and commands that recede together share one summary", () => {
     const units = [
       unit("thinking", "t0", 18),

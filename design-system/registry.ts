@@ -9,13 +9,14 @@ import { glyphsFor } from "../packages/pi-prism/render/glyphs.ts";
 import { groupSegments, renderGroupRow } from "../packages/pi-prism/render/group-row.ts";
 import type { RenderKit } from "../packages/pi-prism/render/kit.ts";
 import type { DetailLevel } from "../packages/pi-prism/render/detail.ts";
-import { FOLD_DISTANCE, detailFor } from "../packages/pi-prism/render/detail.ts";
+import { FOLD_DISTANCE } from "../packages/pi-prism/render/detail.ts";
+import { blockDistances, type PlanBlock } from "../packages/pi-prism/render/layout.ts";
+import { planFolds, resetFolds, toolPlan } from "../packages/pi-prism/extensions/fold.ts";
 import { thinkingLabel } from "../packages/pi-prism/render/thinking.ts";
 import { renderToolRow, type ToolRowInput } from "../packages/pi-prism/render/tool-row.ts";
 import {
   callTokens,
   estimatedTokens,
-  sumTokens,
   toolTokenCounts,
   toolMeta,
   toolTokenLabel,
@@ -685,36 +686,57 @@ const decayRows: ScenarioRow[] = [
   { ...mcpRow({ title: "memory/search" }), key: "mcp-1" },
 ];
 
-function decayStack(ctx: RenderCtx, offset: number): string[] {
-  const components: Array<{ render(width: number): string[] }> = [];
-  const rows = decayRows.map((row, index) => ({
-    row,
-    distance: offset + (decayRows.length - 1 - index),
-  }));
+/** A transcript block planned by the live fold planner and rendered by ours. */
+interface PlannedTool {
+  row: ScenarioRow;
+  distance: number;
+}
 
-  const folded = rows.filter(({ distance }) => distance >= FOLD_DISTANCE);
-  const segments = groupSegments(
-    folded.map(({ row }) => ({
+/**
+ * Plan tool rows with `planFolds`, the module the live session uses, and stack
+ * what it decides: a row at its level, or one summary where a group starts.
+ */
+function plannedTools(ctx: RenderCtx, blocks: PlannedTool[]): Array<{ render(width: number): string[] }> {
+  resetFolds();
+  planFolds(
+    blocks.map(({ row, distance }) => ({
+      kind: "tool",
+      key: row.key,
+      component: row,
+      count: 1,
       cls: toolMeta(row.name).cls,
       failed: row.status === "error",
-      durationMs: row.durationMs,
+      tokens: toolTokenCounts(row),
+      activeMs: row.durationMs,
+      distance,
+      invalidate: () => {},
     })),
   );
-  const tokens = sumTokens(folded.map(({ row }) => toolTokenCounts(row)));
-  const durationMs = folded.reduce((sum, { row }) => sum + (row.durationMs ?? 0), 0);
-
-  let groupRendered = false;
-  for (const { row, distance } of rows) {
-    const level = detailFor(distance);
-    if (distance >= FOLD_DISTANCE) {
-      if (!groupRendered) {
-        components.push(renderGroupRow(ours(ctx), { segments, durationMs, tokens }));
-        groupRendered = true;
-      }
+  const components: Array<{ render(width: number): string[] }> = [];
+  for (const { row } of blocks) {
+    const plan = toolPlan(row.key);
+    if (plan?.mode === "hidden") continue;
+    const group = plan?.group;
+    if (plan?.mode === "anchor" && group) {
+      // Scripted rows carry no timestamps, so the span is their summed run time.
+      const durationMs = group.members.reduce((sum, member) => sum + (member.activeMs ?? 0), 0);
+      components.push(renderGroupRow(ours(ctx), { segments: group.segments, durationMs, tokens: group.tokens }));
       continue;
     }
-    components.push(renderToolRow(ours(ctx), { ...row, level }));
+    components.push(renderToolRow(ours(ctx), { ...row, level: plan?.level ?? 0 }));
   }
+  return components;
+}
+
+function decayStack(ctx: RenderCtx, offset: number): string[] {
+  const distances = blockDistances(decayRows.map((): PlanBlock => ({ kind: "tool" })));
+  const components = plannedTools(
+    ctx,
+    decayRows.map((row, index) => ({
+      row,
+      distance: Math.min(FOLD_DISTANCE, offset + distances[index]!.distance),
+    })),
+  );
 
   components.push(
     thinkingBlock(

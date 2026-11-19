@@ -9,6 +9,7 @@ Every card renders the **real** components:
 - base pi components come from the pi install resolved at build time;
 - pi-code and pi-open-tui come from vendored snapshots pinned by version;
 - ours comes from `packages/pi-prism/render/*`, the exact module the extension ships.
+- fold layouts are planned by `packages/pi-prism/extensions/fold.ts`, the module the live session uses, with distances from `blockDistances` in `render/layout.ts`.
 
 A card is therefore a fixture, not an illustration. If the implementation changes, `bun run ds` changes the card's fixture. If a card looks wrong, the product looks wrong.
 

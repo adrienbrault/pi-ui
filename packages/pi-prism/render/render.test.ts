@@ -15,7 +15,7 @@ import { groupSegments, renderGroupMember, renderGroupRow } from "./group-row.ts
 import { previewBar, renderToolRow, toolRowLayout } from "./tool-row.ts";
 import { thinkingFrame, thinkingLabel, thinkingLayout } from "./thinking.ts";
 import { glyphsFor } from "./glyphs.ts";
-import { blockDistances, planTranscript, type BlockShape, type PlanBlock } from "./layout.ts";
+import { blockDistances, type PlanBlock } from "./layout.ts";
 import { advanceTailWindow, isDropping, planTailWindow } from "./window.ts";
 import type { RenderKit, RenderTheme } from "./kit.ts";
 
@@ -114,12 +114,6 @@ describe("head truncation", () => {
 });
 
 describe("detail ladder", () => {
-  test("the default keeps five recent blocks and reduces an eight-row preview to four before folding", () => {
-    setTailLines(DEFAULT_TAIL_LINES);
-    const plan = planTranscript(shapes(12));
-    expect(plan[0]?.kind).toBe("group");
-    expect(plan.slice(1).map((item) => item.kind === "block" && bodyLinesFor(item.level))).toEqual([4, 5, 6, 7, 8]);
-  });
   test("distance maps to levels and saturates", () => {
     expect([0, 1, 2, 3, 4, 5, 6, 7, 10].map(detailFor)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 7]);
     expect(detailFor(-1)).toBe(0);
@@ -615,8 +609,6 @@ describe("header budget", () => {
   });
 });
 
-const shapes = (n: number, cls: "read" | "prose" | "thinking" = "read") => Array.from({ length: n }, () => ({ cls }));
-
 describe("block distances", () => {
   const tool: PlanBlock = { kind: "tool" };
   const prose: PlanBlock = { kind: "prose" };
@@ -643,60 +635,6 @@ describe("block distances", () => {
   test("distances stop at the fold distance", () => {
     const distances = blockDistances(Array.from({ length: 12 }, () => tool));
     expect(distances.map((block) => block.distance)).toEqual([5, 5, 5, 5, 5, 5, 5, 4, 3, 2, 1, 0]);
-  });
-});
-
-describe("transcript plan", () => {
-  test("a folded run becomes one group before the surviving rows", () => {
-    const plan = planTranscript(shapes(10));
-    expect(plan[0]).toEqual({ kind: "group", segments: [{ cls: "read", count: 5 }], indices: [0, 1, 2, 3, 4] });
-    expect(plan.slice(1)).toEqual([
-      { kind: "block", index: 5, level: 4 },
-      { kind: "block", index: 6, level: 3 },
-      { kind: "block", index: 7, level: 2 },
-      { kind: "block", index: 8, level: 1 },
-      { kind: "block", index: 9, level: 0 },
-    ]);
-  });
-
-  test("three preview lines and the omission notice survive immediately before grouping", () => {
-    const plan = planTranscript(shapes(6));
-    expect(plan[0]?.kind).toBe("group");
-    expect(plan[1]).toEqual({ kind: "block", index: 1, level: 4 });
-    expect(bodyLinesFor(4)).toBe(4);
-  });
-
-  test("folded command totals include failures and identify their count", () => {
-    const blocks = Array.from({ length: 29 }, (): BlockShape => ({ cls: "shell" }));
-    for (const index of [0, 3, 12, 23]) blocks[index]!.failed = true;
-    const [group] = planTranscript(blocks);
-    if (group?.kind !== "group") throw new Error("expected folded commands");
-    expect(group.indices).toEqual(Array.from({ length: 24 }, (_, index) => index));
-    expect(renderGroupRow(api, group).render(80)[0]).toContain("Ran 24 shell commands (4 failed)");
-  });
-
-  test("recent failures keep their own line until old enough to fold", () => {
-    const blocks: BlockShape[] = shapes(4);
-    blocks[1] = { cls: "edit", failed: true };
-    const plan = planTranscript(blocks);
-    expect(plan).toEqual(([3, 2, 1, 0] as const).map((level, index) => ({ kind: "block" as const, index, level })));
-  });
-
-  test("prose never decays and thinking bottoms out at one line", () => {
-    const plan = planTranscript([...shapes(3, "thinking"), ...shapes(3, "prose")]);
-    expect(plan.map((item) => (item.kind === "block" ? item.level : "group"))).toEqual(["group", 4, 3, 0, 0, 0]);
-  });
-
-  test("groups merge counts by class in encounter order", () => {
-    const plan = planTranscript([...shapes(9, "read"), { cls: "edit" }, ...shapes(10, "read")]);
-    expect(plan[0]).toEqual({
-      kind: "group",
-      segments: [
-        { cls: "read", count: 14 },
-        { cls: "edit", count: 1 },
-      ],
-      indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
-    });
   });
 });
 
