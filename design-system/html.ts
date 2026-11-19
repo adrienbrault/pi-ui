@@ -246,7 +246,7 @@ section.group > h2 { margin: 8px 0 0; font-family: var(--mono); font-size: 11px;
 }
 `;
 
-const JS = `
+export const CLIENT_JS = `
 var DS = JSON.parse(document.getElementById('ds-data').textContent);
 var state = { width: 80, theme: 'dark', glyph: 'unicode', motion: true, lane: 'ours', query: '', tail: 8 };
 var active = {};
@@ -396,17 +396,29 @@ function composeFrame(entry, idx, frameHtml, stateId) {
 var tailTimer = 0;
 var tailCache = {};
 
+// Frames and their click targets (reveal groups, member blocks) are one unit:
+// replacing only the frames leaves clicks pointing into the old layout.
 function applyTail(res) {
   var meta = res.meta || {};
-  var cellKey = meta.cell;
   res.entries.forEach(function (incoming) {
     var entry = byId(incoming.id);
     if (!entry) return;
-    Object.keys(incoming.data).forEach(function (stateId) {
-      entry.data[stateId] = entry.data[stateId] || {};
-      var cells = incoming.data[stateId];
-      Object.keys(cells).forEach(function (key) {
-        entry.data[stateId][key] = cells[key];
+    ['data', 'reveal', 'blocks'].forEach(function (field) {
+      var states = incoming[field];
+      if (!states) return;
+      entry[field] = entry[field] || {};
+      Object.keys(states).forEach(function (stateId) {
+        entry[field][stateId] = entry[field][stateId] || {};
+        var cells = states[stateId];
+        Object.keys(cells).forEach(function (key) {
+          entry[field][stateId][key] = cells[key];
+        });
+      });
+    });
+    // Open state is keyed by row and group indices in the old layout.
+    [groupOpenState, revealOpenState, blockOpenState].forEach(function (open) {
+      Object.keys(open).forEach(function (key) {
+        if (key.indexOf(entry.id + ':') === 0) delete open[key];
       });
     });
   });
@@ -1002,7 +1014,7 @@ export function renderPage(payload: PagePayload): string {
   </main>
 </div>
 <script id="ds-data" type="application/json">${data}</script>
-<script>${JS}</script>
+<script>${CLIENT_JS}</script>
 </body>
 </html>`;
 }
