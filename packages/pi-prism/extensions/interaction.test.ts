@@ -569,6 +569,22 @@ describe("tool renderers", () => {
     }
   });
 
+  test("structural events without a new block leave the collapse one row per fade", () => {
+    const session = fadeSession("bash");
+    try {
+      const { rows } = collapseStart(session);
+      jest.advanceTimersByTime(180);
+      session.dispatch("turn_end");
+      session.dispatch("agent_settled");
+      jest.advanceTimersByTime(180);
+      expect(rows()).toEqual([2, 1, 1, 1, 0, 0]);
+      jest.advanceTimersByTime(360);
+      expect(rows()).toEqual([2, 1, 1, 0, 0, 0]);
+    } finally {
+      session.close();
+    }
+  });
+
   test("new blocks mid-collapse let the fading row finish, then the group closes", () => {
     const session = fadeSession("bash");
     try {

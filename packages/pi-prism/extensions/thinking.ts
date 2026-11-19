@@ -751,12 +751,13 @@ function patchTree(
     const frame = startFade(group, undefined, true, frameMs);
     frame.foldRows = total;
     frame.removed = removed;
+    frame.blocks = units.length;
     group.open = true;
     collapsing = group;
   });
   const planned = (group: object) =>
     units.some((unit) => (unit.kind === "tool" ? toolPlan(unit.key) : thinkingPlan(unit.component))?.group === group);
-  // A running collapse keeps the floor until it ends; new blocks hurry it.
+  // A running collapse keeps the floor until it ends; only new blocks hurry it.
   let collapse: object | undefined = collapsing;
   if (
     !collapse &&
@@ -767,7 +768,8 @@ function patchTree(
   ) {
     if (planned(current)) {
       collapse = current;
-      fadeOf(current)!.hurry = true;
+      const frame = fadeOf(current)!;
+      if (units.length > (frame.blocks ?? units.length)) frame.hurry = true;
     } else endFade(current, undefined);
   }
   // A fade in progress keeps the floor; otherwise the oldest waiting block takes it.

@@ -24,6 +24,8 @@ export interface DecayFrame {
   keepHeading?: boolean;
   /** New blocks arrived mid-collapse: finish the row that is fading, then the rest at once. */
   hurry?: boolean;
+  /** Blocks in the transcript when a collapse started: more later means new blocks arrived. */
+  blocks?: number;
 }
 
 export const DECAY_FRAME_MS = 90;
