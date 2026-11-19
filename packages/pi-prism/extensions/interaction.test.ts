@@ -146,8 +146,11 @@ const fadeTheme = {
     typeof options.fg === "object" ? styleText(text, { fg: options.fg }, "truecolor") : text,
 };
 
-/** A live session under fake timers whose transcript is tool shells of one kind. */
-function fadeSession(name: string, text = output, onVisit?: () => void) {
+/**
+ * A live session under fake timers whose transcript is tool shells of one kind.
+ * With `screenRows`, the screen shows only the transcript's last rows; the rest is offscreen history.
+ */
+function fadeSession(name: string, text = output, onVisit?: () => void, screenRows?: number) {
   jest.useFakeTimers();
   const handlers = new Map<string, Array<(...args: any[]) => void>>();
   const dispatch = (event: string, ...args: unknown[]) => {
@@ -171,6 +174,15 @@ function fadeSession(name: string, text = output, onVisit?: () => void) {
               get children() {
                 onVisit?.();
                 return children;
+              },
+              terminal: { rows: screenRows ?? 0 },
+              get mouseLayout() {
+                if (screenRows === undefined) return undefined;
+                const heights = children.map((component) => ({
+                  component,
+                  height: (component as Row).render(80).length,
+                }));
+                return { children: heights };
               },
             },
             fadeTheme,
@@ -636,6 +648,18 @@ describe("tool renderers", () => {
       jest.advanceTimersByTime(20);
       expect(rows()[0]).toBe(1);
       expect(toolPlan("collapse-0")?.group?.open).toBe(false);
+    } finally {
+      session.close();
+    }
+  });
+
+  test("a forming group that stops forming offscreen collapses at once", () => {
+    // Twenty rows show only the newest blocks; the forming group and its sixth block sit above them.
+    const session = fadeSession("bash", output, undefined, 20);
+    try {
+      const { rows } = collapseStart(session);
+      expect(rows()).toEqual([1, 0, 0, 0, 0, 0]);
+      expect(toolPlan("collapse-0")?.group).toMatchObject({ forming: false, open: false });
     } finally {
       session.close();
     }

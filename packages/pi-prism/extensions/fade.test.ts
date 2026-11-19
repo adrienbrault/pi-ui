@@ -8,6 +8,7 @@ import {
   fadeDurationMs,
   fadeOf,
   nextPace,
+  paintFold,
   paintLeaving,
   startFade,
   toolFade,
@@ -52,6 +53,21 @@ describe("fade advance", () => {
     expect(frame.idle).toBe(false);
     paintLeaving(["a"], undefined, frame, theme, 0);
     expect(frame.idle).toBe(true);
+  });
+
+  test("a fold starts at the first visible row, so a leading spacer stays, and a kept heading never fades", () => {
+    const theme = { fg: (token: string, text: string) => `[${token}]${text}` } as unknown as RenderTheme;
+    const component = {};
+    const frame = startFade(component, undefined, true, 90, true);
+    // An assistant component renders a blank spacer above its thinking heading.
+    const rows = ["", "● Thought", "body 1", "body 2"];
+    frame.phase = 1;
+    expect(paintFold(rows, theme, component)).toEqual(["", "● Thought", "body 1", "[dim]body 2"]);
+    expect(frame.foldRows).toBe(2);
+    frame.removed = 1;
+    expect(paintFold(rows, theme, component)).toEqual(["", "● Thought", "[dim]body 1"]);
+    frame.removed = 2;
+    expect(paintFold(rows, theme, component)).toEqual(["", "● Thought"]);
   });
 
   test("a tool frame is found by its call id until it ends", () => {

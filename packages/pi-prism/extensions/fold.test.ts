@@ -7,12 +7,14 @@ import {
   type LiveFoldGroup,
   joinsOpenGroup,
   keepGroupOpen,
+  memberRowFade,
   planFolds,
   resetFolds,
   setGroupOpen,
   thinkingPlan,
   toolPlan,
 } from "./fold.ts";
+import { startFade } from "./fade.ts";
 
 beforeEach(resetFolds);
 
@@ -240,12 +242,47 @@ describe("forming group", () => {
   });
 
   test("merging an open and a closed group opens the result", () => {
-    planFolds([...folded(2, "a"), { ...unit("tool", "edge", 8), boundary: true }, ...folded(2, "b")]);
+    // Six rows: too many to form, so only the merge rule can open it.
+    planFolds([...folded(3, "a"), { ...unit("tool", "edge", 8), boundary: true }, ...folded(2, "b")]);
     setGroupOpen(toolPlan("a0")!.group!, true);
     setGroupOpen(toolPlan("b0")!.group!, false);
-    planFolds([...folded(2, "a"), unit("tool", "edge", 8), ...folded(2, "b")]);
-    expect(toolPlan("b1")?.group?.members).toHaveLength(5);
-    expect(toolPlan("b1")?.group?.open).toBe(true);
+    planFolds([...folded(3, "a"), unit("tool", "edge", 8), ...folded(2, "b")]);
+    expect(toolPlan("b1")?.group).toMatchObject({ forming: false, open: true });
+    expect(toolPlan("b1")?.group?.members).toHaveLength(6);
+  });
+
+  test("planning the same members again keeps their group; a new timing rebuilds it", () => {
+    const units = folded(7);
+    planFolds(units);
+    const group = toolPlan("f0")!.group!;
+    planFolds(units);
+    expect(toolPlan("f6")!.group).toBe(group);
+    units[3] = { ...units[3]!, endedAt: 5 };
+    planFolds(units);
+    expect(toolPlan("f6")!.group).not.toBe(group);
+    expect(toolPlan("f6")!.group!.members[3]!.endedAt).toBe(5);
+  });
+
+  test("a collapse drops listed rows from the bottom, a thought one row per run, and hides unlisted members", () => {
+    const thought = { ...unit("thinking", "thought", 9), count: 2 };
+    const units = [unit("tool", "t0", 10), thought, unit("tool", "t1", 8), unit("tool", "late", 7)];
+    planFolds(units);
+    const group = toolPlan("t0")!.group!;
+    const frame = startFade(group, undefined, true);
+    frame.shown = new Set([units[0]!.component, thought.component, units[2]!.component]);
+    frame.foldRows = 4;
+    frame.phase = 2;
+    expect(memberRowFade(group, "late")).toEqual({ gone: true, phase: 0 });
+    expect(memberRowFade(group, "t1")).toEqual({ gone: false, phase: 2 });
+    expect(memberRowFade(group, thought.component, 1)).toEqual({ gone: false, phase: 0 });
+    frame.removed = 1;
+    expect(memberRowFade(group, "t1")).toEqual({ gone: true, phase: 0 });
+    expect(memberRowFade(group, thought.component, 1)).toEqual({ gone: false, phase: 2 });
+    expect(memberRowFade(group, thought.component, 0)).toEqual({ gone: false, phase: 0 });
+    expect(memberRowFade(group, "t0")).toEqual({ gone: false, phase: 0 });
+    // The user's choice ends the collapse.
+    setGroupOpen(group, true);
+    expect(memberRowFade(group, "t1")).toBeUndefined();
   });
 
   test("a forming group merging with a closed one lets the rows it listed leave", () => {
