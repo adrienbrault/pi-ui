@@ -566,7 +566,8 @@ async function combinedFoldScenario(sessionPath: string): Promise<void> {
   assert(barred("thought combo-1") && !pane.includes("[ click"), `an expandable inline excerpt should mark column 1 and show no chip\n${pane}`);
   mouse(0, 5, excerpt);
   mouse(0, 5, excerpt, true);
-  pane = await waitFor("ordered detail 0");
+  // The one-row excerpt already starts with the first detail: wait for the opened body's own row.
+  pane = await waitFor("ordered detail 0", 15_000, (screen) => screen.split("\n").some((line) => line.trim() === "ordered detail 0"));
   const first = rowOf(pane, "ordered detail 0");
   for (let i = 0; i < 20; i++) {
     assert(pane.split("\n")[first - 1 + i]?.trim() === `ordered detail ${i}`, "expanded thought should keep source order");
