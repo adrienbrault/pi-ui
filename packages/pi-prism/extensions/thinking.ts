@@ -33,6 +33,7 @@ import { blockDistances, type PlanBlock } from "../render/layout.ts";
 import {
   type FoldPlan,
   type FoldUnit,
+  joinsFormingGroup,
   keepGroupOpen,
   planFolds,
   setGroupOpen,
@@ -735,11 +736,13 @@ function patchTree(
     repaint.add(unit.component);
   }
   if (head && !fadeOf(head.component)) {
+    const folding = head.distance + 1 === FOLD_DISTANCE;
     startFade(
       head.component,
       head.kind === "tool" ? head.key : undefined,
-      head.distance + 1 === FOLD_DISTANCE,
+      folding,
       frameMs,
+      folding && joinsFormingGroup(units, units.indexOf(head)),
     );
     repaint.add(head.component);
   }

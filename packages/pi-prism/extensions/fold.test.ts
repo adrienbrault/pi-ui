@@ -2,7 +2,16 @@ import { beforeEach, describe, expect, test } from "bun:test";
 import { bodyLinesFor, FOLD_DISTANCE, FORMING_ROWS } from "../render/detail.ts";
 import { blockDistances, type PlanBlock } from "../render/layout.ts";
 import type { GroupClass } from "../render/tools.ts";
-import { type FoldUnit, keepGroupOpen, planFolds, resetFolds, setGroupOpen, thinkingPlan, toolPlan } from "./fold.ts";
+import {
+  type FoldUnit,
+  joinsFormingGroup,
+  keepGroupOpen,
+  planFolds,
+  resetFolds,
+  setGroupOpen,
+  thinkingPlan,
+  toolPlan,
+} from "./fold.ts";
 
 beforeEach(resetFolds);
 
@@ -236,5 +245,13 @@ describe("forming group", () => {
     planFolds([...folded(2, "a"), unit("tool", "edge", 8), ...folded(2, "b")]);
     expect(toolPlan("b1")?.group?.members).toHaveLength(5);
     expect(toolPlan("b1")?.group?.open).toBe(true);
+  });
+
+  test("a block joins a forming group while the group still fits five rows with it", () => {
+    const joiner = unit("tool", "joiner", FOLD_DISTANCE - 1);
+    expect(joinsFormingGroup([...folded(4), joiner], 4)).toBe(true);
+    expect(joinsFormingGroup([...folded(5), joiner], 5)).toBe(false);
+    expect(joinsFormingGroup([...folded(5), { ...joiner, startsRun: true }], 5)).toBe(true);
+    expect(joinsFormingGroup([...folded(2), { ...joiner, currentRun: false }], 2)).toBe(false);
   });
 });

@@ -20,6 +20,8 @@ export interface DecayFrame {
   idle?: boolean;
   /** Time between ticks, read from the session's pace when each row starts. */
   frameMs: number;
+  /** A fold into a forming group: the heading stays, as the member row. */
+  keepHeading?: boolean;
 }
 
 export const DECAY_FRAME_MS = 90;
@@ -59,8 +61,9 @@ export function startFade(
   key: string | undefined,
   folding: boolean,
   frameMs = DECAY_FRAME_MS,
+  keepHeading = false,
 ): DecayFrame {
-  const frame: DecayFrame = { folding, phase: 0, removed: 0, foldRows: 0, frameMs };
+  const frame: DecayFrame = { folding, phase: 0, removed: 0, foldRows: 0, frameMs, keepHeading };
   decayFrames.set(component, frame);
   if (key !== undefined) toolFrames.set(key, frame);
   return frame;
@@ -123,16 +126,24 @@ export function paintLeaving(rows: string[], row: number | undefined, frame: Dec
   return lines;
 }
 
-/** A block joining a group folds from the bottom, one row per fade, ending with its heading. */
+/**
+ * A block joining a group folds from the bottom, one row per fade, ending with
+ * its heading. Joining a forming group, it stops above the heading: the heading
+ * becomes its member row.
+ */
 export function paintFold(rows: string[], theme: RenderTheme, component: object): string[] {
   const frame = decayFrames.get(component);
   if (!frame?.folding || !rows.length) return rows;
   const lines = rows.slice();
   const heading = lines.findIndex((line) => visibleWidth(line) > 0);
   if (heading < 0) return rows;
-  frame.foldRows = lines.length - heading;
+  frame.foldRows = lines.length - heading - (frame.keepHeading ? 1 : 0);
+  if (frame.foldRows <= 0) {
+    frame.idle = true;
+    return rows;
+  }
   lines.length = Math.max(heading + 1, lines.length - frame.removed);
   const last = lines.length - 1;
-  lines[last] = fadeLine(lines[last]!, frame.phase, theme);
+  if (!(frame.keepHeading && last === heading)) lines[last] = fadeLine(lines[last]!, frame.phase, theme);
   return lines;
 }

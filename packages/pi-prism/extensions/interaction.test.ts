@@ -164,17 +164,25 @@ function fadeSession(name: string, text = output, onVisit?: () => void) {
   );
   const add = (toolCallId: string) => {
     const args = name === "read" ? { path: "notes.txt" } : ctx.args;
-    const context = { ...ctx, args, toolCallId, state: {} };
-    const header = tool.renderCall(args, fadeTheme, context);
-    const body = tool.renderResult({ content: [{ type: "text", text }] }, {}, fadeTheme, context);
+    // pi calls the renderers again whenever a tool component is invalidated.
+    const build = () => [
+      tool.renderCall(args, fadeTheme, context),
+      tool.renderResult({ content: [{ type: "text", text }] }, {}, fadeTheme, context),
+    ];
+    const context = { ...ctx, args, toolCallId, state: {}, invalidate: () => shell.invalidate() };
+    let parts: Row[] = [];
     const shell = {
       toolCallId,
       toolName: name,
       rendererState: {},
       selfRenderHeight: 8,
       handleMouse() {},
-      render: (w: number) => [...header.render(w), ...body.render(w)],
+      invalidate: () => {
+        parts = build();
+      },
+      render: (w: number) => parts.flatMap((part) => part.render(w)),
     };
+    parts = build();
     children.push(shell);
     return shell;
   };
@@ -471,12 +479,16 @@ describe("tool renderers", () => {
         expect(second.join("")).toContain("38;2;140;140;140");
         if (i === 5) {
           jest.advanceTimersByTime(270);
-          for (let height = first.length - 1; height > 0; height--) {
+          // It starts a new, forming group: the body folds and the heading stays as the member row.
+          for (let height = first.length - 1; height > 1; height--) {
             expect(oldest.render(80).map(stripTerminalSequences)).toEqual(
               first.slice(0, height).map(stripTerminalSequences),
             );
             jest.advanceTimersByTime(360);
           }
+          const grouped = oldest.render(80).map(stripTerminalSequences);
+          expect(grouped[0]).toStartWith("▾ Ran 1 shell command");
+          expect(grouped[1]).toStartWith("  ● bash · bun test");
         }
         jest.advanceTimersByTime(10000);
         expect(oldest.render(80).length).toBeLessThan(first.length);
@@ -505,6 +517,34 @@ describe("tool renderers", () => {
         jest.advanceTimersByTime(10000);
         expect(oldest.render(80).map((row) => stripTerminalSequences(row).trim())).not.toContain(line);
       }
+    } finally {
+      session.close();
+    }
+  });
+
+  test("a block joining a forming group folds its body and keeps its heading as the member row", () => {
+    const session = fadeSession("bash");
+    try {
+      const shells = Array.from({ length: 7 }, (_, index) => {
+        const shell = session.add("join-" + index);
+        session.dispatch("agent_settled");
+        jest.advanceTimersByTime(10_000);
+        return shell;
+      });
+      expect(toolPlan("join-0")?.group).toMatchObject({ forming: true });
+      expect(toolPlan("join-0")?.group?.members).toHaveLength(2);
+      const joiner = shells[2]!;
+      const heading = joiner.render(80)[0];
+      session.add("join-7");
+      session.dispatch("agent_settled");
+      for (let tick = 0; tick < 40 && toolPlan("join-2")?.mode === "normal"; tick++) {
+        expect(joiner.render(80)[0]).toBe(heading);
+        jest.advanceTimersByTime(90);
+      }
+      expect(toolPlan("join-0")?.group?.members).toHaveLength(3);
+      const member = joiner.render(80).map(stripTerminalSequences);
+      expect(member).toHaveLength(1);
+      expect(member[0]).toMatch(/^ {2}● bash · bun test/);
     } finally {
       session.close();
     }
