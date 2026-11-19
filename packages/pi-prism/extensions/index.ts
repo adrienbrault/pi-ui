@@ -22,6 +22,7 @@ import { cutMark, type RenderTheme } from "../render/kit.ts";
 import { callTokens, ownsTool, toolMeta, toolTokenCounts } from "../render/tools.ts";
 import { nonEmptyLineCount } from "../render/text.ts";
 import {
+  previewLineCount,
   previewText,
   leavingRow,
   toolHeader,
@@ -347,7 +348,7 @@ function bodyComponent(record: BlockRecord, theme: Theme, includeHeader = false)
         record.commandClipped ||
         omission !== -1 ||
         layout.clipped ||
-        actionFor(record.expansion, nonEmptyLineCount(previewText(record)), levelOf(record)) !== null;
+        actionFor(record.expansion, previewLineCount(input), levelOf(record)) !== null;
       record.expandRow = expandable && rows.length ? (omission === -1 ? rows.length - 1 : omission) : undefined;
       // Hover shows only the scroll bar: where the preview sits in the whole output.
       if (expandable && record.hover && layout.bar?.length)

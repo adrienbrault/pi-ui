@@ -3,7 +3,7 @@ import { glyphsFor } from "./glyphs.ts";
 import type { RenderKit, RenderTheme } from "./kit.ts";
 import { createPiKit } from "./pi-kit.ts";
 import { highlightShellLines, shellView } from "./shell-output.ts";
-import { leavingRow, renderToolRow, toolRowLayout, type ToolRowInput } from "./tool-row.ts";
+import { leavingRow, previewLineCount, renderToolRow, toolRowLayout, type ToolRowInput } from "./tool-row.ts";
 
 const LANGUAGES: Record<string, string> = { ts: "typescript", js: "javascript", py: "python", json: "json" };
 const languageFromPath = (path: string) => LANGUAGES[/\.(\w+)$/.exec(path)?.[1] ?? ""];
@@ -306,6 +306,19 @@ function sourcesOf(command: string, output: string): string[] {
   });
   return found;
 }
+
+/** The rows a shell output's lines take with nothing hidden. */
+const lineCount = (command: string, output: string) =>
+  previewLineCount({ name: "bash", status: "success", level: 0, args: { command }, output });
+
+describe("line count", () => {
+  test("lines a shell output gives no row do not count toward opening the block", () => {
+    // A blank context line and the `--` between two files take no row.
+    expect(lineCount("rg -n -C1 x", lines("a.ts-1-", "a.ts:2:x", "--", "b.ts:5:x"))).toBe(2);
+    expect(lineCount("cat -n a.ts", lines("     1\tone", "     2\t", "     3\tthree"))).toBe(2);
+    expect(lineCount("npm test", lines("one", "", "--", "two"))).toBe(3);
+  });
+});
 
 describe("highlight groups", () => {
   test("a plain line or another file starts a new source", () => {

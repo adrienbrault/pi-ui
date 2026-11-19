@@ -24,7 +24,7 @@ import {
   MAX_FORMAT_CHARS,
   type OmissionSide,
 } from "./text.ts";
-import { highlightShellLines, shellView, type ShellView } from "./shell-output.ts";
+import { highlightShellLines, shellView, type ShellLine, type ShellView } from "./shell-output.ts";
 import { describeCall, formatRate, toolTokenCounts, toolMeta, toolTokenLabel, type TokenRates } from "./tools.ts";
 
 export interface RenderApi {
@@ -465,6 +465,40 @@ function outputLanguage(input: ToolRowInput, text: string, kit: RenderKit): stri
   return jsonLanguage(text);
 }
 
+/** A shell command's output read through its command; undefined when the body is not plain output. */
+function shellViewOf(
+  input: ToolRowInput,
+  text: string,
+  languageFromPath?: (path: string) => string | undefined,
+): ShellView | undefined {
+  const command = input.args?.command;
+  // A failed call shows its error, and a diff keeps its change colours.
+  if (input.error || typeof command !== "string" || toolMeta(input.name).cls !== "shell" || DIFF_HINT.test(text))
+    return undefined;
+  return shellView(command, text, {
+    complete: input.status === "success",
+    ...(languageFromPath ? { languageFromPath } : {}),
+    sniff: jsonLanguage,
+  });
+}
+
+/** Blank lines carry no evidence and take no row, but every line keeps its number in the file. */
+function takesRow(line: ShellLine): boolean {
+  if (line.kind === "divider") return true;
+  return (line.kind === "plain" ? line.text : line.code).trim() !== "";
+}
+
+/**
+ * How many rows the body's lines take with nothing hidden: its non-blank lines, less those a
+ * shell command's output gives no row (a blank line after grep's prefix, a `--` where the file
+ * changes). More than the level's budget means the preview hides some.
+ */
+export function previewLineCount(input: ToolRowInput): number {
+  const raw = previewText(input);
+  const view = shellViewOf(input, cleanOutput(raw));
+  return view ? view.lines.filter(takesRow).length : nonEmptyLineCount(raw);
+}
+
 /**
  * A shell command's output read through its command, when the command says what it printed:
  * a range of one file, or grep's matches. Each line keeps its number and its file; the code is
@@ -476,24 +510,17 @@ function shellRows(
   text: string,
 ): { lines: Selected[]; view: ShellView } | undefined {
   const { kit, theme } = api;
-  const command = input.args?.command;
-  if (typeof command !== "string" || toolMeta(input.name).cls !== "shell") return undefined;
-  const view = shellView(command, text, {
-    complete: input.status === "success",
-    ...(kit.languageFromPath ? { languageFromPath: kit.languageFromPath } : {}),
-    sniff: jsonLanguage,
-  });
+  const view = shellViewOf(input, text, kit.languageFromPath);
   if (!view) return undefined;
   const highlight = kit.highlight;
   const styled =
     highlight && text.length <= MAX_FORMAT_CHARS
       ? highlightShellLines(view.lines, (source, language) => highlight(source, language, theme, api.owner))
       : [];
-  // Blank lines carry no evidence and take no row, but every line keeps its number in the file.
   const lines = view.lines.flatMap((line, index): Selected[] => {
+    if (!takesRow(line)) return [];
     if (line.kind === "divider") return [{ line: "", rule: "divider" }];
-    if (line.kind === "plain") return line.text.trim() ? [{ line: line.text }] : [];
-    if (!line.code.trim()) return [];
+    if (line.kind === "plain") return [{ line: line.text }];
     return [
       {
         line: styled[index] ?? line.code,
