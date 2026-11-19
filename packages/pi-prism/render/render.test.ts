@@ -1,14 +1,22 @@
 import { describe, expect, test } from "bun:test";
-import { FOLD_DISTANCE, MAX_FULL_LINES, bodyLinesFor, detailFor, maxRowsFor, settleLevel } from "./detail.ts";
+import {
+  COMPACT_LEVEL,
+  FOLD_DISTANCE,
+  MAX_FULL_LINES,
+  bodyLinesFor,
+  detailFor,
+  maxRowsFor,
+  settleLevel,
+} from "./detail.ts";
 import { groupVerb, mcpLabel, toolMeta, groupNoun, toolTokenLabel } from "./tools.ts";
 import { formatDuration, headLines, omittedCount, tailLines } from "./text.ts";
 import { groupSegments, renderGroupMember, renderGroupRow } from "./group-row.ts";
-import { leavingRow, previewBar, renderToolRow, toolRowLayout } from "./tool-row.ts";
+import { leavingRow, previewBar, renderToolRow, toolHeader, toolRowLayout } from "./tool-row.ts";
 import { thinkingFrame, thinkingKeep, thinkingLabel, thinkingLayout, thinkingLeavingRow } from "./thinking.ts";
 import { glyphsFor } from "./glyphs.ts";
 import { blockDistances, type PlanBlock } from "./layout.ts";
 import { advanceTailWindow, isDropping, planTailWindow } from "./window.ts";
-import type { RenderKit, RenderTheme } from "./kit.ts";
+import { cutMark, type RenderKit, type RenderTheme } from "./kit.ts";
 
 function wrapPlain(text: string, width: number): string[] {
   const rows: string[] = [];
@@ -68,8 +76,12 @@ test("elapsed time changes units at one second, one minute and one hour", () => 
 test("group members reserve two columns for indentation and keep wrapped content inside the terminal", () => {
   const thought = "one two three ".repeat(10);
   for (const width of [40, 80, 120]) {
-    const rows = renderGroupMember(kit, width, (innerWidth) =>
-      thinkingLabel(api, { phase: "aged", level: 0, text: thought, width: innerWidth, expanded: true }).split("\n"),
+    const rows = renderGroupMember(
+      kit,
+      width,
+      (innerWidth) =>
+        thinkingLabel(api, { phase: "aged", level: 0, text: thought, width: innerWidth, expanded: true }).split("\n"),
+      "…",
     );
     expect(rows[0]).toMatch(/^  ✻ think · +35 tokens$/);
     expect(rows[0]?.length).toBe(width);
@@ -445,7 +457,7 @@ describe("full body budget", () => {
       output: "x".repeat(200_000),
     }).render(80);
     expect(rows.length).toBe(1 + MAX_FULL_LINES);
-    expect(rows.at(-1)).toEndWith("…");
+    expect(rows.at(-1)).toEndWith(" … ");
   });
 
   test("wrapped rows still keep the end of a tail-trend log", () => {
@@ -775,7 +787,7 @@ describe("group summary width", () => {
         { cls: "shell", count: 24 },
       ],
     }).render(16)[0];
-    expect(line).toBe("▸ Read 4 files,…");
+    expect(line).toBe("▸ Read 4 file … ");
   });
 });
 
@@ -809,5 +821,66 @@ describe("streaming thinking preview", () => {
     const label = thinkingLabel(api, input);
     expect(label.split("\n")[1]?.trim()).toBe("+ 94 lines");
     expect(label.split("\n").at(-1)).toContain("line 99");
+  });
+});
+
+describe("cut mark", () => {
+  // A theme whose colours show up as tags in the output; widths ignore the tags.
+  const tagged: RenderTheme = {
+    fg: (token, text) => `<${token}>${text}</${token}>`,
+    bold: (text) => text,
+    italic: (text) => text,
+    style: (text, options) =>
+      options.bold ? `<b:${options.fg}>${text}</b>` : `<${options.fg}>${text}</${options.fg}>`,
+  };
+  const tags = /<\/?[^>]*>/g;
+  const ansiKit: RenderKit = {
+    ...kit,
+    visibleWidth: (text) => text.replace(tags, "").length,
+    truncateToWidth: (line, width, ellipsis = "…") => {
+      const plain = line.replace(tags, "");
+      if (plain.length <= width) return line;
+      const room = width - ellipsis.replace(tags, "").length;
+      return `${plain.slice(0, room)}${ellipsis}`;
+    },
+  };
+  const taggedApi = { kit: ansiKit, theme: tagged, glyphs: glyphsFor("unicode") };
+  const MARK = "<b:text> … </b>";
+
+  test("is a bold ellipsis in the text colour with a space each side", () => {
+    expect(cutMark(tagged)).toBe(MARK);
+  });
+
+  test("a command cut in the middle paints each kept side on its own", () => {
+    const { line } = toolHeader(
+      taggedApi,
+      { name: "bash", status: "success", level: 0, args: { command: `echo ${"a".repeat(60)} done` } },
+      40,
+    );
+    expect(line).toMatch(/<accent>echo a+<\/accent><b:text> … <\/b><accent>a* ?done<\/accent>/);
+  });
+
+  test("a path keeps its end after the mark", () => {
+    const { line } = toolHeader(
+      taggedApi,
+      { name: "read", status: "success", level: 0, args: { path: `/very/${"deep/".repeat(12)}notes.txt` } },
+      40,
+    );
+    expect(line).toMatch(/<b:text> … <\/b><accent>[a-z/]*notes\.txt<\/accent>/);
+  });
+
+  test("a clipped preview line ends with the mark", () => {
+    const rows = renderToolRow(taggedApi, {
+      name: "bash",
+      status: "success",
+      level: 0,
+      output: "x".repeat(200),
+    }).render(40);
+    expect(rows[1]).toEndWith(MARK + "</toolOutput>");
+  });
+
+  test("an inline thought's excerpt follows the mark when earlier lines are omitted", () => {
+    const label = thinkingLabel(taggedApi, { phase: "aged", level: COMPACT_LEVEL, text: "first\nlast", width: 80 });
+    expect(label).toContain(`${MARK}<thinkingText>last</thinkingText>`);
   });
 });

@@ -7,7 +7,7 @@ import { formatDuration } from "../packages/pi-prism/render/text.ts";
 import type { GlyphSet, GlyphMode } from "../packages/pi-prism/render/glyphs.ts";
 import { glyphsFor } from "../packages/pi-prism/render/glyphs.ts";
 import { groupSegments, renderGroupMember, renderGroupRow } from "../packages/pi-prism/render/group-row.ts";
-import type { RenderKit } from "../packages/pi-prism/render/kit.ts";
+import { cutMark, type RenderKit } from "../packages/pi-prism/render/kit.ts";
 import type { DetailLevel } from "../packages/pi-prism/render/detail.ts";
 import { COMPACT_LEVEL, FOLD_DISTANCE } from "../packages/pi-prism/render/detail.ts";
 import { blockDistances, type PlanBlock } from "../packages/pi-prism/render/layout.ts";
@@ -760,12 +760,16 @@ function plannedStack(
   const thought = (block: Extract<ScenarioBlock, { kind: "thinking" }>, level: DetailLevel, width: number) =>
     thinkingLabel(api, { phase: "aged", level, text: block.text, width, durationMs: block.durationMs }).split("\n");
   const member = (block: ScenarioBlock, width: number): string[] =>
-    renderGroupMember(ctx.kit, width, (inner) =>
-      block.kind === "tool"
-        ? [toolHeader(api, { ...block.row, level: COMPACT_LEVEL }, inner).line]
-        : block.kind === "thinking"
-          ? thought(block, COMPACT_LEVEL, inner)
-          : [],
+    renderGroupMember(
+      ctx.kit,
+      width,
+      (inner) =>
+        block.kind === "tool"
+          ? [toolHeader(api, { ...block.row, level: COMPACT_LEVEL }, inner).line]
+          : block.kind === "thinking"
+            ? thought(block, COMPACT_LEVEL, inner)
+            : [],
+      cutMark(api.theme),
     );
 
   const components: Rendered[] = [];

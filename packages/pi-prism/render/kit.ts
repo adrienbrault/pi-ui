@@ -34,6 +34,15 @@ export interface RenderTheme {
   colors?: Record<string, string>;
 }
 
+/**
+ * The mark where text was cut, in the middle, at either end or between an
+ * excerpt and its heading: a bold ellipsis in the text colour with a space each
+ * side, so a cut reads as a cut and never as part of a word. Three columns wide.
+ */
+export function cutMark(theme: RenderTheme): string {
+  return theme.style(" … ", { fg: "text", bold: true });
+}
+
 /** Body text starts one two-column step past the heading label, leaving room for content on narrow screens. */
 export function blockBodyIndent(width: number): string {
   return "    ".slice(0, Math.max(0, width - 1));

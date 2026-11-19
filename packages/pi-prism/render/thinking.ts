@@ -9,7 +9,7 @@
 
 import { bodyLinesFor, COMPACT_LEVEL, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
 import { frameAt, type GlyphSet } from "./glyphs.ts";
-import { blockBodyIndent, type RenderKit, type RenderTheme } from "./kit.ts";
+import { blockBodyIndent, cutMark, type RenderKit, type RenderTheme } from "./kit.ts";
 import { previewBar, type BarCell } from "./tool-row.ts";
 import { estimatedTokens, formatRate } from "./tools.ts";
 import {
@@ -53,8 +53,8 @@ export interface ThinkingLabelInput {
 
 const MARKER = "think";
 
-function clampLine(kit: RenderKit, line: string, width: number): string {
-  return kit.truncateToWidth(line, Math.max(1, width), "…");
+function clampLine(api: ThinkingApi, line: string, width: number): string {
+  return api.kit.truncateToWidth(line, Math.max(1, width), cutMark(api.theme));
 }
 
 interface Header {
@@ -104,7 +104,7 @@ function headerFor(api: ThinkingApi, input: ThinkingLabelInput): Header {
   const heading = (left: string) => {
     const prefix = left + ` ${dot} `;
     const gap = Math.max(0, input.width - kit.visibleWidth(prefix + metrics));
-    return clampLine(kit, prefix + " ".repeat(gap) + metrics, input.width);
+    return clampLine(api, prefix + " ".repeat(gap) + metrics, input.width);
   };
   return { indent, bodyWidth, source, formatted, last, marker, dot, metrics, heading };
 }
@@ -162,7 +162,7 @@ export function thinkingFrame(
   const terminal = indices.flatMap((source) => {
     const line = header.source[source]!;
     const texts = truncate
-      ? [clampLine(api.kit, line, header.bodyWidth)]
+      ? [clampLine(api, line, header.bodyWidth)]
       : header.formatted
         ? [line]
         : api.kit.wrap(line, header.bodyWidth);
@@ -214,9 +214,10 @@ export function composeThinkingLabel(
   const notice = (hidden: number) => theme.fg("dim", `${frame.indent}${omittedLinesLabel(hidden)}`);
 
   if (bodyLinesFor(input.level) <= 1 && !input.expanded) {
-    const omitted = frame.sourceCount > 1 ? theme.fg("dim", "… ") : "";
+    // Omitted opening lines: the cut mark stands between the heading and the excerpt.
+    const lead = frame.sourceCount > 1 ? cutMark(theme) : " ";
     const inline = frame.last
-      ? `${frame.marker} ${frame.dot} ${omitted}${frame.formatted ? frame.last : theme.fg("thinkingText", frame.last)}`
+      ? `${frame.marker} ${frame.dot}${lead}${frame.formatted ? frame.last : theme.fg("thinkingText", frame.last)}`
       : frame.marker;
     const canToggle =
       frame.sourceCount > 1 ||
@@ -224,7 +225,7 @@ export function composeThinkingLabel(
     return {
       label: frame.heading(
         clampLine(
-          kit,
+          api,
           inline,
           Math.max(kit.visibleWidth(frame.marker), input.width - kit.visibleWidth(frame.metrics) - 3),
         ),
@@ -244,7 +245,7 @@ export function composeThinkingLabel(
             notice(frame.rows.length - (MAX_FULL_LINES - 1)),
           ];
     return {
-      label: [frame.head, ...rows].map((row) => clampLine(kit, row, input.width)).join("\n"),
+      label: [frame.head, ...rows].map((row) => clampLine(api, row, input.width)).join("\n"),
       canToggle: thinkingLayout(api, { ...input, expanded: false }).canToggle,
     };
   }
@@ -260,7 +261,7 @@ export function composeThinkingLabel(
     else rows.push(notice(omitted));
   }
   return {
-    label: [frame.head, ...rows].map((row) => clampLine(kit, row, input.width)).join("\n"),
+    label: [frame.head, ...rows].map((row) => clampLine(api, row, input.width)).join("\n"),
     canToggle: frame.canToggle,
     bar: previewBar(frame.sourceCount, visibleSources, rows.length),
   };

@@ -3,7 +3,7 @@
  * Each segment reports its own failure count.
  */
 
-import type { ComponentLike, RenderKit } from "./kit.ts";
+import { cutMark, type ComponentLike, type RenderKit } from "./kit.ts";
 import { formatDuration } from "./text.ts";
 import type { RenderApi } from "./tool-row.ts";
 import { groupVerb, toolTokenLabel, type TokenCounts, type GroupClass } from "./tools.ts";
@@ -34,6 +34,7 @@ export interface GroupRowInput {
 export function renderGroupRow(api: RenderApi, input: GroupRowInput): ComponentLike {
   return api.kit.component((width) => {
     const { theme, glyphs, kit } = api;
+    const mark = cutMark(theme);
     const marker = theme.fg("dim", input.expanded ? glyphs.expanded : glyphs.collapsed);
     const dot = theme.fg("dim", ` ${glyphs.dot} `);
     const comma = theme.fg("dim", ", ");
@@ -63,20 +64,25 @@ export function renderGroupRow(api: RenderApi, input: GroupRowInput): ComponentL
     }
 
     const failed = input.segments.reduce((sum, segment) => sum + (segment.failed ?? 0), 0);
-    if (!failed) return [kit.truncateToWidth(full, width, "…")];
+    if (!failed) return [kit.truncateToWidth(full, width, mark)];
     const total = theme.fg("error", `${failed} failed`);
     const room = width - kit.visibleWidth(dot + total);
-    if (room < 4) return [kit.truncateToWidth(`${marker} ${total}`, width, "…")];
-    return [alignRight(kit.truncateToWidth(title(false), room, "…"), dot + total)];
+    if (room < 4) return [kit.truncateToWidth(`${marker} ${total}`, width, mark)];
+    return [alignRight(kit.truncateToWidth(title(false), room, mark), dot + total)];
   });
 }
 
-/** Lay out a revealed member inside the summary, including its body. */
-export function renderGroupMember(kit: RenderKit, width: number, render: (innerWidth: number) => string[]): string[] {
+/** Lay out a revealed member inside the summary, including its body. `mark` ends a row that still overflows. */
+export function renderGroupMember(
+  kit: RenderKit,
+  width: number,
+  render: (innerWidth: number) => string[],
+  mark: string,
+): string[] {
   const indent = " ".repeat(Math.max(0, Math.min(2, width - 1)));
   const innerWidth = Math.max(1, width - indent.length);
   return render(innerWidth).map((line) =>
-    line && width > 0 ? indent + kit.truncateToWidth(line, innerWidth, "…") : "",
+    line && width > 0 ? indent + kit.truncateToWidth(line, innerWidth, mark) : "",
   );
 }
 

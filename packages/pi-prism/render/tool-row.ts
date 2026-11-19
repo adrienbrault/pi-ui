@@ -5,7 +5,7 @@
 
 import { bodyLinesFor, COMPACT_LEVEL, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
 import { frameAt, type GlyphSet } from "./glyphs.ts";
-import { blockBodyIndent, type ComponentLike, type RenderKit, type RenderTheme } from "./kit.ts";
+import { blockBodyIndent, cutMark, type ComponentLike, type RenderKit, type RenderTheme } from "./kit.ts";
 import {
   cleanOutput,
   formatDuration,
@@ -76,30 +76,48 @@ function statusGlyph(api: RenderApi, input: ToolRowInput): string {
   }
 }
 
-/** Keep the opening and the end: a shell command's verb and target both matter. */
-function truncateMiddle(kit: RenderKit, text: string, width: number, ellipsis = "…"): string {
-  if (width <= 0) return "";
-  if (kit.visibleWidth(text) <= width) return text;
+/**
+ * Keep the opening and the end: a shell command's verb and target both matter.
+ * Each kept side is painted on its own, so the mark's style never leaks into it.
+ */
+function truncateMiddle(
+  kit: RenderKit,
+  text: string,
+  width: number,
+  mark: string,
+  paint: (part: string) => string,
+): { text: string; cut: boolean } {
+  if (width <= 0) return { text: "", cut: text.length > 0 };
+  if (kit.visibleWidth(text) <= width) return { text: paint(text), cut: false };
   const chars = [...text];
-  const room = width - kit.visibleWidth(ellipsis);
-  if (room <= 0) return kit.truncateToWidth(ellipsis, width, ellipsis);
+  const room = width - kit.visibleWidth(mark);
+  if (room <= 0) return { text: kit.truncateToWidth(mark, width, ""), cut: true };
   const head = Math.ceil(room / 2);
   const tail = room - head;
-  return `${chars.slice(0, head).join("")}${ellipsis}${tail > 0 ? chars.slice(-tail).join("") : ""}`;
+  return {
+    text: `${paint(chars.slice(0, head).join(""))}${mark}${tail > 0 ? paint(chars.slice(-tail).join("")) : ""}`,
+    cut: true,
+  };
 }
 
 /** Keep the end of a long path: the basename is the part a reader needs. */
-function truncateLeft(kit: RenderKit, text: string, width: number, ellipsis = "…"): string {
-  if (width <= 0) return "";
-  if (kit.visibleWidth(text) <= width) return text;
+function truncateLeft(
+  kit: RenderKit,
+  text: string,
+  width: number,
+  mark: string,
+  paint: (part: string) => string,
+): { text: string; cut: boolean } {
+  if (width <= 0) return { text: "", cut: text.length > 0 };
+  if (kit.visibleWidth(text) <= width) return { text: paint(text), cut: false };
   const chars = [...text];
   let kept = "";
   for (let i = chars.length - 1; i >= 0; i--) {
     const candidate = (chars[i] ?? "") + kept;
-    if (kit.visibleWidth(candidate) + kit.visibleWidth(ellipsis) > width) break;
+    if (kit.visibleWidth(candidate) + kit.visibleWidth(mark) > width) break;
     kept = candidate;
   }
-  return kept ? `${ellipsis}${kept}` : kit.truncateToWidth(text, width, ellipsis);
+  return { text: kept ? `${mark}${paint(kept)}` : kit.truncateToWidth(paint(text), width, mark), cut: true };
 }
 
 type HeaderPiece = { kind: "title" | "summary" | "tokens" | "error" | "duration"; text: string };
@@ -147,6 +165,7 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, width: number) {
   const tokens = toolTokenLabel(outputTokens, inputTokens, input);
 
   const sep = ` ${theme.fg("dim", glyphs.dot)} `;
+  const mark = cutMark(theme);
   // The verb is the headline: bold it through `style` so it survives headless
   // rendering, where chalk's bold turns itself off without a terminal.
   const prefix = `${statusGlyph(api, input)} ${theme.style(label, { fg: "toolTitle", bold: true })}`;
@@ -164,14 +183,14 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, width: number) {
   const compose = (parts: HeaderPiece[]) => parts.reduce((acc, part) => `${acc}${sep}${part.text}`, prefix);
 
   // Reserve space for the running shell clock if even a shortened command fits beside it.
-  const keepClock = duration && kit.visibleWidth(prefix + sep + "…" + sep + duration) <= width;
+  const keepClock = duration && kit.visibleWidth(prefix + sep + mark + sep + duration) <= width;
   // Keep a readable portion of the command or path when fitting the metadata.
   const minimumWidth = (parts: HeaderPiece[]) =>
     kit.visibleWidth(
       compose(
         parts.map((piece) =>
           piece.kind === "title"
-            ? { ...piece, text: kit.truncateToWidth(title, input.inputRate || input.outputRate ? 8 : 20, "…") }
+            ? { ...piece, text: kit.truncateToWidth(title, input.inputRate || input.outputRate ? 8 : 20, mark) }
             : piece,
         ),
       ),
@@ -191,22 +210,22 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, width: number) {
       const others = pieces.filter((piece) => piece !== titlePiece);
       const room = width - kit.visibleWidth(compose(others)) - kit.visibleWidth(sep);
       const truncate = meta.cls === "shell" ? truncateMiddle : truncateLeft;
-      const fitted = truncate(kit, title, room);
-      truncated = fitted !== title;
-      titlePiece.text = theme.fg("accent", fitted);
+      const fitted = truncate(kit, title, room, mark, (part) => theme.fg("accent", part));
+      truncated = fitted.cut;
+      titlePiece.text = fitted.text;
     }
   }
 
   const metrics = pieces.filter((part) => part.kind === "tokens" || part.kind === "duration");
   const command = input.name === "bash" ? cleanOutput(String(input.args?.command ?? title)) : "";
   const hiddenCommand = command && (truncated || command !== title) ? command : undefined;
-  if (!metrics.length) return { line: kit.truncateToWidth(compose(pieces), width, "…"), hiddenCommand };
+  if (!metrics.length) return { line: kit.truncateToWidth(compose(pieces), width, mark), hiddenCommand };
   const left = compose(pieces.filter((part) => !metrics.includes(part))) + sep;
   const right = metrics.map((part) => part.text).join(sep);
   const line = kit.truncateToWidth(
     left + " ".repeat(Math.max(0, width - kit.visibleWidth(left + right))) + right,
     width,
-    "…",
+    mark,
   );
   return { line, hiddenCommand };
 }
@@ -361,11 +380,11 @@ interface BodyLayout {
   sources?: Array<number | undefined>;
 }
 
-/** Cut wrapped rows to `room`, ending the last kept row with an ellipsis. */
-function clipRows(kit: RenderKit, rows: string[], room: number, width: number): string[] {
+/** Cut wrapped rows to `room`, ending the last kept row with the cut mark. */
+function clipRows(kit: RenderKit, rows: string[], room: number, width: number, mark: string): string[] {
   if (rows.length <= room) return rows;
   const kept = rows.slice(0, Math.max(0, room));
-  if (kept.length) kept[kept.length - 1] = kit.truncateToWidth(`${kept.at(-1)!}…`, width, "…");
+  if (kept.length) kept[kept.length - 1] = kit.truncateToWidth(kept.at(-1)! + mark, width, mark);
   return kept;
 }
 
@@ -409,12 +428,13 @@ function body(api: RenderApi, input: ToolRowInput, width: number, budget: number
   const indent = blockBodyIndent(width);
   const inner = Math.max(1, width - indent.length);
   const wrap = !!(input.expanded || input.full);
+  const mark = cutMark(theme);
   let clipped = false;
   // Wrapping is the costly step and a selection can repeat lines: do each once.
   const wrapped = new Map<string, string[]>();
   const paint = ({ line, styled, notice: isNotice }: Selected): string[] => {
     const content = styled ?? line;
-    if (isNotice) return [indent + theme.fg("dim", kit.truncateToWidth(content, inner, "…"))];
+    if (isNotice) return [indent + kit.truncateToWidth(theme.fg("dim", content), inner, mark)];
     let parts: string[];
     if (wrap) {
       parts = wrapped.get(content) ?? [];
@@ -424,7 +444,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, budget: number
         wrapped.set(content, parts);
       }
     } else {
-      const cut = kit.truncateToWidth(content, inner, "…");
+      const cut = kit.truncateToWidth(content, inner, mark);
       if (cut !== content) clipped = true;
       parts = [cut];
     }
@@ -468,7 +488,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, budget: number
   let room = budget - selected.filter((item) => item.notice).length;
   const rows = items.flatMap((item, index) => {
     if (selected[index]?.notice) return item;
-    const kept = clipRows(kit, item, room, width);
+    const kept = clipRows(kit, item, room, width, mark);
     room -= kept.length;
     return kept;
   });

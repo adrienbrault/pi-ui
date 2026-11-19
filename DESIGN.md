@@ -82,7 +82,7 @@ Rules:
   affordance, the status glyph keeps the outcome colour.
 - Opening a group shows each collapsed thinking member as one inline row, regardless of its age. Clicking a truncated thought opens its body.
 - A fully visible thought has no hover bar or click action. An inline
-  thought with omitted opening lines marks its tail with an ellipsis. Opening it
+  thought with omitted opening lines marks its tail with the cut mark. Opening it
   shows the source in reading order, up to 400 body rows including any omission notice.
 - Edit diffs use the file’s syntax colors for code. Added and removed lines retain their signs and use the theme’s success and error backgrounds.
 - Header token counts, rates and latency align to the right. Tool headers use normal text contrast for numbers, the theme’s keyword color for `out` and type color for `in`, and muted units and separators.
@@ -109,6 +109,7 @@ Rules:
 
 - Measure with `visibleWidth`/`truncateToWidth`; never `String.length`.
 - Every line must fit the supplied width exactly; no overflow, no ANSI bleed across lines.
+- Every cut shows the cut mark ` … `: an ellipsis with a space each side, bold in the theme's `text` colour (`cutMark` in `render/kit.ts`). It marks a command cut in the middle, a path cut on the left, a line cut at the width and an excerpt's omitted opening alike, and the width math counts its three columns. The text on either side of a cut is styled on its own, so the mark's weight never leaks into it.
 - Glyph sets: `nerd`, `unicode`, `ascii`. A card must render in all three; ASCII is the accessibility floor.
 - Motion: spinner frames and pulse cadence are data. Registry states carry them as frames; `ds:show` prints the last frame and the fixtures record the first.
 

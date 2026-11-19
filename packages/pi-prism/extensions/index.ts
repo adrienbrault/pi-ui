@@ -18,7 +18,7 @@ import { glyphsFor } from "../render/glyphs.ts";
 import { renderGroupMember, renderGroupRow } from "../render/group-row.ts";
 import { installThroughput } from "./throughput.ts";
 import { KIT } from "./kit.ts";
-import type { RenderTheme } from "../render/kit.ts";
+import { cutMark, type RenderTheme } from "../render/kit.ts";
 import { callTokens, ownsTool, toolTokenCounts } from "../render/tools.ts";
 import { nonEmptyLineCount } from "../render/text.ts";
 import {
@@ -360,15 +360,20 @@ function cycleMember(member: BlockRecord): void {
 /** The anchor is also a member; its row sits under the summary once open. */
 function memberLines(member: BlockRecord, theme: Theme, width: number): string[] {
   const api = { kit: KIT, theme: theme as unknown as RenderTheme, glyphs: GLYPHS };
-  const rows = renderGroupMember(KIT, width, (innerWidth) => {
-    const input: ToolRowInput = { ...inputFor(member), level: COMPACT_LEVEL };
-    if (member.expansion === 0) {
-      const header = toolHeader(api, input, innerWidth);
-      member.commandClipped = !!header.hiddenCommand;
-      return [header.line];
-    }
-    return renderToolRow({ ...api, owner: member }, input).render(innerWidth);
-  });
+  const rows = renderGroupMember(
+    KIT,
+    width,
+    (innerWidth) => {
+      const input: ToolRowInput = { ...inputFor(member), level: COMPACT_LEVEL };
+      if (member.expansion === 0) {
+        const header = toolHeader(api, input, innerWidth);
+        member.commandClipped = !!header.hiddenCommand;
+        return [header.line];
+      }
+      return renderToolRow({ ...api, owner: member }, input).render(innerWidth);
+    },
+    cutMark(api.theme),
+  );
   // A collapsing group drops its member rows from the bottom, one fade each.
   const collapse = member.group && typeof member.key === "string" ? memberRowFade(member.group, member.key) : undefined;
   if (collapse?.gone) return [];

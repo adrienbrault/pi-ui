@@ -19,7 +19,7 @@ import { COMPACT_LEVEL, FOLD_DISTANCE, type DetailLevel } from "../render/detail
 import { glyphsFor } from "../render/glyphs.ts";
 import { renderGroupMember, renderGroupRow } from "../render/group-row.ts";
 import { KIT } from "./kit.ts";
-import type { RenderTheme } from "../render/kit.ts";
+import { cutMark, type RenderTheme } from "../render/kit.ts";
 import { estimatedTokens, toolMeta } from "../render/tools.ts";
 import {
   composeThinkingLabel,
@@ -344,7 +344,7 @@ function labelComponent(
         return paint(paintLeaving(lines, thinkingLeavingRow(api, settled), frame, theme, ordinal));
       }
       const memberLines = () => {
-        const rows = renderGroupMember(KIT, width, thoughtLines);
+        const rows = renderGroupMember(KIT, width, thoughtLines, cutMark(theme));
         // A collapsing group drops its member rows from the bottom, one fade each.
         const collapse = memberRowFade(group, owner, ordinal);
         if (collapse?.gone) return [];
