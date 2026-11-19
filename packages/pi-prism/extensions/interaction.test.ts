@@ -476,6 +476,22 @@ describe("tool renderers", () => {
     expect(body.render(80).some((line) => line.includes("more lines"))).toBe(false);
   });
 
+  test("hovering a block that can open lights its clipped title, without a background", () => {
+    // The `text` colour shows as upper case.
+    const tokens = { ...barred, fg: (token: string, text: string) => (token === "text" ? text.toUpperCase() : text) };
+    const tool = resolver()("bash", () => undefined) as Renderers;
+    const command = "printf 'Edits: 5' > ./tmp/one.txt; for file in a b c; do echo $file; done";
+    const context = { ...ctx, args: { command }, state: {} };
+    const header = tool.renderCall(context.args, tokens, context);
+    tool.renderResult({ content: [{ type: "text", text: "(no output)" }] }, {}, tokens, context);
+    expect(header.render(50)[0]).toContain("printf");
+    header.handleMouse?.(move());
+    expect(header.render(50)[0]).toContain("PRINTF");
+    expect(header.render(50)[0]).toContain(" … ");
+    // A title shown whole does not change.
+    expect(header.render(200)[0]).toContain(command);
+  });
+
   test("hovering a clipped silent command marks its header, the only row it has", () => {
     const tool = resolver()("bash", () => undefined) as Renderers;
     const command = "echo " + "abcdefghij".repeat(12);

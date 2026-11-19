@@ -1043,6 +1043,33 @@ describe("omission notices", () => {
     expect(thought.split("\n").find((line) => line.includes("more lines"))).toContain("<text>");
   });
 
+  test("a lit header turns its clipped title the text colour and keeps the cut mark", () => {
+    // The `text` colour shows as upper case, so the widths stay true; the cut mark is styled apart.
+    const tokens = {
+      ...api,
+      theme: { ...theme, fg: (token: string, text: string) => (token === "text" ? text.toUpperCase() : text) },
+    };
+    const printf = `printf 'Edits: 5\\n' > ./tmp/one.txt; for file in a b c; do echo "$file"; done`;
+    const bash = (lit: boolean, width = 60) =>
+      toolHeader(tokens, { name: "bash", status: "success", level: 0, args: { command: printf }, lit }, width).line;
+    // The command's two kept ends turn the text colour; the cut mark stays as it is.
+    expect(bash(true)).toMatch(/PRINTF[^a-z]* … [^a-z]*DONE/);
+    expect(bash(false)).toMatch(/printf.* … .*done/);
+    // A title shown whole does not change.
+    expect(bash(true, 200)).toContain(printf);
+    // A path cut on the left lights its kept end.
+    const path = "packages/pi-prism/extensions/some/deeply/nested/folder/file.ts";
+    const read = toolHeader(tokens, { name: "read", status: "success", level: 0, args: { path }, lit: true }, 50).line;
+    expect(read).toMatch(/ … [^a-z]*FILE\.TS/);
+    // A thought's excerpt cut in the middle lights both its ends; one that fits does not change.
+    const thought = (text: string) =>
+      thinkingLabel(tokens, { phase: "aged", level: 7, text, width: 60, lit: true }).split("\n")[0] ?? "";
+    expect(thought("one two three four five six seven eight nine ten eleven twelve thirteen")).toMatch(
+      /ONE[^a-z]* … [^a-z]*THIRTEEN/,
+    );
+    expect(thought("short thought")).toContain("short thought");
+  });
+
   test("every notice is italic and faint, apart from the grey output", () => {
     const tokens = {
       ...api,

@@ -297,7 +297,9 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, width: number) {
     };
   } else if (titlePiece && truncated) {
     const truncate = meta.cls === "shell" ? truncateMiddle : truncateLeft;
-    titlePiece.text = truncate(kit, title, room, mark, (part) => theme.fg("accent", part)).text;
+    // Hovering a block that can open lights its clipped title, foreground only: the cut mark stays.
+    const tone = input.lit ? "text" : "accent";
+    titlePiece.text = truncate(kit, title, room, mark, (part) => theme.fg(tone, part)).text;
   }
 
   const metrics = pieces.filter((part) => part.kind === "tokens" || part.kind === "duration");

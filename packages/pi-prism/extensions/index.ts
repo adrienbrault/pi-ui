@@ -309,8 +309,12 @@ function headerComponent(record: BlockRecord, theme: Theme): Component {
   const api = { kit: KIT, theme: theme as unknown as RenderTheme, glyphs: GLYPHS };
   return region(
     KIT.component((width) => {
-      const header = toolHeader(api, inputFor(record), width);
+      const input = inputFor(record);
+      let header = toolHeader(api, input, width);
       record.commandClipped = !!header.hiddenCommand;
+      // Hovering a block a click would open or close lights its clipped title.
+      if (record.hover && (record.expansion === 1 || record.commandClipped || record.expandRow !== undefined))
+        header = toolHeader(api, { ...input, lit: true }, width);
       // A clipped command with no output has no body rows to carry the bar: its header takes one filled cell.
       if (record.hover && !record.expansion && record.commandClipped && nonEmptyLineCount(previewText(record)) === 0)
         return [paintMarker(header.line, api.theme, width)];
@@ -395,6 +399,8 @@ function memberLines(member: BlockRecord, theme: Theme, width: number): string[]
       if (member.expansion === 0) {
         const header = toolHeader(api, input, innerWidth);
         member.commandClipped = !!header.hiddenCommand;
+        // Hovering a member a click would open lights its clipped title.
+        if (member.hover && canCycle(member)) return [toolHeader(api, { ...input, lit: true }, innerWidth).line];
         return [header.line];
       }
       return renderToolRow({ ...api, owner: member }, { ...input, lit: !!member.hover && canCycle(member) }).render(

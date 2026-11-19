@@ -263,8 +263,10 @@ function oneRow(
   const { kit, theme } = api;
   const prefix = `${frame.marker} ${frame.dot} `;
   const room = input.width - (frame.metrics ? kit.visibleWidth(frame.metrics) + 3 : 0) - kit.visibleWidth(prefix);
+  // Hovering a thought that can open lights its excerpt when it is cut, foreground only.
+  const tone = input.lit && kit.visibleWidth(frame.flat) > room ? "text" : "thinkingText";
   const excerpt = frame.flat
-    ? truncateMiddle(kit, frame.flat, Math.max(0, room), cutMark(theme), (part) => theme.fg("thinkingText", part))
+    ? truncateMiddle(kit, frame.flat, Math.max(0, room), cutMark(theme), (part) => theme.fg(tone, part))
     : undefined;
   return {
     layout: {
