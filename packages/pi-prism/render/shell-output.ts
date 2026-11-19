@@ -274,10 +274,14 @@ function awkFrom(words: Word[]): { operands: Word[]; from: number } | undefined 
   return { operands, from };
 }
 
-/** `bat` with its decorations off: `-p`, `--plain` or `--style=plain`; `-r A:B` starts at A. */
-function batFrom(words: Word[]): { operands: Word[]; from: number } | undefined {
+/**
+ * `bat` with its decorations off: `-p`, `--plain` or `--style=plain`; `-r A:B` starts at A.
+ * Several ranges print discontinuous lines, so the output's numbers are not known.
+ */
+function batFrom(words: Word[]): { operands: Word[]; from?: number } | undefined {
   let plain = false;
-  let from = 1;
+  let from: number | undefined = 1;
+  let ranges = 0;
   const operands = parseOptions(
     words.slice(1),
     (name) => ["-r", "--line-range", "--style", "--paging", "--color"].includes(name),
@@ -287,7 +291,8 @@ function batFrom(words: Word[]): { operands: Word[]; from: number } | undefined 
       else if (name === "-r" || name === "--line-range") {
         const range = /^(\d*):(\d*)$/.exec(value ?? "");
         if (!range) return false;
-        from = Math.max(1, Number(range[1] || 1));
+        ranges += 1;
+        from = ranges > 1 ? undefined : Math.max(1, Number(range[1] || 1));
       } else if (name === "--paging" || name === "-P") return name === "-P" || value === "never";
       else if (name !== "--color") return false;
       return true;

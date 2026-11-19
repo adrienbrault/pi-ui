@@ -251,6 +251,12 @@ describe("single-file commands", () => {
     ]);
     expect(shell("tail -n +40 src/a.ts", "one")).toEqual(["    40  <typescript>one"]);
     expect(shell("bat --plain -r 7:9 src/a.ts", "seven")).toEqual(["    7  <typescript>seven"]);
+    // Several ranges print discontinuous lines: highlighted, but no numbers to invent.
+    expect(shell("bat --plain -r 1:2 -r 10:11 src/a.ts", lines("one", "ten"))).toEqual([
+      "    <typescript>one",
+      "    <typescript>ten",
+    ]);
+    expect(shell("bat --plain -r 10:11 --line-range 1:2 src/a.ts", "one")).toEqual(["    <typescript>one"]);
     expect(shell("sed -n '10,20p' src/a.ts | sed -n '3,4p'", "twelve")).toEqual(["    12  <typescript>twelve"]);
   });
 
