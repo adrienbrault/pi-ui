@@ -10,7 +10,7 @@
     "enabled": false
   },
   "files": {
-    "includes": ["design-system/**/*.ts", "packages/**/*.ts", "*.ts", "*.json"],
+    "includes": ["design-system/**/*.ts", "packages/**/*.ts", "*.ts", "*.json", "!!**/.claude"],
     "ignoreUnknown": true
   },
   "json": {
