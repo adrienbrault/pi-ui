@@ -17,10 +17,22 @@ export const E2E_MODEL = "deepseek-v4.1-flash-1017";
 
 interface Pi {
   registerProvider(name: string, config: Record<string, unknown>): void;
+  on(event: "session_start", handler: (event: unknown, ctx: { ui?: ThemeUi }) => void): void;
+}
+
+interface ThemeUi {
+  getTheme?(name: string): object | undefined;
+  setTheme?(theme: object): unknown;
 }
 
 export default function e2e(pi: Pi): void {
   prism(pi as unknown as Parameters<typeof prism>[0]);
+  // A fixed palette: the system theme stays grayscale under a headless tmux, where the
+  // scroll bar's thumb and track share one colour. A Theme instance is not saved to settings.
+  pi.on("session_start", (_event, ctx) => {
+    const dark = ctx.ui?.getTheme?.("dark");
+    if (dark) ctx.ui?.setTheme?.(dark);
+  });
   pi.registerProvider("flan", {
     name: "flan",
     baseUrl: OFFLINE_BASE_URL,
