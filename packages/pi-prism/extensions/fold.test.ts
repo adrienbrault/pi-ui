@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, test } from "bun:test";
 import { bodyLinesFor, FOLD_DISTANCE, FORMING_ROWS } from "../render/detail.ts";
 import { blockDistances, type PlanBlock } from "../render/layout.ts";
 import type { GroupClass } from "../render/tools.ts";
-import { type FoldUnit, planFolds, resetFolds, setGroupOpen, thinkingPlan, toolPlan } from "./fold.ts";
+import { type FoldUnit, keepGroupOpen, planFolds, resetFolds, setGroupOpen, thinkingPlan, toolPlan } from "./fold.ts";
 
 beforeEach(resetFolds);
 
@@ -213,5 +213,28 @@ describe("forming group", () => {
     expect(toolPlan("f0")?.group).toBe(group!);
     expect(group?.forming).toBe(false);
     expect(changed.has(first[1]!.component)).toBe(true);
+  });
+
+  test("closing a forming group sticks as it grows", () => {
+    planFolds(folded(2));
+    setGroupOpen(toolPlan("f0")!.group!, false);
+    planFolds(folded(3));
+    expect(toolPlan("f0")?.group).toMatchObject({ forming: true, open: false });
+  });
+
+  test("opening a member keeps its group open past six rows", () => {
+    planFolds(folded(2));
+    keepGroupOpen(toolPlan("f0")!.group!);
+    planFolds(folded(FORMING_ROWS + 3));
+    expect(toolPlan("f0")?.group).toMatchObject({ forming: false, open: true });
+  });
+
+  test("merging an open and a closed group opens the result", () => {
+    planFolds([...folded(2, "a"), { ...unit("tool", "edge", 8), boundary: true }, ...folded(2, "b")]);
+    setGroupOpen(toolPlan("a0")!.group!, true);
+    setGroupOpen(toolPlan("b0")!.group!, false);
+    planFolds([...folded(2, "a"), unit("tool", "edge", 8), ...folded(2, "b")]);
+    expect(toolPlan("b1")?.group?.members).toHaveLength(5);
+    expect(toolPlan("b1")?.group?.open).toBe(true);
   });
 });

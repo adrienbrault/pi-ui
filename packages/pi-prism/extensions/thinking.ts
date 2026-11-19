@@ -30,7 +30,16 @@ import {
 } from "../render/thinking.ts";
 import { advanceTailWindow, isDropping, planTailWindow, type TailWindow } from "../render/window.ts";
 import { blockDistances, type PlanBlock } from "../render/layout.ts";
-import { type FoldPlan, type FoldUnit, planFolds, setGroupOpen, thinkingPlan, toolInfo, toolPlan } from "./fold.ts";
+import {
+  type FoldPlan,
+  type FoldUnit,
+  keepGroupOpen,
+  planFolds,
+  setGroupOpen,
+  thinkingPlan,
+  toolInfo,
+  toolPlan,
+} from "./fold.ts";
 import {
   decorateViewport,
   expandedRegions,
@@ -249,6 +258,8 @@ function bindHover(
     if (event.type === "click" && !summary) {
       clearHover();
       if (!state.expanded && row !== 0 && row !== state.expandRow) return { handled: true, render: false };
+      // Opening a member keeps a forming group from collapsing under it.
+      if (!state.expanded && plan.group) keepGroupOpen(plan.group);
       return original.call(region, event);
     }
     state.target = target;
@@ -371,6 +382,8 @@ function labelComponent(
           : rows;
       };
       if (plan.mode === "hidden") return memberLines();
+      // A group the user opened keeps its collapse chip; a forming one shows it on hover.
+      const pinned = group.open && group.choice === true;
 
       const summary =
         renderGroupRow(api, {
@@ -378,10 +391,10 @@ function labelComponent(
           tokens: group.tokens,
           expanded: group.open,
           durationMs: group.durationMs,
-        }).render(group.open ? Math.max(1, width - "[ click · collapse ] ".length) : width)[0] ?? "";
+        }).render(pinned ? Math.max(1, width - "[ click · collapse ] ".length) : width)[0] ?? "";
       const hovered = hover.target === "summary";
       const hint = group.open ? "click · collapse" : "click · expand";
-      const rows = [group.open || hovered ? chipLine(theme, summary, hint, width) : summary];
+      const rows = [pinned || hovered ? chipLine(theme, summary, hint, width) : summary];
       if (hovered)
         highlightGroupRow(rows, 0, width, theme.style(" ", { bg: theme.colors?.toolPendingBg }).split(" ")[0]!);
       return group.open ? [...rows, ...memberLines()] : rows;

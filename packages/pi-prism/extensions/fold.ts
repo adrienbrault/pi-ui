@@ -131,6 +131,15 @@ export function setGroupOpen(group: LiveFoldGroup, open: boolean): void {
   group.invalidate();
 }
 
+/**
+ * A member was opened: the group must not collapse under it when it grows past
+ * its forming size. Only an unchosen group changes; a closed one cannot have a
+ * visible member to open.
+ */
+export function keepGroupOpen(group: LiveFoldGroup): void {
+  if (group.choice === undefined) setGroupOpen(group, true);
+}
+
 /** Rows a group lists when open: a tool is one, a thought one per run. */
 function memberRows(units: FoldMember[]): number {
   return units.reduce((sum, unit) => sum + (unit.kind === "thinking" ? Math.max(1, unit.count) : 1), 0);

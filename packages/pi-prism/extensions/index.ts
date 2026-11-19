@@ -30,7 +30,15 @@ import {
   type ToolRowInput,
   type ToolStatus,
 } from "../render/tool-row.ts";
-import { type FoldMode, type LiveFoldGroup, registerToolInfo, resetFolds, setGroupOpen, toolPlan } from "./fold.ts";
+import {
+  type FoldMode,
+  keepGroupOpen,
+  type LiveFoldGroup,
+  registerToolInfo,
+  resetFolds,
+  setGroupOpen,
+  toolPlan,
+} from "./fold.ts";
 import { claimHover, highlightGroupRow, isOmissionRow, releaseHover } from "./hover.ts";
 import { expandedRegions, paintBar, styleBarCell } from "./viewport.ts";
 import { paintLeaving, toolFade } from "./fade.ts";
@@ -423,16 +431,18 @@ function groupLines(record: BlockRecord, theme: Theme, width: number): string[] 
   const group = record.group;
   if (!group) return [];
   const api = { kit: KIT, theme: theme as unknown as RenderTheme, glyphs: GLYPHS };
+  // A group the user opened keeps its collapse chip; a forming one shows it on hover.
+  const pinned = group.open && group.choice === true;
   const summary =
     renderGroupRow(api, {
       segments: group.segments,
       tokens: group.tokens,
       expanded: group.open,
       ...(group.durationMs !== undefined ? { durationMs: group.durationMs } : {}),
-    }).render(group.open ? Math.max(1, width - "[ click · collapse ] ".length) : width)[0] ?? "";
+    }).render(pinned ? Math.max(1, width - "[ click · collapse ] ".length) : width)[0] ?? "";
   const hovered = record.hoverSummary;
   const hint = group.open ? "click · collapse" : "click · expand";
-  const rows = [group.open || hovered ? withChip(theme, summary, hint, width) : summary];
+  const rows = [pinned || hovered ? withChip(theme, summary, hint, width) : summary];
   if (hovered) highlightGroupRow(rows, 0, width, theme.bg("toolPendingBg", " ").split(" ")[0]!);
   return group.open ? [...rows, ...memberLines(record, theme, width)] : rows;
 }
@@ -474,6 +484,8 @@ function onGroupMouse(record: BlockRecord, event: TuiMouseEvent) {
     // Rows below the summary belong to the anchor member, not the group.
     if (record.mode === "hidden" || (group.open && event.y > 0)) {
       cycleMember(record);
+      // An opened member keeps a forming group from collapsing under it.
+      if (record.expansion === 1) keepGroupOpen(group);
       record.hoverSummary = false;
       record.invalidate();
       return { handled: true, render: true } as const;

@@ -679,6 +679,50 @@ describe("tool renderers", () => {
     expect(member().render(80)).toHaveLength(1);
   });
 
+  test("a forming group shows its chip on hover only, and opening a member keeps it open", async () => {
+    const handlers = new Map<string, Array<(...args: any[]) => void>>();
+    const dispatch = (event: string, ...args: unknown[]) => {
+      for (const handler of handlers.get(event) ?? []) handler(...args);
+    };
+    const tool = resolver((event, handler) => {
+      handlers.set(event, [...(handlers.get(event) ?? []), handler]);
+    })("read", () => undefined) as Renderers;
+    const children: Array<{ toolCallId: string; toolName: string; rendererState: object }> = [];
+    dispatch(
+      "session_start",
+      {},
+      {
+        hasUI: true,
+        mode: "tui",
+        ui: {
+          setWidget: (_: string, factory?: (root: object, theme: object) => void) =>
+            factory?.(historyViewport(children), theme),
+        },
+      },
+    );
+    const add = (index: number) => {
+      const toolCallId = `forming-${index}`;
+      children.push({ toolCallId, toolName: "read", rendererState: {} });
+      const context = { ...ctx, args: { path: `file-${index}` }, toolCallId, state: {}, durationMs: 500 };
+      tool.renderResult(result, {}, theme, context);
+      return () => tool.renderCall(context.args, theme, context);
+    };
+    const headers = Array.from({ length: 7 }, (_, index) => add(index));
+    await Bun.sleep(10);
+    const anchor = headers[0]!;
+    expect(toolPlan("forming-0")?.group).toMatchObject({ forming: true, open: true });
+    expect(anchor().render(80)[0]).not.toContain("[ click");
+    anchor().handleMouse?.({ ...move(), y: 0 });
+    expect(anchor().render(80)[0]).toContain("[ click · collapse ]");
+
+    headers[1]!().handleMouse?.(click());
+    for (let index = 7; index < 12; index++) add(index);
+    dispatch("agent_settled");
+    dispatch("agent_settled");
+    expect(toolPlan("forming-0")?.group).toMatchObject({ forming: false, open: true });
+    expect(anchor().render(80)[0]).toContain("[ click · collapse ]");
+  });
+
   test("an expanded standalone tool survives a turn boundary until clicked again", () => {
     const handlers: Array<() => void> = [];
     const tool = resolver((event, handler) => {
