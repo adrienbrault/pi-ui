@@ -449,13 +449,65 @@ function outputLanguage(input: ToolRowInput, text: string, kit: RenderKit): stri
   return undefined;
 }
 
-/** Highlight each side of a hunk independently so removed syntax cannot bleed into additions. */
-function editDiffRows(api: RenderApi, lines: string[], language?: string): Selected[] {
-  const rows = lines.map((line): Selected => ({ line }));
+const HUNK = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/;
+const NUMBERED_ROW = /^[ +-] *(\d+) /;
+
+/**
+ * Each diff line's number in its file: pi's display diff writes it after the sign; a unified
+ * patch counts from its hunk headers, removed lines in the old file, added and unchanged ones
+ * in the new. A hunk ends when both its sides are counted, so a removed line reading `--- ` is
+ * still a line, not a file header.
+ */
+function diffLineNumbers(lines: string[], numbered: boolean): Array<number | undefined> {
+  if (numbered) return lines.map((line) => NUMBERED_ROW.exec(line)?.[1]).map((n) => (n ? Number(n) : undefined));
+  let oldLine = 0;
+  let newLine = 0;
+  let oldLeft = 0;
+  let newLeft = 0;
+  return lines.map((line) => {
+    const hunk = HUNK.exec(line);
+    if (hunk) {
+      oldLine = Number(hunk[1]);
+      oldLeft = hunk[2] === undefined ? 1 : Number(hunk[2]);
+      newLine = Number(hunk[3]);
+      newLeft = hunk[4] === undefined ? 1 : Number(hunk[4]);
+      return undefined;
+    }
+    if (oldLeft <= 0 && newLeft <= 0) return undefined;
+    if (line.startsWith("+")) {
+      newLeft--;
+      return newLine++;
+    }
+    if (line.startsWith("-")) {
+      oldLeft--;
+      return oldLine++;
+    }
+    // `\ No newline at end of file` belongs to the line before it.
+    if (line.startsWith("\\")) return undefined;
+    oldLeft--;
+    newLeft--;
+    oldLine++;
+    return newLine++;
+  });
+}
+
+/**
+ * An edit's diff rows, each side of a hunk highlighted independently so removed syntax cannot
+ * bleed into additions. An edit's lines carry their numbers for the gutter; pi's display diff
+ * gives its own up, so a row reads sign then code.
+ */
+function editDiffRows(api: RenderApi, lines: string[], language: string | undefined, edit: boolean): Selected[] {
+  const numbered = !lines.some((line) => line.startsWith("@@ "));
+  const numbers = edit ? diffLineNumbers(lines, numbered) : [];
+  const lift = edit && numbered;
+  const rows = lines.map((line, raw): Selected => {
+    const number = numbers[raw];
+    if (number === undefined) return { line };
+    return { line, number, ...(lift ? { styled: line[0] + line.replace(NUMBERED_ROW, "") } : {}) };
+  });
   const highlight = api.kit.highlight;
   if (!language || !highlight) return rows;
-  const numbered = !lines.some((line) => line.startsWith("@@ "));
-  const prefix = numbered ? /^[ +-] *\d+ / : /^[ +-]/;
+  const prefix = numbered ? NUMBERED_ROW : /^[ +-]/;
   for (let start = 0; start < rows.length; start++) {
     if (!numbered && !rows[start]!.line.startsWith("@@ ")) continue;
     const first = numbered ? start : start + 1;
@@ -468,7 +520,8 @@ function editDiffRows(api: RenderApi, lines: string[], language?: string): Selec
       if (!code.length) continue;
       const styled = highlight(code.map(({ line }) => line.replace(prefix, "")).join("\n"), language, api.theme);
       code.forEach((row, index) => {
-        row.styled = row.line.match(prefix)![0] + (styled[index] ?? row.line.replace(prefix, ""));
+        const sign = lift ? row.line[0] : row.line.match(prefix)![0];
+        row.styled = sign + (styled[index] ?? row.line.replace(prefix, ""));
       });
     }
     start = end - 1;
@@ -562,7 +615,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
   const streamingWrite = input.name === "write" && input.status === "pending" && !input.expanded;
   const trend = streamingWrite || meta.trend === "tail" ? selectTail : selectHead;
   const diffRows = diff
-    ? editDiffRows(api, source, language)
+    ? editDiffRows(api, source, language, input.name === "edit")
         .filter(({ line }) => line.trim())
         .map((row, index) => ({ ...row, index }))
     : [];

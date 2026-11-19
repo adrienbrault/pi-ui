@@ -381,6 +381,83 @@ describe("line numbers", () => {
   });
 });
 
+/** An opened edit row's body rows, trailing background padding trimmed. */
+const editBody = (output: string, width = 80) =>
+  renderToolRow(api, { name: "edit", status: "success", level: 0, expanded: true, full: true, output })
+    .render(width)
+    .slice(1)
+    .map((row) => row.trimEnd());
+
+describe("diff line numbers", () => {
+  test("a patch numbers removed lines in the old file, added and unchanged ones in the new", () => {
+    const patch = [
+      "--- a.ts",
+      "+++ a.ts",
+      "@@ -9,3 +9,4 @@",
+      " keep nine",
+      "-old ten",
+      "+new ten",
+      "+new eleven",
+      " keep",
+      "@@ -40,2 +41,2 @@",
+      "-gone",
+      "+came",
+      " tail",
+    ].join("\n");
+    expect(editBody(patch)).toEqual([
+      "    --- a.ts",
+      "    +++ a.ts",
+      "    @@ -9,3 +9,4 @@",
+      "     9   keep nine",
+      "    10  -old ten",
+      "    10  +new ten",
+      "    11  +new eleven",
+      "    12   keep",
+      "    @@ -40,2 +41,2 @@",
+      "    40  -gone",
+      "    41  +came",
+      "    42   tail",
+    ]);
+  });
+
+  test("a removed line that reads like a file header still takes its number", () => {
+    expect(editBody("@@ -1,2 +1,1 @@\n--- a comment\n-two\n+one")).toEqual([
+      "    @@ -1,2 +1,1 @@",
+      "    1  --- a comment",
+      "    2  -two",
+      "    1  +one",
+    ]);
+  });
+
+  test("pi's numbered diff moves its numbers into the gutter", () => {
+    const diff = ["  9 a", "-10 b", "+10 B", " 11 c", "    ...", " 20 d"].join("\n");
+    expect(editBody(diff)).toEqual([
+      "     9   a",
+      "    10  -b",
+      "    10  +B",
+      "    11   c",
+      "        ...",
+      "    20   d",
+    ]);
+    // Too narrow for the gutter: the signs stay, the numbers go.
+    expect(editBody(diff, 26).slice(0, 2)).toEqual(["     a", "    -b"]);
+  });
+
+  test("a preview keeps the evidence numbered and its notice at the gutter column", () => {
+    const patch = ["@@ -1,6 +1,6 @@", " one", " two", "-three", "+THREE", " four", " five"].join("\n");
+    const rows = renderToolRow(api, { name: "edit", status: "success", level: 3, output: patch })
+      .render(80)
+      .slice(1)
+      .map((row) => row.trimEnd());
+    expect(rows).toEqual(["    @@ -1,6 +1,6 @@", "    3  -three", "    3  +THREE", "    ⋮ 4 more lines"]);
+  });
+
+  test("a shell diff keeps its text as it came", () => {
+    const rows = shell("git diff", "@@ -9,1 +9,1 @@\n-old\n+new");
+    expect(rows).toEqual(["    @@ -9,1 +9,1 @@", "    -old", "    +new"]);
+  });
+});
+
 /** A read's layout at 80 columns. */
 const trailed = (output: string, extra: Partial<ToolRowInput> = {}) =>
   toolRowLayout(api, { name: "read", status: "success", level: 0, args: { path: "a.ts" }, output, ...extra }, 80);

@@ -544,7 +544,8 @@ describe("tool renderers", () => {
     const context = { ...ctx, args: { path: "a.ts" }, state: {} };
     const content = [{ type: "text", text: "Successfully replaced 1 block(s) in a.ts." }];
     const body = tool.renderResult({ content, details: { diff: "-1 before\n+1 after" } }, {}, theme, context);
-    expect(body.render(80).map((line) => line.trimEnd())).toEqual(["    -1 before", "    +1 after"]);
+    // pi's display diff numbers its lines; the number moves to the gutter in front of the sign.
+    expect(body.render(80).map((line) => line.trimEnd())).toEqual(["    1  -before", "    1  +after"]);
     expect(tool.renderResult({ content }, {}, theme, context).render(80)[0]).toContain("Successfully replaced");
   });
 
