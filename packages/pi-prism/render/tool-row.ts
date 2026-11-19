@@ -3,7 +3,7 @@
  * point: the closer a row is to the tail, the more of its output survives.
  */
 
-import { bodyLinesFor, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
+import { bodyLinesFor, COMPACT_LEVEL, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
 import { frameAt, type GlyphSet } from "./glyphs.ts";
 import { blockBodyIndent, type ComponentLike, type RenderKit, type RenderTheme } from "./kit.ts";
 import {
@@ -357,6 +357,8 @@ interface BodyLayout {
   clipped: boolean;
   /** For a preview: where its rows sit in the whole body, one cell per body row (the last rows). */
   bar?: BarCell[];
+  /** For a preview: the source line each body row shows; undefined for a notice. */
+  sources?: Array<number | undefined>;
 }
 
 /** Cut wrapped rows to `room`, ending the last kept row with an ellipsis. */
@@ -472,7 +474,13 @@ function body(api: RenderApi, input: ToolRowInput, width: number, budget: number
   });
   if (wrap) return { rows, clipped };
   const shown = new Set(selected.flatMap((item) => (item.index === undefined ? [] : [item.index])));
-  return { rows, clipped, bar: previewBar(diff ? diffRows.length : lines.length, shown, rows.length) };
+  return {
+    rows,
+    clipped,
+    bar: previewBar(diff ? diffRows.length : lines.length, shown, rows.length),
+    // One row per selected line: a preview never wraps.
+    sources: selected.map((item) => (item.notice ? undefined : item.index)),
+  };
 }
 
 /** The header, an expanded row's full command, and the body: one row budget for all. */
@@ -500,8 +508,24 @@ export function toolRowLayout(api: RenderApi, input: ToolRowInput, width: number
     rows.push(...command);
     budget -= command.length;
   }
-  const { rows: bodyRows, clipped, bar } = body(api, input, width, budget);
-  return { rows: rows.concat(bodyRows), clipped, ...(bar ? { bar } : {}) };
+  const { rows: bodyRows, clipped, bar, sources } = body(api, input, width, budget);
+  return { rows: rows.concat(bodyRows), clipped, ...(bar ? { bar, sources } : {}) };
+}
+
+/**
+ * The row of the layout that the next level drops: the first row whose source
+ * line the next level no longer shows. Notices change text from level to level,
+ * so lines are compared by source, not by what they read. Undefined when the
+ * next level keeps every line.
+ */
+export function leavingRow(api: RenderApi, input: ToolRowInput, width: number): number | undefined {
+  if (input.expanded || input.full) return undefined;
+  const now = toolRowLayout(api, input, width);
+  const next = toolRowLayout(api, { ...input, level: Math.min(input.level + 1, COMPACT_LEVEL) as DetailLevel }, width);
+  if (!now.sources || !next.sources) return undefined;
+  const kept = new Set(next.sources);
+  const index = now.sources.findIndex((source) => source !== undefined && !kept.has(source));
+  return index < 0 ? undefined : now.rows.length - now.sources.length + index;
 }
 
 export function renderToolRow(api: RenderApi, input: ToolRowInput): ComponentLike {

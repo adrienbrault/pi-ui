@@ -7,7 +7,7 @@
  * gallery honest about what can actually ship.
  */
 
-import { bodyLinesFor, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
+import { bodyLinesFor, COMPACT_LEVEL, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
 import { frameAt, type GlyphSet } from "./glyphs.ts";
 import { blockBodyIndent, type RenderKit, type RenderTheme } from "./kit.ts";
 import { estimatedTokens, formatRate } from "./tools.ts";
@@ -132,6 +132,17 @@ export interface ThinkingFrame {
   heading: (left: string) => string;
 }
 
+/** Rows a collapsed budget gives a thought's body: at least four, less one for the notice. */
+function collapsedBudget(level: DetailLevel): number {
+  const budget = bodyLinesFor(level);
+  return Math.min(budget, Math.max(4, budget - 1));
+}
+
+/** Terminal rows of a thought's body that a level keeps: the newest ones. */
+export function thinkingKeep(level: DetailLevel): number {
+  return Math.max(1, collapsedBudget(level) - 1);
+}
+
 export function thinkingFrame(
   api: ThinkingApi,
   input: ThinkingLabelInput,
@@ -139,9 +150,7 @@ export function thinkingFrame(
 ): ThinkingFrame {
   const header = headerFor(api, input);
   const truncate = !input.expanded && (input.truncate ?? input.phase === "thinking");
-  const budget = bodyLinesFor(input.level);
-  const collapsedBudget = Math.min(budget, Math.max(4, budget - 1));
-  const keep = Math.max(1, collapsedBudget - 1);
+  const keep = thinkingKeep(input.level);
   const candidateStart = input.expanded
     ? 0
     : Math.max(0, header.source.length - (truncate ? keep : Math.max(16, keep)));
@@ -231,11 +240,9 @@ export function composeThinkingLabel(
   const visible = frame.rows.slice(from, from + frame.keep);
   const visibleSources = new Set(frame.sources.slice(from, from + frame.keep));
   const hidden = frame.sourceCount - visibleSources.size;
-  const budget = bodyLinesFor(input.level);
-  const collapsedBudget = Math.min(budget, Math.max(4, budget - 1));
   const rows = [...visible];
   const omitted = hidden || frame.rows.length - visible.length;
-  if (collapsedBudget > 1 && frame.canToggle && omitted > 0) {
+  if (collapsedBudget(input.level) > 1 && frame.canToggle && omitted > 0) {
     if (input.phase === "thinking") rows.unshift(notice(omitted));
     else rows.push(notice(omitted));
   }
@@ -252,4 +259,17 @@ export function thinkingLabel(api: ThinkingApi, input: ThinkingLabelInput): stri
 /** Report whether toggling reveals text at this width, including clipped inline previews. */
 export function thinkingLayout(api: ThinkingApi, input: ThinkingLabelInput): { label: string; canToggle: boolean } {
   return composeThinkingLabel(api, input, thinkingFrame(api, input));
+}
+
+/**
+ * The label row the next level drops, for a settled thought: its oldest kept
+ * row, under the heading. Undefined when the next level keeps the same rows,
+ * as levels whose collapsed budgets floor at four do.
+ */
+export function thinkingLeavingRow(api: ThinkingApi, input: ThinkingLabelInput): number | undefined {
+  if (input.expanded || bodyLinesFor(input.level) <= 1) return undefined;
+  const rows = thinkingFrame(api, input).rows.length;
+  const next = Math.min(input.level + 1, COMPACT_LEVEL) as DetailLevel;
+  if (bodyLinesFor(next) <= 1) return 1;
+  return Math.min(rows, thinkingKeep(input.level)) > Math.min(rows, thinkingKeep(next)) ? 1 : undefined;
 }

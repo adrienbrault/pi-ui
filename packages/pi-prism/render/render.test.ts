@@ -12,8 +12,8 @@ import {
 import { groupVerb, mcpLabel, toolMeta, groupNoun, toolTokenLabel } from "./tools.ts";
 import { formatDuration, headLines, omittedCount, tailLines } from "./text.ts";
 import { groupSegments, renderGroupMember, renderGroupRow } from "./group-row.ts";
-import { previewBar, renderToolRow, toolRowLayout } from "./tool-row.ts";
-import { thinkingFrame, thinkingLabel, thinkingLayout } from "./thinking.ts";
+import { leavingRow, previewBar, renderToolRow, toolRowLayout } from "./tool-row.ts";
+import { thinkingFrame, thinkingKeep, thinkingLabel, thinkingLayout, thinkingLeavingRow } from "./thinking.ts";
 import { glyphsFor } from "./glyphs.ts";
 import { blockDistances, type PlanBlock } from "./layout.ts";
 import { advanceTailWindow, isDropping, planTailWindow } from "./window.ts";
@@ -488,6 +488,49 @@ describe("full body budget", () => {
     expect(toolRowLayout(api, long, 80).clipped).toBe(true);
     expect(toolRowLayout(api, { ...long, output: "short" }, 80).clipped).toBe(false);
     expect(toolRowLayout(api, { ...long, expanded: true, full: true }, 80).clipped).toBe(false);
+  });
+});
+
+const leavingAt = (input: Omit<Parameters<typeof leavingRow>[1], "level">) =>
+  ([0, 1, 2, 3] as const).map((level) => leavingRow(api, { ...input, level }, 80));
+
+describe("the row that leaves", () => {
+  const thirty = Array.from({ length: 30 }, (_, index) => `L${index + 1}`).join("\n");
+  const diff = ["@@ -1,30 +1,30 @@", ...Array.from({ length: 15 }, (_, index) => `-old ${index}\n+new ${index}`)].join(
+    "\n",
+  );
+
+  test("a read loses the end of its opening, then the start of its end, in turn", () => {
+    expect(leavingAt({ name: "read", status: "success", output: thirty })).toEqual([4, 5, 3, 4]);
+  });
+
+  test("a diff loses its last evidence row, above the notice", () => {
+    expect(leavingAt({ name: "edit", status: "success", output: diff })).toEqual([7, 6, 5, 4]);
+  });
+
+  test("a log loses its oldest kept line", () => {
+    expect(leavingAt({ name: "bash", status: "success", output: thirty })).toEqual([1, 1, 1, 1]);
+  });
+
+  test("an output that fits loses nothing", () => {
+    expect(leavingAt({ name: "bash", status: "success", output: "one\ntwo" })).toEqual([
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+    ]);
+  });
+
+  test("a thought keeps its newest rows, and two levels can keep the same three", () => {
+    expect(([0, 1, 2, 3, 4] as const).map(thinkingKeep)).toEqual([6, 5, 4, 3, 3]);
+    const input = { phase: "aged", text: thirty, width: 80 } as const;
+    expect(([0, 1, 2, 3] as const).map((level) => thinkingLeavingRow(api, { ...input, level }))).toEqual([
+      1,
+      1,
+      1,
+      undefined,
+    ]);
+    expect(thinkingLeavingRow(api, { ...input, text: "short", level: 0 })).toBeUndefined();
   });
 });
 
