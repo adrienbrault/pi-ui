@@ -559,8 +559,12 @@ const oursEntries: EntryDef[] = [
         "range",
         "range from offset 95",
         0,
-        () => readRow({ args: { path: readPath, offset: 95, limit: 10 } }),
-        "line numbers start at the offset and align to the widest one shown",
+        () =>
+          readRow({
+            args: { path: readPath, offset: 95, limit: 10 },
+            output: `${FILE_TEXT}\n\n[121 more lines in file. Use offset=105 to continue.]`,
+          }),
+        "line numbers start at the offset and align to the widest one shown; pi's note on the rest of the file is the last notice",
       ),
       levelState("error", "error", 0, () =>
         readRow({ status: "error", error: "ENOENT: no such file", output: "", summary: "" }),

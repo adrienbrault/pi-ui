@@ -436,6 +436,21 @@ describe("tool renderers", () => {
     expect(hasBar(body.render(60))).toBe(true);
   });
 
+  test("a read shown whole beside pi's note on the rest of the file stays inert", () => {
+    const renderers = resolver()("read", () => undefined) as Renderers;
+    const args = { path: "notes.txt", limit: 3 };
+    const context = { ...ctx, args, state: {} };
+    renderers.renderCall(args, barred, context);
+    const text = "one\ntwo\nthree\n\n[121 more lines in file. Use offset=4 to continue.]";
+    const body = renderers.renderResult({ content: [{ type: "text", text }] }, {}, barred, context);
+    const idle = body.render(80);
+    expect(idle.map(stripTerminalSequences).at(-1)?.trim()).toBe("↓ 121 more lines in file");
+    body.handleMouse?.({ ...move(), y: 1 });
+    expect(hasBar(body.render(80))).toBe(false);
+    body.handleMouse?.({ ...click(), y: 1 });
+    expect(body.render(80)).toEqual(idle);
+  });
+
   test("owned tools claim the row and grow the body on click", () => {
     const renderers = resolver()("bash", () => undefined) as Renderers;
     const header = renderers.renderCall(ctx.args, theme, ctx);

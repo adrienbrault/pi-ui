@@ -9,9 +9,17 @@ import {
   settleLevel,
 } from "./detail.ts";
 import { groupVerb, mcpLabel, toolMeta, groupNoun, toolTokenLabel } from "./tools.ts";
-import { formatDuration, headLines, omittedCount, tailLines } from "./text.ts";
+import { formatDuration, headLines, nonEmptyLineCount, omittedCount, tailLines } from "./text.ts";
 import { groupSegments, renderGroupMember, renderGroupRow } from "./group-row.ts";
-import { leavingRow, previewBar, renderToolRow, toolHeader, toolRowLayout, type ToolRowInput } from "./tool-row.ts";
+import {
+  leavingRow,
+  previewBar,
+  previewText,
+  renderToolRow,
+  toolHeader,
+  toolRowLayout,
+  type ToolRowInput,
+} from "./tool-row.ts";
 import {
   thinkingFrame,
   thinkingKeep,
@@ -370,6 +378,68 @@ describe("line numbers", () => {
       output: "one",
     });
     expect(running.render(80)[1]).toBe("    one");
+  });
+});
+
+/** A read's layout at 80 columns. */
+const trailed = (output: string, extra: Partial<ToolRowInput> = {}) =>
+  toolRowLayout(api, { name: "read", status: "success", level: 0, args: { path: "a.ts" }, output, ...extra }, 80);
+
+describe("pi's read trailer", () => {
+  const more = "\n\n[121 more lines in file. Use offset=4 to continue.]";
+
+  test("the continuation note is a notice below the code, not a numbered line", () => {
+    const layout = trailed(`alpha\nbeta\ngamma${more}`);
+    expect(layout.rows.slice(1)).toEqual([
+      "    1  alpha",
+      "    2  beta",
+      "    3  gamma",
+      "    ↓ 121 more lines in file",
+    ]);
+    expect(layout.sources).toEqual([0, 1, 2, undefined]);
+    // Nothing is hidden that opening the row would show.
+    expect(layout.omission).toBeUndefined();
+    expect(nonEmptyLineCount(previewText({ name: "read", output: `alpha\nbeta\ngamma${more}` }))).toBe(3);
+  });
+
+  test("pi's truncation notes count the lines left in the file", () => {
+    for (const note of [
+      "[Showing lines 1-3 of 124. Use offset=4 to continue.]",
+      "[Showing lines 1-3 of 124 (50.0KB limit). Use offset=4 to continue.]",
+    ]) {
+      expect(trailed(`alpha\nbeta\ngamma\n\n${note}`).rows.at(-1)).toBe("    ↓ 121 more lines in file");
+    }
+  });
+
+  test("the notice takes its row from the budget before the code is chosen", () => {
+    const layout = trailed(numbered(40) + more, { level: 4 });
+    expect(layout.rows.slice(1)).toEqual([
+      "     1  line 1",
+      "    ⋮ 38 more lines",
+      "    40  line 40",
+      "    ↓ 121 more lines in file",
+    ]);
+    expect(layout.omission).toBe(2);
+    // Each level drops the line the next level would drop without the notice.
+    const thirty = { name: "read", status: "success", args: { path: "a.ts" }, output: numbered(30) } as const;
+    expect(leavingAt({ ...thirty, output: thirty.output + more }).slice(0, 3)).toEqual(leavingAt(thirty).slice(1));
+  });
+
+  test("a one-row read keeps its own notice and leaves the file note out", () => {
+    expect(trailed(numbered(40) + more, { level: 7 }).rows.slice(1)).toEqual(["    ↓ 40 more lines"]);
+  });
+
+  test("an opened read ends with the note", () => {
+    const rows = trailed(numbered(12) + more, { expanded: true, full: true }).rows;
+    expect(rows).toHaveLength(14);
+    expect(rows.at(-2)).toBe("    12  line 12");
+    expect(rows.at(-1)).toBe("    ↓ 121 more lines in file");
+  });
+
+  test("only a read's own trailer is taken out", () => {
+    const log = renderToolRow(api, { name: "bash", status: "success", level: 0, output: `alpha${more}` }).render(80);
+    expect(log.at(-1)).toBe("    [121 more lines in file. Use offset=4 to continue.]");
+    expect(trailed(`[121 more lines in file. Use offset=4 to continue.]\nalpha`).rows.at(-1)).toBe("    2  alpha");
   });
 });
 

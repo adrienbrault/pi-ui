@@ -476,11 +476,29 @@ function editDiffRows(api: RenderApi, lines: string[], language?: string): Selec
   return rows;
 }
 
+/**
+ * pi's read ends a partial range with how to continue it: `[N more lines in file. Use offset=X
+ * to continue.]` after a `limit`, or `[Showing lines A-B of T. Use offset=X to continue.]`, with
+ * the byte limit in parentheses when that cut it.
+ */
+const READ_TRAILER =
+  /\n\n\[(?:(\d+) more lines in file|Showing lines \d+-(\d+) of (\d+)(?: \([^)\n]*\))?)\. Use offset=\d+ to continue\.\]$/;
+
+/** A read's file lines, and how many lines of the file follow them when pi says so. */
+export function splitReadTrailer(output: string): { content: string; remaining?: number } {
+  const match = READ_TRAILER.exec(output);
+  if (!match) return { content: output };
+  const remaining = match[1] === undefined ? Number(match[3]) - Number(match[2]) : Number(match[1]);
+  return { content: output.slice(0, match.index), remaining };
+}
+
+/** The text a body previews: a write's content, a read's lines without pi's continuation note, or the output. */
 export function previewText(input: Pick<ToolRowInput, "name" | "args" | "output" | "error">): string {
   if (input.name === "write" && !input.error && typeof input.args?.content === "string" && input.args.content.length) {
     return input.args.content;
   }
-  return input.output ?? "";
+  const output = input.output ?? "";
+  return input.name === "read" && !input.error ? splitReadTrailer(output).content : output;
 }
 
 const rowCount = (items: string[][]) => items.reduce((sum, rows) => sum + rows.length, 0);
@@ -493,6 +511,8 @@ interface BodyLayout {
   bar?: BarCell[];
   /** For a preview: the source line each body row shows; undefined for a notice. */
   sources?: Array<number | undefined>;
+  /** For a preview: the row of the notice whose lines opening the block shows, when there is one. */
+  omission?: number;
 }
 
 /** Cut wrapped rows to `room`, ending the last kept row with the cut mark. */
@@ -508,10 +528,15 @@ function clipRows(kit: RenderKit, rows: string[], room: number, width: number, m
  * one row, cut at the width. An expanded row wraps long lines, and wrapped rows
  * count against the same budget as everything else.
  */
-function body(api: RenderApi, input: ToolRowInput, width: number, budget: number): BodyLayout {
+function body(api: RenderApi, input: ToolRowInput, width: number, total: number): BodyLayout {
   const { theme, kit } = api;
   const empty: BodyLayout = { rows: [], clipped: false };
-  if (budget <= 0) return empty;
+  if (total <= 0) return empty;
+  // The lines pi's read left in the file: a notice on the last row, which the code may not take.
+  // A one-row body keeps its own row for the code.
+  const remaining = input.name === "read" && !input.error ? splitReadTrailer(input.output ?? "").remaining : undefined;
+  const fileNote = remaining && total > 1 ? remaining : undefined;
+  const budget = fileNote ? total - 1 : total;
 
   const meta = toolMeta(input.name);
   const text = cleanOutput(input.error ? errorDetail(input, meta) : previewText(input));
@@ -630,14 +655,21 @@ function body(api: RenderApi, input: ToolRowInput, width: number, budget: number
     room -= kept.length;
     return kept;
   });
+  if (fileNote) {
+    const label = `${omittedLinesLabel(fileNote, "below", api.glyphs)} in file`;
+    rows.push(indent + kit.truncateToWidth(omissionStyle(theme, label), inner, mark));
+  }
   if (wrap) return { rows, clipped };
   const shown = new Set(selected.flatMap((item) => (item.index === undefined ? [] : [item.index])));
+  // The file note hides lines no click can show; only a notice among the selected lines opens.
+  const omission = selected.findIndex((item) => item.notice);
   return {
     rows,
     clipped,
     bar: previewBar(diff ? diffRows.length : lines.length, shown, rows.length),
-    // One row per selected line: a preview never wraps.
-    sources: selected.map((item) => (item.notice ? undefined : item.index)),
+    // One row per selected line, then the file note: a preview never wraps.
+    sources: [...selected.map((item) => (item.notice ? undefined : item.index)), ...(fileNote ? [undefined] : [])],
+    ...(omission === -1 ? {} : { omission }),
   };
 }
 
@@ -663,8 +695,13 @@ export function toolRowLayout(api: RenderApi, input: ToolRowInput, width: number
     rows.push(...command);
     budget -= command.length;
   }
-  const { rows: bodyRows, clipped, bar, sources } = body(api, input, width, budget);
-  return { rows: rows.concat(bodyRows), clipped, ...(bar ? { bar, sources } : {}) };
+  const { rows: bodyRows, clipped, bar, sources, omission } = body(api, input, width, budget);
+  return {
+    rows: rows.concat(bodyRows),
+    clipped,
+    ...(bar ? { bar, sources } : {}),
+    ...(omission === undefined ? {} : { omission: rows.length + omission }),
+  };
 }
 
 /**

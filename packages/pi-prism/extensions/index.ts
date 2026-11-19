@@ -339,10 +339,8 @@ function bodyComponent(record: BlockRecord, theme: Theme, includeHeader = false)
         );
       }
       // The omission notice: above a tail, at the cut of a head-and-tail read, below a diff's evidence.
-      // The renderer marks it as the body row with no source line, so output that reads like one is not.
-      const sources = layout.sources ?? [];
-      const notice = sources.indexOf(undefined);
-      const omission = notice === -1 ? -1 : rows.length - sources.length + notice;
+      // The renderer names its row, so output that reads like one is not, nor pi's note on a partial read.
+      const omission = layout.omission === undefined ? -1 : layout.omission - (includeHeader ? 0 : 1);
       const expandable =
         record.commandClipped ||
         omission !== -1 ||
