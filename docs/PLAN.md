@@ -52,7 +52,7 @@ The remaining hard part is grouping across rows: each `ToolExecutionComponent` o
 
 ```
 design-system/
-  lib/pi.ts        resolve the pi install actually in use (env → `which pi` → repo node_modules)
+  lib/pi.ts        resolve the pi install to render against (env → pinned repo install → nvm/global)
   lib/theme.ts     load dark/light theme JSON, resolve vars, initTheme + setThemeInstance
   lib/surface.ts   component → string[] → ANSI→HTML; width/theme cache
   registry.ts      variant × component × state × width × theme

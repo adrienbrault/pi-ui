@@ -19,9 +19,19 @@ bun run typecheck    # native tsgo; typecheck:slow falls back to tsc
 bun run lint         # oxlint, warnings are errors
 bun run format       # biome format
 bun test             # bun:test, renderer behaviour and row budgets
+bun run e2e          # drive a real pi in tmux through scripted sessions (offline)
 ```
 
-The gallery resolves the pi install you actually run (`PI_CODING_AGENT_ROOT`, then `nvm`, then a global or local install), so cards show the real thing rather than a drawing. Generated output lives in `design-system/web/` (untracked); the ANSI fixtures in `design-system/fixtures/` are tracked goldens.
+## Trying it in pi
+
+```bash
+pi -e /path/to/pi-extensions/packages/pi-prism/extensions/index.ts
+pi --tui-mode fullscreen -e /path/to/pi-extensions/packages/pi-prism/extensions/index.ts
+```
+
+Add `--no-extensions` to load pi-prism alone, plus `-e` for any provider extension you need.
+
+The gallery renders against a real pi install: `PI_CODING_AGENT_ROOT` if set, otherwise the pi version pinned in `packages/pi-prism` (then `nvm` or a global install if dependencies are missing). Cards show the real thing rather than a drawing, and `ds:check` gives the same answer on every machine. Generated output lives in `design-system/web/` (untracked); the ANSI fixtures in `design-system/fixtures/` are tracked goldens.
 
 ## Layout
 
