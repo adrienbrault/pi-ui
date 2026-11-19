@@ -47,13 +47,3 @@ export function cutMark(theme: RenderTheme): string {
 export function blockBodyIndent(width: number): string {
   return "    ".slice(0, Math.max(0, width - 1));
 }
-
-export function indented(prefix: string, text: string, width: number, kit: RenderKit): string {
-  const budget = Math.max(1, width - prefix.length);
-  return prefix + kit.truncateToWidth(text, budget, "…");
-}
-
-export function padBetween(left: string, right: string, width: number, theme: RenderTheme, kit: RenderKit): string {
-  const gap = Math.max(0, width - kit.visibleWidth(left) - kit.visibleWidth(right));
-  return left + theme.fg("dim", " ".repeat(gap)) + right;
-}
