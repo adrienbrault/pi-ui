@@ -9,14 +9,14 @@ Status: agreed direction. Working package name `pi-prism` (rename later; nothing
 | Transcript control | Runtime decorator over the live TUI layout root, behind capability probes and version guards |
 | Design system | Render-truth: real components rendered to ANSI, no hand-drawn mockups; reviewed in the terminal |
 | Packaging | Standalone full replacement of the pi UI (staged; transcript first, chrome later) |
-| Decay unit | Block index within the current run; whole runs collapse and group beyond it |
+| Decay unit | Block index within the current run, one level per two blocks; whole runs collapse and group beyond it |
 
 ## Goal
 
 Make a long agentic session readable at a glance without losing the live detail:
 
 - The newest block streams with a bounded tail (max 8 lines).
-- Completed previews age as newer blocks arrive, including on screen. Visible previews step down one at a time before joining a group. A new group lists its members, one row each, until it holds six rows, so the reader sees what opening a group looks like and the transcript shrinks gradually.
+- Completed previews age as newer blocks arrive, including on screen. Visible previews step down one level at a time, a level every two newer blocks, before joining a group ten blocks back. A new group lists its members, one row each, until it holds six rows, so the reader sees what opening a group looks like and the transcript shrinks gradually.
 - Older runs stop being a pile of one-liners and become one grouped summary that reads as a sentence: `Thought for 3m 40s, listed 3 directories, ran 30 shell commands for 2m 05s (4 failed)`.
 - Clicking a collapsed group member opens it until clicked again. A standalone tool pin lasts until clicked again.
 - The same rules apply to thinking, tool calls (builtin + MCP + codemode), reads, writes, edits, and shell output.
@@ -102,7 +102,7 @@ The four-row preview fits three content lines and one omission notice.
 - The newest group of the run lists one row per member up to five rows (`FORMING_ROWS`). At the sixth it collapses: its member rows leave bottom to top, one fade per row, as any departing row does.
 - The live block is pinned to L0 regardless of its own length.
 - Recompute on structural events only: `message_start`, `tool_execution_start/end`, `turn_end`, `agent_settled`, plus once when a fade step completes. Never per token. A fade tick repaints only the fading block; it never walks the transcript.
-- Hysteresis: an unanimated level change (an offscreen block, or a block catching up more than one step) needs two consecutive recomputes that agree, so stream chatter does not flicker heights. A completed fade commits its step directly, and a group's forming state follows its member count directly.
+- Hysteresis: an unanimated level change (an offscreen block, or a block catching up more than one level) needs two consecutive recomputes that agree, so stream chatter does not flicker heights. A completed fade commits its step directly, and a group's forming state follows its member count directly.
 - Clicking a standalone tool pins it at its expanded form until clicked again; the pin is keyed by tool call id or message id, so it survives re-render and restore.
 
 #### Taxonomy
@@ -180,4 +180,4 @@ pi-extensions/
 
 - Package name and branding.
 - Whether "ours" absorbs pi-code's todo/subagent/tool renderers by import or reimplementation in P4.
-- Whether to expose the decay curve as a setting (`/prism decay 7,5,3,1`) or keep it fixed for v1. For now the tail budget, the fold distance and the forming size are constants in `render/detail.ts`; a setting should arrive as explicit parameters with its own design, including the floor a separate fold distance needs.
+- Whether to expose the decay curve as a setting (`/prism decay 7,5,3,1`) or keep it fixed for v1. For now the tail budget, the blocks per step, the fold distance and the forming size are constants in `render/detail.ts`; a setting should arrive as explicit parameters with its own design, including the floor a separate fold distance needs.

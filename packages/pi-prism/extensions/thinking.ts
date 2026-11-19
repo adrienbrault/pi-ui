@@ -15,7 +15,7 @@
 
 import type { Component } from "@earendil-works/pi-tui";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { COMPACT_LEVEL, FOLD_DISTANCE, type DetailLevel } from "../render/detail.ts";
+import { COMPACT_LEVEL, detailFor, FOLD_DISTANCE, type DetailLevel } from "../render/detail.ts";
 import { glyphsFor } from "../render/glyphs.ts";
 import { renderGroupMember, renderGroupRow } from "../render/group-row.ts";
 import { KIT } from "./kit.ts";
@@ -709,8 +709,14 @@ function patchTree(
         repaint.add(unit.component);
         unit.distance = allowed;
         if (allowed < target) catching.add(unit.component);
-      } else if (fading || (target - previous === 1 && !catching.has(unit.component))) {
-        // One step behind, or mid-row: animate in turn.
+      } else if (fading) {
+        // Mid-row: the fade finishes first.
+        unit.distance = previous;
+      } else if (detailFor(target) === detailFor(previous)) {
+        // Newer blocks that leave the level as it is: nothing to animate or to wait for.
+        unit.distance = target;
+      } else if (detailFor(target) - detailFor(previous) === 1 && !catching.has(unit.component)) {
+        // One step behind: animate in turn.
         unit.distance = previous;
       } else {
         // More than one step behind and not fading: catch up without animation,
@@ -801,7 +807,8 @@ function patchTree(
   }
   const head = waiting.find((unit) => unit.component === floor);
   if (head && !fadeOf(head.component)) {
-    const folding = head.distance + 1 === FOLD_DISTANCE;
+    // A step is a level: the one after the last standalone level is the fold.
+    const folding = detailFor(head.distance) + 1 === detailFor(FOLD_DISTANCE);
     startFade(
       head.component,
       head.kind === "tool" ? head.key : undefined,

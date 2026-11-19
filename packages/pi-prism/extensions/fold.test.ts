@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test } from "bun:test";
-import { bodyLinesFor, FOLD_DISTANCE, FORMING_ROWS } from "../render/detail.ts";
+import { BLOCKS_PER_STEP, bodyLinesFor, detailFor, FOLD_DISTANCE, FORMING_ROWS } from "../render/detail.ts";
 import { blockDistances, type PlanBlock } from "../render/layout.ts";
 import type { GroupClass } from "../render/tools.ts";
 import {
@@ -48,11 +48,12 @@ function tools(classes: GroupClass[], failed: number[] = []): FoldUnit[] {
 }
 
 describe("live fold plan", () => {
-  test("the default keeps five recent blocks and reduces an eight-row preview to four before folding", () => {
-    const units = tools(Array<GroupClass>(12).fill("read"));
+  test("the default holds each level for a step of blocks and reduces an eight-row preview to four before folding", () => {
+    const units = tools(Array<GroupClass>(FOLD_DISTANCE + 7).fill("read"));
     planFolds(units);
     expect(toolPlan("k0")?.group?.members).toHaveLength(7);
-    expect(units.slice(7).map((item) => bodyLinesFor(toolPlan(item.key)!.level))).toEqual([4, 5, 6, 7, 8]);
+    const ladder = [4, 5, 6, 7, 8].flatMap((lines) => Array<number>(BLOCKS_PER_STEP).fill(lines));
+    expect(units.slice(7).map((item) => bodyLinesFor(toolPlan(item.key)!.level))).toEqual(ladder);
   });
 
   test("prose after a tool does not age it into a group", () => {
@@ -63,7 +64,7 @@ describe("live fold plan", () => {
 
   test("folded command totals include failures and count them", () => {
     const units = tools(
-      Array.from({ length: 29 }, (): GroupClass => "shell"),
+      Array.from({ length: 24 + FOLD_DISTANCE }, (): GroupClass => "shell"),
       [0, 3, 12, 23],
     );
     planFolds(units);
@@ -72,12 +73,23 @@ describe("live fold plan", () => {
   });
 
   test("a recent failure keeps its own row until old enough to fold", () => {
-    planFolds(tools(["read", "edit", "read", "read"], [1]));
-    expect(toolPlan("k1")).toMatchObject({ mode: "normal", level: 2 });
+    const recent = Array<GroupClass>(FOLD_DISTANCE - 1).fill("read");
+    planFolds(tools(["read", "edit", ...recent], [1]));
+    expect(toolPlan("k1")).toMatchObject({ mode: "normal", level: detailFor(FOLD_DISTANCE - 1) });
+    planFolds(tools(["read", "edit", ...recent, "read"], [1]));
+    expect(toolPlan("k1")?.mode).toBe("hidden");
+    expect(toolPlan("k0")?.group?.segments).toEqual([
+      { cls: "read", count: 1 },
+      { cls: "edit", count: 1, failed: 1 },
+    ]);
   });
 
   test("groups merge counts by class in encounter order", () => {
-    const classes: GroupClass[] = [...Array<GroupClass>(9).fill("read"), "edit", ...Array<GroupClass>(10).fill("read")];
+    const classes: GroupClass[] = [
+      ...Array<GroupClass>(9).fill("read"),
+      "edit",
+      ...Array<GroupClass>(FOLD_DISTANCE + 5).fill("read"),
+    ];
     planFolds(tools(classes));
     expect(toolPlan("k0")?.group?.segments).toEqual([
       { cls: "read", count: 14 },
@@ -86,11 +98,13 @@ describe("live fold plan", () => {
   });
 
   test("thoughts and commands that recede together share one summary", () => {
+    // Eleven commands past the fold distance, the rest recent.
+    const commands = 11 + FOLD_DISTANCE;
     const units = [
-      unit("thinking", "t0", 18),
-      unit("thinking", "t1", 17),
-      unit("thinking", "t2", 16),
-      ...Array.from({ length: 16 }, (_, index) => unit("tool", `c${index}`, 15 - index)),
+      unit("thinking", "t0", commands + 2),
+      unit("thinking", "t1", commands + 1),
+      unit("thinking", "t2", commands),
+      ...Array.from({ length: commands }, (_, index) => unit("tool", `c${index}`, commands - 1 - index)),
     ];
     planFolds(units);
     const anchor = thinkingPlan(units[0]!.component);
@@ -106,9 +120,12 @@ describe("live fold plan", () => {
 
   test("a summary totals thinking time and shell runtime, and a later timing refreshes it", () => {
     const units = [
-      { ...unit("thinking", "t0", 14), count: 2, activeMs: 200_000 },
-      { ...unit("thinking", "t1", 12), activeMs: 20_000 },
-      ...Array.from({ length: 6 }, (_, index) => ({ ...unit("tool", `r${index}`, 11 - index), activeMs: 1000 })),
+      { ...unit("thinking", "t0", FOLD_DISTANCE + 9), count: 2, activeMs: 200_000 },
+      { ...unit("thinking", "t1", FOLD_DISTANCE + 7), activeMs: 20_000 },
+      ...Array.from({ length: 6 }, (_, index) => ({
+        ...unit("tool", `r${index}`, FOLD_DISTANCE + 6 - index),
+        activeMs: 1000,
+      })),
     ];
     planFolds(units);
     expect(thinkingPlan(units[0]!.component)?.group?.segments).toEqual([
@@ -125,10 +142,10 @@ describe("live fold plan", () => {
 
   test("a boundary keeps its own row and starts a new group", () => {
     const units = [
-      unit("tool", "a0", 9),
-      unit("tool", "a1", 8),
-      { ...unit("tool", "fail", 7), failed: true, boundary: true },
-      unit("tool", "b0", 3),
+      unit("tool", "a0", FOLD_DISTANCE + 4),
+      unit("tool", "a1", FOLD_DISTANCE + 3),
+      { ...unit("tool", "fail", FOLD_DISTANCE + 2), failed: true, boundary: true },
+      unit("tool", "b0", FOLD_DISTANCE - 2),
     ];
     planFolds(units);
     expect(toolPlan("a0")?.mode).toBe("anchor");
@@ -139,9 +156,9 @@ describe("live fold plan", () => {
 
   test("elapsed time includes model latency and uses the latest finish of overlapping tools", () => {
     const units = [
-      { ...unit("thinking", "timed", 12), startedAt: 1000, endedAt: 7000 },
-      { ...unit("tool", "slow", 11), startedAt: 7100, endedAt: 9500 },
-      { ...unit("tool", "fast", 10), startedAt: 7150, endedAt: 7300 },
+      { ...unit("thinking", "timed", FOLD_DISTANCE + 2), startedAt: 1000, endedAt: 7000 },
+      { ...unit("tool", "slow", FOLD_DISTANCE + 1), startedAt: 7100, endedAt: 9500 },
+      { ...unit("tool", "fast", FOLD_DISTANCE), startedAt: 7150, endedAt: 7300 },
     ];
     planFolds(units);
     expect(toolPlan("fast")?.group?.durationMs).toBe(8500);
@@ -152,7 +169,11 @@ describe("live fold plan", () => {
   });
 
   test("an unchanged transcript invalidates no tools or thoughts", () => {
-    const units = [unit("thinking", "thought", 10), unit("tool", "old", 9), unit("tool", "recent", 0)];
+    const units = [
+      unit("thinking", "thought", FOLD_DISTANCE + 1),
+      unit("tool", "old", FOLD_DISTANCE),
+      unit("tool", "recent", 0),
+    ];
     planFolds(units);
     expect(planFolds(units).size).toBe(0);
     units[1]!.endedAt = 42;
@@ -160,8 +181,8 @@ describe("live fold plan", () => {
   });
 
   test("an open group stays open when a completed tool becomes its new anchor", () => {
-    const before = unit("tool", "was-running", 10);
-    const member = unit("tool", "inspected", 9);
+    const before = unit("tool", "was-running", FOLD_DISTANCE + 1);
+    const member = unit("tool", "inspected", FOLD_DISTANCE);
     planFolds([{ ...before, boundary: true }, member]);
     setGroupOpen(toolPlan(member.key)!.group!, true);
     planFolds([before, member]);
@@ -174,11 +195,11 @@ describe("live fold plan", () => {
 
   test("opening a group survives the next plan", () => {
     // An earlier run: its group no longer forms.
-    planFolds([older("a0", 9), older("a1", 8)]);
+    planFolds([older("a0", FOLD_DISTANCE + 1), older("a1", FOLD_DISTANCE)]);
     const group = toolPlan("a0")?.group;
     expect(group?.open).toBe(false);
     setGroupOpen(group!, true);
-    planFolds([older("a0", 9), older("a1", 8)]);
+    planFolds([older("a0", FOLD_DISTANCE + 1), older("a1", FOLD_DISTANCE)]);
     expect(toolPlan("a0")?.group?.open).toBe(true);
   });
 });
@@ -192,14 +213,14 @@ describe("forming group", () => {
   });
 
   test("a thought counts one row per run", () => {
-    planFolds([{ ...unit("thinking", "t", 9), count: 3 }, ...folded(2)]);
+    planFolds([{ ...unit("thinking", "t", FOLD_DISTANCE + 3), count: 3 }, ...folded(2)]);
     expect(toolPlan("f0")?.group?.forming).toBe(true);
-    planFolds([{ ...unit("thinking", "t", 9), count: 4 }, ...folded(2)]);
+    planFolds([{ ...unit("thinking", "t", FOLD_DISTANCE + 3), count: 4 }, ...folded(2)]);
     expect(toolPlan("f0")?.group?.forming).toBe(false);
   });
 
   test("only the later of two groups split by a boundary forms", () => {
-    planFolds([...folded(2, "a"), { ...unit("tool", "edge", 8), boundary: true }, ...folded(2, "b")]);
+    planFolds([...folded(2, "a"), { ...unit("tool", "edge", FOLD_DISTANCE), boundary: true }, ...folded(2, "b")]);
     expect(toolPlan("a0")?.group?.forming).toBe(false);
     expect(toolPlan("b0")?.group?.forming).toBe(true);
   });
@@ -220,7 +241,11 @@ describe("forming group", () => {
     const first = folded(2);
     planFolds(first);
     const group = toolPlan("f0")?.group;
-    const changed = planFolds([...first, { ...unit("tool", "edge", 8), boundary: true }, ...folded(1, "n")]);
+    const changed = planFolds([
+      ...first,
+      { ...unit("tool", "edge", FOLD_DISTANCE), boundary: true },
+      ...folded(1, "n"),
+    ]);
     // The same group, now shown collapsed: its hidden member must render again.
     expect(toolPlan("f0")?.group).toBe(group!);
     expect(group?.forming).toBe(false);
@@ -243,10 +268,10 @@ describe("forming group", () => {
 
   test("merging an open and a closed group opens the result", () => {
     // Six rows: too many to form, so only the merge rule can open it.
-    planFolds([...folded(3, "a"), { ...unit("tool", "edge", 8), boundary: true }, ...folded(2, "b")]);
+    planFolds([...folded(3, "a"), { ...unit("tool", "edge", FOLD_DISTANCE), boundary: true }, ...folded(2, "b")]);
     setGroupOpen(toolPlan("a0")!.group!, true);
     setGroupOpen(toolPlan("b0")!.group!, false);
-    planFolds([...folded(3, "a"), unit("tool", "edge", 8), ...folded(2, "b")]);
+    planFolds([...folded(3, "a"), unit("tool", "edge", FOLD_DISTANCE), ...folded(2, "b")]);
     expect(toolPlan("b1")?.group).toMatchObject({ forming: false, open: true });
     expect(toolPlan("b1")?.group?.members).toHaveLength(6);
   });
@@ -264,8 +289,13 @@ describe("forming group", () => {
   });
 
   test("a collapse drops listed rows from the bottom, a thought one row per run, and hides unlisted members", () => {
-    const thought = { ...unit("thinking", "thought", 9), count: 2 };
-    const units = [unit("tool", "t0", 10), thought, unit("tool", "t1", 8), unit("tool", "late", 7)];
+    const thought = { ...unit("thinking", "thought", FOLD_DISTANCE + 2), count: 2 };
+    const units = [
+      unit("tool", "t0", FOLD_DISTANCE + 3),
+      thought,
+      unit("tool", "t1", FOLD_DISTANCE + 1),
+      unit("tool", "late", FOLD_DISTANCE),
+    ];
     planFolds(units);
     const group = toolPlan("t0")!.group!;
     const frame = startFade(group, undefined, true);
@@ -286,7 +316,7 @@ describe("forming group", () => {
   });
 
   test("a forming group merging with a closed one lets the rows it listed leave", () => {
-    const edge = { ...unit("tool", "edge", 8), boundary: true };
+    const edge = { ...unit("tool", "edge", FOLD_DISTANCE), boundary: true };
     const units = [...folded(3, "a"), edge, ...folded(3, "b")];
     const collapses: string[][] = [];
     const onCollapse = (group: LiveFoldGroup, shown: Set<object>) =>

@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  BLOCKS_PER_STEP,
   COMPACT_LEVEL,
   FOLD_DISTANCE,
   MAX_FULL_LINES,
@@ -134,8 +135,13 @@ describe("head truncation", () => {
 
 describe("detail ladder", () => {
   test("distance maps to levels and saturates", () => {
-    expect([0, 1, 2, 3, 4, 5, 6, 7, 10].map(detailFor)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 7]);
+    // Each level holds for BLOCKS_PER_STEP newer blocks.
+    const steps = [0, 1, 2, 3, 4, 5, 6, 7, 10];
+    expect(steps.map((step) => detailFor(step * BLOCKS_PER_STEP))).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 7]);
+    expect(steps.map((step) => detailFor((step + 1) * BLOCKS_PER_STEP - 1))).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 7]);
     expect(detailFor(-1)).toBe(0);
+    // The fold distance is the first distance past the last standalone level.
+    expect(detailFor(FOLD_DISTANCE - 1) + 1).toBe(detailFor(FOLD_DISTANCE));
   });
 
   test("row budgets shrink monotonically and never exceed the live cap", () => {
@@ -1171,13 +1177,21 @@ describe("block distances", () => {
   test("a thought counts its runs and a thought beside prose counts nothing", () => {
     expect(blockDistances([{ kind: "thinking", count: 2 }, tool])[0]?.distance).toBe(1);
     expect(blockDistances([tool, { kind: "thinking", count: 2 }])[0]?.distance).toBe(2);
-    const mixed = blockDistances([{ kind: "thinking", withProse: true }, tool, tool, tool, tool, tool, tool]);
-    expect(mixed.map((block) => block.distance)).toEqual([FOLD_DISTANCE, 5, 4, 3, 2, 1, 0]);
+    const tools = Array.from({ length: FOLD_DISTANCE + 1 }, () => tool);
+    const mixed = blockDistances([{ kind: "thinking", withProse: true }, ...tools]);
+    expect(mixed.map((block) => block.distance)).toEqual([
+      FOLD_DISTANCE,
+      ...tools.map((_, index) => FOLD_DISTANCE - index),
+    ]);
   });
 
   test("distances stop at the fold distance", () => {
-    const distances = blockDistances(Array.from({ length: 12 }, () => tool));
-    expect(distances.map((block) => block.distance)).toEqual([5, 5, 5, 5, 5, 5, 5, 4, 3, 2, 1, 0]);
+    const distances = blockDistances(Array.from({ length: FOLD_DISTANCE + 7 }, () => tool));
+    const recent = Array.from({ length: FOLD_DISTANCE }, (_, index) => FOLD_DISTANCE - 1 - index);
+    expect(distances.map((block) => block.distance)).toEqual([
+      ...Array.from({ length: 7 }, () => FOLD_DISTANCE),
+      ...recent,
+    ]);
   });
 });
 

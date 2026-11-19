@@ -9,7 +9,7 @@ import { glyphsFor } from "../packages/pi-prism/render/glyphs.ts";
 import { groupSegments, renderGroupMember, renderGroupRow } from "../packages/pi-prism/render/group-row.ts";
 import { cutMark, type RenderKit } from "../packages/pi-prism/render/kit.ts";
 import type { DetailLevel } from "../packages/pi-prism/render/detail.ts";
-import { COMPACT_LEVEL, FOLD_DISTANCE } from "../packages/pi-prism/render/detail.ts";
+import { BLOCKS_PER_STEP, COMPACT_LEVEL, FOLD_DISTANCE } from "../packages/pi-prism/render/detail.ts";
 import { blockDistances, type PlanBlock } from "../packages/pi-prism/render/layout.ts";
 import {
   type FoldUnit,
@@ -731,6 +731,11 @@ const decayRows: ScenarioRow[] = [
     key: "read-3",
   },
   { ...editRow({ title: "extensions/prism/thinking.ts", summary: "+18 −3" }), key: "edit-2" },
+  { ...bashRow({ title: "bun run typecheck", output: SHELL_OK, durationMs: 2400 }), key: "bash-3" },
+  { ...readRow({ title: "extensions/prism/fold.ts" }), key: "read-4" },
+  { ...editRow({ title: "extensions/prism/fold.ts", summary: "+9 −2" }), key: "edit-3" },
+  { ...readRow({ title: "extensions/prism/fold.test.ts" }), key: "read-5" },
+  { ...editRow({ title: "extensions/prism/fold.test.ts", summary: "+24 −0" }), key: "edit-4" },
   { ...bashRow({ title: "bun test", output: SHELL_OK, durationMs: 8100 }), key: "bash-2" },
   { ...mcpRow({ title: "memory/search" }), key: "mcp-1" },
 ];
@@ -969,7 +974,7 @@ const scenarioEntries: EntryDef[] = [
     title: "Decay ladder",
     group: "scenarios",
     variant: "ours",
-    description: "Nine distances from the tail: older previews shrink and fold into a group.",
+    description: `Nine ages, one newer block apart: a preview keeps one line fewer every ${BLOCKS_PER_STEP} newer blocks, then folds into a group.`,
     states: Array.from({ length: 9 }, (_, offset) => ({
       id: `d${offset}`,
       label: `distance ${offset}`,
@@ -993,7 +998,7 @@ const scenarioEntries: EntryDef[] = [
       {
         id: "forming",
         label: "forming",
-        note: "Five blocks later: the new run's first group lists its members until it holds six rows.",
+        note: `${FOLD_DISTANCE} blocks later: the new run's first group lists its members until it holds six rows.`,
         render: (ctx) => stack(ctx.width, plannedStack(ctx, foldRun, { offset: FOLD_DISTANCE }), 1),
       },
     ],

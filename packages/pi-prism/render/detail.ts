@@ -10,12 +10,12 @@
  */
 
 /**
- * 0 = live; each step keeps one body line fewer, down to one at 7. COMPACT_LEVEL
- * is a folded member's one-row form.
+ * 0 = live; each step keeps one body line fewer, down to one at 7. A step is
+ * BLOCKS_PER_STEP newer blocks. COMPACT_LEVEL is a folded member's one-row form.
  */
 export type DetailLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | typeof COMPACT_LEVEL;
 
-/** The tail budget: newest keeps this many body lines, then one fewer per turn. */
+/** The tail budget: newest keeps this many body lines, then one fewer per step. */
 export const TAIL_LINES = 8;
 export const COMPACT_LEVEL = 23 as const;
 
@@ -24,8 +24,14 @@ export const EXPANDED_BODY_LINES = 16;
 /** Maximum body height when the user opens a block all the way. */
 export const MAX_FULL_LINES = 400;
 
-/** The last standalone preview reserves three content rows plus its omission notice. */
-export const FOLD_DISTANCE = TAIL_LINES - 3;
+/** Newer blocks it takes for a preview to lose one line. */
+export const BLOCKS_PER_STEP = 2;
+
+/**
+ * The last standalone preview reserves three content rows plus its omission
+ * notice; distances count newer blocks, so it folds after that many steps.
+ */
+export const FOLD_DISTANCE = (TAIL_LINES - 3) * BLOCKS_PER_STEP;
 
 /**
  * The newest group of a run shows one row per member while it has at most this
@@ -36,7 +42,7 @@ export const FORMING_ROWS = 5;
 
 export function detailFor(distance: number): DetailLevel {
   if (!Number.isFinite(distance) || distance <= 0) return 0;
-  return Math.min(Math.floor(distance), TAIL_LINES - 1) as DetailLevel;
+  return Math.min(Math.floor(distance / BLOCKS_PER_STEP), TAIL_LINES - 1) as DetailLevel;
 }
 
 export function bodyLinesFor(level: DetailLevel, expanded = false): number {

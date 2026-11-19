@@ -7,6 +7,7 @@ import {
   type TextStyle,
   type TuiMouseEvent,
 } from "@earendil-works/pi-tui";
+import { BLOCKS_PER_STEP, detailFor, FOLD_DISTANCE, FORMING_ROWS } from "../render/detail.ts";
 import { keepGroupOpen, setGroupOpen, toolPlan } from "./fold.ts";
 import { toolFade } from "./fade.ts";
 import prism, { actionFor } from "./index.ts";
@@ -236,22 +237,32 @@ const prose = () => ({
 /** A user message: it ends the run. */
 const user = () => ({ text: "next", markdownTheme: {}, render: () => ["next"] });
 
+/** One step of newer blocks arriving together: every older block's distance grows by a whole level. */
+function addStep(session: ReturnType<typeof fadeSession>, id: string) {
+  return Array.from({ length: BLOCKS_PER_STEP }, (_, index) => session.add(index ? `${id}.${index}` : id));
+}
+
+/** The blocks that bring a forming group to five folded rows; the next one makes the sixth. */
+const COLLAPSE_BLOCKS = FOLD_DISTANCE + FORMING_ROWS;
+
 /** Five folded rows in a forming group, then the sixth block joins and the collapse begins. */
 function collapseStart(session: ReturnType<typeof fadeSession>) {
-  const shells = Array.from({ length: 10 }, (_, index) => {
+  const shells = Array.from({ length: COLLAPSE_BLOCKS }, (_, index) => {
     const shell = session.add("collapse-" + index);
     session.dispatch("agent_settled");
     jest.advanceTimersByTime(10_000);
     return shell;
   });
   expect(toolPlan("collapse-0")?.group).toMatchObject({ forming: true });
-  expect(toolPlan("collapse-0")?.group?.members).toHaveLength(5);
-  const rows = () => shells.slice(0, 6).map((shell) => shell.render(80).length);
+  expect(toolPlan("collapse-0")?.group?.members).toHaveLength(FORMING_ROWS);
+  const rows = () => shells.slice(0, FORMING_ROWS + 1).map((shell) => shell.render(80).length);
   expect(rows()).toEqual([2, 1, 1, 1, 1, 5]);
   // The sixth block folds through its heading, then the group collapses.
-  session.add("collapse-10");
+  session.add("collapse-" + COLLAPSE_BLOCKS);
   session.dispatch("agent_settled");
-  for (let tick = 0; tick < 600 && toolPlan("collapse-5")?.mode === "normal"; tick++) jest.advanceTimersByTime(10);
+  for (let tick = 0; tick < 600 && toolPlan("collapse-" + FORMING_ROWS)?.mode === "normal"; tick++) {
+    jest.advanceTimersByTime(10);
+  }
   return { shells, rows };
 }
 
@@ -555,9 +566,22 @@ describe("tool renderers", () => {
       const oldest = session.add("animated-0");
       session.dispatch("agent_settled");
       jest.advanceTimersByTime(1);
-      // Blocks ten seconds apart are a slow session: a row fades over 480 ms, 120 ms a frame
-      // (the first step, before any gap is known, over 360 ms).
+      // Blocks ten seconds apart are a slow session: a row fades over 480 ms, 120 ms a frame.
       for (let i = 1; i <= 5; i++) {
+        // A step takes BLOCKS_PER_STEP newer blocks: the ones before its last leave the block as it is.
+        for (let within = 1; within < BLOCKS_PER_STEP; within++) {
+          const level = toolPlan(oldest.toolCallId)?.level;
+          const still = oldest.render(80);
+          session.add(`animated-${i}.${within}`);
+          session.dispatch("agent_settled");
+          for (let frame = 0; frame < 4; frame++) {
+            jest.advanceTimersByTime(120);
+            expect(oldest.render(80)).toEqual(still);
+          }
+          expect(still.join("")).not.toContain("38;2;");
+          expect(toolPlan(oldest.toolCallId)?.level).toBe(level!);
+          jest.advanceTimersByTime(10000);
+        }
         session.add("animated-" + i);
         session.dispatch("agent_settled");
         const first = oldest.render(80);
@@ -595,6 +619,11 @@ describe("tool renderers", () => {
       session.dispatch("agent_settled");
       jest.advanceTimersByTime(1);
       for (let step = 1; step <= 4; step++) {
+        for (let within = 1; within < BLOCKS_PER_STEP; within++) {
+          session.add(`read-${step}.${within}`);
+          session.dispatch("agent_settled");
+          jest.advanceTimersByTime(10000);
+        }
         session.add("read-" + step);
         session.dispatch("agent_settled");
         const first = oldest.render(80);
@@ -615,7 +644,7 @@ describe("tool renderers", () => {
   test("a block joining a forming group folds its body and keeps its heading as the member row", () => {
     const session = fadeSession("bash");
     try {
-      const shells = Array.from({ length: 7 }, (_, index) => {
+      const shells = Array.from({ length: FOLD_DISTANCE + 2 }, (_, index) => {
         const shell = session.add("join-" + index);
         session.dispatch("agent_settled");
         jest.advanceTimersByTime(10_000);
@@ -625,7 +654,7 @@ describe("tool renderers", () => {
       expect(toolPlan("join-0")?.group?.members).toHaveLength(2);
       const joiner = shells[2]!;
       const heading = joiner.render(80)[0];
-      session.add("join-7");
+      session.add("join-" + (FOLD_DISTANCE + 2));
       session.dispatch("agent_settled");
       for (let tick = 0; tick < 40 && toolPlan("join-2")?.mode === "normal"; tick++) {
         expect(joiner.render(80)[0]).toBe(heading);
@@ -661,7 +690,7 @@ describe("tool renderers", () => {
     try {
       const { rows } = collapseStart(session);
       jest.advanceTimersByTime(SLOW_ROW_MS / 2);
-      session.add("collapse-11");
+      session.add("collapse-" + (COLLAPSE_BLOCKS + 1));
       session.dispatch("agent_settled");
       jest.advanceTimersByTime(SLOW_ROW_MS / 2 - 20);
       expect(rows()).toEqual([2, 1, 1, 1, 1, 0]);
@@ -723,7 +752,10 @@ describe("tool renderers", () => {
       expect(rows()).toEqual([2, 1, 1, 1, 1, 1]);
       // The blocks that waited behind the collapse take their turn.
       jest.advanceTimersByTime(3000);
-      expect([6, 7, 8, 9].map((index) => toolPlan("collapse-" + index)?.level)).toEqual([4, 3, 2, 1]);
+      const waited = Array.from({ length: FOLD_DISTANCE - 1 }, (_, index) => FORMING_ROWS + 1 + index);
+      expect(waited.map((index) => toolPlan("collapse-" + index)?.level)).toEqual(
+        waited.map((index) => detailFor(COLLAPSE_BLOCKS - index)),
+      );
     } finally {
       session.close();
     }
@@ -760,8 +792,8 @@ describe("tool renderers", () => {
       session.add("walk-0");
       session.dispatch("agent_settled");
       jest.advanceTimersByTime(1);
-      // The new row's registration schedules the walk that starts the fade.
-      session.add("walk-1");
+      // The new rows' registration schedules the walk that starts the fade.
+      addStep(session, "walk-1");
       jest.advanceTimersByTime(1);
       const before = visits;
       session.dispatch("agent_settled");
@@ -783,14 +815,14 @@ describe("tool renderers", () => {
       session.add("rebuilt-0");
       session.dispatch("agent_settled");
       jest.advanceTimersByTime(1);
-      session.add("rebuilt-1");
+      addStep(session, "rebuilt-1");
       session.dispatch("agent_settled");
       jest.advanceTimersByTime(90);
       expect(toolFade("rebuilt-0")).toBeDefined();
       // pi clears the chat and renders every entry again (compaction, tree navigation, settings).
       session.children.length = 0;
       const again = session.add("rebuilt-0");
-      session.add("rebuilt-1");
+      addStep(session, "rebuilt-1");
       session.dispatch("agent_settled");
       jest.advanceTimersByTime(10_000);
       expect(toolFade("rebuilt-0")).toBeUndefined();
@@ -808,7 +840,7 @@ describe("tool renderers", () => {
       session.dispatch("agent_settled");
       jest.advanceTimersByTime(1);
       // Registering the new row queues a walk on a 0 ms timer.
-      session.add("shut-1");
+      addStep(session, "shut-1");
       session.dispatch("session_shutdown", "");
       jest.advanceTimersByTime(1);
       expect(toolFade("shut-0")).toBeUndefined();
@@ -833,7 +865,7 @@ describe("tool renderers", () => {
       session.add("next-life-0");
       session.dispatch("agent_settled");
       jest.advanceTimersByTime(1);
-      session.add("next-life-1");
+      addStep(session, "next-life-1");
       session.dispatch("agent_settled");
       expect(toolFade("next-life-0")).toBeDefined();
       jest.advanceTimersByTime(10_000);
@@ -844,7 +876,7 @@ describe("tool renderers", () => {
   });
 
   test("a newer block never folds past an older block that is still on its way", () => {
-    for (const settled of [8, 10]) {
+    for (const settled of [FOLD_DISTANCE + 3, FOLD_DISTANCE + FORMING_ROWS]) {
       const session = fadeSession("bash");
       try {
         const ids = Array.from({ length: settled + 2 }, (_, index) => `pass-${settled}-${index}`);
@@ -855,7 +887,7 @@ describe("tool renderers", () => {
           return shell;
         });
         // The oldest standalone block starts folding, then one more block arrives mid-fold.
-        const joiner = shells[settled - 5]!;
+        const joiner = shells[settled - FOLD_DISTANCE]!;
         shells.push(session.add(ids[settled]!));
         session.dispatch("agent_settled");
         jest.advanceTimersByTime(180);
@@ -887,35 +919,66 @@ describe("tool renderers", () => {
   test("blocks held back behind a folding block join at once when it lands, without a fade", () => {
     const session = fadeSession("bash");
     try {
-      const shells = Array.from({ length: 6 }, (_, index) => {
+      const shells = Array.from({ length: FOLD_DISTANCE + 1 }, (_, index) => {
         const shell = session.add("held-" + index);
         session.dispatch("agent_settled");
         jest.advanceTimersByTime(10_000);
         return shell;
       });
-      // A user message ends the run: every block heads for the group. held-1 is one step away and folds;
-      // the others are further behind and wait for it.
+      // A user message ends the run: every block heads for the group. held-1 up to held-BLOCKS_PER_STEP share
+      // the last standalone level, one step away: they fold in turn. The others are further behind and wait.
       session.children.push(user());
       session.dispatch("message_start", { message: { role: "user" } });
       let landed = false;
-      for (let tick = 0; tick < 400 && !landed; tick++) {
+      for (let tick = 0; tick < 1500 && !landed; tick++) {
         jest.advanceTimersByTime(10);
-        landed = toolPlan("held-1")?.mode !== "normal";
+        landed = toolPlan("held-" + BLOCKS_PER_STEP)?.mode !== "normal";
         if (landed) break;
-        for (const shell of shells.slice(2)) {
+        for (const shell of shells.slice(BLOCKS_PER_STEP + 1)) {
           expect(toolPlan(shell.toolCallId)?.mode).toBe("normal");
           expect(shell.render(80).join("")).not.toContain("38;2;");
         }
       }
       expect(landed).toBe(true);
-      expect(shells.map((shell) => toolPlan(shell.toolCallId)?.mode)).toEqual([
-        "anchor",
-        "hidden",
-        "hidden",
-        "hidden",
-        "hidden",
-        "hidden",
-      ]);
+      expect(shells.map((shell) => toolPlan(shell.toolCallId)?.mode)).toEqual(
+        shells.map((_, index) => (index ? "hidden" : "anchor")),
+      );
+    } finally {
+      session.close();
+    }
+  });
+
+  test("blocks arriving together that take a block past its last standalone level fold it instead of stepping", () => {
+    const session = fadeSession("bash");
+    try {
+      const oldest = session.add("pair-0");
+      session.dispatch("agent_settled");
+      jest.advanceTimersByTime(10_000);
+      for (let index = 1; index <= FOLD_DISTANCE - BLOCKS_PER_STEP; index++) {
+        session.add("pair-" + index);
+        session.dispatch("agent_settled");
+        jest.advanceTimersByTime(10_000);
+      }
+      // The first distance of the last standalone level: a whole step from the fold.
+      expect(toolPlan("pair-0")).toMatchObject({ mode: "normal", level: detailFor(FOLD_DISTANCE - 1) });
+      const before = oldest.render(80).map(stripTerminalSequences);
+      addStep(session, "pair-late");
+      session.dispatch("agent_settled");
+      // A fold, not a step fade: the body leaves from the bottom, one row per fade.
+      expect(toolFade("pair-0")).toBeUndefined();
+      // The screen repaints every frame; a fold counts its rows as it paints them.
+      const frames = (ms: number) => {
+        for (let elapsed = 0; elapsed < ms; elapsed += 60) {
+          oldest.render(80);
+          jest.advanceTimersByTime(60);
+        }
+      };
+      frames(SLOW_ROW_MS);
+      expect(oldest.render(80).map(stripTerminalSequences)).toEqual(before.slice(0, -1));
+      expect(toolPlan("pair-0")?.mode).toBe("normal");
+      frames(10 * SLOW_ROW_MS);
+      expect(toolPlan("pair-0")?.mode).toBe("anchor");
+      expect(oldest.render(80).map(stripTerminalSequences)[1]).toStartWith("  ● bash · bun test");
     } finally {
       session.close();
     }
@@ -933,9 +996,9 @@ describe("tool renderers", () => {
       for (let index = 0; index < 3; index++) add("first-" + index);
       session.children.push(prose());
       session.dispatch("agent_settled");
-      for (let index = 0; index < 5; index++) add("second-" + index);
-      // A sixth block makes the second group form, so the first stops forming and collapses.
-      shells.push(session.add("second-5"));
+      for (let index = 0; index < FOLD_DISTANCE; index++) add("second-" + index);
+      // One more block makes the second group form, so the first stops forming and collapses.
+      shells.push(session.add("second-" + FOLD_DISTANCE));
       session.dispatch("agent_settled");
       for (let tick = 0; tick < 40 && toolPlan("second-0")?.mode === "normal"; tick++) jest.advanceTimersByTime(90);
       jest.advanceTimersByTime(SLOW_ROW_MS + 40);
@@ -975,7 +1038,7 @@ describe("tool renderers", () => {
         render: () => [],
       };
       session.children.push(thought);
-      const shells = Array.from({ length: 7 }, (_, index) => {
+      const shells = Array.from({ length: FOLD_DISTANCE + 2 }, (_, index) => {
         const shell = session.add("table-" + index);
         session.dispatch("agent_settled");
         jest.advanceTimersByTime(10_000);
@@ -1003,8 +1066,9 @@ describe("tool renderers", () => {
       session.add("burst-0");
       session.dispatch("agent_settled");
       jest.advanceTimersByTime(1);
-      // Four new blocks inside one 360 ms fade.
-      for (let index = 1; index <= 4; index++) {
+      // Four steps of new blocks inside one fade, a block every 21 ms.
+      const count = 4 * BLOCKS_PER_STEP;
+      for (let index = 1; index <= count; index++) {
         session.add("burst-" + index);
         jest.advanceTimersByTime(1);
         session.dispatch("agent_settled");
@@ -1012,7 +1076,10 @@ describe("tool renderers", () => {
       }
       // The fading block finishes its row and takes its target; each other block animates one step at most.
       jest.advanceTimersByTime(4 * 360);
-      expect([0, 1, 2, 3, 4].map((index) => toolPlan("burst-" + index)?.level)).toEqual([4, 3, 2, 1, 0]);
+      const all = Array.from({ length: count + 1 }, (_, index) => index);
+      expect(all.map((index) => toolPlan("burst-" + index)?.level)).toEqual(
+        all.map((index) => detailFor(count - index)),
+      );
     } finally {
       session.close();
     }
@@ -1022,14 +1089,15 @@ describe("tool renderers", () => {
     const session = fadeSession("read");
     try {
       // New blocks 800 ms apart: a row fades over 200 ms, neither the default 360 nor the 80 ms floor.
-      for (const id of ["quick-0", "quick-1"]) {
-        session.add(id);
+      for (let index = 0; index <= BLOCKS_PER_STEP; index++) {
+        session.add("quick-" + index);
         session.dispatch("agent_settled");
         jest.advanceTimersByTime(800);
       }
-      session.add("quick-2");
+      // A burst of two steps: the first starts the next fade, the second lands 1 ms later and counts with it.
+      addStep(session, "quick-a");
       jest.advanceTimersByTime(1);
-      session.add("quick-3");
+      addStep(session, "quick-b");
       session.dispatch("agent_settled");
       // The oldest block fades its row, then takes the target the burst gave it.
       jest.advanceTimersByTime(150);
@@ -1044,7 +1112,7 @@ describe("tool renderers", () => {
       session.add("next-0");
       session.dispatch("agent_settled");
       jest.advanceTimersByTime(1);
-      session.add("next-1");
+      addStep(session, "next-1");
       session.dispatch("agent_settled");
       jest.advanceTimersByTime(300);
       expect(toolPlan("next-0")?.level).toBe(0);
@@ -1061,7 +1129,7 @@ describe("tool renderers", () => {
       const oldest = session.add("short-0");
       session.dispatch("agent_settled");
       jest.advanceTimersByTime(1);
-      session.add("short-1");
+      addStep(session, "short-1");
       session.dispatch("agent_settled");
       const first = oldest.render(80);
       jest.advanceTimersByTime(90);
@@ -1104,8 +1172,10 @@ describe("tool renderers", () => {
     await Bun.sleep(10);
     expect(visits).toBe(beforeUpdates);
 
-    children.push({ ...children[0]!, toolCallId: "newer" });
-    tool.renderCall(ctx.args, theme, { ...ctx, toolCallId: "newer", state: {} });
+    for (let index = 0; index < BLOCKS_PER_STEP; index++) {
+      children.push({ ...children[0]!, toolCallId: `newer-${index}` });
+      tool.renderCall(ctx.args, theme, { ...ctx, toolCallId: `newer-${index}`, state: {} });
+    }
     await Bun.sleep(10);
     expect(body.render(80)).toHaveLength(8);
     dispatch("agent_settled");
@@ -1141,14 +1211,14 @@ describe("tool renderers", () => {
       dispatch("message_end", { message: { role: "toolResult", toolCallId, timestamp: 2000 + index * 100 } });
       return () => tool.renderCall(context.args, theme, context);
     };
-    const headers = Array.from({ length: 7 }, (_, index) => add(index));
+    const headers = Array.from({ length: FOLD_DISTANCE + 2 }, (_, index) => add(index));
     await Bun.sleep(10);
     // A small group of the current run already lists its members.
     expect(toolPlan("growing-0")?.group?.forming).toBe(true);
     const member = headers[1]!;
     member().handleMouse?.(click());
     expect(member().render(80)).toHaveLength(41);
-    add(7);
+    add(FOLD_DISTANCE + 2);
     dispatch("turn_end");
     dispatch("turn_start");
     expect(member().render(80)).toHaveLength(41);
@@ -1185,7 +1255,7 @@ describe("tool renderers", () => {
       tool.renderResult(result, {}, barred, context);
       return () => tool.renderCall(context.args, barred, context);
     };
-    const headers = Array.from({ length: 7 }, (_, index) => add(index));
+    const headers = Array.from({ length: FOLD_DISTANCE + 2 }, (_, index) => add(index));
     await Bun.sleep(10);
     const anchor = headers[0]!;
     const member = headers[1]!;
@@ -1217,7 +1287,7 @@ describe("tool renderers", () => {
     member().handleMouse?.({ ...click(), y: 0 });
 
     // Opening a member keeps the group open past six rows, with no pinned chip on its summary.
-    for (let index = 7; index < 12; index++) add(index);
+    for (let index = FOLD_DISTANCE + 2; index < FOLD_DISTANCE + 7; index++) add(index);
     dispatch("agent_settled");
     dispatch("agent_settled");
     expect(toolPlan("forming-0")?.group).toMatchObject({ forming: false, open: true });
