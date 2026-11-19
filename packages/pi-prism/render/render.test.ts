@@ -413,6 +413,25 @@ describe("header budget", () => {
     expect(head.length).toBeLessThanOrEqual(40);
   });
 
+  test("control sequences in a tool name, title, summary or error never reach the terminal", () => {
+    const hostile = "\x1b]0;owned\x07\x1b[2J\x1b[31mred\x1b[0m\ttab\u009b1m\r\nnext";
+    const inputs = [
+      { name: `tool${hostile}`, status: "success", level: 0 },
+      { name: "read", status: "success", level: 0, title: hostile, summary: hostile },
+      { name: "read", status: "success", level: 0, args: { path: hostile } },
+      { name: "read", status: "error", level: 0, error: hostile },
+      { name: "bash", status: "error", level: 0, args: { command: hostile }, error: `stderr\n${hostile}` },
+      { name: "bash", status: "success", level: 0, expanded: true, args: { command: `${hostile} ${LONG}` } },
+    ] as const;
+    for (const input of inputs) {
+      for (const line of renderToolRow(api, input).render(120)) {
+        // pi-tui measures tabs itself; every other control character must be gone.
+        // oxlint-disable-next-line no-control-regex -- asserting their absence
+        expect(line).not.toMatch(/[\u0000-\u0008\u000a-\u001f\u007f-\u009f]/);
+      }
+    }
+  });
+
   test("an MCP label is not repeated as its title", () => {
     const head = row(
       { name: "mcp__memory__search", status: "success", level: 0, title: "memory/search", summary: "3 facts" },

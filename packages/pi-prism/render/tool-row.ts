@@ -6,7 +6,7 @@
 import { bodyLinesFor, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
 import { frameAt, type GlyphSet } from "./glyphs.ts";
 import { blockBodyIndent, type ComponentLike, type RenderKit, type RenderTheme } from "./kit.ts";
-import { cleanOutput, formatDuration, logicalLines, omittedLinesLabel, MAX_FORMAT_CHARS } from "./text.ts";
+import { cleanOutput, formatDuration, logicalLines, oneLine, omittedLinesLabel, MAX_FORMAT_CHARS } from "./text.ts";
 import { describeCall, toolTokenCounts, toolMeta, toolTokenLabel, type TokenRates } from "./tools.ts";
 
 export interface RenderApi {
@@ -102,13 +102,13 @@ type HeaderPiece = { kind: "title" | "summary" | "tokens" | "error" | "duration"
  * carries the status, the body carries the evidence (never the other way round).
  */
 function errorLines(input: ToolRowInput): string[] {
-  return logicalLines(input.error ?? "").filter((line) => line.trim() !== "");
+  return logicalLines(cleanOutput(input.error ?? "")).filter((line) => line.trim() !== "");
 }
 
 function errorHeadline(input: ToolRowInput, meta: ReturnType<typeof toolMeta>): string | undefined {
   if (input.status !== "error" || !input.error) return undefined;
-  if (meta.cls !== "shell") return errorLines(input)[0];
-  return errorLines(input).at(-1);
+  const line = meta.cls === "shell" ? errorLines(input).at(-1) : errorLines(input)[0];
+  return line === undefined ? undefined : oneLine(line);
 }
 
 function errorDetail(input: ToolRowInput, meta: ReturnType<typeof toolMeta>): string {
@@ -132,19 +132,22 @@ function styleMetric(theme: RenderTheme, label: string): string {
 export function toolHeader(api: RenderApi, input: ToolRowInput, width: number) {
   const { theme, glyphs, kit } = api;
   const meta = toolMeta(input.name);
-  const title = input.title ?? describeCall(input.name, input.args).title;
+  // Names, titles, summaries and errors come from the model or the tool: never trust them.
+  const label = oneLine(meta.label);
+  const title = oneLine(input.title ?? describeCall(input.name, input.args).title);
+  const summary = input.summary === undefined ? undefined : oneLine(input.summary);
   const { outputTokens, inputTokens } = toolTokenCounts(input);
   const tokens = toolTokenLabel(outputTokens, inputTokens, input);
 
   const sep = ` ${theme.fg("dim", glyphs.dot)} `;
   // The verb is the headline: bold it through `style` so it survives headless
   // rendering, where chalk's bold turns itself off without a terminal.
-  const prefix = `${statusGlyph(api, input)} ${theme.style(meta.label, { fg: "toolTitle", bold: true })}`;
+  const prefix = `${statusGlyph(api, input)} ${theme.style(label, { fg: "toolTitle", bold: true })}`;
 
   let pieces: HeaderPiece[] = [];
   // MCP labels already read `server/tool`; repeating it as the title is noise.
-  if (title && title !== meta.label) pieces.push({ kind: "title", text: theme.fg("accent", title) });
-  if (input.summary) pieces.push({ kind: "summary", text: theme.fg("dim", input.summary) });
+  if (title && title !== label) pieces.push({ kind: "title", text: theme.fg("accent", title) });
+  if (summary) pieces.push({ kind: "summary", text: theme.fg("dim", summary) });
   pieces.push({ kind: "tokens", text: styleMetric(theme, tokens) });
   const error = errorHeadline(input, meta);
   if (error) pieces.push({ kind: "error", text: theme.fg("error", error) });

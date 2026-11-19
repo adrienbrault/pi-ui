@@ -79,6 +79,11 @@ export function nonEmptyLineCount(text: string): number {
   return logicalLines(text).filter((line) => line.trim()).length;
 }
 
+/** Untrusted text for a single header line: no escapes, no controls, no line breaks. */
+export function oneLine(text: string): string {
+  return squeeze(cleanOutput(text));
+}
+
 /**
  * Collapse a block into one line for the `aged 3` form: keep the most
  * informative chunk and make it fit a width budget.
