@@ -6,12 +6,13 @@
  * a terminal would send. The scenarios cover:
  *
  * - A full screen of recent calls retains complete previews; the run's one small
- *   group lists its member, and a new prompt folds the next block row by row.
+ *   group lists its member, and a new prompt folds the blocks one step behind row
+ *   by row, in turn.
  * - A thought and two commands in the newest small group: the forming group lists
  *   them as consecutive member rows under its summary.
- * - 5 calls: the decay ladder, the hover bar, click expansion, inert rows.
- * - 12 calls: rows past FOLD_DISTANCE collapse into one summary; the summary
- *   opens its members; a member then expands its own body.
+ * - FOLD_DISTANCE calls: the decay ladder, the hover bar, click expansion, inert rows.
+ * - FOLD_DISTANCE + 7 calls: rows past FOLD_DISTANCE collapse into one summary;
+ *   the summary opens its members; a member then expands its own body.
  * - A delegated tool stays visible while an untimed failure joins its group.
  * - Thinking followed by work: the thinking run decays on the same ladder, keeps
  *   a tail, and still opens all the way on click.
@@ -25,6 +26,7 @@
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { FOLD_DISTANCE } from "../packages/pi-prism/render/detail.ts";
 
 const ROOT = join(import.meta.dir, "..");
 const SOCKET = `prism-e2e-${process.pid}`;
@@ -32,6 +34,7 @@ const SESSION = "prism-e2e";
 const WIDTH = 140;
 
 const NUMBER_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
+const numberWord = (count: number): string => NUMBER_WORDS[count] ?? String(count);
 
 type Entry = Record<string, unknown>;
 
@@ -72,7 +75,7 @@ function fixture(path: string, callCount: number, overrides: { name?: string; er
   add({ type: "session", version: 3, id: crypto.randomUUID(), timestamp: new Date(now).toISOString(), cwd: ROOT });
   add({ type: "model_change", id: "model", parentId: null, timestamp: new Date(now).toISOString(), provider: "flan", modelId: "deepseek-v4.1-flash-1017" });
   add({ type: "thinking_level_change", id: "thinking", parentId, timestamp: new Date(now).toISOString(), thinkingLevel: "medium" });
-  message("user", now, { role: "user", content: [{ type: "text", text: `Run ${NUMBER_WORDS[callCount] ?? callCount} commands.` }], timestamp: now });
+  message("user", now, { role: "user", content: [{ type: "text", text: `Run ${numberWord(callCount)} commands.` }], timestamp: now });
 
   const calls = Array.from({ length: callCount }, (_, index) => ({
     type: "toolCall",
@@ -111,7 +114,7 @@ function fixture(path: string, callCount: number, overrides: { name?: string; er
     stopReason: "stop",
     timestamp: now + 3000,
     usage,
-    content: [{ type: "text", text: `All ${NUMBER_WORDS[callCount] ?? callCount} commands finished.` }],
+    content: [{ type: "text", text: `All ${numberWord(callCount)} commands finished.` }],
   });
 
   writeSession(path, entries, history);
@@ -225,16 +228,17 @@ async function openHistory(sessionPath: string, height: number): Promise<void> {
   await waitFor(prompt, 5000, (pane) => !/[│┃]$/m.test(pane));
 }
 
+/** The oldest of FOLD_DISTANCE calls sits on the last standalone level, the newest is live. */
 async function decayScenario(sessionPath: string): Promise<void> {
-  await openHistory(sessionPath, 45);
-  let pane = await waitFor("All five commands finished.", 15_000, (screen) => screen.includes("output 0 line C") && !screen.includes("output 0 line A"));
-  const headers = Array.from({ length: 5 }, (_, index) => `echo command-${index}`);
+  await openHistory(sessionPath, 60);
+  let pane = await waitFor(`All ${numberWord(FOLD_DISTANCE)} commands finished.`, 15_000, (screen) => screen.includes("output 0 line C") && !screen.includes("output 0 line A"));
+  const headers = Array.from({ length: FOLD_DISTANCE }, (_, index) => `echo command-${index}`);
   for (const header of headers) assert(count(pane, header) === 1, `expected exactly one ${header}\n${pane}`);
 
   const oldestBody = pane.split("\n").filter((line) => line.includes("output 0 line"));
   assert(oldestBody.length === 3 && oldestBody[0]?.includes("line C"), `oldest body should keep three content lines\n${pane}`);
 
-  const newestBody = pane.split("\n").filter((line) => line.includes("output 4 line"));
+  const newestBody = pane.split("\n").filter((line) => line.includes(`output ${FOLD_DISTANCE - 1} line`));
   assert(newestBody.length === 2, `newest body should keep both lines\n${pane}`);
 
   // Re-read the row before every mouse event: notices can appear and shift the pane.
@@ -354,6 +358,9 @@ function thinkingFixture(path: string): void {
   writeSession(path, entries);
 }
 
+/** Fifteen old thoughts fold; the FOLD_DISTANCE newest keep their rows. */
+const THOUGHTS = 15 + FOLD_DISTANCE;
+
 function thinkingFoldFixture(path: string): void {
   const now = Date.now();
   const entries: Entry[] = [];
@@ -380,7 +387,7 @@ function thinkingFoldFixture(path: string): void {
   add({ type: "thinking_level_change", id: "thinking", parentId, timestamp: new Date(now).toISOString(), thinkingLevel: "medium" });
   message("user", now, { role: "user", content: [{ type: "text", text: "Fold the old thoughts." }], timestamp: now });
 
-  for (let index = 0; index < 20; index += 1) {
+  for (let index = 0; index < THOUGHTS; index += 1) {
     message(`assistant-${index}`, now + 1000 + index, {
       role: "assistant",
       api: "openai-completions",
@@ -415,7 +422,7 @@ async function thinkingFoldScenario(sessionPath: string): Promise<void> {
   assert(count(pane, "Thought 15 times") === 1, `old thoughts should fold into one summary\n${pane}`);
   assert(!pane.includes("thought old-0"), `the oldest folded thought leaked\n${pane}`);
   assert(!pane.includes("thought old-14"), `the newest folded thought leaked\n${pane}`);
-  assert(pane.includes("thought old-19"), `the newest thought should survive\n${pane}`);
+  assert(pane.includes(`thought old-${THOUGHTS - 1}`), `the newest thought should survive\n${pane}`);
 
   pane = capture();
   const summaryRow = rowOf(pane, "Thought 15 times");
@@ -426,7 +433,7 @@ async function thinkingFoldScenario(sessionPath: string): Promise<void> {
   assert(pane.includes("thought old-3"), `the thought summary should open its members\n${pane}`);
 }
 
-function combinedFoldFixture(path: string, thoughtCount = 3, callCount = 16): void {
+function combinedFoldFixture(path: string, thoughtCount = 3, callCount = 11 + FOLD_DISTANCE): void {
   const now = Date.now();
   const entries: Entry[] = [];
   let parentId: string | null = null;
@@ -593,14 +600,15 @@ async function formingScenario(sessionPath: string, members: string[], survivor:
   assert(lineWith(pane, survivor).search(/\S/) === column, `a surviving tool aligns with the summary\n${pane}`);
 }
 
+/** FOLD_DISTANCE + 7 calls: the seven oldest fold, the rest keep their rows. */
 async function foldScenario(sessionPath: string): Promise<void> {
-  await openHistory(sessionPath, 60);
-  let pane = await waitFor("All twelve commands finished.");
+  await openHistory(sessionPath, 80);
+  let pane = await waitFor(`All ${numberWord(FOLD_DISTANCE + 7)} commands finished.`);
   await Bun.sleep(600);
   pane = capture();
 
   const folded = Array.from({ length: 7 }, (_, index) => `echo command-${index} ·`);
-  const survivors = Array.from({ length: 5 }, (_, index) => `echo command-${index + 7} ·`);
+  const survivors = Array.from({ length: FOLD_DISTANCE }, (_, index) => `echo command-${index + 7} ·`);
   assert(pane.includes("Ran 7 shell commands"), `folded rows should become one summary\n${pane}`);
   for (const header of folded) assert(count(pane, header) === 0, `folded member leaked: ${header}\n${pane}`);
   for (const header of survivors) assert(count(pane, header) === 1, `surviving row missing: ${header}\n${pane}`);
@@ -723,18 +731,20 @@ async function main(): Promise<void> {
   try {
     const live = join(dir, "visible.jsonl");
     const longPreview = { output: Array.from({ length: 40 }, (_, i) => "animated line " + i).join("\n") };
-    fixture(live, 6, [{}, longPreview, longPreview], false);
+    // One folded call, then FOLD_DISTANCE recent ones; the two oldest of those are long and one step from folding.
+    const liveCalls = FOLD_DISTANCE + 1;
+    fixture(live, liveCalls, [{}, longPreview, longPreview], false);
     start(live, 100);
-    await waitFor("All six commands finished.");
+    await waitFor(`All ${numberWord(liveCalls)} commands finished.`);
     await Bun.sleep(350);
     const visible = capture();
-    assert(visible.includes("Ran 1 shell command") && !visible.includes("output 0 line A") && visible.includes("output 5 line B"), `visible history should age while the newest preview stays open
+    assert(visible.includes("Ran 1 shell command") && !visible.includes("output 0 line A") && visible.includes(`output ${liveCalls - 1} line B`), `visible history should age while the newest preview stays open
 ${visible}`);
     // The run's only group is forming: its member row sits under the summary.
     assert(lineWith(visible, "Ran 1 shell command").includes("▾") && visible.split("\n")[rowOf(visible, "Ran 1 shell command")]?.includes("echo command-0 ·"), `a one-member forming group should list its member\n${visible}`);
     tmux("send-keys", "-t", SESSION, "new run for animation", "Enter");
-    // The new prompt ends the run: the one-step-behind block folds row by row, and the later blocks,
-    // further behind, wait below it and join at once when it lands.
+    // The new prompt ends the run: the blocks one step behind fold row by row, oldest first, and the
+    // later blocks, further behind, wait below them and join at once when they land.
     await waitFor("Ran 1 shell command", 8000, screen => {
       const start = screen.indexOf("echo command-1");
       const end = screen.indexOf("echo command-2");
@@ -743,11 +753,11 @@ ${visible}`);
       // Mid-fold: the newest line at the bottom has left, the notice above the tail has not.
       return folding.includes("↑ 37 more lines") && !folding.includes("animated line 39");
     });
-    await waitFor("Ran 6 shell commands", 8000);
+    await waitFor(`Ran ${liveCalls} shell commands`, 12_000);
     tmux("kill-server");
 
     const decay = join(dir, "decay.jsonl");
-    fixture(decay, 5, [{ output: ["A","B","C","D","E"].map(letter => "output 0 line " + letter).join("\n") }]);
+    fixture(decay, FOLD_DISTANCE, [{ output: ["A","B","C","D","E"].map(letter => "output 0 line " + letter).join("\n") }]);
     await decayScenario(decay);
     console.log("decay ok: three content lines at the oldest, full newest, hover bar and click reveal");
 
@@ -792,20 +802,20 @@ ${visible}`);
     console.log("long bash output shows its scroll bar and collapses from a click inside it");
     tmux("kill-server");
     const forming = join(dir, "forming.jsonl");
-    combinedFoldFixture(forming, 1, 7);
+    combinedFoldFixture(forming, 1, FOLD_DISTANCE + 2);
     await formingScenario(forming, ["thought combo-0", "echo combo-0 ·", "echo combo-1 ·"], "echo combo-2 ·");
     console.log("forming ok: the newest small group lists its thought and tool members under its summary");
 
     tmux("kill-server");
     const fold = join(dir, "fold.jsonl");
-    fixture(fold, 12);
+    fixture(fold, FOLD_DISTANCE + 7);
     await foldScenario(fold);
     console.log("fold ok: 7 old rows became one summary; summary opens members; member body expands");
 
     tmux("kill-server");
     const mixed = join(dir, "delegated-and-failed.jsonl");
-    fixture(mixed, 12, [{ name: "custom_review_tool" }, {}, { error: "permission denied\nexit code 2" }]);
-    await openHistory(mixed, 65);
+    fixture(mixed, FOLD_DISTANCE + 7, [{ name: "custom_review_tool" }, {}, { error: "permission denied\nexit code 2" }]);
+    await openHistory(mixed, 80);
     let mixedPane = await waitFor("Ran 6 shell commands", 15_000, (screen) => lineWith(screen, "Ran 6 shell commands").includes("(1 failed)"));
     assert(mixedPane.includes("custom_review_tool"), "the delegated row should keep its own renderer");
     assert(!mixedPane.includes("exit code 2"), "a grouped failure should fold");
