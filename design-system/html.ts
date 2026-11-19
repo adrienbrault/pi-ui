@@ -1,5 +1,7 @@
 /** The generated gallery page. Static HTML, no runtime dependencies. */
 
+import { SESSION_VIEWPORT_ROWS } from "./session.ts";
+
 /** Frames are HTML strings, or a row pool shared by many frames. */
 export type CellData = string[] | { rows: string[]; frames: number[][] };
 
@@ -158,17 +160,19 @@ section.group > h2 { margin: 8px 0 0; font-family: var(--mono); font-size: 11px;
 .term .ansi-line { display: block; white-space: pre; min-height: 1.5em; }
 /* Hover hint: the chip says what a click will do, at the row it applies to. */
 .term [data-hint] { position: relative; }
-/* The header's text lights up; the chip is the action, the tint is the target. */
-.term .ansi-line.hot .lamp {
+/* Keep the action beside the text, including on narrow cards. */
+.term .ansi-line:is(.hot, [data-hint="click · collapse"]) { display: flex; align-items: baseline; }
+.term .ansi-line:is(.hot, [data-hint="click · collapse"]) .lamp {
+  overflow: hidden;
+  text-overflow: ellipsis;
   background-image: linear-gradient(color-mix(in srgb, var(--accent) 16%, transparent), color-mix(in srgb, var(--accent) 16%, transparent));
 }
-/* Pinned to the block's header row: brackets and a background colour, no chrome. */
-.term [data-hint].hot::after {
+
+.term [data-hint]:is(.hot, [data-hint="click · collapse"])::after {
   content: "[ " attr(data-hint) " ]";
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  display: inline-block;
+  margin-left: 1ch;
+  flex-shrink: 0;
   z-index: 4;
   pointer-events: none;
   background: var(--accent);
@@ -208,10 +212,10 @@ section.group > h2 { margin: 8px 0 0; font-family: var(--mono); font-size: 11px;
 .term .reveal-members > .member > .block > [data-block] {
   position: sticky; top: 3em; z-index: 1; background: var(--term);
 }
-.term .reveal-members .ansi-line:hover { background: rgba(255, 255, 255, 0.03); }
+
 .term [data-expand], .term [data-turn], .term [data-collapse], .term [data-block] { cursor: pointer; }
 
-.stage-lanes .term { font-size: 10.5px; line-height: 1.5; padding: 8px 10px; height: 560px; overflow-y: auto; }
+.stage-lanes .term { font-size: 10.5px; line-height: 1.5; padding: 8px 10px; height: calc(${SESSION_VIEWPORT_ROWS}lh + 18px); overflow-y: auto; }
 
 .empty-note { border: 1px dashed var(--border); border-radius: 10px; padding: 14px 16px; color: var(--muted); font-size: 12.5px; }
 
@@ -244,7 +248,7 @@ section.group > h2 { margin: 8px 0 0; font-family: var(--mono); font-size: 11px;
 
 const JS = `
 var DS = JSON.parse(document.getElementById('ds-data').textContent);
-var state = { width: 80, theme: 'dark', glyph: 'unicode', motion: true, lane: 'ours', query: '', tail: 7 };
+var state = { width: 80, theme: 'dark', glyph: 'unicode', motion: true, lane: 'ours', query: '', tail: 8 };
 var active = {};
 var frameIdx = {};
 var syncIdx = {};
@@ -459,16 +463,11 @@ function annotateHints(term, entry, idx, stateId) {
   var prefix = entry.id + ':' + idx;
   var rows = [].slice.call(term.querySelectorAll('.ansi-line'));
 
-  term.querySelectorAll('[data-expand]').forEach(function (row) {
-    row.setAttribute('data-hint', 'click · open group');
-    lamp(row);
-  });
   term.querySelectorAll('[data-collapse]').forEach(function (row) {
-    row.setAttribute('data-hint', 'click · fold group');
+    row.setAttribute('data-hint', 'click · collapse');
     lamp(row);
   });
-
-  // A member's hint lives on its header; its body points the hover back there.
+  // A member's hint lives on its final row.
   var turnGroups = {};
   rows.forEach(function (row) {
     var key = row.getAttribute('data-turn');
@@ -480,25 +479,23 @@ function annotateHints(term, entry, idx, stateId) {
     var st = revealOpenState[prefix + ':' + key] || 0;
     var hint = st === 0 ? 'click · expand' : 'click · collapse';
     turnGroups[key].forEach(function (row, order) {
-      if (order === 0) {
+      if (order === turnGroups[key].length - 1 && (st || /^\\+ \\d+ lines?$/.test(row.textContent.trim()))) {
         row.setAttribute('data-hint', hint);
         lamp(row);
-      } else row.setAttribute('data-anchor', 'turn:' + key);
+      }
     });
   });
 
-  // Blocks: the header owns the chip whether the body is open or closed.
+  // A single-row block carries its own hint.
   var cell = blocksFor(entry, stateId);
   (cell ? cell.frames[idx] || [] : []).forEach(function (spec) {
     var owned = [].slice.call(term.querySelectorAll('[data-block="' + spec.id + '"]'));
-    var header = owned[0];
-    if (!header) return;
+    var footer = owned[owned.length - 1];
     var st = blockOpenState[prefix + ':' + spec.id] || 0;
-    header.setAttribute('data-hint', st === 0 ? 'click · expand' : 'click · collapse');
-    lamp(header);
-    owned.forEach(function (row) {
-      if (row !== header) row.setAttribute('data-anchor', 'block:' + spec.id);
-    });
+    if (!footer || (!st && !/^\\+ \\d+ lines?$/.test(footer.textContent.trim()))) return;
+    footer.setAttribute('data-hint', st === 0 ? 'click · expand' : 'click · collapse');
+    lamp(footer);
+
   });
 }
 
@@ -720,7 +717,7 @@ function bind() {
     refreshVisibility();
   });
   var tail = document.getElementById('tail');
-  if (tail) state.tail = Number(tail.value) || 7;
+  if (tail) state.tail = Number(tail.value) || 8;
   if (tail) tail.addEventListener('input', function (e) {
     state.tail = Number(e.target.value);
     tailDirty = true;
@@ -739,15 +736,6 @@ function bind() {
     // Hover is explicit: any interaction hint belongs to the row under the cursor.
     term.addEventListener('mouseover', function (event) {
       var row = event.target.closest('[data-hint]');
-      if (!row) {
-        // Hovering a block's details still lights its header: one chip per block.
-        var anchor = event.target.closest('[data-anchor]');
-        if (anchor) {
-          var key = anchor.getAttribute('data-anchor');
-          var id = key.slice(key.indexOf(':') + 1);
-          row = key.indexOf('turn:') === 0 ? term.querySelector('[data-turn="' + id + '"]') : term.querySelector('[data-block="' + id + '"]');
-        }
-      }
       term.querySelectorAll('.ansi-line.hot').forEach(function (old) { old.classList.remove('hot'); });
       if (row) row.classList.add('hot');
     });
@@ -994,7 +982,7 @@ export function renderPage(payload: PagePayload): string {
   <div class="controls">
     <label class="control">width <select id="width">${payload.meta.widths.map((width) => `<option value="${width}"${width === 80 ? " selected" : ""}>${width}</option>`).join("")}</select></label>
     <label class="control">glyphs <select id="glyph">${payload.meta.glyphs.map((glyph) => `<option value="${esc(glyph)}"${glyph === "unicode" ? " selected" : ""}>${esc(glyph)}</option>`).join("")}</select></label>
-    <label class="control">tail <input type="range" id="tail" min="3" max="12" step="1" value="${payload.meta.bodyLines["0"]}"><b id="tail-value">${payload.meta.bodyLines["0"]}</b></label>
+    <label class="control">tail <input type="range" id="tail" min="3" max="24" step="1" value="${payload.meta.bodyLines["0"]}"><b id="tail-value">${payload.meta.bodyLines["0"]}</b></label>
     <label class="control"><input type="text" id="search" placeholder="filter cards" size="16"></label>
     <button id="lane-btn">lane: pi-prism</button>
     <button id="theme-btn">theme: dark</button>

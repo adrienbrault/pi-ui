@@ -11,7 +11,7 @@ export const THINKING_TEXT = [
   "recency should be measured from the tail of the current run",
   "decay only on structural events, never per token",
   "hysteresis prevents flicker while streaming",
-  "click pins a block open until the next turn",
+  "click pins a block open until clicked again",
 ].join("\n");
 
 export const FILE_TEXT = [
@@ -109,7 +109,7 @@ export const SESSION_THINKING = [
   "So age has to be derived from the tail, not stored on the row itself.",
   "Distance from the tail is the only stable signal while tokens are still arriving.",
   "Two recomputes must agree before a level changes, or the page flickers mid-stream.",
-  "A click pins a block open until the next turn replaces the pin.",
+  "A click pins a block open until clicked again.",
   "Pi also puts a leading Spacer above every tool row.",
   "Grouping has to neutralise that spacer without ever moving the header.",
   "The composer walks the plan top to bottom: groups first, then kept blocks.",

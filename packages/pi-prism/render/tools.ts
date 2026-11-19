@@ -57,11 +57,61 @@ export function describeCall(name: string, args: Record<string, unknown> = {}): 
   return { title: "", meta };
 }
 
-/** A short, truthful count for a collapsed row. */
-export function summarizeOutput(output: string): string {
-  const lines = output.split("\n").filter((line) => line.trim()).length;
-  if (lines === 0) return "";
-  return `${lines} line${lines === 1 ? "" : "s"}`;
+/** pi's context estimator budgets one token per four UTF-16 code units. */
+export function estimatedTokens(chars: number): number {
+  return Math.ceil(chars / 4);
+}
+
+export function callTokens(name: string, args: Record<string, unknown>): number {
+  return estimatedTokens(name.length + JSON.stringify(args).length);
+}
+
+export interface TokenCounts {
+  outputTokens: number;
+  inputTokens: number;
+}
+
+export function toolTokenCounts(input: {
+  name: string;
+  args?: Record<string, unknown>;
+  output?: string;
+  outputTokens?: number;
+  inputTokens?: number;
+}): TokenCounts {
+  return {
+    outputTokens: input.outputTokens ?? callTokens(input.name, input.args ?? {}),
+    inputTokens: input.inputTokens ?? estimatedTokens(input.output?.length ?? 0),
+  };
+}
+
+export function sumTokens(counts: TokenCounts[]): TokenCounts {
+  return counts.reduce(
+    (sum, row) => ({
+      outputTokens: sum.outputTokens + row.outputTokens,
+      inputTokens: sum.inputTokens + row.inputTokens,
+    }),
+    { outputTokens: 0, inputTokens: 0 },
+  );
+}
+
+export interface TokenRates {
+  inputRate?: number;
+  inputRateEstimated?: boolean;
+  outputRate?: number;
+}
+
+export function formatRate(value: number): string {
+  if (value >= 1000) return `${Number((value / 1000).toFixed(1))}k`;
+  return value < 10 ? String(Number(value.toFixed(1))) : String(Math.round(value));
+}
+
+function rateSuffix(rate?: number): string {
+  return rate ? ` @ ${formatRate(rate)}/s` : "";
+}
+
+export function toolTokenLabel(outputTokens: number, inputTokens: number, rates?: TokenRates): string {
+  if (!rates?.outputRate && !rates?.inputRate) return `${outputTokens} out / ${inputTokens} in tokens`;
+  return `out ${formatRate(outputTokens)}${rateSuffix(rates.outputRate)} · in ${formatRate(inputTokens)}${rateSuffix(rates.inputRate)}`;
 }
 
 export function plural(count: number, one: string, many = `${one}s`): string {

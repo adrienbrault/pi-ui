@@ -33,10 +33,10 @@ bun run dev          # gallery server + rebuild on change (localhost:4173)
 Breaking any of these is a design regression, not a style preference.
 
 1. **Render truth.** Every card renders real components: base pi from the resolved install, ours from `packages/pi-prism/render`. No mockups, no screenshots of mockups. If the implementation changes, `bun run ds` changes the card.
-2. **Errors never disappear.** A failed tool keeps its own line at every detail level, including folded rows. Failures are never absorbed into a group summary.
+2. Failed calls fold with their peers. Each affected summary segment includes its failure count, and opening the group reveals the failed calls in order.
 3. **The body budget is total.** A row's height is capped by its detail level; an expanded row's "… N more lines" notice counts against that cap, not on top of it.
 4. **Fixtures are golden.** `ds:check` fails when committed fixtures disagree with what the renderers produce. Change a renderer → `bun run ds` → commit the fixtures in the same change.
-5. **Decay only on structural events.** Recompute transcript heights on `message_start`, `tool_execution_start/end`, `turn_end`, `agent_settled` — never per token. A level change requires two agreeing recomputes (hysteresis); a click pins a block expanded until the next turn.
+5. **Decay only on structural events.** Recompute transcript heights on `message_start`, `tool_execution_start/end`, `turn_end`, `agent_settled` — never per token. A level change requires two agreeing recomputes (hysteresis); a click pins a block expanded until clicked again.
 6. **Theme tokens only.** Use pi's semantic tokens (`accent`, `muted`, `dim`, `success`, `error`, `warning`, `toolTitle`, `toolOutput`, `thinkingText`, …). Never hardcode hex.
 7. **Duck-type pi internals.** Multiple `pi-tui` copies can be loaded at once; `instanceof` lies across them. Probe capabilities and guard versions instead.
 

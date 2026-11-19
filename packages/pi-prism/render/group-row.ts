@@ -1,11 +1,12 @@
 /**
  * Group row: what several collapsed tool rows become. One line, clickable.
- * Failures are never hidden inside a group; the segment keeps its own count.
+ * Each segment reports its own failure count.
  */
 
-import type { ComponentLike } from "./kit.ts";
+import type { ComponentLike, RenderKit } from "./kit.ts";
+import { formatDuration } from "./text.ts";
 import type { RenderApi } from "./tool-row.ts";
-import { groupVerb, type GroupClass } from "./tools.ts";
+import { groupVerb, toolTokenLabel, type TokenCounts, type GroupClass } from "./tools.ts";
 
 export interface GroupSegment {
   cls: GroupClass;
@@ -16,7 +17,8 @@ export interface GroupSegment {
 export interface GroupRowInput {
   segments: GroupSegment[];
   expanded?: boolean;
-  /** Wall time the folded rows spent, summed: one number for the whole group. */
+  tokens?: TokenCounts;
+  /** Elapsed wall time from the earliest member start to the latest member finish. */
   durationMs?: number;
 }
 
@@ -26,21 +28,34 @@ export function renderGroupRow(api: RenderApi, input: GroupRowInput): ComponentL
     const marker = theme.fg("dim", input.expanded ? glyphs.expanded : glyphs.collapsed);
     const segments = input.segments.map((segment) => {
       const verb = groupVerb(segment.cls, segment.count);
-      return theme.style(verb, { fg: "toolOutput", bold: true });
+      const label = theme.style(verb, { fg: "toolOutput", bold: true });
+      const failures = segment.failed ?? 0;
+      return failures
+        ? label + " " + theme.fg("error", `(${failures} ${failures === 1 ? "failure" : "failures"})`)
+        : label;
     });
-    if (input.segments.some((segment) => (segment.failed ?? 0) > 0)) {
-      const failed = input.segments.reduce((sum, segment) => sum + (segment.failed ?? 0), 0);
-      segments.push(theme.fg("error", `${failed} failed`));
-    }
     const dot = theme.fg("dim", ` ${glyphs.dot} `);
-    let line = `${marker} ${segments.join(dot)}`;
-    if (input.durationMs !== undefined) {
-      const seconds = input.durationMs / 1000;
-      const label = seconds < 10 ? `${seconds.toFixed(1)}s` : `${Math.round(seconds)}s`;
-      line += `${dot}${theme.fg("dim", label)}`;
+    const details: string[] = [];
+    if (input.tokens) details.push(toolTokenLabel(input.tokens.outputTokens, input.tokens.inputTokens));
+    if (input.durationMs !== undefined) details.push(formatDuration(input.durationMs));
+    const suffix = details.map((part) => dot + theme.fg("dim", part)).join("");
+    const title = `${marker} ${segments.join(dot)}`;
+    const room = width - kit.visibleWidth(suffix);
+    if (room >= 8 && suffix) {
+      const left = kit.truncateToWidth(title, room, "…");
+      return [left + " ".repeat(Math.max(0, room - kit.visibleWidth(left))) + suffix];
     }
-    return [kit.truncateToWidth(line, width, "…")];
+    return [kit.truncateToWidth(title + suffix, width, "…")];
   });
+}
+
+/** Lay out a revealed member inside the summary, including its body and hover chip. */
+export function renderGroupMember(kit: RenderKit, width: number, render: (innerWidth: number) => string[]): string[] {
+  const indent = " ".repeat(Math.max(0, Math.min(2, width - 1)));
+  const innerWidth = Math.max(1, width - indent.length);
+  return render(innerWidth).map((line) =>
+    line && width > 0 ? indent + kit.truncateToWidth(line, innerWidth, "…") : "",
+  );
 }
 
 export function groupSegments(rows: Array<{ cls: GroupClass; failed?: boolean }>): GroupSegment[] {

@@ -2,21 +2,44 @@
  * The decay model: how much detail a transcript block earns, by how far it sits
  * from the tail of the current run.
  *
- * Bodies shed one line per turn instead of halving: 7, 6, 5 … 1. A block that
- * is down to its last body line holds that line until the run needs the room,
- * then folds into a group summary. A one-line output therefore never vanishes
- * the turn after it shrinks.
+ * Standalone previews fold before their budget drops below three content rows
+ * plus the omission notice.
  *
  * Kept dependency-free so the design system and the extension share one source
  * of truth. Recompute on structural events only; never per stream token.
  */
 
-/** 0 = live, 6 = a single body line. Past the ladder a block folds. */
-export type DetailLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+/** 0 = live. The last level keeps a single body line. Past the ladder a block folds. */
+export type DetailLevel =
+  | 0
+  | 1
+  | 2
+  | 3
+  | 4
+  | 5
+  | 6
+  | 7
+  | 8
+  | 9
+  | 10
+  | 11
+  | 12
+  | 13
+  | 14
+  | 15
+  | 16
+  | 17
+  | 18
+  | 19
+  | 20
+  | 21
+  | 22
+  | 23;
 
 /** The tail budget: newest keeps this many body lines, then one fewer per turn. */
-export const DEFAULT_TAIL_LINES = 7;
-const MAX_TAIL_LINES = 24;
+export const DEFAULT_TAIL_LINES = 8;
+export const COMPACT_LEVEL = 23;
+const MAX_TAIL_LINES = COMPACT_LEVEL + 1;
 
 let tailLines = DEFAULT_TAIL_LINES;
 
@@ -27,6 +50,7 @@ let tailLines = DEFAULT_TAIL_LINES;
  */
 export function setTailLines(lines: number): void {
   tailLines = Number.isFinite(lines) ? Math.min(MAX_TAIL_LINES, Math.max(1, Math.floor(lines))) : DEFAULT_TAIL_LINES;
+  FOLD_DISTANCE = Math.max(1, tailLines - 3);
 }
 
 export function tailLinesFor(): number {
@@ -35,34 +59,27 @@ export function tailLinesFor(): number {
 
 /** Bodies under the header per level, from the configured tail budget. */
 export function bodyLinesMap(): Record<DetailLevel, number> {
-  return {
-    0: Math.max(1, tailLines),
-    1: Math.max(1, tailLines - 1),
-    2: Math.max(1, tailLines - 2),
-    3: Math.max(1, tailLines - 3),
-    4: Math.max(1, tailLines - 4),
-    5: Math.max(1, tailLines - 5),
-    6: Math.max(1, tailLines - 6),
-  };
+  return Object.fromEntries(
+    Array.from({ length: MAX_TAIL_LINES }, (_, level) => [level, Math.max(1, tailLines - level)]),
+  ) as Record<DetailLevel, number>;
 }
 
 /** Expanded (user-pinned) bodies are deliberately generous but finite. */
 export const EXPANDED_BODY_LINES = 16;
+/** Maximum body height when the user opens a block all the way. */
+export const MAX_FULL_LINES = 400;
 
-/**
- * Distance at which a run stops affording kept blocks: everything older folds
- * into group summaries. One-line blocks survive the whole stretch below it.
- */
-export const FOLD_DISTANCE = 8;
+/** The last standalone preview reserves three content rows plus its omission notice. */
+export let FOLD_DISTANCE = DEFAULT_TAIL_LINES - 3;
 
 export function detailFor(distance: number): DetailLevel {
   if (!Number.isFinite(distance) || distance <= 0) return 0;
-  return Math.min(Math.floor(distance), 6) as DetailLevel;
+  return Math.min(Math.floor(distance), tailLines - 1) as DetailLevel;
 }
 
 export function bodyLinesFor(level: DetailLevel, expanded = false): number {
   if (expanded) return EXPANDED_BODY_LINES;
-  return bodyLinesMap()[level];
+  return Math.max(1, tailLines - level);
 }
 
 /** Total rows a block may occupy, header included. */

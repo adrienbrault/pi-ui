@@ -6,9 +6,9 @@
  * then a repo-local install.
  */
 
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 
 export interface PiInstall {
@@ -61,18 +61,23 @@ function resolveRoot(): { root: string; source: PiInstall["source"] } {
     if (existsSync(join(candidate, "dist", "index.js"))) return { root: candidate, source: "global" };
   }
 
-  const local = join(process.cwd(), "node_modules", PKG);
-  if (existsSync(join(local, "dist", "index.js"))) return { root: local, source: "local" };
+  return { root: packageRoot(PKG, WORKSPACE), source: "local" };
+}
 
-  throw new Error(`Cannot find ${PKG}. Set PI_CODING_AGENT_ROOT to the package root, or install it locally.`);
+const WORKSPACE = join(import.meta.dir, "../../packages/pi-prism");
+
+function packageRoot(name: string, from: string): string {
+  // Both pi packages expose dist/index.js as their entry point.
+  return dirname(dirname(Bun.resolveSync(name, from)));
 }
 
 function resolveTuiRoot(piRoot: string): string {
-  const nested = join(piRoot, "node_modules", "@earendil-works", "pi-tui");
-  if (existsSync(join(nested, "dist", "index.js"))) return nested;
-  const local = join(process.cwd(), "node_modules", "@earendil-works", "pi-tui");
-  if (existsSync(join(local, "dist", "index.js"))) return local;
-  throw new Error(`Cannot find @earendil-works/pi-tui next to ${piRoot}.`);
+  const name = "@earendil-works/pi-tui";
+  try {
+    return packageRoot(name, realpathSync(piRoot));
+  } catch {
+    return packageRoot(name, WORKSPACE);
+  }
 }
 
 async function imp(path: string): Promise<any> {

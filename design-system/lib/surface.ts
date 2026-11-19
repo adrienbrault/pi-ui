@@ -1,20 +1,11 @@
 /** Render surface: component -> lines -> HTML, plus the injected RenderKit. */
 
-import type { ComponentLike, RenderKit } from "../../packages/pi-prism/render/kit.ts";
+import { createPiKit } from "../../packages/pi-prism/render/pi-kit.ts";
+import type { RenderKit } from "../../packages/pi-prism/render/kit.ts";
 import type { PiInstall } from "./pi.ts";
 
 export function createKit(pi: PiInstall): RenderKit {
-  const { truncateToWidth, visibleWidth, wrapTextWithAnsi } = pi.modules.tui;
-  return {
-    truncateToWidth: (line, width, ellipsis) => truncateToWidth(line, width, ellipsis),
-    wrap: (text, width) => wrapTextWithAnsi(text, width),
-    visibleWidth: (text) => visibleWidth(text),
-    component: (build) =>
-      ({
-        render: (width: number) => build(width),
-        invalidate: () => {},
-      }) satisfies ComponentLike,
-  };
+  return createPiKit(pi.modules.tui, pi.modules.coding);
 }
 
 export function renderLines(component: { render(width: number): string[] }, width: number): string[] {
@@ -101,9 +92,10 @@ function lineToHtml(pi: PiInstall, raw: string): RowPaint {
     const link = OSC8_OPEN.exec(rest);
     if (link && link.index === 0) {
       flush();
-      href = link[1] || undefined;
-      // A close sequence sets no URI; it ends the link.
-      if (!link[1]) href = undefined;
+      // Markdown links may come from transcript text. Only export navigable resource URLs.
+      const url = link[1];
+      const protocol = url ? URL.parse(url, "https://gallery.invalid")?.protocol : undefined;
+      href = protocol && ["http:", "https:", "mailto:", "file:"].includes(protocol) ? url : undefined;
       index += link[0].length;
       segment = sgr;
       continue;

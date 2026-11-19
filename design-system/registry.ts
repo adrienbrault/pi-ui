@@ -3,18 +3,20 @@
  * The gallery, spec.json and fixtures all derive from this file.
  */
 
+import { formatDuration } from "../packages/pi-prism/render/text.ts";
 import type { GlyphSet, GlyphMode } from "../packages/pi-prism/render/glyphs.ts";
 import { glyphsFor } from "../packages/pi-prism/render/glyphs.ts";
 import { groupSegments, renderGroupRow } from "../packages/pi-prism/render/group-row.ts";
 import type { RenderKit } from "../packages/pi-prism/render/kit.ts";
 import type { DetailLevel } from "../packages/pi-prism/render/detail.ts";
-import { FOLD_DISTANCE, detailFor } from "../packages/pi-prism/render/detail.ts";
-import { thinkingLabel } from "../packages/pi-prism/render/thinking.ts";
-import { planTranscript, type BlockShape } from "../packages/pi-prism/render/layout.ts";
+import { FOLD_DISTANCE, detailFor, tailLinesFor } from "../packages/pi-prism/render/detail.ts";
+import { thinkingLabel, thinkingLayout } from "../packages/pi-prism/render/thinking.ts";
+import { planTranscript, type TranscriptItem, type BlockShape } from "../packages/pi-prism/render/layout.ts";
 import {
   FRAME_LABELS,
   PLAYBACK,
   SESSION_STEPS,
+  playbackGroupDuration,
   partialLines,
   partialText,
   streamingArgKey,
@@ -22,7 +24,14 @@ import {
   type SessionStep,
 } from "./session.ts";
 import { renderToolLine, renderToolRow, type ToolRowInput } from "../packages/pi-prism/render/tool-row.ts";
-import { toolMeta } from "../packages/pi-prism/render/tools.ts";
+import {
+  callTokens,
+  estimatedTokens,
+  sumTokens,
+  toolTokenCounts,
+  toolMeta,
+  toolTokenLabel,
+} from "../packages/pi-prism/render/tools.ts";
 import type { PiInstall } from "./lib/pi.ts";
 import { stack } from "./lib/surface.ts";
 import {
@@ -235,7 +244,6 @@ const readRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
   status: "success",
   level: 0,
   title: readPath,
-  summary: "42 lines",
   output: FILE_TEXT,
   durationMs: 380,
   ...overrides,
@@ -500,10 +508,31 @@ const oursEntries: EntryDef[] = [
             level: 0,
             text: THINKING_TEXT,
             width: ctx.width,
+            durationMs: frame * 100,
             frame,
           });
           return baseAssistant(ctx.pi, [{ type: "thinking", thinking: THINKING_TEXT }], true, label).render(ctx.width);
         },
+      },
+      {
+        id: "markdown",
+        label: "expanded Markdown",
+        render: (ctx) =>
+          thinkingLabel(ours(ctx), {
+            phase: "done",
+            level: 0,
+            expanded: true,
+            text: [
+              "**Check the return value**",
+              "",
+              "- Inspect `render()`.",
+              "",
+              "```ts",
+              "const rows = render(80);",
+              "```",
+            ].join("\n"),
+            width: ctx.width,
+          }).split("\n"),
       },
       {
         id: "done",
@@ -590,7 +619,7 @@ const oursEntries: EntryDef[] = [
             ctx.width,
           ),
       },
-      levelState("l0", "success L0", 0, () => readRow()),
+      levelState("l0", "success L0", 0, () => readRow({ outputRate: 48, inputRate: 2400 })),
       levelState("l1", "aged L1", 1, () => readRow()),
       levelState("l2", "aged L2", 2, () => readRow()),
       levelState("l3", "aged L3", 3, () => readRow()),
@@ -619,7 +648,7 @@ const oursEntries: EntryDef[] = [
               title: "bun run typecheck",
               output: SHELL_OUTPUT,
               level: 0,
-              durationMs: undefined,
+              durationMs: frame * 100,
               frame,
             }),
           ).render(ctx.width),
@@ -667,6 +696,7 @@ const oursEntries: EntryDef[] = [
         label: "collapsed",
         render: (ctx) =>
           renderGroupRow(ours(ctx), {
+            tokens: { outputTokens: 135, inputTokens: 2840 },
             segments: groupSegments([
               { cls: "read" },
               { cls: "read" },
@@ -684,6 +714,7 @@ const oursEntries: EntryDef[] = [
         label: "expanded",
         render: (ctx) =>
           renderGroupRow(ours(ctx), {
+            tokens: { outputTokens: 135, inputTokens: 2840 },
             segments: groupSegments([
               { cls: "read" },
               { cls: "read" },
@@ -700,6 +731,7 @@ const oursEntries: EntryDef[] = [
         label: "with failure",
         render: (ctx) =>
           renderGroupRow(ours(ctx), {
+            tokens: { outputTokens: 135, inputTokens: 2840 },
             segments: groupSegments([
               { cls: "shell" },
               { cls: "shell", failed: true },
@@ -721,12 +753,12 @@ interface ScenarioRow extends ToolRowInput {
 }
 
 const decayRows: ScenarioRow[] = [
-  { ...readRow({ title: "src/core/session.ts", summary: "312 lines" }), key: "read-1" },
-  { ...readRow({ title: "src/modes/interactive/interactive-mode.js", summary: "6107 lines" }), key: "read-2" },
+  { ...readRow({ title: "src/core/session.ts" }), key: "read-1" },
+  { ...readRow({ title: "src/modes/interactive/interactive-mode.js" }), key: "read-2" },
   { ...bashRow({ title: "rg -n 'registerToolRenderer' src", output: SHELL_OK }), key: "bash-1" },
   { ...editRow({ title: "extensions/prism/decorator.ts", summary: "+42 −7" }), key: "edit-1" },
   {
-    ...readRow({ title: "src/modes/interactive/components/assistant-message.js", summary: "181 lines" }),
+    ...readRow({ title: "src/modes/interactive/components/assistant-message.js" }),
     key: "read-3",
   },
   { ...editRow({ title: "extensions/prism/thinking.ts", summary: "+18 −3" }), key: "edit-2" },
@@ -745,6 +777,7 @@ function decayStack(ctx: RenderCtx, offset: number): string[] {
   const segments = groupSegments(
     folded.map(({ row }) => ({ cls: toolMeta(row.name).cls, failed: row.status === "error" })),
   );
+  const tokens = sumTokens(folded.map(({ row }) => toolTokenCounts(row)));
   const durationMs = folded.reduce((sum, { row }) => sum + (row.durationMs ?? 0), 0);
 
   let groupRendered = false;
@@ -752,7 +785,7 @@ function decayStack(ctx: RenderCtx, offset: number): string[] {
     const level = detailFor(distance);
     if (distance >= FOLD_DISTANCE) {
       if (!groupRendered) {
-        components.push(renderGroupRow(ours(ctx), { segments, durationMs }));
+        components.push(renderGroupRow(ours(ctx), { segments, durationMs, tokens }));
         groupRendered = true;
       }
       continue;
@@ -790,10 +823,11 @@ function decayReveal(ctx: RenderCtx, offset: number): RevealGroup[] {
   const segments = groupSegments(
     folded.map(({ row }) => ({ cls: toolMeta(row.name).cls, failed: row.status === "error" })),
   );
+  const tokens = sumTokens(folded.map(({ row }) => toolTokenCounts(row)));
   const durationMs = folded.reduce((sum, { row }) => sum + (row.durationMs ?? 0), 0);
   return [
     {
-      header: renderGroupRow(ours(ctx), { segments, expanded: true, durationMs }).render(ctx.width),
+      header: renderGroupRow(ours(ctx), { segments, expanded: true, durationMs, tokens }).render(ctx.width),
       members: folded.map(({ row }) => {
         const collapsed = renderToolLine(ours(ctx), row).render(ctx.width);
         const preview = renderToolRow(ours(ctx), { ...row, level: 4 }).render(ctx.width);
@@ -818,8 +852,7 @@ const scenarioEntries: EntryDef[] = [
     title: "Decay ladder",
     group: "scenarios",
     variant: "ours",
-    description:
-      "One run, eight rows. Scrub the distance to watch bodies shrink from 6 rows to 1, then fold into a group. The live thinking block stays pinned.",
+    description: "Scrub through the transcript to see older previews shrink and fold into a group.",
     states: Array.from({ length: 9 }, (_, offset) => ({
       id: `d${offset}`,
       label: `distance ${offset}`,
@@ -853,8 +886,10 @@ function stepShape(step: SessionStep, index: number, frame: PlaybackFrame): Bloc
 const finishedPieces = new Map<string, SessionPiece>();
 const finishedGroups = new Map<string, string[]>();
 const finishedMembers = new Map<string, string[]>();
-let framePieces: { key: string; pieces: SessionPiece[] } | undefined;
-let frameArrangement: { key: string; value: { lines: string[]; toggles: ToggleSpec[] } } | undefined;
+let framePieces: { key: string; pieces: SessionPiece[]; plan: TranscriptItem[] } | undefined;
+let frameArrangement:
+  | { pieces: SessionPiece[]; gap: number; value: { lines: string[]; toggles: ToggleSpec[] } }
+  | undefined;
 let baseComponents = new Map<string, any>();
 
 /** What a step shows at this frame: complete for past steps, streamed for the live one. */
@@ -934,33 +969,29 @@ interface SessionPiece {
   key?: string;
 }
 
-function sessionPieces(ctx: RenderCtx, frameIndex: number): SessionPiece[] {
+function playbackGroupTokens(indices: number[]) {
+  return sumTokens(
+    indices.map((index) => {
+      const step = SESSION_STEPS[index];
+      if (step?.kind === "tool") return toolTokenCounts(step.tool);
+      if (step?.kind === "thinking") return { outputTokens: estimatedTokens(step.text.length), inputTokens: 0 };
+      throw new Error(`unexpected folded step ${index}`);
+    }),
+  );
+}
+
+function sessionFrame(ctx: RenderCtx, frameIndex: number) {
   const frame = PLAYBACK[frameIndex];
   if (!frame) throw new Error(`session frame ${frameIndex} out of range`);
-  const frameKey = `${ctx.themeName}:${ctx.glyphMode}:${frameIndex}`;
-  if (framePieces?.key === frameKey) return framePieces.pieces;
+  const frameKey = `${ctx.themeName}:${ctx.glyphMode}:${tailLinesFor()}:${frameIndex}`;
+  if (framePieces?.key === frameKey) return framePieces;
   const steps = SESSION_STEPS.slice(0, frame.step + 1);
-  const plan = planTranscript(steps.map((step, index) => stepShape(step, index, frame)));
-
-  const pieces = plan.map((item) => {
-    if (item.kind === "group") {
-      const groupKey = `${ctx.themeName}:${ctx.glyphMode}:${JSON.stringify(item.segments)}`;
-      const memo = finishedGroups.get(groupKey);
-      if (memo) return { lines: memo };
-      const durationMs = item.indices.reduce((sum, at) => {
-        const member = steps[at];
-        return sum + (member?.kind === "tool" ? (member.tool.durationMs ?? 0) : 0);
-      }, 0);
-      const lines = renderGroupRow(ours(ctx), { segments: item.segments, durationMs }).render(SESSION_WIDTH);
-      finishedGroups.set(groupKey, lines);
-      return { lines };
-    }
-
+  const renderBlock = (item: Extract<TranscriptItem, { kind: "block" }>): SessionPiece => {
     const step = steps[item.index];
     if (!step) throw new Error(`session frame ${frameIndex}: missing step ${item.index}`);
     const progress = stepProgress(step, item.index, frame);
     const live = progress.partial && progress.live;
-    const memoKey = `${ctx.themeName}:${ctx.glyphMode}:${item.index}:${item.level}`;
+    const memoKey = `${ctx.themeName}:${ctx.glyphMode}:${tailLinesFor()}:${item.index}:${item.level}`;
     if (!progress.partial) {
       const memo = finishedPieces.get(memoKey);
       if (memo) return memo;
@@ -994,26 +1025,27 @@ function sessionPieces(ctx: RenderCtx, frameIndex: number): SessionPiece[] {
         });
       case "thinking": {
         const text = partialText(step.text, progress.chars);
-        const label = thinkingLabel(ours(ctx), {
+        const durationMs = live ? frame.elapsedMs : playbackGroupDuration([item.index]);
+        const { label, canToggle } = thinkingLayout(ours(ctx), {
           phase: live ? "thinking" : "done",
           level: item.level,
           text,
           width: SESSION_WIDTH,
-          durationMs: live ? undefined : 1200,
+          durationMs,
           frame: frameIndex % 10,
         });
         const piece: SessionPiece = { lines: thinkingBlock(ctx, label).render(SESSION_WIDTH) };
-        if (!live) {
+        if (!live && canToggle) {
           const expandedLines = thinkingLabel(ours(ctx), {
             phase: "done",
             level: 0,
             text,
             width: SESSION_WIDTH,
-            durationMs: 1200,
+            durationMs,
             frame: frameIndex % 10,
             expanded: true,
           }).split("\n");
-          if (expandedLines.length > piece.lines.length) piece.opens = [expandedLines];
+          piece.opens = [expandedLines];
         }
         if (piece.opens) piece.key = `think:${item.index}`;
         return remember(piece);
@@ -1021,7 +1053,15 @@ function sessionPieces(ctx: RenderCtx, frameIndex: number): SessionPiece[] {
       case "tool": {
         const input: ToolRowInput = {
           name: step.tool.name,
-          args: step.tool.args,
+          args: progress.partial
+            ? {
+                ...step.tool.args,
+                [streamingArgKey(step.tool.name)]: partialText(
+                  String(step.tool.args[streamingArgKey(step.tool.name)] ?? ""),
+                  progress.chars,
+                ),
+              }
+            : step.tool.args,
           status: progress.partial ? "running" : step.tool.failed ? "error" : "success",
           level: item.level,
           title: partialText(step.tool.title ?? "", progress.chars),
@@ -1043,9 +1083,27 @@ function sessionPieces(ctx: RenderCtx, frameIndex: number): SessionPiece[] {
         return remember(piece);
       }
     }
+  };
+  const plan = planTranscript(steps.map((step, index) => stepShape(step, index, frame)));
+  const pieces = plan.map((item) => {
+    if (item.kind === "group") {
+      const groupKey = `${ctx.themeName}:${ctx.glyphMode}:${item.indices.join(",")}`;
+      const memo = finishedGroups.get(groupKey);
+      if (memo) return { lines: memo };
+      const durationMs = playbackGroupDuration(item.indices);
+      const lines = renderGroupRow(ours(ctx), {
+        segments: item.segments,
+        durationMs,
+        tokens: playbackGroupTokens(item.indices),
+      }).render(SESSION_WIDTH);
+      finishedGroups.set(groupKey, lines);
+      return { lines };
+    }
+
+    return renderBlock(item);
   });
-  framePieces = { key: frameKey, pieces };
-  return pieces;
+  framePieces = { key: frameKey, pieces, plan };
+  return framePieces;
 }
 
 /** Strip SGR and OSC to ask the only question a gap cares about: is there text? */
@@ -1072,8 +1130,7 @@ function trimEdgeBlanks(lines: string[]): string[] {
 
 /** Lay pieces out like the transcript: one blank row between blocks. */
 function arrangePieces(pieces: SessionPiece[], gap = 1): { lines: string[]; toggles: ToggleSpec[] } {
-  const key = `${pieces.length}:${gap}:${pieces.map((piece) => piece.lines.length).join(",")}`;
-  if (frameArrangement?.key === key) return frameArrangement.value;
+  if (frameArrangement?.pieces === pieces && frameArrangement.gap === gap) return frameArrangement.value;
   const lines: string[] = [];
   const toggles: ToggleSpec[] = [];
   // An empty piece (a text delta with no characters yet) must not claim a gap.
@@ -1089,16 +1146,16 @@ function arrangePieces(pieces: SessionPiece[], gap = 1): { lines: string[]; togg
     }
   });
   const value = { lines, toggles };
-  frameArrangement = { key, value };
+  frameArrangement = { pieces, gap, value };
   return value;
 }
 
 function sessionOurs(ctx: RenderCtx, frameIndex: number): string[] {
-  return arrangePieces(sessionPieces(ctx, frameIndex)).lines;
+  return arrangePieces(sessionFrame(ctx, frameIndex).pieces).lines;
 }
 
 function sessionToggles(ctx: RenderCtx, frameIndex: number): ToggleSpec[] {
-  return arrangePieces(sessionPieces(ctx, frameIndex)).toggles;
+  return arrangePieces(sessionFrame(ctx, frameIndex).pieces).toggles;
 }
 
 /**
@@ -1106,24 +1163,18 @@ function sessionToggles(ctx: RenderCtx, frameIndex: number): ToggleSpec[] {
  * that can itself be expanded (body) or collapsed (header only).
  */
 function sessionReveal(ctx: RenderCtx, frameIndex: number): RevealGroup[] {
-  const frame = PLAYBACK[frameIndex];
-  if (!frame) throw new Error(`session frame ${frameIndex} out of range`);
-  const steps = SESSION_STEPS.slice(0, frame.step + 1);
-  const plan = planTranscript(steps.map((step, index) => stepShape(step, index, frame)));
-
+  const { plan } = sessionFrame(ctx, frameIndex);
   return plan.flatMap((item) => {
     if (item.kind !== "group") return [];
-    const durationMs = item.indices.reduce((sum, at) => {
-      const member = steps[at];
-      return sum + (member?.kind === "tool" ? (member.tool.durationMs ?? 0) : 0);
-    }, 0);
+    const durationMs = playbackGroupDuration(item.indices);
     const header = renderGroupRow(ours(ctx), {
       segments: item.segments,
+      tokens: playbackGroupTokens(item.indices),
       expanded: true,
       durationMs,
     }).render(SESSION_WIDTH);
     const members: RevealMember[] = item.indices.flatMap((index) => {
-      const step = steps[index];
+      const step = SESSION_STEPS[index];
       if (!step || step.kind !== "tool") return [];
       const input: ToolRowInput = {
         name: step.tool.name,
@@ -1183,7 +1234,7 @@ const sessionEntries: EntryDef[] = [
     title: "pi-prism",
     group: "session",
     variant: "ours",
-    description: "The same frames graded by distance: bodies shrink, runs fold, failures keep their own line.",
+    description: "The same frames graded by distance: bodies shrink, runs fold with failure counts.",
     sync: "session",
     stage: "session",
     frameLabels: FRAME_LABELS,
@@ -1328,7 +1379,9 @@ function motionsAllSheet(ctx: RenderCtx, frame: number): string[] {
 function iconSheet(ctx: RenderCtx, option: IconOption): string[] {
   return option.icons.map(({ name, icon }) => {
     const head = `${ctx.theme.fg("accent", icon)} ${ctx.theme.fg("toolTitle", name)}`;
-    const tail = ctx.theme.fg("dim", "· src/core/session.ts · 64 lines · 0.2s");
+    const path = "src/core/session.ts";
+    const tokens = toolTokenLabel(callTokens(name, { path }), estimatedTokens(FILE_TEXT.length));
+    const tail = ctx.theme.fg("dim", `· ${path} · ${tokens} · ${formatDuration(200)}`);
     return ctx.kit.truncateToWidth(`${head} ${tail}`, ctx.width, "…");
   });
 }

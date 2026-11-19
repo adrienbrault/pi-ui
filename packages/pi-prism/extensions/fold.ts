@@ -8,10 +8,10 @@
  * this module, and both renderers read the result.
  */
 
-import { FOLD_DISTANCE } from "../render/detail.ts";
+import { detailFor, FOLD_DISTANCE, settleLevel, type DetailLevel } from "../render/detail.ts";
 import { groupSegments, type GroupSegment } from "../render/group-row.ts";
 import type { ToolStatus } from "../render/tool-row.ts";
-import type { GroupClass } from "../render/tools.ts";
+import { sumTokens, type TokenCounts, type GroupClass } from "../render/tools.ts";
 
 export type FoldMode = "normal" | "hidden" | "anchor";
 
@@ -19,6 +19,8 @@ export type FoldMode = "normal" | "hidden" | "anchor";
 export interface ToolInfo {
   name: string;
   status: ToolStatus;
+  pinned: boolean;
+  tokens?: TokenCounts;
   durationMs?: number;
 }
 
@@ -30,7 +32,9 @@ export interface FoldMember {
   count: number;
   cls: GroupClass;
   failed?: boolean;
-  durationMs?: number;
+  tokens?: TokenCounts;
+  startedAt?: number;
+  endedAt?: number;
   invalidate: () => void;
 }
 
@@ -38,12 +42,15 @@ export interface LiveFoldGroup {
   anchor: FoldMember;
   members: FoldMember[];
   segments: GroupSegment[];
+  tokens?: TokenCounts;
   durationMs?: number;
   open: boolean;
   invalidate: () => void;
 }
 
 export interface FoldPlan {
+  level: DetailLevel;
+  pending?: DetailLevel;
   mode: FoldMode;
   group?: LiveFoldGroup;
 }
@@ -52,18 +59,37 @@ export interface FoldPlan {
 export interface FoldUnit extends FoldMember {
   /** Foldable blocks after this one in the run. */
   distance: number;
-  /** Prose and failures keep their own row and end a group. */
+  /** Keeps its own row instead of joining the summary. */
   boundary?: boolean;
+  startsRun?: boolean;
 }
 
 const TOOL_INFO = new Map<string, ToolInfo>();
-const TOOL_PLANS = new Map<string, FoldPlan>();
+let toolPlans = new Map<string, FoldPlan>();
 const THINKING_PLANS = new WeakMap<object, FoldPlan>();
 const OPEN_THINKING = new WeakSet<object>();
 const OPEN_TOOLS = new Set<string>();
 
-export function registerToolInfo(key: string, info: ToolInfo): void {
+export function resetFolds(): void {
+  TOOL_INFO.clear();
+  toolPlans.clear();
+  OPEN_TOOLS.clear();
+}
+
+/** Only structural changes can affect the plan. Partial output stays local to the row. */
+export function registerToolInfo(key: string, info: ToolInfo): boolean {
+  const old = TOOL_INFO.get(key);
+  if (
+    old?.name === info.name &&
+    old.status === info.status &&
+    old.durationMs === info.durationMs &&
+    old.tokens?.inputTokens === info.tokens?.inputTokens &&
+    old.tokens?.outputTokens === info.tokens?.outputTokens &&
+    old.pinned === info.pinned
+  )
+    return false;
   TOOL_INFO.set(key, info);
+  return true;
 }
 
 export function toolInfo(key: string): ToolInfo | undefined {
@@ -71,7 +97,7 @@ export function toolInfo(key: string): ToolInfo | undefined {
 }
 
 export function toolPlan(key: string): FoldPlan | undefined {
-  return TOOL_PLANS.get(key);
+  return toolPlans.get(key);
 }
 
 export function thinkingPlan(component: object): FoldPlan | undefined {
@@ -95,7 +121,7 @@ function markOpen(member: FoldMember, open: boolean): void {
 /** Open or close every member at once: one click on the summary does the lot. */
 export function setGroupOpen(group: LiveFoldGroup, open: boolean): void {
   group.open = open;
-  markOpen(group.anchor, open);
+  for (const member of group.members) markOpen(member, open);
   group.invalidate();
 }
 
@@ -107,11 +133,34 @@ function sameGroup(previous: LiveFoldGroup | undefined, units: FoldUnit[]): bool
       member?.component === unit.component &&
       member.key === unit.key &&
       member.kind === unit.kind &&
+      member.cls === unit.cls &&
       member.count === unit.count &&
       member.failed === unit.failed &&
-      member.durationMs === unit.durationMs
+      member.tokens?.inputTokens === unit.tokens?.inputTokens &&
+      member.tokens?.outputTokens === unit.tokens?.outputTokens &&
+      member.startedAt === unit.startedAt &&
+      member.endedAt === unit.endedAt
     );
   });
+}
+
+/** Wall-clock span, including model responses and counting overlapping calls once. */
+function elapsedMs(members: FoldMember[]): number | undefined {
+  let start = Infinity;
+  let end = -Infinity;
+  for (const { startedAt, endedAt } of members) {
+    if (
+      startedAt === undefined ||
+      endedAt === undefined ||
+      !Number.isFinite(startedAt) ||
+      !Number.isFinite(endedAt) ||
+      endedAt < startedAt
+    )
+      return undefined;
+    start = Math.min(start, startedAt);
+    end = Math.max(end, endedAt);
+  }
+  return end - start;
 }
 
 function buildGroup(units: FoldUnit[], previous: LiveFoldGroup | undefined): LiveFoldGroup {
@@ -126,26 +175,28 @@ function buildGroup(units: FoldUnit[], previous: LiveFoldGroup | undefined): Liv
       failed: member.failed,
     })),
   );
-  const timed = members.filter((member) => member.durationMs !== undefined);
-  const durationMs = timed.length > 0 ? timed.reduce((sum, member) => sum + (member.durationMs ?? 0), 0) : undefined;
+  const durationMs = elapsedMs(members);
+  // A finishing tool can merge two groups or replace the summary anchor.
+  const open = members.some(isOpen);
+  if (open) {
+    for (const member of members) markOpen(member, true);
+  }
   const anchor = members[0]!;
   return {
     anchor,
     members,
     segments: groupSegments(rows),
+    tokens: members.every((member) => member.tokens) ? sumTokens(members.map((member) => member.tokens!)) : undefined,
     ...(durationMs !== undefined ? { durationMs } : {}),
-    open: isOpen(anchor),
+    open,
     invalidate: () => {
       for (const member of members) member.invalidate();
     },
   };
 }
 
-function assign(unit: FoldUnit, plan: FoldPlan, changed: Set<object>): void {
-  const previous = unit.kind === "thinking" ? THINKING_PLANS.get(unit.component) : TOOL_PLANS.get(unit.key);
-  if (unit.kind === "thinking") THINKING_PLANS.set(unit.component, plan);
-  else TOOL_PLANS.set(unit.key, plan);
-  if (!previous || previous.mode !== plan.mode || previous.group !== plan.group) changed.add(unit.component);
+function previousPlan(unit: FoldUnit): FoldPlan | undefined {
+  return unit.kind === "thinking" ? THINKING_PLANS.get(unit.component) : toolPlans.get(unit.key);
 }
 
 /**
@@ -153,31 +204,42 @@ function assign(unit: FoldUnit, plan: FoldPlan, changed: Set<object>): void {
  * group; a boundary or a recent unit ends it and keeps its own row. The first
  * member owns the summary, the rest render nothing until the group opens.
  */
-export function planFolds(units: FoldUnit[]): Set<object> {
-  TOOL_PLANS.clear();
+export function planFolds(units: FoldUnit[], animated?: object): Set<object> {
+  const nextTools = new Map<string, FoldPlan>();
   const changed = new Set<object>();
   let run: FoldUnit[] = [];
-  let previousGroup: LiveFoldGroup | undefined;
+  const assign = (unit: FoldUnit, mode: FoldMode, group?: LiveFoldGroup): void => {
+    const previous = previousPlan(unit);
+    const target = detailFor(unit.distance);
+    // The animation has already held this target across both frames.
+    const age = settleLevel(previous?.level, target, unit.component === animated ? target : previous?.pending);
+    const plan = { ...age, mode, group };
+    if (unit.kind === "thinking") THINKING_PLANS.set(unit.component, plan);
+    else nextTools.set(unit.key, plan);
+    if (previous?.mode !== mode || previous.group !== group || previous.level !== age.level) {
+      changed.add(unit.component);
+    }
+  };
 
   const flush = (): void => {
     if (run.length === 0) return;
-    const group = buildGroup(run, previousGroup);
-    previousGroup = group;
+    const group = buildGroup(run, previousPlan(run[0]!)?.group);
     run.forEach((unit, index) => {
-      assign(unit, { mode: index === 0 ? "anchor" : "hidden", group }, changed);
+      assign(unit, index === 0 ? "anchor" : "hidden", group);
     });
     run = [];
   };
 
   for (const unit of units) {
+    if (unit.startsRun) flush();
     if (!unit.boundary && unit.distance >= FOLD_DISTANCE) {
       run.push(unit);
       continue;
     }
     flush();
-    previousGroup = undefined;
-    assign(unit, { mode: "normal" }, changed);
+    assign(unit, "normal");
   }
   flush();
+  toolPlans = nextTools;
   return changed;
 }

@@ -29,32 +29,36 @@ function levelFor(cls: BlockClass, distance: number): DetailLevel {
   return detailFor(distance);
 }
 
-export function planTranscript(blocks: BlockShape[]): TranscriptItem[] {
+export function planTranscript(blocks: BlockShape[], historyEnd = blocks.length): TranscriptItem[] {
   const items: TranscriptItem[] = [];
   let folded: BlockShape[] = [];
   let foldedIndices: number[] = [];
+  let groupItem: Extract<TranscriptItem, { kind: "group" }> | undefined;
 
   const flush = () => {
-    if (folded.length === 0) return;
-    items.push({
-      kind: "group",
-      segments: groupSegments(folded.map((block) => ({ cls: block.cls as GroupClass, failed: block.failed }))),
-      // The members a click can reveal: interaction needs the real indices.
-      indices: foldedIndices,
-    });
+    if (!groupItem) return;
+    groupItem.segments = groupSegments(folded.map((block) => ({ cls: block.cls as GroupClass, failed: block.failed })));
+    // The members a click can reveal: interaction needs the real indices.
+    groupItem.indices = [...foldedIndices];
     folded = [];
     foldedIndices = [];
+    groupItem = undefined;
   };
 
   blocks.forEach((block, index) => {
-    const distance = blocks.length - 1 - index;
+    const distance = Math.max(0, historyEnd - 1 - index);
     const level = levelFor(block.cls, distance);
-    if (distance >= FOLD_DISTANCE && groupable(block.cls) && !block.failed) {
+    if (distance >= FOLD_DISTANCE && groupable(block.cls)) {
+      if (!groupItem) {
+        // The summary takes the first folded member's place. Keeping the item
+        // here lets failures and later members follow it in visual order.
+        groupItem = { kind: "group", segments: [], indices: [] };
+        items.push(groupItem);
+      }
       folded.push(block);
       foldedIndices.push(index);
       return;
     }
-    // A failure or a prose anchor ends the run, so the group keeps its place.
     flush();
     items.push({ kind: "block", index, level });
   });

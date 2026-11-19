@@ -16,6 +16,9 @@ export interface RenderKit {
   wrap(text: string, width: number): string[];
   /** Visible terminal columns, not string length. */
   visibleWidth(text: string): number;
+  languageFromPath?(path: string): string | undefined;
+  highlight?(source: string, language: string, theme: RenderTheme, owner?: object): string[];
+  markdown?(source: string, width: number, theme: RenderTheme, owner?: object): string[];
   /** Wrap a width-dependent line builder as a pi-tui Component. */
   component(build: (width: number) => string[]): ComponentLike;
 }
@@ -29,6 +32,11 @@ export interface RenderTheme {
   style(text: string, options: { fg?: string; bg?: string; bold?: boolean }): string;
   /** Resolved palette, when the theme exposes it (pi's Theme does). */
   colors?: Record<string, string>;
+}
+
+/** Body text starts one two-column step past the heading label, leaving room for content on narrow screens. */
+export function blockBodyIndent(width: number): string {
+  return "    ".slice(0, Math.max(0, width - 1));
 }
 
 export function indented(prefix: string, text: string, width: number, kit: RenderKit): string {

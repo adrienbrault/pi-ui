@@ -4,6 +4,7 @@
  * never a content difference.
  */
 
+import { formatDuration } from "../packages/pi-prism/render/text.ts";
 import {
   ASSISTANT_SOURCE,
   DETAIL_DIFF,
@@ -42,10 +43,10 @@ export type SessionStep =
 const BASH = "bash";
 
 /** Repeated turns reuse the fixtures: same evidence, different moment in the session. */
-const readStep = (label: string, title: string, summary: string, output: string, durationMs: number): SessionStep => ({
+const readStep = (label: string, title: string, output: string, durationMs: number): SessionStep => ({
   kind: "tool",
   label,
-  tool: { name: "read", args: { path: title }, title, summary, output, durationMs },
+  tool: { name: "read", args: { path: title }, title, output, durationMs },
 });
 const grepStep = (label: string, pattern: string, summary: string): SessionStep => ({
   kind: "tool",
@@ -77,6 +78,8 @@ const bashStep = (
   tool: { name: BASH, args: { command }, title: command, summary, output, durationMs, failed },
 });
 
+export const SESSION_VIEWPORT_ROWS = 35;
+
 export const SESSION_STEPS: SessionStep[] = [
   { kind: "prefill", label: "prefill", tokens: 12_400 },
   {
@@ -92,7 +95,6 @@ export const SESSION_STEPS: SessionStep[] = [
       name: "read",
       args: { path: "src/core/session.ts" },
       title: "src/core/session.ts",
-      summary: "64 lines",
       output: SESSION_CODE,
       durationMs: 180,
     },
@@ -104,7 +106,6 @@ export const SESSION_STEPS: SessionStep[] = [
       name: "read",
       args: { path: "src/modes/interactive/components/assistant-message.js" },
       title: "src/modes/interactive/components/assistant-message.js",
-      summary: "181 lines",
       output: ASSISTANT_SOURCE,
       durationMs: 240,
     },
@@ -187,7 +188,7 @@ export const SESSION_STEPS: SessionStep[] = [
     },
   },
   { kind: "thinking", label: "thinking", text: SESSION_THINKING },
-  readStep("read registry.ts", "src/core/registry.ts", "58 lines", SESSION_CODE, 160),
+  readStep("read registry.ts", "src/core/registry.ts", SESSION_CODE, 160),
   {
     kind: "thinking",
     label: "thinking",
@@ -200,17 +201,17 @@ export const SESSION_STEPS: SessionStep[] = [
   bashStep("check fails", "bun run check", "1 failed", TEST_FAIL, 3200, true),
   { kind: "text", label: "note 5/10", text: "One failing expectation: the fold distance moved without the ladder." },
   { kind: "thinking", label: "thinking", text: SESSION_THINKING_2 },
-  readStep("read DESIGN.md", "DESIGN.md", "181 lines", ASSISTANT_SOURCE, 240),
+  readStep("read DESIGN.md", "DESIGN.md", ASSISTANT_SOURCE, 240),
   grepStep("search settleLevel", "settleLevel", "21 matches"),
   editStep("edit thinking.ts", "packages/pi-prism/render/thinking.ts", "+6 −2"),
   { kind: "thinking", label: "thinking", text: "Hysteresis settles one level, so a click pins until the turn ends." },
   { kind: "text", label: "note 6/10", text: "Hysteresis belongs in the level, not the caller: one settle point." },
   bashStep("lint", "bun run lint", "28 passing", TEST_OK, 1800),
   { kind: "thinking", label: "thinking", text: SESSION_THINKING },
-  readStep("read group-row.ts", "packages/pi-prism/render/group-row.ts", "64 lines", SESSION_CODE, 170),
+  readStep("read group-row.ts", "packages/pi-prism/render/group-row.ts", SESSION_CODE, 170),
   grepStep("search FOLD_DISTANCE", "FOLD_DISTANCE", "21 matches"),
   editStep("edit registry.ts", "design-system/registry.ts", "+42 −7"),
-  { kind: "thinking", label: "thinking", text: "Counts survive folding; failures never hide inside a summary." },
+  { kind: "thinking", label: "thinking", text: "The summary counts failed commands alongside the total." },
   {
     kind: "text",
     label: "note 7/10",
@@ -218,7 +219,7 @@ export const SESSION_STEPS: SessionStep[] = [
   },
   bashStep("test", "bun test", "28 passing", TEST_OK, 5400),
   { kind: "thinking", label: "thinking", text: SESSION_THINKING_2 },
-  readStep("read build.ts", "design-system/build.ts", "181 lines", ASSISTANT_SOURCE, 260),
+  readStep("read build.ts", "design-system/build.ts", ASSISTANT_SOURCE, 260),
   grepStep("search POOL_FRAME_THRESHOLD", "POOL_FRAME_THRESHOLD", "21 matches"),
   editStep("edit html.ts", "design-system/html.ts", "+6 −2"),
   { kind: "thinking", label: "thinking", text: "Pool frames by content: repetition is what makes the page heavy." },
@@ -229,7 +230,7 @@ export const SESSION_STEPS: SessionStep[] = [
   },
   bashStep("ds", "bun run ds", "28 passing", TEST_OK, 2100),
   { kind: "thinking", label: "thinking", text: SESSION_THINKING },
-  readStep("read tools.ts", "packages/pi-prism/render/tools.ts", "64 lines", SESSION_CODE, 150),
+  readStep("read tools.ts", "packages/pi-prism/render/tools.ts", SESSION_CODE, 150),
   editStep("edit group-row.ts", "packages/pi-prism/render/group-row.ts", "+42 −7"),
   { kind: "thinking", label: "thinking", text: "Clicks and hovers share one state; inert rows stay silent." },
   bashStep("check", "bun run check", "28 passing", TEST_OK, 8700),
@@ -239,13 +240,7 @@ export const SESSION_STEPS: SessionStep[] = [
     text: "Green again. One deliberate stop: the head of the session must stay readable at the floor.",
   },
   { kind: "thinking", label: "thinking", text: SESSION_THINKING_2 },
-  readStep(
-    "read interaction.test.ts",
-    "packages/pi-prism/extensions/interaction.test.ts",
-    "181 lines",
-    ASSISTANT_SOURCE,
-    230,
-  ),
+  readStep("read interaction.test.ts", "packages/pi-prism/extensions/interaction.test.ts", ASSISTANT_SOURCE, 230),
   grepStep("search MouseRegion", "MouseRegion", "21 matches"),
   bashStep("test suite", "bun test", "28 passing", TEST_OK, 4300),
   { kind: "text", label: "note 10/10", text: "Clicks and hovers are covered; inert rows deliberately offer nothing." },
@@ -276,7 +271,7 @@ export interface PlaybackFrame {
   lines: number;
   /** Still streaming: spinner and running status. */
   partial: boolean;
-  /** Wall time already spent inside the running tool, for a live timer. */
+  /** Elapsed time within the current tool or thinking step. */
   elapsedMs?: number;
   /** How long this frame is on screen, in ms, at 100 tokens/second. */
   ms: number;
@@ -310,6 +305,7 @@ function thinkingFrames(step: number, label: string, text: string): PlaybackFram
   return [
     ...ends.map((chars, index) => ({
       step,
+      elapsedMs: (index + 1) * TOKEN_MS,
       label: `${label} · thinking ${Math.round(((index + 1) / ends.length) * 100)}%`,
       chars,
       lines: 0,
@@ -377,7 +373,7 @@ function waitFrames(step: number, label: string, title: string, durationMs: numb
   const parts = Math.max(1, Math.round(durationMs / WAIT_FRAME_MS));
   return Array.from({ length: parts }, (_, index) => ({
     step,
-    label: `${label} · waiting ${(((index + 1) * (durationMs / parts)) / 1000).toFixed(1)}s`,
+    label: `${label} · waiting ${formatDuration((index + 1) * (durationMs / parts))}`,
     // The call is already parsed; only the result is missing while it runs.
     chars: title.length,
     lines: 0,
@@ -403,6 +399,21 @@ function framesForStep(step: SessionStep, index: number): PlaybackFrame[] {
 }
 
 export const PLAYBACK: PlaybackFrame[] = SESSION_STEPS.flatMap((step, index) => framesForStep(step, index));
+
+// Steps play sequentially. Include the simulated time spent streaming thoughts and arguments.
+const stepEnds: number[] = [];
+let playbackTime = 0;
+for (const frame of PLAYBACK) {
+  playbackTime += frame.ms;
+  stepEnds[frame.step] = playbackTime;
+}
+
+export function playbackGroupDuration(indices: number[]): number | undefined {
+  const first = indices[0];
+  const last = indices.at(-1);
+  if (first === undefined || last === undefined) return undefined;
+  return stepEnds[last]! - (stepEnds[first - 1] ?? 0);
+}
 
 /** One caption per playback frame, so the scrubber reads like a trace. */
 export const FRAME_LABELS: string[] = PLAYBACK.map((frame) => frame.label);

@@ -7,15 +7,24 @@
  * gallery honest about what can actually ship.
  */
 
-import { bodyLinesFor, type DetailLevel } from "./detail.ts";
+import { bodyLinesFor, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
 import { frameAt, type GlyphSet } from "./glyphs.ts";
-import type { RenderKit, RenderTheme } from "./kit.ts";
-import { cleanThinking, nonEmptyLineCount, squeeze, tailLines } from "./text.ts";
+import { blockBodyIndent, type RenderKit, type RenderTheme } from "./kit.ts";
+import { estimatedTokens, formatRate } from "./tools.ts";
+import {
+  cleanOutput,
+  cleanThinking,
+  formatDuration,
+  logicalLines,
+  omittedLinesLabel,
+  MAX_FORMAT_CHARS,
+} from "./text.ts";
 
 export interface ThinkingApi {
   kit: RenderKit;
   theme: RenderTheme;
   glyphs: GlyphSet;
+  owner?: object;
 }
 
 export type ThinkingPhase = "thinking" | "done" | "aged";
@@ -27,68 +36,220 @@ export interface ThinkingLabelInput {
   width: number;
   frame?: number;
   durationMs?: number;
+  turnDuration?: boolean;
+  /** null when the stream has too few timed deltas for a rate. */
+  outputRate?: number | null;
+  reasoningTokens?: number;
+  estimatedTokens?: number;
   expanded?: boolean;
+  /**
+   * Streaming previews clamp each source line to the terminal width instead of
+   * wrapping it, so arriving tokens extend the last row instead of reflowing the
+   * whole tail. Defaults to `phase === "thinking"`; expansion always wraps.
+   */
+  truncate?: boolean;
 }
 
 const MARKER = "think";
-
-/** Body rows share the tool-row indent so blocks line up down the left edge. */
-const INDENT = "  ";
-
-function seconds(durationMs: number | undefined): string {
-  if (durationMs === undefined) return "";
-  const value = durationMs / 1000;
-  return value < 10 ? `${value.toFixed(1)}s` : `${Math.round(value)}s`;
-}
 
 function clampLine(kit: RenderKit, line: string, width: number): string {
   return kit.truncateToWidth(line, Math.max(1, width), "…");
 }
 
-export function thinkingLabel(api: ThinkingApi, input: ThinkingLabelInput): string {
-  const { kit, theme, glyphs } = api;
-  const cleaned = cleanThinking(input.text);
-  const tail = tailLines(cleaned, 16);
-  const last = squeeze(tail.at(-1) ?? "");
+interface Header {
+  indent: string;
+  bodyWidth: number;
+  source: string[];
+  formatted: string[] | undefined;
+  last: string;
+  marker: string;
+  dot: string;
+  metrics: string;
+  heading: (left: string) => string;
+}
 
-  // The marker reads like a tool status glyph: coloured, never grey. While text
-  // is still arriving it is the thing that spins — no second indicator needed.
-  // The title uses the same token as every other header, so it stays full contrast.
+function headerFor(api: ThinkingApi, input: ThinkingLabelInput): Header {
+  const { kit, theme, glyphs } = api;
+  const indent = blockBodyIndent(input.width);
+  const bodyWidth = Math.max(1, input.width - indent.length);
+  // Streaming truncation is a preview-only rule; opening the block wraps.
+  const truncate = !input.expanded && (input.truncate ?? input.phase === "thinking");
+  // Plain thoughts keep their inexpensive logical-line tail. Parse Markdown before selecting
+  // rows, so an excerpt in the middle of a list or a fenced block keeps its formatting.
+  const markup = /[`*_#>|~[\\$<]|^ {0,3}(?:[-+=]|\d+[.)])(?:\s|$)|^ {4}|^\t|^[-=]{3,}$/m;
+  const formatted =
+    !truncate && kit.markdown && input.text.length <= MAX_FORMAT_CHARS && markup.test(input.text)
+      ? kit.markdown(cleanOutput(input.text), bodyWidth, theme, api.owner).map((row) => row.trimEnd())
+      : undefined;
+  const source = formatted?.length ? formatted : logicalLines(cleanThinking(input.text));
+  const last = source.findLast((line) => (formatted ? cleanOutput(line) : line).trim()) ?? "";
   const glyph = input.phase === "thinking" ? frameAt(glyphs, input.frame ?? 0) : glyphs.thinking;
   const marker = `${theme.fg("accent", glyph)} ${theme.style(MARKER, { fg: "toolTitle", bold: true })}`;
   const dot = theme.fg("dim", glyphs.dot);
-  const body = (row: string) => theme.italic(theme.fg("thinkingText", INDENT + row));
+  const count = input.reasoningTokens ?? input.estimatedTokens ?? estimatedTokens(input.text.length);
+  const tokens = `${count} token${count === 1 ? "" : "s"}`;
+  const duration = input.durationMs === undefined ? undefined : formatDuration(input.durationMs);
+  const timing = duration ? ` ${dot} ${theme.fg("dim", duration + (input.turnDuration ? " turn" : ""))}` : "";
+  const rate =
+    input.outputRate === undefined &&
+    input.phase !== "thinking" &&
+    !input.turnDuration &&
+    input.durationMs &&
+    input.durationMs > 0
+      ? (count * 1000) / input.durationMs
+      : input.outputRate;
+  const speed = rate ? ` ${formatRate(rate)}/s` : "";
+  const metrics = theme.fg("dim", tokens + speed) + timing;
+  const heading = (left: string) => {
+    const prefix = left + ` ${dot} `;
+    const gap = Math.max(0, input.width - kit.visibleWidth(prefix + metrics));
+    return clampLine(kit, prefix + " ".repeat(gap) + metrics, input.width);
+  };
+  return { indent, bodyWidth, source, formatted, last, marker, dot, metrics, heading };
+}
 
-  // One-line form: only at the floor, so the ladder sheds a row at a time.
-  if (input.level >= 6 && !(input.expanded ?? false)) {
-    const suffix = last ? ` ${dot} ${theme.fg("thinkingText", last)}` : "";
-    return clampLine(kit, `${marker}${suffix}`, input.width);
+/**
+ * The unstyled plan for one label: header data plus every terminal body row the
+ * current source can show, oldest first. Callers select the window; the
+ * extension uses the same plan to stagger rows out one at a time.
+ */
+export interface ThinkingFrame {
+  head: string;
+  /** Styled terminal rows, before the collapsed tail window. */
+  rows: string[];
+  /** Source line index for each terminal row. */
+  sources: number[];
+  sourceCount: number;
+  /** Terminal rows the collapsed budget shows. */
+  keep: number;
+  canToggle: boolean;
+  indent: string;
+  last: string;
+  formatted: boolean;
+  marker: string;
+  dot: string;
+  metrics: string;
+  heading: (left: string) => string;
+}
+
+export function thinkingFrame(
+  api: ThinkingApi,
+  input: ThinkingLabelInput,
+  streamingRows?: (total: number, keep: number) => number[],
+): ThinkingFrame {
+  const header = headerFor(api, input);
+  const truncate = !input.expanded && (input.truncate ?? input.phase === "thinking");
+  const budget = bodyLinesFor(input.level);
+  const collapsedBudget = Math.min(budget, Math.max(4, budget - 1));
+  const keep = Math.max(1, collapsedBudget - 1);
+  const candidateStart = input.expanded
+    ? 0
+    : Math.max(0, header.source.length - (truncate ? keep : Math.max(16, keep)));
+  const indices =
+    truncate && streamingRows
+      ? streamingRows(header.source.length, keep)
+      : Array.from({ length: header.source.length - candidateStart }, (_, i) => candidateStart + i);
+  const terminal = indices.flatMap((source) => {
+    const line = header.source[source]!;
+    const texts = truncate
+      ? [clampLine(api.kit, line, header.bodyWidth)]
+      : header.formatted
+        ? [line]
+        : api.kit.wrap(line, header.bodyWidth);
+    return texts.map((text) => ({ text, source }));
+  });
+  const rows = terminal.map(({ text }) =>
+    header.formatted ? header.indent + text : api.theme.italic(api.theme.fg("thinkingText", header.indent + text)),
+  );
+  const clamped = truncate && indices.some((i) => api.kit.visibleWidth(header.source[i]!) > header.bodyWidth);
+  const canToggle = header.source.length > indices.length || terminal.length > keep || clamped;
+  return {
+    head: header.heading(header.marker),
+    rows,
+    sources: terminal.map(({ source }) => source),
+    sourceCount: header.source.length,
+    keep,
+    canToggle,
+    indent: header.indent,
+    last: header.last,
+    formatted: !!header.formatted,
+    marker: header.marker,
+    dot: header.dot,
+    metrics: header.metrics,
+    heading: header.heading,
+  };
+}
+
+/**
+ * Compose the header, selected body rows and omission notice within the current budget.
+ */
+export function composeThinkingLabel(
+  api: ThinkingApi,
+  input: ThinkingLabelInput,
+  frame: ThinkingFrame,
+): { label: string; canToggle: boolean } {
+  const { kit, theme } = api;
+  const notice = (hidden: number) => theme.fg("dim", `${frame.indent}${omittedLinesLabel(hidden)}`);
+
+  if (bodyLinesFor(input.level) <= 1 && !input.expanded) {
+    const omitted = frame.sourceCount > 1 ? theme.fg("dim", "… ") : "";
+    const inline = frame.last
+      ? `${frame.marker} ${frame.dot} ${omitted}${frame.formatted ? frame.last : theme.fg("thinkingText", frame.last)}`
+      : frame.marker;
+    const canToggle =
+      frame.sourceCount > 1 ||
+      (!!frame.last && kit.visibleWidth(inline + ` ${frame.dot} ` + frame.metrics) > input.width);
+    return {
+      label: frame.heading(
+        clampLine(
+          kit,
+          inline,
+          Math.max(kit.visibleWidth(frame.marker), input.width - kit.visibleWidth(frame.metrics) - 3),
+        ),
+      ),
+      canToggle,
+    };
   }
 
-  const budget = Math.max(1, input.expanded ? 16 : bodyLinesFor(input.level));
-  const duration = seconds(input.durationMs);
-  const head = duration ? `${marker} ${theme.fg("dim", duration)}` : marker;
-
-  // One row of the budget is the header. Body text wraps instead of ending in
-  // an ellipsis: a terminal row is a layout unit, not a truncation point.
-  const bodyWidth = Math.max(1, input.width - INDENT.length);
-  const wrapped = tail.flatMap((row, source) => kit.wrap(row, bodyWidth).map((line) => ({ line, source })));
-  const bodyBudget = Math.max(0, budget - 1);
-  let rows: string[];
   if (input.expanded) {
-    // Expanded rows show the whole thought (already capped to the last 16
-    // source lines above).
-    rows = wrapped.slice(-bodyBudget).map((row) => body(row.line));
-  } else if (bodyBudget <= 1) {
-    // One body row is never spent on a notice: the newest line itself wins.
-    rows = wrapped.slice(-1).map((row) => body(row.line));
-  } else {
-    const visible = wrapped.slice(-(bodyBudget - 1));
-    const shownSources = new Set(visible.map((row) => row.source)).size;
-    const hidden = nonEmptyLineCount(cleaned) - shownSources;
-    rows = [];
-    if (hidden > 0) rows.push(theme.fg("dim", `${INDENT}< ${hidden} more lines >`));
-    rows.push(...visible.map((row) => body(row.line)));
+    // Match tool output's safety cap. Keep both ends in order and count the notice in the budget.
+    const rows =
+      frame.rows.length <= MAX_FULL_LINES
+        ? frame.rows
+        : [
+            ...frame.rows.slice(0, MAX_FULL_LINES - 2),
+            frame.rows[frame.rows.length - 1]!,
+            notice(frame.rows.length - (MAX_FULL_LINES - 1)),
+          ];
+    return {
+      label: [frame.head, ...rows].map((row) => clampLine(kit, row, input.width)).join("\n"),
+      canToggle: thinkingLayout(api, { ...input, expanded: false }).canToggle,
+    };
   }
-  return [head, ...rows].map((row) => clampLine(kit, row, input.width)).join("\n");
+
+  const from = Math.max(0, frame.rows.length - frame.keep);
+  const visible = frame.rows.slice(from, from + frame.keep);
+  const visibleSources = new Set(frame.sources.slice(from, from + frame.keep));
+  const hidden = frame.sourceCount - visibleSources.size;
+  const budget = bodyLinesFor(input.level);
+  const collapsedBudget = Math.min(budget, Math.max(4, budget - 1));
+  const rows = [...visible];
+  const omitted = hidden || frame.rows.length - visible.length;
+  if (collapsedBudget > 1 && frame.canToggle && omitted > 0) {
+    if (input.phase === "thinking") rows.unshift(notice(omitted));
+    else rows.push(notice(omitted));
+  }
+  return {
+    label: [frame.head, ...rows].map((row) => clampLine(kit, row, input.width)).join("\n"),
+    canToggle: frame.canToggle,
+  };
+}
+
+export function thinkingLabel(api: ThinkingApi, input: ThinkingLabelInput): string {
+  return thinkingLayout(api, input).label;
+}
+
+/** Report whether toggling reveals text at this width, including clipped inline previews. */
+export function thinkingLayout(api: ThinkingApi, input: ThinkingLabelInput): { label: string; canToggle: boolean } {
+  return composeThinkingLabel(api, input, thinkingFrame(api, input));
 }

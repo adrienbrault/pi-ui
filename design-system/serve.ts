@@ -23,7 +23,7 @@ const server = Bun.serve({
 
     // The tail slider re-renders ours-cards at a new decay budget.
     if (url.pathname === "/api/cells") {
-      const tail = clampInt(url.searchParams.get("tail"), 3, 12, DEFAULT_TAIL);
+      const tail = clampInt(url.searchParams.get("tail"), 3, 24, DEFAULT_TAIL);
       const theme = url.searchParams.get("theme") ?? "dark";
       const glyph = url.searchParams.get("glyph") ?? "unicode";
       if (!THEME_NAMES.includes(theme as ThemeName) || !GLYPH_MODES.includes(glyph as GlyphMode)) {

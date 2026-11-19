@@ -3,28 +3,28 @@
  *
  * The renderer slots are split so the header stays one row while the body grows:
  * `renderCall` owns the header (and the hover hint), `renderResult` owns the body.
- * A click on either toggles between the transcript's tail and the whole output,
- * and a move paints the action the click would take.
+ * The hover chip identifies the row that can open the whole output.
  */
 
+import { MouseRegion, truncateToWidth, visibleWidth, type Component, type TuiMouseEvent } from "@earendil-works/pi-tui";
 import {
-  MouseRegion,
-  truncateToWidth,
-  visibleWidth,
-  wrapTextWithAnsi,
-  type Component,
-  type TuiMouseEvent,
-} from "@earendil-works/pi-tui";
-import type { ExtensionAPI, ToolRendererResolver, ToolRenderResultOptions } from "@earendil-works/pi-coding-agent";
-import { bodyLinesFor, type DetailLevel } from "../render/detail.ts";
+  estimateTokens,
+  type ExtensionAPI,
+  type ToolRendererResolver,
+  type ToolRenderResultOptions,
+} from "@earendil-works/pi-coding-agent";
+import { COMPACT_LEVEL, bodyLinesFor, type DetailLevel } from "../render/detail.ts";
 import { glyphsFor } from "../render/glyphs.ts";
-import { renderGroupRow } from "../render/group-row.ts";
-import type { RenderKit, RenderTheme } from "../render/kit.ts";
+import { renderGroupMember, renderGroupRow } from "../render/group-row.ts";
+import { installThroughput } from "./throughput.ts";
+import { KIT } from "./kit.ts";
+import type { RenderTheme } from "../render/kit.ts";
+import { callTokens, toolTokenCounts } from "../render/tools.ts";
 import { nonEmptyLineCount } from "../render/text.ts";
-import { renderToolRow, type ToolRowInput, type ToolStatus } from "../render/tool-row.ts";
-import { levelFor, registerAge, resetAge, startRun } from "./age.ts";
-import { type FoldMode, type LiveFoldGroup, registerToolInfo, setGroupOpen, toolPlan } from "./fold.ts";
-import { claimHover, releaseHover } from "./hover.ts";
+import { previewText, toolHeader, renderToolRow, type ToolRowInput, type ToolStatus } from "../render/tool-row.ts";
+import { type FoldMode, type LiveFoldGroup, registerToolInfo, resetFolds, setGroupOpen, toolPlan } from "./fold.ts";
+import { claimHover, highlightGroupRow, isOmissionRow, releaseHover } from "./hover.ts";
+import { expandedRegions } from "./viewport.ts";
 import { installThinkingRenderer, scheduleThinkingFold } from "./thinking.ts";
 
 /**
@@ -53,152 +53,137 @@ interface ToolRenderContext<State = unknown, Args = unknown> {
 
 const GLYPHS = glyphsFor("unicode");
 
-/** pi-tui's primitives, injected so the renderer stays dependency-free. */
-const KIT: RenderKit = {
-  truncateToWidth,
-  wrap: wrapTextWithAnsi,
-  visibleWidth,
-  component: (build) => ({
-    render: build,
-    invalidate: () => {},
-  }),
-};
-
 /** Tool kinds pi-prism owns. Anything else keeps whatever renderer it already had. */
 const OWNED = /^(read|ls|grep|find|write|edit|bash|web|fetch|mcp__.*)$/;
 
 type Expansion = 0 | 1;
 
-interface RowState {
-  expansion: Expansion;
-  hover: boolean;
-  hoverTimer?: ReturnType<typeof setTimeout>;
-  /** Run the block belongs to, and its position inside that run. */
-  run?: number;
-  runSeq?: number;
-  /** Filled by the result slot: the header opens it on click. */
-  output?: string;
-}
-
-function stateOf<TArgs>(ctx: ToolRenderContext<RowState, TArgs>): RowState {
-  // `ctx.state` is pi's shared `rendererState` object: mutate it, never replace
-  // it on the ephemeral context, or every render starts from scratch.
-  const state = (ctx.state ??= {} as RowState);
-  if (typeof state.expansion !== "number") {
-    state.expansion = 0;
-    state.hover = false;
-  }
-  return state;
-}
-
-/**
- * Recency is live session state, not a design-system fixture. Every tool call
- * gets a stable sequence number for its decay level; folding itself is planned
- * from the rendered tree so thoughts and calls share one summary.
- */
-type AgeKey = string | RowState;
-
 interface BlockRecord {
-  key: AgeKey;
-  run: number;
-  runSeq: number;
+  key: string | object;
   name: string;
   args: Record<string, unknown>;
   status: ToolStatus;
   output: string;
   error?: string;
+  inputTokens?: number;
+  outputTokens?: number;
   durationMs?: number;
   invalidate: () => void;
   mode?: FoldMode;
   group?: LiveFoldGroup;
   expansion: Expansion;
+  commandClipped?: boolean;
   hoverSummary: boolean;
-  hoverMember: boolean;
-  hoverOwner?: object;
+  hover: boolean;
+  hoverRow?: number;
+  expandRow?: number;
+  pinnedVisible: boolean;
   hoverTimer?: ReturnType<typeof setTimeout>;
 }
 
-const records = new Map<AgeKey, BlockRecord>();
-let planDirty = true;
+const records = new Map<string | object, BlockRecord>();
+let ratesFor: ReturnType<typeof installThroughput> | undefined;
+const runningBash = new Map<string, { startedAt: number; timer: ReturnType<typeof setInterval> }>();
+
+function stopBashClock(id: string): void {
+  const clock = runningBash.get(id);
+  if (!clock) return;
+  clearInterval(clock.timer);
+  runningBash.delete(id);
+}
+
+function clearBashClocks(): void {
+  for (const id of runningBash.keys()) stopBashClock(id);
+}
+
+function publishToolInfo(record: BlockRecord): void {
+  if (typeof record.key !== "string") return;
+  const changed = registerToolInfo(record.key, {
+    name: record.name,
+    status: record.status,
+    durationMs: record.durationMs,
+    pinned: record.pinnedVisible,
+    tokens: record.status === "success" || record.status === "error" ? toolTokenCounts(record) : undefined,
+  });
+  if (changed) scheduleThinkingFold();
+}
+
+function statusOf(ctx: ToolRenderContext): ToolStatus {
+  if (ctx.isError) return "error";
+  if (!ctx.isPartial) return "success";
+  return ctx.executionStarted ? "running" : "pending";
+}
 
 function syncRecord<TArgs>(
-  ctx: ToolRenderContext<RowState, TArgs>,
-  state: RowState,
+  ctx: ToolRenderContext<object, TArgs>,
   name: string,
   args: TArgs,
-  output: string,
+  output?: string,
+  inputTokens?: number,
 ): BlockRecord {
-  // Key on the tool call, not the component: pi may rebuild a tool component
-  // on invalidate, and a fresh state would otherwise take a new sequence.
-  const key: AgeKey = ctx.toolCallId ?? state;
-  const status = statusOf(ctx, output);
-  const error = status === "error" ? output : undefined;
+  const key = ctx.toolCallId ?? (ctx.state ??= {});
   let record = records.get(key);
+  const status = statusOf(ctx);
   if (!record) {
-    const age = registerAge(ctx.invalidate);
     record = {
       key,
-      run: age.run,
-      runSeq: age.seq,
       name,
-      args: (args ?? {}) as Record<string, unknown>,
       status,
-      output,
-      error,
-      durationMs: ctx.durationMs,
+      args: {},
+      output: "",
       invalidate: ctx.invalidate,
       expansion: 0,
+      pinnedVisible: false,
+      hover: false,
       hoverSummary: false,
-      hoverMember: false,
     };
     records.set(key, record);
-    planDirty = true;
-  } else {
-    record.invalidate = ctx.invalidate;
-    if (
-      record.name !== name ||
-      record.status !== status ||
-      record.output !== output ||
-      record.error !== error ||
-      record.durationMs !== ctx.durationMs
-    ) {
-      planDirty = true;
-    }
   }
+  record.invalidate = ctx.invalidate;
+  const nextArgs = (args ?? {}) as Record<string, unknown>;
+  // Pending arguments may be filled in place. Reuse the count on later transcript repaints.
+  if (
+    status === "pending" ||
+    record.status === "pending" ||
+    nextArgs !== record.args ||
+    record.outputTokens === undefined
+  ) {
+    record.outputTokens = callTokens(name, nextArgs);
+  }
+  record.args = nextArgs;
   record.name = name;
-  record.args = (args ?? {}) as Record<string, unknown>;
   record.status = status;
-  record.output = output;
-  record.error = error;
+  if (output !== undefined) record.output = output;
+  if (inputTokens !== undefined) record.inputTokens = inputTokens;
+  record.error = status === "error" ? record.output : undefined;
   record.durationMs = ctx.durationMs;
-  state.run = record.run;
-  state.runSeq = record.runSeq;
-  if (typeof key === "string") {
-    registerToolInfo(key, { name, status, durationMs: ctx.durationMs });
-  }
-  if (planDirty) {
-    planDirty = false;
-    scheduleThinkingFold();
-  }
+  publishToolInfo(record);
   const planned = typeof key === "string" ? toolPlan(key) : undefined;
   record.mode = planned?.mode;
   record.group = planned?.group;
   return record;
 }
 
-/** The newest block is level 0; each block behind it drops one body row. */
-function levelOf(state: RowState): DetailLevel {
-  if (state.runSeq === undefined || state.run === undefined) return 0;
-  return levelFor(state.run, state.runSeq);
+function levelOf(record: BlockRecord): DetailLevel {
+  return typeof record.key === "string" ? (toolPlan(record.key)?.level ?? 0) : 0;
 }
 
-function statusOf<TArgs>(ctx: ToolRenderContext<RowState, TArgs>, output: string): ToolStatus {
-  if (ctx.durationMs !== undefined) return ctx.isError ? "error" : "success";
-  if (ctx.isPartial) return "running";
-  return output ? "success" : ctx.executionStarted ? "running" : "pending";
+function setExpansion(record: BlockRecord, expansion: Expansion): void {
+  record.expansion = expansion;
+  record.pinnedVisible = expansion === 1 && !record.group;
+  publishToolInfo(record);
 }
 
-function outputText(result: { content: Array<{ type: string; text?: string }> }): string {
+function outputText(
+  name: string,
+  isError: boolean,
+  result: { content: Array<{ type: string; text?: string }>; details?: unknown },
+): string {
+  const details = result.details;
+  if (name === "edit" && !isError && details && typeof details === "object") {
+    if ("patch" in details && typeof details.patch === "string" && details.patch) return details.patch;
+    if ("diff" in details && typeof details.diff === "string" && details.diff) return details.diff;
+  }
   return result.content
     .filter((part) => part.type === "text")
     .map((part) => part.text ?? "")
@@ -243,24 +228,21 @@ function frame(): number {
   return Math.floor(Date.now() / 100) % GLYPHS.spinner.length;
 }
 
-function inputFor<TArgs>(
-  name: string,
-  args: TArgs,
-  ctx: ToolRenderContext<RowState, TArgs>,
-  output: string,
-): ToolRowInput {
-  const state = stateOf(ctx);
-  const status = statusOf(ctx, output);
+function inputFor(record: BlockRecord): ToolRowInput {
+  const clock = record.status === "running" && typeof record.key === "string" ? runningBash.get(record.key) : undefined;
   return {
-    name,
-    args: (args ?? {}) as Record<string, unknown>,
-    status,
-    level: levelOf(state),
-    expanded: state.expansion === 1,
-    full: state.expansion === 1,
-    output,
-    error: status === "error" ? output : undefined,
-    durationMs: ctx.durationMs,
+    name: record.name,
+    args: record.args,
+    status: record.status,
+    level: levelOf(record),
+    expanded: record.expansion === 1,
+    full: record.expansion === 1,
+    output: record.output,
+    inputTokens: record.inputTokens,
+    outputTokens: record.outputTokens,
+    ...(typeof record.key === "string" ? ratesFor?.(record.key) : undefined),
+    error: record.error,
+    durationMs: clock ? performance.now() - clock.startedAt : record.durationMs,
     frame: frame(),
   };
 }
@@ -269,53 +251,62 @@ function inputFor<TArgs>(
  * Hover is explicit because terminals do not send a "left the row" event: a move
  * lights the row, and a short timer clears it when the pointer stops reporting.
  */
-function claimRowHover<TArgs>(ctx: ToolRenderContext<RowState, TArgs>): RowState {
-  const state = stateOf(ctx);
+function claimRowHover(state: BlockRecord): void {
   claimHover(state, () => {
     if (state.hoverTimer) clearTimeout(state.hoverTimer);
     state.hoverTimer = undefined;
     state.hover = false;
-    ctx.invalidate();
+    state.invalidate();
   });
-  return state;
 }
 
-function onMouse<TArgs>(ctx: ToolRenderContext<RowState, TArgs>, event: TuiMouseEvent) {
-  const state = stateOf(ctx);
+function onMouse(state: BlockRecord, event: TuiMouseEvent) {
   if (event.type === "move") {
     const changed = !state.hover;
     state.hover = true;
-    claimRowHover(ctx);
+    claimRowHover(state);
     if (state.hoverTimer) clearTimeout(state.hoverTimer);
     state.hoverTimer = setTimeout(() => {
       state.hover = false;
       releaseHover(state);
-      ctx.invalidate();
+      state.invalidate();
     }, 1200);
-    if (changed) ctx.invalidate();
-    return { render: true } as const;
+    if (changed) state.invalidate();
+    return { handled: true, render: true } as const;
   }
   if (event.type === "click" && event.button === "left") {
-    const action = actionFor(state.expansion, nonEmptyLineCount(state.output ?? ""), levelOf(state));
-    if (action === null) return undefined;
-    state.expansion = action;
+    setExpansion(state, state.expansion === 1 ? 0 : 1);
     state.hover = true;
-    claimRowHover(ctx);
-    ctx.invalidate();
+    claimRowHover(state);
+    state.invalidate();
     return { handled: true, render: true } as const;
   }
   return undefined;
 }
 
-function region<TArgs>(inner: Component, ctx: ToolRenderContext<RowState, TArgs>): Component {
-  return new MouseRegion(inner, (event) => onMouse(ctx, event));
+function region(inner: Component, record: BlockRecord, part: "header" | "body" | "combined" = "header"): Component {
+  const surface = new MouseRegion(inner, (event) => {
+    const heading = part === "header" || (part === "combined" && event.y === 0);
+    const row = heading ? undefined : event.y;
+    if (record.hoverRow !== row && record.hover) record.invalidate();
+    record.hoverRow = row;
+    if (
+      event.type === "click" &&
+      !record.expansion &&
+      !(heading ? record.commandClipped || record.expandRow !== undefined : row === record.expandRow)
+    )
+      return { handled: true, render: false };
+    return onMouse(record, event);
+  });
+  if (part !== "header") expandedRegions.set(surface, () => record.expansion === 1);
+  return surface;
 }
 
 function emptyComponent(): Component {
   return KIT.component(() => []) as Component;
 }
 
-/** Right-aligned terminal chip, never wider than the row. */
+/** Inline terminal chip, never wider than the row. */
 function withChip(theme: Theme, line: string, hint: string, width: number): string {
   const chip = theme.style(`[ ${hint} ]`, {
     bg: theme.colors.accent,
@@ -323,81 +314,111 @@ function withChip(theme: Theme, line: string, hint: string, width: number): stri
     bold: true,
   });
   const chipWidth = visibleWidth(chip);
+  if (chipWidth >= width) return truncateToWidth(chip, width, "…");
   const left = truncateToWidth(line, Math.max(0, width - chipWidth - 1), "…");
-  const gap = Math.max(0, width - visibleWidth(left) - chipWidth);
-  return left + " ".repeat(gap) + chip;
+  return left + " " + chip;
 }
 
-/** Header row plus the hover chip, right-aligned, never wider than the terminal. */
-function headerLines<TArgs>(
-  name: string,
-  args: TArgs,
-  ctx: ToolRenderContext<RowState, TArgs>,
-  theme: Theme,
-  width: number,
-): string[] {
-  const state = stateOf(ctx);
+function expandHint(theme: Theme, line: string, width: number): string {
+  return withChip(theme, tintText(theme, "toolPendingBg", line), "click · expand", width);
+}
+
+function highlightHeadingFromFooter(record: BlockRecord, rows: string[], theme: Theme, width: number): string[] {
+  if (!record.expansion && record.hover && record.hoverRow !== undefined && record.hoverRow === record.expandRow)
+    highlightGroupRow(rows, 0, width, theme.bg("toolPendingBg", " ").split(" ")[0]!);
+  return rows;
+}
+
+function headerComponent(record: BlockRecord, theme: Theme): Component {
   const api = { kit: KIT, theme: theme as unknown as RenderTheme, glyphs: GLYPHS };
-  const line = renderToolRow(api, inputFor(name, args, ctx, state.output ?? "")).render(width)[0] ?? "";
-  if (!state.hover) return [line];
-  // Keep hover neutral, like a thinking row: the chip is the affordance, not
-  // another outcome signal competing with the status glyph.
-  const header = tintText(theme, "toolPendingBg", line);
-  const hint = hintFor(state.expansion, nonEmptyLineCount(state.output ?? ""), levelOf(state));
-  return [hint === null ? header : withChip(theme, header, hint, width)];
+  return region(
+    KIT.component((width) => {
+      const header = toolHeader(api, inputFor(record), width);
+      record.commandClipped = !!header.hiddenCommand;
+      return highlightHeadingFromFooter(
+        record,
+        [
+          record.hover &&
+          record.hoverRow === undefined &&
+          record.commandClipped &&
+          record.expandRow === undefined &&
+          !record.expansion
+            ? expandHint(theme, header.line, width)
+            : header.line,
+        ],
+        theme,
+        width,
+      );
+    }) as Component,
+    record,
+  );
 }
 
-function headerComponent<TArgs>(
-  name: string,
-  args: TArgs,
-  ctx: ToolRenderContext<RowState, TArgs>,
-  theme: Theme,
-): Component {
-  const inner = KIT.component((width) => headerLines(name, args, ctx, theme, width)) as Component;
-  return region(inner, ctx);
-}
-
-function bodyComponent<TArgs>(
-  name: string,
-  args: TArgs,
-  ctx: ToolRenderContext<RowState, TArgs>,
-  theme: Theme,
-  output: string,
-): Component {
+function bodyComponent(record: BlockRecord, theme: Theme, includeHeader = false): Component {
   const api = { kit: KIT, theme: theme as unknown as RenderTheme, glyphs: GLYPHS };
-  const inner = KIT.component((width) => {
-    const lines = renderToolRow(api, inputFor(name, args, ctx, output)).render(width);
-    return lines.slice(1);
-  }) as Component;
-  return region(inner, ctx);
+  return region(
+    KIT.component((width) => {
+      const rows = renderToolRow({ ...api, owner: record }, inputFor(record))
+        .render(width)
+        .slice(includeHeader ? 0 : 1);
+      if (record.expansion === 1) collapseFooter(theme, rows, width);
+      else {
+        const hint =
+          record.commandClipped || isOmissionRow(rows.at(-1) ?? "")
+            ? "click · expand"
+            : hintFor(record.expansion, nonEmptyLineCount(previewText(record)), levelOf(record));
+        record.expandRow = hint && rows.length ? rows.length - 1 : undefined;
+        if (
+          hint &&
+          record.hover &&
+          record.expandRow !== undefined &&
+          (record.hoverRow === undefined || record.hoverRow === record.expandRow)
+        )
+          rows[record.expandRow] = expandHint(theme, rows[record.expandRow]!, width);
+      }
+      return includeHeader ? highlightHeadingFromFooter(record, rows, theme, width) : rows;
+    }) as Component,
+    record,
+    includeHeader ? "combined" : "body",
+  );
 }
 
-function memberHint(member: BlockRecord): string | null {
-  if (nonEmptyLineCount(member.output) === 0) return null;
-  return member.expansion === 0 ? "click · expand" : "click · collapse";
+function collapseFooter(theme: Theme, rows: string[], width: number): void {
+  const hint = "click · collapse";
+  const last = rows.length - 1;
+  if (last < 0 || visibleWidth(rows[last]!) + hint.length + 5 > width) {
+    rows.push(withChip(theme, "", hint, width));
+    return;
+  }
+  rows[last] = withChip(theme, tintText(theme, "toolPendingBg", rows[last]!), hint, width);
 }
 
 function cycleMember(member: BlockRecord): void {
-  if (nonEmptyLineCount(member.output) === 0) return;
-  member.expansion = member.expansion === 1 ? 0 : 1;
+  if (!member.commandClipped && nonEmptyLineCount(previewText(member)) === 0) return;
+  setExpansion(member, member.expansion === 1 ? 0 : 1);
 }
 
 /** The anchor is also a member; its row sits under the summary once open. */
 function memberLines(member: BlockRecord, theme: Theme, width: number): string[] {
   const api = { kit: KIT, theme: theme as unknown as RenderTheme, glyphs: GLYPHS };
-  const rows = renderToolRow(api, {
-    name: member.name,
-    args: member.args,
-    status: member.status,
-    level: 6,
-    expanded: member.expansion === 1,
-    full: member.expansion === 1,
-    output: member.output,
-    error: member.error,
-    durationMs: member.durationMs,
-    frame: frame(),
-  }).render(width);
-  return member.expansion === 0 ? [rows[0] ?? ""] : rows;
+  const rows = renderGroupMember(KIT, width, (innerWidth) => {
+    const input: ToolRowInput = { ...inputFor(member), level: COMPACT_LEVEL };
+    if (member.expansion === 0) {
+      const header = toolHeader(api, input, innerWidth);
+      member.commandClipped = !!header.hiddenCommand;
+      return [
+        member.hover && member.hoverRow === 0 && (member.commandClipped || nonEmptyLineCount(previewText(member)))
+          ? expandHint(theme, header.line, innerWidth)
+          : header.line,
+      ];
+    }
+    const detail = renderToolRow({ ...api, owner: member }, input).render(innerWidth);
+    collapseFooter(theme, detail, innerWidth);
+    return detail;
+  });
+  return member.hover
+    ? highlightGroupRow(rows, member.hoverRow, width, theme.bg("toolPendingBg", " ").split(" ")[0]!)
+    : rows;
 }
 
 function groupLines(record: BlockRecord, theme: Theme, width: number): string[] {
@@ -407,31 +428,26 @@ function groupLines(record: BlockRecord, theme: Theme, width: number): string[] 
   const summary =
     renderGroupRow(api, {
       segments: group.segments,
+      tokens: group.tokens,
       expanded: group.open,
       ...(group.durationMs !== undefined ? { durationMs: group.durationMs } : {}),
-    }).render(width)[0] ?? "";
+    }).render(group.open ? Math.max(1, width - "[ click · collapse ] ".length) : width)[0] ?? "";
+  const hovered = record.hoverSummary;
   const hint = group.open ? "click · collapse" : "click · expand";
-  const summaryLine = record.hoverSummary
-    ? withChip(theme, tintText(theme, "toolPendingBg", summary), hint, width)
-    : summary;
-  if (!group.open) return [summaryLine];
-  const rows = memberLines(record, theme, width);
-  const memberHintText = memberHint(record);
-  if (record.hoverMember && memberHintText !== null) {
-    const header = tintText(theme, "toolPendingBg", rows[0] ?? "");
-    rows[0] = withChip(theme, header, memberHintText, width);
-  }
-  return [summaryLine, ...rows];
+  const rows = [group.open || hovered ? withChip(theme, summary, hint, width) : summary];
+  if (hovered) highlightGroupRow(rows, 0, width, theme.bg("toolPendingBg", " ").split(" ")[0]!);
+  return group.open ? [...rows, ...memberLines(record, theme, width)] : rows;
 }
 
 function onGroupMouse(record: BlockRecord, event: TuiMouseEvent) {
   const group = record.group;
   if (!group) return undefined;
+  record.hoverRow = event.y - (record.mode === "hidden" ? 0 : 1);
   const clear = () => {
     if (record.hoverTimer) clearTimeout(record.hoverTimer);
     record.hoverTimer = undefined;
     record.hoverSummary = false;
-    record.hoverMember = false;
+    record.hover = false;
     record.invalidate();
   };
   const show = (touch: boolean) => {
@@ -450,18 +466,17 @@ function onGroupMouse(record: BlockRecord, event: TuiMouseEvent) {
   };
 
   if (event.type === "move") {
-    const onMember = group.open && event.y > 0;
+    const onMember = record.mode === "hidden" || (group.open && event.y > 0);
+    record.hover = onMember;
     record.hoverSummary = !onMember;
-    record.hoverMember = onMember;
     show(true);
-    return { render: true } as const;
+    return { handled: true, render: true } as const;
   }
   if (event.type === "click" && event.button === "left") {
     // Rows below the summary belong to the anchor member, not the group.
-    if (group.open && event.y > 0) {
+    if (record.mode === "hidden" || (group.open && event.y > 0)) {
       cycleMember(record);
       record.hoverSummary = false;
-      record.hoverMember = true;
       record.invalidate();
       return { handled: true, render: true } as const;
     }
@@ -469,7 +484,6 @@ function onGroupMouse(record: BlockRecord, event: TuiMouseEvent) {
     // own click for expanding its body.
     setGroupOpen(group, !group.open);
     record.hoverSummary = true;
-    record.hoverMember = false;
     show(false);
     return { handled: true, render: true } as const;
   }
@@ -478,10 +492,13 @@ function onGroupMouse(record: BlockRecord, event: TuiMouseEvent) {
 
 function groupComponent(record: BlockRecord, theme: Theme): Component {
   const inner: Component = {
-    render: (width) => groupLines(record, theme, width),
+    render: (width) =>
+      record.mode === "hidden" ? memberLines(record, theme, width) : groupLines(record, theme, width),
     invalidate: () => {},
   };
-  return new MouseRegion(inner, (event) => onGroupMouse(record, event));
+  const surface = new MouseRegion(inner, (event) => onGroupMouse(record, event));
+  expandedRegions.set(surface, (row) => record.expansion === 1 && (record.mode === "hidden" || row > 0));
+  return surface;
 }
 
 const resolver: ToolRendererResolver = (toolName, next) => {
@@ -489,24 +506,23 @@ const resolver: ToolRendererResolver = (toolName, next) => {
   return {
     renderShell: "self",
     renderCall: (args, theme, ctx) => {
-      const renderCtx = ctx as ToolRenderContext<RowState, typeof args>;
-      const state = stateOf(renderCtx);
-      const record = syncRecord(renderCtx, state, toolName, args, state.output ?? "");
+      const record = syncRecord(ctx, toolName, args);
       if (record.mode === "hidden" && !record.group?.open) return emptyComponent();
-      if (record.mode === "anchor") return groupComponent(record, theme);
-      return headerComponent(toolName, args, renderCtx, theme);
+      if (record.group) return groupComponent(record, theme);
+      return toolName === "write" ? bodyComponent(record, theme, true) : headerComponent(record, theme);
     },
     renderResult: (result, _options: ToolRenderResultOptions, theme, ctx) => {
-      const renderCtx = ctx as ToolRenderContext<RowState, typeof ctx.args>;
-      const state = stateOf(renderCtx);
-      const output = outputText(result as { content: Array<{ type: string; text?: string }> });
-      state.output = output;
-      const record = syncRecord(renderCtx, state, toolName, renderCtx.args, output);
-      if (record.mode === "anchor") return emptyComponent();
-      if (record.mode === "hidden") {
-        if (!record.group?.open || record.expansion === 0) return emptyComponent();
-      }
-      return bodyComponent(toolName, renderCtx.args, renderCtx, theme, output);
+      const inputTokens = estimateTokens({
+        role: "toolResult",
+        toolName,
+        toolCallId: ctx.toolCallId,
+        isError: ctx.isError,
+        timestamp: 0,
+        content: result.content,
+      });
+      const record = syncRecord(ctx, toolName, ctx.args, outputText(toolName, ctx.isError, result), inputTokens);
+      if (record.group || toolName === "write") return emptyComponent();
+      return bodyComponent(record, theme);
     },
   };
 };
@@ -514,21 +530,22 @@ const resolver: ToolRendererResolver = (toolName, next) => {
 export default function prism(pi: ExtensionAPI): void {
   pi.registerToolRenderer(resolver);
   installThinkingRenderer(pi);
+  ratesFor = installThroughput(pi, (id) => records.get(id)?.invalidate());
 
-  pi.on("session_start", () => {
-    records.clear();
-    resetAge();
-    planDirty = true;
-    scheduleThinkingFold();
+  pi.on("tool_execution_start", (event, ctx) => {
+    const { toolCallId } = event;
+    if (ctx.mode !== "tui" || event.toolName !== "bash" || event.parentToolCallId || runningBash.has(toolCallId))
+      return;
+    const startedAt = performance.now();
+    const timer = setInterval(() => records.get(toolCallId)?.invalidate(), 100);
+    runningBash.set(toolCallId, { startedAt, timer });
   });
-
-  // A run is everything between user messages. A new user message ends the
-  // previous run (it folds into summaries) and restarts the decay ladder;
-  // assistant turns inside one run keep the same ladder.
-  pi.on("message_start", (event) => {
-    if (event.message.role !== "user") return;
-    startRun();
-    planDirty = true;
+  pi.on("tool_execution_end", (event) => stopBashClock(event.toolCallId));
+  pi.on("session_shutdown", clearBashClocks);
+  pi.on("session_start", () => {
+    clearBashClocks();
+    records.clear();
+    resetFolds();
     scheduleThinkingFold();
   });
 }

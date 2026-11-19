@@ -15,10 +15,10 @@ Status: agreed direction. Working package name `pi-prism` (rename later; nothing
 
 Make a long agentic session readable at a glance without losing the live detail:
 
-- The newest block streams with a bounded tail (max 7 lines).
-- Every older block is progressively shorter: 7 → 5 → 3 → 1 line.
+- The newest block streams with a bounded tail (max 8 lines).
+- Completed previews age as newer blocks arrive, including on screen. Visible previews step down one at a time before joining a group.
 - Older runs stop being a pile of one-liners and become one grouped summary: `Read 4 files · Ran 2 commands · 1 failed`.
-- Any collapsed thing expands on click and stays pinned until the next turn.
+- Clicking a collapsed group member opens it until clicked again. A standalone tool pin lasts until clicked again.
 - The same rules apply to thinking, tool calls (builtin + MCP + codemode), reads, writes, edits, and shell output.
 - The design system shows base pi, pi-open-tui, pi-code, and ours side by side, in every state, so design decisions are made against truth.
 
@@ -95,15 +95,15 @@ render/                          pure renderers shared with the design system
 #### Detail model
 
 ```
-DetailLevel: 0 | 1 | 2 | 3 | 4
-maxLines:    streaming 7  →  5  →  3  →  1  →  group
+Standalone body budget: 7 → 6 → 5 → 4 → group
+The four-row preview fits three content lines and one omission notice.
 ```
 
-- Distance is counted from the tail of the transcript, within the current run.
+- Count newer blocks across the whole transcript. Show eight 90 ms fade frames per departing visible row, including each row of a folding block and apply offscreen changes immediately.
 - The live block is pinned to L0 regardless of its own length.
 - Recompute on structural events only: `message_start`, `tool_execution_start/end`, `turn_end`, `agent_settled`. Never per token.
 - Hysteresis: a block must cross the boundary for two consecutive recomputes before changing level, so stream chatter does not flicker heights.
-- Clicking a block pins it at its expanded form until the next turn; the pin is keyed by tool call id or message id, so it survives re-render and restore.
+- Clicking a standalone tool pins it at its expanded form until clicked again; the pin is keyed by tool call id or message id, so it survives re-render and restore.
 
 #### Taxonomy
 
@@ -119,7 +119,7 @@ maxLines:    streaming 7  →  5  →  3  →  1  →  group
 | code | codemode, tool_search | nested-call rollup | `Ran 1 script` |
 | think | thinking runs | tail lines + duration | `Thought 12s` |
 
-Failures never group silently: a failed row keeps its own line and a red mark, even when its class is grouped.
+Failed calls fold with their peers. Each affected summary segment includes its failure count, and opening the group reveals the failed calls in order.
 
 #### Coexistence and conflict
 

@@ -6,6 +6,9 @@
  * Dependency-free; width work is injected through RenderKit.
  */
 
+/** Rich parsers handle ordinary pi read results (up to 50 KiB) and bounded thought bodies. */
+export const MAX_FORMAT_CHARS = 64 * 1024;
+
 // oxlint-disable-next-line no-control-regex -- escape sequences are the input domain
 const ANSI = /(?:\x1b\[|\x9b)[0-?]*[ -/]*[@-~]|(?:\x1b\][^\x07\x1b]*)(?:\x07|\x1b\\)|\x1b[@-Z\\_]/g;
 // oxlint-disable-next-line no-control-regex -- C0/C1 controls are what we strip
@@ -62,6 +65,10 @@ export function tailLines(text: string, count: number): string[] {
   return lines.toReversed();
 }
 
+export function omittedLinesLabel(count: number): string {
+  return `+ ${count} ${count === 1 ? "line" : "lines"}`;
+}
+
 /** Hidden count above a tail (or below a head) so the reader knows what is gone. */
 export function omittedCount(text: string, shown: number): number {
   return Math.max(0, nonEmptyLineCount(text) - shown);
@@ -78,4 +85,13 @@ export function nonEmptyLineCount(text: string): number {
  */
 export function squeeze(line: string): string {
   return line.replace(/\s+/g, " ").trim();
+}
+
+/** Use millisecond resolution for short operations and compact seconds for longer spans. */
+export function formatDuration(ms: number): string {
+  if (ms > 0 && ms < 1) return "<1ms";
+  const rounded = Math.round(ms);
+  if (rounded < 1000) return `${rounded}ms`;
+  const seconds = ms / 1000;
+  return seconds < 10 ? `${seconds.toFixed(1)}s` : `${Math.round(seconds)}s`;
 }
