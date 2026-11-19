@@ -115,10 +115,6 @@ export function toolTokenLabel(outputTokens: number, inputTokens: number, rates?
   return `out ${formatRate(outputTokens)}${rateSuffix(rates.outputRate)} · in ${formatRate(inputTokens)}${rateSuffix(rates.inputRate, rates.inputRateEstimated)}`;
 }
 
-export function plural(count: number, one: string, many = `${one}s`): string {
-  return `${count} ${count === 1 ? one : many}`;
-}
-
 /** Thinking folds with tool rows; its verb belongs to the same vocabulary. */
 export type GroupClass = ToolClass | "thinking";
 
