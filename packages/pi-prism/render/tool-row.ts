@@ -120,6 +120,26 @@ function truncateLeft(
   return { text: kept ? `${mark}${paint(kept)}` : kit.truncateToWidth(paint(text), width, mark), cut: true };
 }
 
+/**
+ * Split a line at `width` columns: the largest prefix that fits, broken after
+ * its last space when it has one, and the rest without its leading spaces.
+ */
+function splitAt(kit: RenderKit, line: string, width: number): [string, string] {
+  if (kit.visibleWidth(line) <= width) return [line, ""];
+  const chars = [...line];
+  let end = 0;
+  let used = 0;
+  while (end < chars.length) {
+    const next = kit.visibleWidth(chars[end]!);
+    if (used + next > width) break;
+    used += next;
+    end++;
+  }
+  const space = chars.slice(0, end + 1).lastIndexOf(" ");
+  const cut = space > 0 ? space : Math.max(1, end);
+  return [chars.slice(0, cut).join("").trimEnd(), chars.slice(cut).join("").trimStart()];
+}
+
 type HeaderPiece = { kind: "title" | "summary" | "tokens" | "error" | "duration"; text: string };
 
 /**
@@ -203,23 +223,39 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, width: number) {
     pieces = pieces.filter((piece) => piece.kind !== kind);
   }
 
-  let truncated = false;
-  if (kit.visibleWidth(compose(pieces)) > width) {
-    const titlePiece = pieces.find((piece) => piece.kind === "title");
-    if (titlePiece) {
-      const others = pieces.filter((piece) => piece !== titlePiece);
-      const room = width - kit.visibleWidth(compose(others)) - kit.visibleWidth(sep);
-      const truncate = meta.cls === "shell" ? truncateMiddle : truncateLeft;
-      const fitted = truncate(kit, title, room, mark, (part) => theme.fg("accent", part));
-      truncated = fitted.cut;
-      titlePiece.text = fitted.text;
-    }
+  const titlePiece = pieces.find((piece) => piece.kind === "title");
+  const others = pieces.filter((piece) => piece !== titlePiece);
+  const room = width - kit.visibleWidth(compose(others)) - kit.visibleWidth(sep);
+  // Whether a closed header cuts the title; an opened one reports the same, so the row stays openable.
+  const truncated = !!titlePiece && kit.visibleWidth(compose(pieces)) > width;
+  const command = input.name === "bash" ? cleanOutput(String(input.args?.command ?? title)) : "";
+  const hiddenCommand = command && (truncated || command !== title) ? command : undefined;
+  /** Opened: the command's rows after the header, each starting in `column`. */
+  let continuation: { column: number; rows: string[] } | undefined;
+  if (titlePiece && hiddenCommand && (input.expanded || input.full)) {
+    // Opened: the header carries the command's first segment, and the rest continues on the
+    // following rows in the column where the command starts.
+    const column = kit.visibleWidth(prefix + sep);
+    const [first = "", ...lines] = hiddenCommand.split("\n");
+    const [head, rest] = splitAt(kit, first, Math.max(1, room));
+    titlePiece.text = theme.fg("accent", head);
+    const inner = Math.max(1, width - column);
+    continuation = {
+      column,
+      rows: (rest ? [rest, ...lines] : lines).flatMap((line) =>
+        // No line can need more rows than the whole cap: bound the wrap work.
+        kit
+          .wrap(kit.truncateToWidth(line, inner * (MAX_FULL_LINES + 1), ""), inner)
+          .map((part) => " ".repeat(column) + theme.fg("accent", part)),
+      ),
+    };
+  } else if (titlePiece && truncated) {
+    const truncate = meta.cls === "shell" ? truncateMiddle : truncateLeft;
+    titlePiece.text = truncate(kit, title, room, mark, (part) => theme.fg("accent", part)).text;
   }
 
   const metrics = pieces.filter((part) => part.kind === "tokens" || part.kind === "duration");
-  const command = input.name === "bash" ? cleanOutput(String(input.args?.command ?? title)) : "";
-  const hiddenCommand = command && (truncated || command !== title) ? command : undefined;
-  if (!metrics.length) return { line: kit.truncateToWidth(compose(pieces), width, mark), hiddenCommand };
+  if (!metrics.length) return { line: kit.truncateToWidth(compose(pieces), width, mark), hiddenCommand, continuation };
   const left = compose(pieces.filter((part) => !metrics.includes(part))) + sep;
   const right = metrics.map((part) => part.text).join(sep);
   const line = kit.truncateToWidth(
@@ -227,7 +263,7 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, width: number) {
     width,
     mark,
   );
-  return { line, hiddenCommand };
+  return { line, hiddenCommand, continuation };
 }
 
 interface Selected {
@@ -503,27 +539,23 @@ function body(api: RenderApi, input: ToolRowInput, width: number, budget: number
   };
 }
 
-/** The header, an expanded row's full command, and the body: one row budget for all. */
+/** The header, an opened command's continuation rows, and the body: one row budget for all. */
 export function toolRowLayout(api: RenderApi, input: ToolRowInput, width: number): BodyLayout {
-  const { line, hiddenCommand } = toolHeader(api, input, width);
+  const { line, continuation } = toolHeader(api, input, width);
   const rows = [line];
   // A "full" read is allowed to be long, just not unbounded.
   let budget = input.full ? MAX_FULL_LINES : bodyLinesFor(input.level, input.expanded ?? false);
-  if ((input.expanded || input.full) && hiddenCommand) {
-    const indent = blockBodyIndent(width);
-    const sources = hiddenCommand.split("\n");
-    const wrapped = sources.flatMap((source) =>
-      api.kit.wrap(api.kit.truncateToWidth(source, width * (budget + 1), ""), Math.max(1, width - indent.length)),
-    );
+  if (continuation?.rows.length) {
     // The command is evidence too, but it may not crowd out the output.
     const hasOutput = nonEmptyLineCount(cleanOutput(input.error ? input.error : previewText(input))) > 0;
     const room = hasOutput ? Math.ceil(budget / 2) : budget;
+    const { column, rows: lines } = continuation;
     const command =
-      wrapped.length <= room
-        ? wrapped.map((part) => indent + api.theme.fg("accent", part))
+      lines.length <= room
+        ? lines
         : [
-            ...wrapped.slice(0, room - 1).map((part) => indent + api.theme.fg("accent", part)),
-            indent + api.theme.fg("dim", omittedLinesLabel(wrapped.length - (room - 1))),
+            ...lines.slice(0, room - 1),
+            " ".repeat(column) + api.theme.fg("dim", omittedLinesLabel(lines.length - (room - 1))),
           ];
     rows.push(...command);
     budget -= command.length;

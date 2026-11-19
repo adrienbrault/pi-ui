@@ -396,6 +396,55 @@ const row = (overrides: Parameters<typeof renderToolRow>[1], width: number) =>
 
 const many = (n: number) => Array.from({ length: n }, (_, index) => `out ${index + 1}`).join("\n");
 
+const openedCommand = (command: string, width: number, output = "done") =>
+  renderToolRow(api, {
+    name: "bash",
+    status: "success",
+    level: 0,
+    expanded: true,
+    full: true,
+    args: { command },
+    output,
+  }).render(width);
+
+describe("opened command", () => {
+  // "● bash · ": the command text starts in this column.
+  const column = 9;
+  const headOf = (header: string) => {
+    const end = header.indexOf(" · ", column);
+    return header.slice(column, end < 0 ? undefined : end).trimEnd();
+  };
+
+  test("the header carries the command's first segment and the rest continues under its first column", () => {
+    const command = `echo ${Array.from({ length: 20 }, (_, index) => `word${index}`).join(" ")}`;
+    for (const width of [40, 60, 120]) {
+      const rows = openedCommand(command, width);
+      expect(rows[0]).toStartWith("● bash · echo word0");
+      expect(rows[0]).not.toContain("…");
+      const continuation = rows.slice(
+        1,
+        rows.findIndex((line) => line.trim() === "done"),
+      );
+      expect(continuation.every((line) => line.startsWith(" ".repeat(column)) && line[column] !== " ")).toBe(true);
+      expect([headOf(rows[0]!), ...continuation.map((line) => line.trim())].join(" ")).toBe(command);
+      expect(rows.every((line) => line.length <= width)).toBe(true);
+    }
+  });
+
+  test("each line of a multi-line command starts in the same column", () => {
+    const rows = openedCommand("cd /tmp\nls -la", 80, "");
+    expect(headOf(rows[0]!)).toBe("cd /tmp");
+    expect(rows.slice(1)).toEqual([" ".repeat(column) + "ls -la"]);
+  });
+
+  test("an opened header still reports the command a closed one hides", () => {
+    const command = "cd /tmp\nls -la";
+    const input = { name: "bash", status: "success", level: 0, args: { command } } as const;
+    expect(toolHeader(api, input, 80).hiddenCommand).toBe(command);
+    expect(toolHeader(api, { ...input, expanded: true, full: true }, 80).hiddenCommand).toBe(command);
+  });
+});
+
 describe("full body budget", () => {
   test("an expanded command and its output share one row cap", () => {
     const command = Array.from({ length: 47 }, (_, index) => `echo step ${index + 1}`).join("\n");

@@ -62,7 +62,7 @@ Rules:
 - Bodies spend their budget on evidence: diffs shed unchanged context lines
   before hiding any hunk, reads keep their opening and their end, and logs and thinking previews keep their newest lines.
   An omission notice sits where lines were removed: below a tail, and between the opening and the end of a read.
-- A preview gives each output line one row and cuts it at the terminal width; a cut line makes the row openable even when every line is present. An opened tool row wraps long lines instead. Its full command, its wrapped output and any omission notices share one cap of 400 body rows; the command takes at most half of the cap when there is output to show.
+- A preview gives each output line one row and cuts it at the terminal width; a cut line makes the row openable even when every line is present. An opened tool row wraps long lines instead. The rows that continue its command, its wrapped output and any omission notices share one cap of 400 body rows; the command takes at most half of the cap when there is output to show.
 - Under an open group summary, member headers occupy consecutive rows two columns in,
   starting immediately below the summary. Tool and thinking bodies begin four columns past their own heading marker, two columns past the heading label. Output, omission notices, and wrapped Markdown share this inset.
 - A click opens a block all the way, and the next click folds it back: a folded
@@ -97,7 +97,7 @@ Rules:
 - Thinking headers show elapsed time and one token count. Streaming text supplies an estimate until a provider reports reasoning usage attributable to that run. Throughput samples use text arriving after the first chunk and the interval between those arrivals. A pause leaves the last sample on screen. Newly recorded runs retain their final rates and individual durations after restore. Older messages with only response timing label it as turn time.
 - Moving onto a blank separator clears the hover bar immediately. Clicking the separator leaves the adjacent blocks in their current state.
 - Tool, thinking, and group durations show milliseconds below one second and seconds thereafter.
-- A running bash header shows elapsed execution time and refreshes every 100 ms, even while the command is silent. Long commands shorten to leave room for the timer. Expanding a clipped bash command shows its complete invocation, wrapped above the output, even for a silent command. On completion the header uses pi’s recorded duration.
+- A running bash header shows elapsed execution time and refreshes every 100 ms, even while the command is silent. Long commands shorten to leave room for the timer. Opening a clipped bash command shows its complete invocation, even for a silent command: the header carries the command's first wrapped segment instead of the middle cut, and the rest, every following line included, continues on the rows below in the column where the command starts, above the output. On completion the header uses pi’s recorded duration.
 - A one-row shell preview uses the latest substantive line when trailing output
   consists of single characters or closing delimiters. A single-value result stays visible.
 - A failed shell puts the exit status in its header and stderr in the body:

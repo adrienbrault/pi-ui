@@ -398,12 +398,14 @@ describe("tool renderers", () => {
     expect(header.render(40)[0]).toContain("…");
     expect(body.render(40)).toEqual([]);
     header.handleMouse?.(click());
+    // The header carries the command's first segment; the rest continues under its first column.
+    expect(header.render(40)[0]).toStartWith("● bash · echo ·");
     const rows = body.render(40);
-    expect(rows[0]?.trim()).toBe("echo");
+    expect(rows.every((row) => row.startsWith("         ") && row[9] !== " ")).toBe(true);
     expect(
       rows
-        .slice(1, -1)
-        .map((row) => row.slice(4))
+        .slice(0, -1)
+        .map((row) => row.slice(9))
         .join(""),
     ).toBe("abcdefghij".repeat(12));
     expect(rows.at(-1)?.trim()).toBe("echo second");

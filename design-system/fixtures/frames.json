@@ -7770,6 +7770,128 @@
         "\u001b[38;2;234;127;129mx\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mbun run typecheck\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;234;127;129mexit 2\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m                                                        \u001b[38;2;222;224;225m9\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m / \u001b[39m\u001b[38;2;222;224;225m49\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;157;165;169mtokens\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;222;224;225m1.2\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m"
       ]
     },
+    "opened/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mcd packages/pi-prism &&\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m  \u001b[38;2;222;224;225m1.2\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m",
+        "         \u001b[38;2;167;152;215mbun test render/render.test.ts\u001b[39m",
+        "         \u001b[38;2;167;152;215mextensions/interaction.test.ts\u001b[39m",
+        "         \u001b[38;2;167;152;215m--timeout 20000 --bail\u001b[39m",
+        "         \u001b[38;2;167;152;215mbun run typecheck\u001b[39m",
+        "    \u001b[38;2;157;165;169m$ bun run ds\u001b[39m",
+        "    \u001b[38;2;157;165;169mresolved pi 1.5.x from nvm\u001b[39m",
+        "    \u001b[38;2;157;165;169mrendered 212 surfaces across 3\u001b[39m",
+        "    \u001b[38;2;157;165;169mwidths\u001b[39m",
+        "    \u001b[38;2;157;165;169mwrote design-system/web/index.html\u001b[39m"
+      ]
+    },
+    "opened/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;104;183;141m*\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mcd packages/pi-prism &&\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m  \u001b[38;2;222;224;225m1.2\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m",
+        "         \u001b[38;2;167;152;215mbun test render/render.test.ts\u001b[39m",
+        "         \u001b[38;2;167;152;215mextensions/interaction.test.ts\u001b[39m",
+        "         \u001b[38;2;167;152;215m--timeout 20000 --bail\u001b[39m",
+        "         \u001b[38;2;167;152;215mbun run typecheck\u001b[39m",
+        "    \u001b[38;2;157;165;169m$ bun run ds\u001b[39m",
+        "    \u001b[38;2;157;165;169mresolved pi 1.5.x from nvm\u001b[39m",
+        "    \u001b[38;2;157;165;169mrendered 212 surfaces across 3\u001b[39m",
+        "    \u001b[38;2;157;165;169mwidths\u001b[39m",
+        "    \u001b[38;2;157;165;169mwrote design-system/web/index.html\u001b[39m"
+      ]
+    },
+    "opened/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mcd packages/pi-prism\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;222;224;225m37\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m / \u001b[39m\u001b[38;2;222;224;225m28\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;157;165;169mtokens\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;222;224;225m1.2\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m",
+        "         \u001b[38;2;167;152;215m&& bun test render/render.test.ts\u001b[39m",
+        "         \u001b[38;2;167;152;215mextensions/interaction.test.ts --timeout 20000\u001b[39m",
+        "         \u001b[38;2;167;152;215m--bail\u001b[39m",
+        "         \u001b[38;2;167;152;215mbun run typecheck\u001b[39m",
+        "    \u001b[38;2;157;165;169m$ bun run ds\u001b[39m",
+        "    \u001b[38;2;157;165;169mresolved pi 1.5.x from nvm\u001b[39m",
+        "    \u001b[38;2;157;165;169mrendered 212 surfaces across 3 widths\u001b[39m",
+        "    \u001b[38;2;157;165;169mwrote design-system/web/index.html\u001b[39m"
+      ]
+    },
+    "opened/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;104;183;141m*\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mcd packages/pi-prism\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;222;224;225m37\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m / \u001b[39m\u001b[38;2;222;224;225m28\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;157;165;169mtokens\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;222;224;225m1.2\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m",
+        "         \u001b[38;2;167;152;215m&& bun test render/render.test.ts\u001b[39m",
+        "         \u001b[38;2;167;152;215mextensions/interaction.test.ts --timeout 20000\u001b[39m",
+        "         \u001b[38;2;167;152;215m--bail\u001b[39m",
+        "         \u001b[38;2;167;152;215mbun run typecheck\u001b[39m",
+        "    \u001b[38;2;157;165;169m$ bun run ds\u001b[39m",
+        "    \u001b[38;2;157;165;169mresolved pi 1.5.x from nvm\u001b[39m",
+        "    \u001b[38;2;157;165;169mrendered 212 surfaces across 3 widths\u001b[39m",
+        "    \u001b[38;2;157;165;169mwrote design-system/web/index.html\u001b[39m"
+      ]
+    },
+    "opened/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mcd packages/pi-prism && bun test\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m         \u001b[38;2;222;224;225m37\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m / \u001b[39m\u001b[38;2;222;224;225m28\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;157;165;169mtokens\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;222;224;225m1.2\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m",
+        "         \u001b[38;2;167;152;215mrender/render.test.ts extensions/interaction.test.ts --timeout 20000\u001b[39m",
+        "         \u001b[38;2;167;152;215m--bail\u001b[39m",
+        "         \u001b[38;2;167;152;215mbun run typecheck\u001b[39m",
+        "    \u001b[38;2;157;165;169m$ bun run ds\u001b[39m",
+        "    \u001b[38;2;157;165;169mresolved pi 1.5.x from nvm\u001b[39m",
+        "    \u001b[38;2;157;165;169mrendered 212 surfaces across 3 widths\u001b[39m",
+        "    \u001b[38;2;157;165;169mwrote design-system/web/index.html\u001b[39m"
+      ]
+    },
+    "opened/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;104;183;141m*\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mcd packages/pi-prism && bun test\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m         \u001b[38;2;222;224;225m37\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m / \u001b[39m\u001b[38;2;222;224;225m28\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;157;165;169mtokens\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;222;224;225m1.2\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m",
+        "         \u001b[38;2;167;152;215mrender/render.test.ts extensions/interaction.test.ts --timeout 20000\u001b[39m",
+        "         \u001b[38;2;167;152;215m--bail\u001b[39m",
+        "         \u001b[38;2;167;152;215mbun run typecheck\u001b[39m",
+        "    \u001b[38;2;157;165;169m$ bun run ds\u001b[39m",
+        "    \u001b[38;2;157;165;169mresolved pi 1.5.x from nvm\u001b[39m",
+        "    \u001b[38;2;157;165;169mrendered 212 surfaces across 3 widths\u001b[39m",
+        "    \u001b[38;2;157;165;169mwrote design-system/web/index.html\u001b[39m"
+      ]
+    },
+    "opened/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mcd packages/pi-prism && bun test render/render.test.ts\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m       \u001b[38;2;222;224;225m37\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m / \u001b[39m\u001b[38;2;222;224;225m28\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;157;165;169mtokens\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;222;224;225m1.2\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m",
+        "         \u001b[38;2;167;152;215mextensions/interaction.test.ts --timeout 20000 --bail\u001b[39m",
+        "         \u001b[38;2;167;152;215mbun run typecheck\u001b[39m",
+        "    \u001b[38;2;157;165;169m$ bun run ds\u001b[39m",
+        "    \u001b[38;2;157;165;169mresolved pi 1.5.x from nvm\u001b[39m",
+        "    \u001b[38;2;157;165;169mrendered 212 surfaces across 3 widths\u001b[39m",
+        "    \u001b[38;2;157;165;169mwrote design-system/web/index.html\u001b[39m"
+      ]
+    },
+    "opened/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;104;183;141m*\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mcd packages/pi-prism && bun test render/render.test.ts\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m       \u001b[38;2;222;224;225m37\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m / \u001b[39m\u001b[38;2;222;224;225m28\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;157;165;169mtokens\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;222;224;225m1.2\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m",
+        "         \u001b[38;2;167;152;215mextensions/interaction.test.ts --timeout 20000 --bail\u001b[39m",
+        "         \u001b[38;2;167;152;215mbun run typecheck\u001b[39m",
+        "    \u001b[38;2;157;165;169m$ bun run ds\u001b[39m",
+        "    \u001b[38;2;157;165;169mresolved pi 1.5.x from nvm\u001b[39m",
+        "    \u001b[38;2;157;165;169mrendered 212 surfaces across 3 widths\u001b[39m",
+        "    \u001b[38;2;157;165;169mwrote design-system/web/index.html\u001b[39m"
+      ]
+    },
+    "opened/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mcd packages/pi-prism && bun test render/render.test.ts\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m                           \u001b[38;2;222;224;225m37\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m / \u001b[39m\u001b[38;2;222;224;225m28\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;157;165;169mtokens\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;222;224;225m1.2\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m",
+        "         \u001b[38;2;167;152;215mextensions/interaction.test.ts --timeout 20000 --bail\u001b[39m",
+        "         \u001b[38;2;167;152;215mbun run typecheck\u001b[39m",
+        "    \u001b[38;2;157;165;169m$ bun run ds\u001b[39m",
+        "    \u001b[38;2;157;165;169mresolved pi 1.5.x from nvm\u001b[39m",
+        "    \u001b[38;2;157;165;169mrendered 212 surfaces across 3 widths\u001b[39m",
+        "    \u001b[38;2;157;165;169mwrote design-system/web/index.html\u001b[39m"
+      ]
+    },
+    "opened/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;104;183;141m*\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mcd packages/pi-prism && bun test render/render.test.ts\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m                           \u001b[38;2;222;224;225m37\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m / \u001b[39m\u001b[38;2;222;224;225m28\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;157;165;169mtokens\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;222;224;225m1.2\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m",
+        "         \u001b[38;2;167;152;215mextensions/interaction.test.ts --timeout 20000 --bail\u001b[39m",
+        "         \u001b[38;2;167;152;215mbun run typecheck\u001b[39m",
+        "    \u001b[38;2;157;165;169m$ bun run ds\u001b[39m",
+        "    \u001b[38;2;157;165;169mresolved pi 1.5.x from nvm\u001b[39m",
+        "    \u001b[38;2;157;165;169mrendered 212 surfaces across 3 widths\u001b[39m",
+        "    \u001b[38;2;157;165;169mwrote design-system/web/index.html\u001b[39m"
+      ]
+    },
     "running/light/40/unicode": {
       "lines": [
         "\u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m         \u001b[38;2;59;63;65m0\u001b[39m\u001b[38;2;103;113;118mms\u001b[39m",
@@ -8198,6 +8320,128 @@
     "error/light/120/ascii": {
       "lines": [
         "\u001b[38;2;200;37;61mx\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mbun run typecheck\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;200;37;61mexit 2\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m                                                        \u001b[38;2;59;63;65m9\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m / \u001b[39m\u001b[38;2;59;63;65m49\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;103;113;118mtokens\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;59;63;65m1.2\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m"
+      ]
+    },
+    "opened/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;51;126;88m●\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mcd packages/pi-prism &&\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m  \u001b[38;2;59;63;65m1.2\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m",
+        "         \u001b[38;2;116;89;180mbun test render/render.test.ts\u001b[39m",
+        "         \u001b[38;2;116;89;180mextensions/interaction.test.ts\u001b[39m",
+        "         \u001b[38;2;116;89;180m--timeout 20000 --bail\u001b[39m",
+        "         \u001b[38;2;116;89;180mbun run typecheck\u001b[39m",
+        "    \u001b[38;2;103;113;118m$ bun run ds\u001b[39m",
+        "    \u001b[38;2;103;113;118mresolved pi 1.5.x from nvm\u001b[39m",
+        "    \u001b[38;2;103;113;118mrendered 212 surfaces across 3\u001b[39m",
+        "    \u001b[38;2;103;113;118mwidths\u001b[39m",
+        "    \u001b[38;2;103;113;118mwrote design-system/web/index.html\u001b[39m"
+      ]
+    },
+    "opened/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;51;126;88m*\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mcd packages/pi-prism &&\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m  \u001b[38;2;59;63;65m1.2\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m",
+        "         \u001b[38;2;116;89;180mbun test render/render.test.ts\u001b[39m",
+        "         \u001b[38;2;116;89;180mextensions/interaction.test.ts\u001b[39m",
+        "         \u001b[38;2;116;89;180m--timeout 20000 --bail\u001b[39m",
+        "         \u001b[38;2;116;89;180mbun run typecheck\u001b[39m",
+        "    \u001b[38;2;103;113;118m$ bun run ds\u001b[39m",
+        "    \u001b[38;2;103;113;118mresolved pi 1.5.x from nvm\u001b[39m",
+        "    \u001b[38;2;103;113;118mrendered 212 surfaces across 3\u001b[39m",
+        "    \u001b[38;2;103;113;118mwidths\u001b[39m",
+        "    \u001b[38;2;103;113;118mwrote design-system/web/index.html\u001b[39m"
+      ]
+    },
+    "opened/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;51;126;88m●\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mcd packages/pi-prism\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;59;63;65m37\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m / \u001b[39m\u001b[38;2;59;63;65m28\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;103;113;118mtokens\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;59;63;65m1.2\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m",
+        "         \u001b[38;2;116;89;180m&& bun test render/render.test.ts\u001b[39m",
+        "         \u001b[38;2;116;89;180mextensions/interaction.test.ts --timeout 20000\u001b[39m",
+        "         \u001b[38;2;116;89;180m--bail\u001b[39m",
+        "         \u001b[38;2;116;89;180mbun run typecheck\u001b[39m",
+        "    \u001b[38;2;103;113;118m$ bun run ds\u001b[39m",
+        "    \u001b[38;2;103;113;118mresolved pi 1.5.x from nvm\u001b[39m",
+        "    \u001b[38;2;103;113;118mrendered 212 surfaces across 3 widths\u001b[39m",
+        "    \u001b[38;2;103;113;118mwrote design-system/web/index.html\u001b[39m"
+      ]
+    },
+    "opened/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;51;126;88m*\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mcd packages/pi-prism\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;59;63;65m37\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m / \u001b[39m\u001b[38;2;59;63;65m28\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;103;113;118mtokens\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;59;63;65m1.2\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m",
+        "         \u001b[38;2;116;89;180m&& bun test render/render.test.ts\u001b[39m",
+        "         \u001b[38;2;116;89;180mextensions/interaction.test.ts --timeout 20000\u001b[39m",
+        "         \u001b[38;2;116;89;180m--bail\u001b[39m",
+        "         \u001b[38;2;116;89;180mbun run typecheck\u001b[39m",
+        "    \u001b[38;2;103;113;118m$ bun run ds\u001b[39m",
+        "    \u001b[38;2;103;113;118mresolved pi 1.5.x from nvm\u001b[39m",
+        "    \u001b[38;2;103;113;118mrendered 212 surfaces across 3 widths\u001b[39m",
+        "    \u001b[38;2;103;113;118mwrote design-system/web/index.html\u001b[39m"
+      ]
+    },
+    "opened/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;51;126;88m●\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mcd packages/pi-prism && bun test\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m         \u001b[38;2;59;63;65m37\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m / \u001b[39m\u001b[38;2;59;63;65m28\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;103;113;118mtokens\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;59;63;65m1.2\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m",
+        "         \u001b[38;2;116;89;180mrender/render.test.ts extensions/interaction.test.ts --timeout 20000\u001b[39m",
+        "         \u001b[38;2;116;89;180m--bail\u001b[39m",
+        "         \u001b[38;2;116;89;180mbun run typecheck\u001b[39m",
+        "    \u001b[38;2;103;113;118m$ bun run ds\u001b[39m",
+        "    \u001b[38;2;103;113;118mresolved pi 1.5.x from nvm\u001b[39m",
+        "    \u001b[38;2;103;113;118mrendered 212 surfaces across 3 widths\u001b[39m",
+        "    \u001b[38;2;103;113;118mwrote design-system/web/index.html\u001b[39m"
+      ]
+    },
+    "opened/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;51;126;88m*\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mcd packages/pi-prism && bun test\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m         \u001b[38;2;59;63;65m37\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m / \u001b[39m\u001b[38;2;59;63;65m28\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;103;113;118mtokens\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;59;63;65m1.2\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m",
+        "         \u001b[38;2;116;89;180mrender/render.test.ts extensions/interaction.test.ts --timeout 20000\u001b[39m",
+        "         \u001b[38;2;116;89;180m--bail\u001b[39m",
+        "         \u001b[38;2;116;89;180mbun run typecheck\u001b[39m",
+        "    \u001b[38;2;103;113;118m$ bun run ds\u001b[39m",
+        "    \u001b[38;2;103;113;118mresolved pi 1.5.x from nvm\u001b[39m",
+        "    \u001b[38;2;103;113;118mrendered 212 surfaces across 3 widths\u001b[39m",
+        "    \u001b[38;2;103;113;118mwrote design-system/web/index.html\u001b[39m"
+      ]
+    },
+    "opened/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;51;126;88m●\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mcd packages/pi-prism && bun test render/render.test.ts\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m       \u001b[38;2;59;63;65m37\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m / \u001b[39m\u001b[38;2;59;63;65m28\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;103;113;118mtokens\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;59;63;65m1.2\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m",
+        "         \u001b[38;2;116;89;180mextensions/interaction.test.ts --timeout 20000 --bail\u001b[39m",
+        "         \u001b[38;2;116;89;180mbun run typecheck\u001b[39m",
+        "    \u001b[38;2;103;113;118m$ bun run ds\u001b[39m",
+        "    \u001b[38;2;103;113;118mresolved pi 1.5.x from nvm\u001b[39m",
+        "    \u001b[38;2;103;113;118mrendered 212 surfaces across 3 widths\u001b[39m",
+        "    \u001b[38;2;103;113;118mwrote design-system/web/index.html\u001b[39m"
+      ]
+    },
+    "opened/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;51;126;88m*\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mcd packages/pi-prism && bun test render/render.test.ts\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m       \u001b[38;2;59;63;65m37\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m / \u001b[39m\u001b[38;2;59;63;65m28\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;103;113;118mtokens\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;59;63;65m1.2\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m",
+        "         \u001b[38;2;116;89;180mextensions/interaction.test.ts --timeout 20000 --bail\u001b[39m",
+        "         \u001b[38;2;116;89;180mbun run typecheck\u001b[39m",
+        "    \u001b[38;2;103;113;118m$ bun run ds\u001b[39m",
+        "    \u001b[38;2;103;113;118mresolved pi 1.5.x from nvm\u001b[39m",
+        "    \u001b[38;2;103;113;118mrendered 212 surfaces across 3 widths\u001b[39m",
+        "    \u001b[38;2;103;113;118mwrote design-system/web/index.html\u001b[39m"
+      ]
+    },
+    "opened/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;51;126;88m●\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mcd packages/pi-prism && bun test render/render.test.ts\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m                           \u001b[38;2;59;63;65m37\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m / \u001b[39m\u001b[38;2;59;63;65m28\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;103;113;118mtokens\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;59;63;65m1.2\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m",
+        "         \u001b[38;2;116;89;180mextensions/interaction.test.ts --timeout 20000 --bail\u001b[39m",
+        "         \u001b[38;2;116;89;180mbun run typecheck\u001b[39m",
+        "    \u001b[38;2;103;113;118m$ bun run ds\u001b[39m",
+        "    \u001b[38;2;103;113;118mresolved pi 1.5.x from nvm\u001b[39m",
+        "    \u001b[38;2;103;113;118mrendered 212 surfaces across 3 widths\u001b[39m",
+        "    \u001b[38;2;103;113;118mwrote design-system/web/index.html\u001b[39m"
+      ]
+    },
+    "opened/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;51;126;88m*\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mcd packages/pi-prism && bun test render/render.test.ts\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m                           \u001b[38;2;59;63;65m37\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m / \u001b[39m\u001b[38;2;59;63;65m28\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;103;113;118mtokens\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;59;63;65m1.2\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m",
+        "         \u001b[38;2;116;89;180mextensions/interaction.test.ts --timeout 20000 --bail\u001b[39m",
+        "         \u001b[38;2;116;89;180mbun run typecheck\u001b[39m",
+        "    \u001b[38;2;103;113;118m$ bun run ds\u001b[39m",
+        "    \u001b[38;2;103;113;118mresolved pi 1.5.x from nvm\u001b[39m",
+        "    \u001b[38;2;103;113;118mrendered 212 surfaces across 3 widths\u001b[39m",
+        "    \u001b[38;2;103;113;118mwrote design-system/web/index.html\u001b[39m"
       ]
     }
   },

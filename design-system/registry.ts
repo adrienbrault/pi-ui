@@ -175,6 +175,10 @@ const readRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
   ...overrides,
 });
 
+/** A command long enough to wrap, over two lines, as an agent writes it. */
+const OPENED_COMMAND =
+  "cd packages/pi-prism && bun test render/render.test.ts extensions/interaction.test.ts --timeout 20000 --bail\nbun run typecheck";
+
 const bashRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
   name: "bash",
   args: { command: "bun run typecheck" },
@@ -584,6 +588,19 @@ const oursEntries: EntryDef[] = [
       levelState("l3", "aged L3", 3, () => bashRow()),
       levelState("error", "failed", 0, () =>
         bashRow({ status: "error", output: SHELL_OUTPUT, summary: "", error: "exit 2" }),
+      ),
+      levelState(
+        "opened",
+        "opened, long command",
+        0,
+        () =>
+          bashRow({
+            args: { command: OPENED_COMMAND },
+            title: undefined,
+            expanded: true,
+            full: true,
+          }),
+        "the header keeps the command's first segment; the rest lines up under it",
       ),
     ],
   },
