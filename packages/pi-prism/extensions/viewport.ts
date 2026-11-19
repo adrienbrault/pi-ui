@@ -140,6 +140,22 @@ export function paintBarCell(row: string, cell: string, width: number): string {
   return compositeTuiLine(row, cell, BAR_COLUMN, 1, width);
 }
 
+/**
+ * Mark a hovered one-row item (a group summary, a collapsed member, an inline
+ * thought, a clipped header with no output) on its own marker: the row's first
+ * glyph, drawn in the track colour on the thumb colour so it stays legible.
+ * A row with no glyph, or a wide one, is left as it is.
+ */
+export function paintMarker(row: string, theme: RenderTheme, width: number): string {
+  const plain = [...stripTerminalSequences(row)];
+  const column = plain.findIndex((char) => char !== " ");
+  const glyph = plain[column];
+  if (column < 0 || glyph === undefined || visibleWidth(glyph) !== 1 || column >= width) return row;
+  const tokens = barTokens(theme.colors);
+  const cell = theme.style(glyph, { fg: theme.colors?.[tokens.track], bg: theme.colors?.[tokens.fill] });
+  return compositeTuiLine(row, cell, column, 1, width);
+}
+
 /** Paint the bar column of `rows[from + i]` with `cells[i]`. */
 export function paintBar(
   rows: string[],

@@ -135,6 +135,15 @@ function barCell(row: string): "fill" | "track" | "none" {
   return cells[1] === "1" ? "fill" : cells[1] === "2" ? "track" : "none";
 }
 
+/** A hovered one-row item's mark: its first glyph on the thumb colour, and nothing else painted. */
+function markCell(row: string): "marker" | "none" {
+  const cells = backgrounds(row);
+  const glyph = [...stripTerminalSequences(row)].findIndex((char) => char !== " ");
+  if (cells.some((cell, column) => column !== glyph && cell !== undefined))
+    throw new Error(`painted off the marker: ${row}`);
+  return cells[glyph] === "1" ? "marker" : "none";
+}
+
 const plainRows = (rows: string[]) => rows.map((row) => stripTerminalSequences(row).trimEnd());
 
 const move = (): TuiMouseEvent => ({ ...click(), type: "move", button: "none" });
@@ -395,7 +404,7 @@ describe("tool renderers", () => {
     const body = tool.renderResult({ content: [] }, {}, barred, context);
     expect(header.render(40).map(barCell)).toEqual(["none"]);
     header.handleMouse?.(move());
-    expect(header.render(40).map(barCell)).toEqual(["fill"]);
+    expect(header.render(40).map(markCell)).toEqual(["marker"]);
     expect(body.render(40)).toEqual([]);
     // Open, the full command is the body; the header takes no cell.
     header.handleMouse?.(click());
@@ -1228,7 +1237,7 @@ describe("tool renderers", () => {
     expect(member().render(80)).toHaveLength(1);
   });
 
-  test("a group marks its hovered summary and members with one bar cell, and a click anywhere toggles them", async () => {
+  test("a group marks its hovered summary and members on their marker glyph, and a click anywhere toggles them", async () => {
     const handlers = new Map<string, Array<(...args: any[]) => void>>();
     const dispatch = (event: string, ...args: unknown[]) => {
       for (const handler of handlers.get(event) ?? []) handler(...args);
@@ -1267,13 +1276,13 @@ describe("tool renderers", () => {
     const idle = anchor().render(80)[0]!;
     anchor().handleMouse?.({ ...move(), y: 0 });
     const hovered = anchor().render(80);
-    expect(hovered.map(barCell)).toEqual(["fill", "none"]);
+    expect(hovered.map(markCell)).toEqual(["marker", "none"]);
     expect(stripTerminalSequences(hovered[0]!).trimEnd()).toBe(stripTerminalSequences(idle).trimEnd());
     expect(hovered.join("\n")).not.toContain("[ click");
 
     // A collapsed member that can open: one filled cell on its row, and the summary lets go.
     member().handleMouse?.({ ...move(), y: 0 });
-    expect(member().render(80).map(barCell)).toEqual(["fill"]);
+    expect(member().render(80).map(markCell)).toEqual(["marker"]);
     expect(anchor().render(80).map(barCell)).toEqual(["none", "none"]);
 
     // Opening a member shows its body with no chip; inline mode has no open-block bar.
@@ -1298,7 +1307,7 @@ describe("tool renderers", () => {
     anchor().handleMouse?.({ ...click(), x: 70, y: 0 });
     expect(toolPlan("forming-0")?.group?.open).toBe(false);
     expect(anchor().render(80)).toHaveLength(1);
-    expect(anchor().render(80).map(barCell)).toEqual(["fill"]);
+    expect(anchor().render(80).map(markCell)).toEqual(["marker"]);
     anchor().handleMouse?.({ ...click(), x: 3, y: 0 });
     expect(toolPlan("forming-0")?.group?.open).toBe(true);
   });

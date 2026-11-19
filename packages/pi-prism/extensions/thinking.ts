@@ -56,7 +56,7 @@ import {
   insideHovered,
   offscreenHistory,
   paintBar,
-  paintBarCell,
+  paintMarker,
   styleBarCell,
   type BarCell,
   type TranscriptTui,
@@ -296,6 +296,7 @@ function labelComponent(
       const api = { kit: KIT, theme, glyphs: GLYPHS };
       let settled: ThinkingLabelInput | undefined;
       let bar: BarCell[] | undefined;
+      let oneRow = false;
       const thoughtLines = (innerWidth: number): string[] => {
         const timing = thinkingTime(message, run.first, streaming);
         const level: DetailLevel = group ? COMPACT_LEVEL : streaming ? 0 : levelOf();
@@ -335,14 +336,14 @@ function labelComponent(
         const lines = layout.label.split("\n");
         // Hover marks a thought that can open with its preview bar; a one-row thought gets one filled cell.
         // An open thought carries the open-block bar instead.
-        bar =
-          hover.canToggle && !expanded && hover.target === "thought"
-            ? (layout.bar ?? (lines.length === 1 ? ["fill"] : undefined))
-            : undefined;
+        const marked = hover.canToggle && !expanded && hover.target === "thought";
+        bar = marked ? layout.bar : undefined;
+        oneRow = marked && !layout.bar && lines.length === 1;
         return lines;
       };
       const paint = (rows: string[]): string[] => {
         if (bar?.length) paintBar(rows, rows.length - bar.length, bar, (cell) => styleBarCell(theme, cell), width);
+        else if (oneRow && rows[0] !== undefined) rows[0] = paintMarker(rows[0], theme, width);
         return rows;
       };
       if (!group) {
@@ -368,7 +369,7 @@ function labelComponent(
           durationMs: group.durationMs,
         }).render(width)[0] ?? "";
       // Hover marks the summary with one filled bar cell: a click anywhere on it opens or closes the group.
-      const rows = [hover.target === "summary" ? paintBarCell(summary, styleBarCell(theme, "fill"), width) : summary];
+      const rows = [hover.target === "summary" ? paintMarker(summary, theme, width) : summary];
       return group.open ? [...rows, ...memberLines()] : rows;
     },
     invalidate(): void {},

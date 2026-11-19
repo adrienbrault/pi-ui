@@ -196,6 +196,14 @@ function barred(needle: string): boolean {
   return barOf(line) !== undefined && backgrounds(line)[0] === undefined;
 }
 
+/** Whether the one-row item holding `needle` is marked on hover: a background behind its first glyph, and only there. */
+function marked(needle: string): boolean {
+  const line = tmux("capture-pane", "-e", "-p", "-t", SESSION).split("\n").find((row) => Bun.stripANSI(row).includes(needle)) ?? "";
+  const glyph = [...Bun.stripANSI(line)].findIndex((char) => char !== " ");
+  const cells = backgrounds(line);
+  return glyph >= 0 && cells[glyph] !== undefined && cells.every((cell, column) => column === glyph || cell === undefined);
+}
+
 function count(pane: string, needle: string): number {
   return pane.split("\n").filter((line) => line.includes(needle)).length;
 }
@@ -533,12 +541,12 @@ async function combinedFoldScenario(sessionPath: string): Promise<void> {
   pane = capture();
   summaryRow = rowOf(pane, "Thought 3 times");
   assert(lineWith(pane, "Thought 3 times").includes("▸"), `hover must not open the group\n${pane}`);
-  assert(barred("Thought 3 times") && !pane.includes("[ click"), `summary hover should mark column 1 and show no chip\n${pane}`);
+  assert(marked("Thought 3 times") && !pane.includes("[ click"), `summary hover should mark its marker glyph and show no chip\n${pane}`);
   assert((pane.split("\n")[summaryRow] ?? "").trim() === "", `hover must not consume the gap below the summary\n${pane}`);
 
   mouse(35, 5, summaryRow + 1);
   await Bun.sleep(150);
-  assert(!barred("Thought 3 times"), "entering the blank row must clear the summary bar immediately");
+  assert(!marked("Thought 3 times"), "entering the blank row must clear the summary mark immediately");
   mouse(0, 5, summaryRow + 1);
   mouse(0, 5, summaryRow + 1, true);
   await Bun.sleep(150);
@@ -565,12 +573,12 @@ async function combinedFoldScenario(sessionPath: string): Promise<void> {
   mouse(35, 5, rowOf(pane, "thought combo-0"));
   await Bun.sleep(200);
   pane = capture();
-  assert(!barred("thought combo-0") && !barred("Thought 3 times"), `fully visible anchor thought should clear the summary hover and stay unmarked\n${pane}`);
+  assert(!marked("thought combo-0") && !marked("Thought 3 times"), `fully visible anchor thought should clear the summary hover and stay unmarked\n${pane}`);
   const excerpt = rowOf(pane, "thought combo-1");
   mouse(35, 5, excerpt);
   await Bun.sleep(200);
   pane = capture();
-  assert(barred("thought combo-1") && !pane.includes("[ click"), `an expandable inline excerpt should mark column 1 and show no chip\n${pane}`);
+  assert(marked("thought combo-1") && !pane.includes("[ click"), `an expandable inline excerpt should mark its marker glyph and show no chip\n${pane}`);
   mouse(0, 5, excerpt);
   mouse(0, 5, excerpt, true);
   // The one-row excerpt already starts with the first detail: wait for the opened body's own row.
@@ -591,7 +599,7 @@ async function formingScenario(sessionPath: string, members: string[], survivor:
   const summary = rowOf(pane, "ran 2 shell commands");
   const summaryLine = lineWith(pane, "ran 2 shell commands");
   const column = summaryLine.search(/\S/);
-  assert(summaryLine.includes("▾") && !summaryLine.includes("[ click") && !barred("ran 2 shell commands"), `a forming group is open without a chip or a bar\n${pane}`);
+  assert(summaryLine.includes("▾") && !summaryLine.includes("[ click") && !marked("ran 2 shell commands"), `a forming group is open without a chip or a bar\n${pane}`);
   for (const [index, member] of members.entries()) {
     const line = pane.split("\n")[summary + index] ?? "";
     assert(line.includes(member) && line.search(/\S/) === column + 2, `expected consecutive member row ${member}\n${pane}`);
@@ -617,7 +625,7 @@ async function foldScenario(sessionPath: string): Promise<void> {
   mouse(35, 5, rowOf(pane, "Ran 7 shell commands"));
   await Bun.sleep(400);
   pane = capture();
-  assert(barred("Ran 7 shell commands") && !pane.includes("[ click"), `summary hover should mark column 1 and show no chip\n${pane}`);
+  assert(marked("Ran 7 shell commands") && !pane.includes("[ click"), `summary hover should mark its marker glyph and show no chip\n${pane}`);
 
   pane = capture();
   const summaryRow = rowOf(pane, "Ran 7 shell commands");
@@ -632,8 +640,8 @@ async function foldScenario(sessionPath: string): Promise<void> {
   mouse(35, 5, rowOf(pane, folded[0] ?? ""));
   await Bun.sleep(400);
   pane = capture();
-  assert(barred(folded[0] ?? "") && !pane.includes("[ click"), `member hover should mark its row\n${pane}`);
-  assert(!barred("Ran 7 shell commands"), `member hover should clear the summary bar\n${pane}`);
+  assert(marked(folded[0] ?? "") && !pane.includes("[ click"), `member hover should mark its row\n${pane}`);
+  assert(!marked("Ran 7 shell commands"), `member hover should clear the summary mark\n${pane}`);
 
   pane = capture();
   const memberRow = rowOf(pane, folded[0] ?? "");
@@ -647,7 +655,7 @@ async function foldScenario(sessionPath: string): Promise<void> {
   await Bun.sleep(150);
   pane = capture();
   assert(!pane.includes("[ click"), `an open member shows no collapse chip\n${pane}`);
-  assert(barred(folded[1] ?? "") && barred("output 0 line B"), `the hovered member is marked and the open member keeps its open-block bar\n${pane}`);
+  assert(marked(folded[1] ?? "") && barred("output 0 line B"), `the hovered member is marked and the open member keeps its open-block bar\n${pane}`);
   const secondRow = rowOf(pane, folded[1] ?? "");
   mouse(0, 5, secondRow);
   mouse(0, 5, secondRow, true);

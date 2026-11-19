@@ -47,7 +47,7 @@ import {
   toolPlan,
 } from "./fold.ts";
 import { claimHover, releaseHover } from "./hover.ts";
-import { expandedRegions, hoveredRegions, paintBar, paintBarCell, styleBarCell } from "./viewport.ts";
+import { expandedRegions, hoveredRegions, paintBar, paintMarker, styleBarCell } from "./viewport.ts";
 import { fadeLine, paintLeaving, toolFade } from "./fade.ts";
 import { installThinkingRenderer, scheduleThinkingFold } from "./thinking.ts";
 
@@ -312,7 +312,7 @@ function headerComponent(record: BlockRecord, theme: Theme): Component {
       record.commandClipped = !!header.hiddenCommand;
       // A clipped command with no output has no body rows to carry the bar: its header takes one filled cell.
       if (record.hover && !record.expansion && record.commandClipped && nonEmptyLineCount(previewText(record)) === 0)
-        return [paintBarCell(header.line, styleBarCell(api.theme, "fill"), width)];
+        return [paintMarker(header.line, api.theme, width)];
       return [header.line];
     }) as Component,
     record,
@@ -394,7 +394,7 @@ function memberLines(member: BlockRecord, theme: Theme, width: number): string[]
   if (collapse?.phase) return rows.map((row) => fadeLine(row, collapse.phase, theme as unknown as RenderTheme));
   // Hover marks a member that can open with one filled bar cell on its row; an open member carries the open-block bar.
   if (member.hover && member.expansion === 0 && canCycle(member) && rows[0] !== undefined)
-    rows[0] = paintBarCell(rows[0], styleBarCell(api.theme, "fill"), width);
+    rows[0] = paintMarker(rows[0], api.theme, width);
   return rows;
 }
 
@@ -410,7 +410,7 @@ function groupLines(record: BlockRecord, theme: Theme, width: number): string[] 
       ...(group.durationMs !== undefined ? { durationMs: group.durationMs } : {}),
     }).render(width)[0] ?? "";
   // Hover marks the summary with one filled bar cell: a click anywhere on it opens or closes the group.
-  const rows = [record.hoverSummary ? paintBarCell(summary, styleBarCell(api.theme, "fill"), width) : summary];
+  const rows = [record.hoverSummary ? paintMarker(summary, api.theme, width) : summary];
   return group.open ? [...rows, ...memberLines(record, theme, width)] : rows;
 }
 
