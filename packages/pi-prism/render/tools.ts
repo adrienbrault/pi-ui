@@ -105,13 +105,14 @@ export function formatRate(value: number): string {
   return value < 10 ? String(Number(value.toFixed(1))) : String(Math.round(value));
 }
 
-function rateSuffix(rate?: number): string {
-  return rate ? ` @ ${formatRate(rate)}/s` : "";
+/** `~` marks a client-side estimate so it never reads as a measured rate. */
+function rateSuffix(rate?: number, estimated = false): string {
+  return rate ? ` @ ${estimated ? "~" : ""}${formatRate(rate)}/s` : "";
 }
 
 export function toolTokenLabel(outputTokens: number, inputTokens: number, rates?: TokenRates): string {
   if (!rates?.outputRate && !rates?.inputRate) return `${outputTokens} out / ${inputTokens} in tokens`;
-  return `out ${formatRate(outputTokens)}${rateSuffix(rates.outputRate)} · in ${formatRate(inputTokens)}${rateSuffix(rates.inputRate)}`;
+  return `out ${formatRate(outputTokens)}${rateSuffix(rates.outputRate)} · in ${formatRate(inputTokens)}${rateSuffix(rates.inputRate, rates.inputRateEstimated)}`;
 }
 
 export function plural(count: number, one: string, many = `${one}s`): string {

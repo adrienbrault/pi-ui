@@ -1,6 +1,6 @@
 import { beforeEach, afterEach, describe, expect, test } from "bun:test";
 import { DEFAULT_TAIL_LINES, bodyLinesFor, detailFor, maxRowsFor, setTailLines, settleLevel } from "./detail.ts";
-import { groupVerb, mcpLabel, toolMeta, groupNoun } from "./tools.ts";
+import { groupVerb, mcpLabel, toolMeta, groupNoun, toolTokenLabel } from "./tools.ts";
 import { formatDuration, headLines, omittedCount, tailLines } from "./text.ts";
 import { renderGroupMember, renderGroupRow } from "./group-row.ts";
 import { renderToolRow } from "./tool-row.ts";
@@ -444,6 +444,18 @@ describe("header budget", () => {
         expect(line).not.toMatch(/[\u0000-\u0008\u000a-\u001f\u007f-\u009f]/);
       }
     }
+  });
+
+  test("an estimated prefill rate is marked as approximate", () => {
+    expect(toolTokenLabel(26, 5500, { outputRate: 73, inputRate: 2500 })).toBe("out 26 @ 73/s · in 5.5k @ 2.5k/s");
+    expect(toolTokenLabel(26, 5500, { outputRate: 73, inputRate: 2500, inputRateEstimated: true })).toBe(
+      "out 26 @ 73/s · in 5.5k @ ~2.5k/s",
+    );
+    const head = row(
+      { name: "read", status: "success", level: 0, title: "a.ts", inputRate: 2500, inputRateEstimated: true },
+      80,
+    );
+    expect(head).toContain("@ ~2.5k/s");
   });
 
   test("an MCP label is not repeated as its title", () => {
