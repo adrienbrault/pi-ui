@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   collectChanges,
+  diffWithinBudget,
   installFileChanges,
   LIMITS,
   recordedChanges,
@@ -168,6 +169,34 @@ describe("a shell command's file changes", () => {
 
   test("git missing or failing skips quietly", async () => {
     expect(await takeSnapshot(repository(), async () => undefined)).toBeUndefined();
+  });
+});
+
+/** `count` numbered lines, each starting with `tag`. */
+const lines = (count: number, tag: string) => Array.from({ length: count }, (_, i) => `${tag} ${i}`).join("\n");
+
+describe("the diff's cost", () => {
+  test("a new file, a deleted one and a one-line edit of a large file are diffed", () => {
+    expect(diffWithinBudget("", lines(8000, "a"))).toBe(true);
+    expect(diffWithinBudget(lines(8000, "a"), "")).toBe(true);
+    expect(diffWithinBudget(lines(8000, "a"), lines(8000, "a").replace("a 100\n", "A 100\n"))).toBe(true);
+  });
+
+  test("scattered edits across a large file are diffed", () => {
+    const edited = lines(8000, "a")
+      .split("\n")
+      .map((line, index) => (index % 1000 === 0 ? line.toUpperCase() : line))
+      .join("\n");
+    expect(diffWithinBudget(lines(8000, "a"), edited)).toBe(true);
+  });
+
+  test("a large file rewritten line for line is not: jsdiff would stall for seconds", () => {
+    expect(diffWithinBudget(lines(8000, "a"), lines(8000, "b"))).toBe(false);
+    const interleaved = lines(8000, "a")
+      .split("\n")
+      .map((line, index) => (index % 2 ? line.toUpperCase() : line))
+      .join("\n");
+    expect(diffWithinBudget(lines(8000, "a"), interleaved)).toBe(false);
   });
 });
 

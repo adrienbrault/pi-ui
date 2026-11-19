@@ -511,6 +511,21 @@ describe("diff line numbers", () => {
     ]);
   });
 
+  test("a shell diff cut before its first hunk header still colours its changes by sign", () => {
+    const tokens = { ...api, theme: { ...theme, fg: (token: string, text: string) => `<${token}>${text}` } };
+    const rows = renderToolRow(tokens, {
+      name: "bash",
+      status: "success",
+      level: 0,
+      args: { command: "git diff | tail -n 5" },
+      output: "+late\n-early\n@@ -9,1 +9,1 @@\n-c\n+d",
+    })
+      .render(80)
+      .slice(1)
+      .map((row) => row.trim());
+    expect(rows.slice(0, 2)).toEqual(["<success>+late", "<error>-early"]);
+  });
+
   test("an edit's headers are not lines it could open to show", () => {
     const input = { name: "edit", status: "success", level: 4, output: "--- a\n+++ a\n@@ -1 +1 @@\n-x\n+y" } as const;
     expect(previewLineCount(input)).toBe(2);
@@ -599,6 +614,42 @@ describe("files a shell command changed", () => {
     expect(rows).toHaveLength(7);
     expect(rows.slice(0, 3)).toEqual(["    ↑  38 more lines", "    line 39", "    line 40"]);
     expect(rows[3]).toBe("    tmp/one.txt");
+  });
+
+  test("the files' syntax colours stay within the work bound a read's have", () => {
+    const highlighted: number[] = [];
+    const counting = {
+      ...api,
+      kit: {
+        ...kit,
+        languageFromPath: () => "ts",
+        highlight: (source: string) => {
+          highlighted.push(source.length);
+          return source.split("\n");
+        },
+      },
+    };
+    const big = `@@ -0,0 +1,3000 @@\n${Array.from({ length: 3000 }, (_, i) => `+const value${i} = ${i};`).join("\n")}\n`;
+    const small = "@@ -1 +1 @@\n-a\n+b\n";
+    toolRowLayout(
+      counting,
+      {
+        name: "bash",
+        status: "success",
+        level: 0,
+        output: "(no output)",
+        changes: {
+          files: [
+            { path: "big.ts", kind: "created", patch: big },
+            { path: "small.ts", kind: "modified", patch: small },
+          ],
+        },
+      },
+      80,
+    );
+    // The oversized patch takes no colours; the small one still does.
+    expect(highlighted.every((length) => length < 100)).toBe(true);
+    expect(highlighted.length).toBeGreaterThan(0);
   });
 
   test("a deleted, a binary and an oversized file say so instead of a diff", () => {

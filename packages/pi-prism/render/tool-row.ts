@@ -684,7 +684,17 @@ function diffRows(lines: string[], edit: boolean, highlight?: (source: string) =
     if (!source.line.trim()) continue;
     const change = source.kind === "add" ? "success" : source.kind === "del" ? "error" : undefined;
     if (!edit) {
-      const tone = change ?? (source.kind === "hunk" ? "accent" : source.kind === "header" ? "dim" : undefined);
+      // Output cut before its first hunk header (`git diff | tail`) has no counts to read: its
+      // changes keep the colour of their sign.
+      const cut =
+        source.kind === "meta" && source.hunk === 0
+          ? source.line.startsWith("+")
+            ? "success"
+            : source.line.startsWith("-")
+              ? "error"
+              : undefined
+          : undefined;
+      const tone = change ?? cut ?? (source.kind === "hunk" ? "accent" : source.kind === "header" ? "dim" : undefined);
       const context = source.kind === "context" || source.kind === "header";
       rows.push({ line: source.line, ...(tone ? { tone } : {}), ...(context ? { context } : {}) });
     } else if (source.kind === "hunk") rows.push({ line: "", rule: "divider" });
@@ -736,14 +746,14 @@ function changeNote(file: FileChange): string | undefined {
  */
 function changeRows(
   changes: FileChanges | undefined,
-  highlight?: (path: string) => ((code: string) => string[] | undefined) | undefined,
+  highlight?: (file: FileChange) => ((code: string) => string[] | undefined) | undefined,
 ): Selected[] {
   if (!changes) return [];
   const rows = changes.files.flatMap((file): Selected[] => {
     const path: Selected = { line: "", rule: "path", path: file.path };
     const note = changeNote(file);
     if (note !== undefined) return [path, { line: note, rule: "note" }];
-    return [path, ...diffRows(logicalLines(cleanOutput(file.patch ?? "")), true, highlight?.(file.path))];
+    return [path, ...diffRows(logicalLines(cleanOutput(file.patch ?? "")), true, highlight?.(file))];
   });
   const more = changes.more ?? 0;
   if (more > 0) rows.push({ line: `${more} more file${more === 1 ? "" : "s"} changed`, rule: "note" });
@@ -828,10 +838,17 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
         : [],
     );
   const highlight = kit.highlight;
-  /** A changed file's diff takes the syntax colours of its language, within the same work bound. */
-  const fileHighlight = (path: string) => {
-    const fileLanguage = highlight && kit.languageFromPath?.(path);
-    return fileLanguage ? (code: string) => highlight(code, fileLanguage, theme) : undefined;
+  /**
+   * A changed file's diff takes the syntax colours of its language, within a read's work bound:
+   * the files' patches share `MAX_FORMAT_CHARS`, in order, and one that would overrun it stays plain.
+   */
+  let formatted = 0;
+  const fileHighlight = (file: FileChange) => {
+    const fileLanguage = highlight && kit.languageFromPath?.(file.path);
+    const size = file.patch?.length ?? 0;
+    if (!fileLanguage || formatted + size > MAX_FORMAT_CHARS) return undefined;
+    formatted += size;
+    return (code: string) => highlight(code, fileLanguage, theme);
   };
   const changed = changeRows(input.changes, fileHighlight);
   if (lines.length === 0 && changed.length === 0) return empty;

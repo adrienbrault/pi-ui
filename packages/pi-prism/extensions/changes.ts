@@ -170,6 +170,39 @@ export async function takeSnapshot(
   return { root, prefix, stats, blobs, saved };
 }
 
+/**
+ * Steps a diff may cost before it is skipped. jsdiff's Myers search runs synchronously, in about
+ * (lines on the shorter side) × (lines changed) steps, some 9 million a second here: a 256 KB file
+ * rewritten line for line took 12 s, and every other line changed 6 s, while a new file of the
+ * same size took 13 ms. This bound keeps one file near 100 ms.
+ */
+export const DIFF_BUDGET = 1_000_000;
+
+/**
+ * Whether diffing `before` against `after` stays within `budget`. The lines left once the common
+ * opening and ending are trimmed bound the change from above; lines on one side and not the other
+ * (counted with repeats) bound it from below. Within the upper bound the diff is cheap; past the
+ * lower one it is not. Between the two, the change is a few scattered edits or lines moved about,
+ * and is diffed: only a large reordering is slow there.
+ */
+export function diffWithinBudget(before: string, after: string, budget = DIFF_BUDGET): boolean {
+  const old = before.split("\n");
+  const next = after.split("\n");
+  let start = 0;
+  while (start < old.length && start < next.length && old[start] === next[start]) start++;
+  let end = 0;
+  while (end < old.length - start && end < next.length - start && old.at(-1 - end) === next.at(-1 - end)) end++;
+  const shorter = Math.min(old.length, next.length) - start - end + 1;
+  const upper = old.length + next.length - 2 * (start + end);
+  if (shorter * upper <= budget) return true;
+  const counts = new Map<string, number>();
+  for (const line of old) counts.set(line, (counts.get(line) ?? 0) + 1);
+  for (const line of next) counts.set(line, (counts.get(line) ?? 0) - 1);
+  let lower = 0;
+  for (const count of counts.values()) lower += Math.abs(count);
+  return shorter * lower <= budget;
+}
+
 /** Binary content: a NUL byte in its first 8000 bytes, as git decides. */
 const binary = (content: Buffer) => content.subarray(0, 8000).includes(0);
 
@@ -256,7 +289,13 @@ export async function collectChanges(
       files.push({ path: shown, kind, note: "binary" });
       continue;
     }
-    const text = patch(shown, before.toString("utf8"), after.toString("utf8"));
+    const [oldText, newText] = [before.toString("utf8"), after.toString("utf8")];
+    // The diff runs synchronously: one that would stall the session is reported without it.
+    if (!diffWithinBudget(oldText, newText)) {
+      files.push({ path: shown, kind, note: "too large" });
+      continue;
+    }
+    const text = patch(shown, oldText, newText);
     if (patchBytes + text.length > limits.maxPatchBytes) {
       files.push({ path: shown, kind, note: "too large" });
       continue;
