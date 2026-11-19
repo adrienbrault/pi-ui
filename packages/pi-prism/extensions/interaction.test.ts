@@ -738,6 +738,25 @@ describe("tool renderers", () => {
     }
   });
 
+  test("shutting the session down cancels a queued walk and starts no fade", () => {
+    const session = fadeSession("bash");
+    try {
+      session.add("shut-0");
+      session.dispatch("agent_settled");
+      jest.advanceTimersByTime(1);
+      // Registering the new row queues a walk on a 0 ms timer.
+      session.add("shut-1");
+      session.dispatch("session_shutdown", "");
+      jest.advanceTimersByTime(1);
+      expect(toolFade("shut-0")).toBeUndefined();
+      // Only the probe widget's removal was still pending: no fade timer runs on the dead session.
+      jest.advanceTimersByTime(1000);
+      expect(jest.getTimerCount()).toBe(0);
+    } finally {
+      session.close();
+    }
+  });
+
   test("a newer block never folds past an older block that is still on its way", () => {
     for (const settled of [8, 10]) {
       const session = fadeSession("bash");

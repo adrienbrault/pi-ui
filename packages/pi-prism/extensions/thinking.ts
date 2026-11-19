@@ -813,7 +813,7 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
   let tui: (TranscriptTui & { requestRender?: () => void }) | undefined;
   installThinkingClock(pi, () => tui?.requestRender?.());
   let theme: RenderTheme | undefined;
-  let queued = false;
+  let queued: ReturnType<typeof setTimeout> | undefined;
   // Live tool components receive the execution event without its persisted result timestamp.
   const liveToolEnds = new Map<string, number>();
 
@@ -872,9 +872,8 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
 
   const schedule = (): void => {
     if (queued) return;
-    queued = true;
-    setTimeout(() => {
-      queued = false;
+    queued = setTimeout(() => {
+      queued = undefined;
       patch();
     }, 0);
   };
@@ -917,6 +916,11 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
   pi.on("turn_end", () => patch());
   pi.on("agent_settled", () => patch());
   pi.on("session_shutdown", () => {
+    // Nothing runs against the old session: the next session_start probes the TUI again.
+    clearTimeout(queued);
+    queued = undefined;
+    tui = undefined;
+    theme = undefined;
     clearTimeout(decayTimer);
     decayTimer = undefined;
     fading = undefined;
