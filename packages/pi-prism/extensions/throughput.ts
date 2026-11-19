@@ -207,7 +207,8 @@ export function installThroughput(pi: ExtensionAPI, repaint: (id: string) => voi
       saved.input = { toolIds: [...resultIds], rate: inputRate, ...(estimated ? { estimated: true } : {}) };
     const calls = message.content.flatMap((call) => {
       if (call.type !== "toolCall") return [];
-      const rate = liveCalls.get(call.id) ?? outputRate;
+      // The server's measurement is final; a delta-time estimate only stands in until it arrives.
+      const rate = outputRate ?? liveCalls.get(call.id);
       if (!rate) return [];
       setRate(call.id, "outputRate", rate);
       return [{ id: call.id, rate }];

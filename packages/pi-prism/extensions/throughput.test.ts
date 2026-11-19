@@ -106,3 +106,35 @@ test("live rates follow generation and the subsequent consuming request, then re
     jest.useRealTimers();
   }
 });
+
+test("a server measurement that arrives after the last tool-call delta replaces the estimate", () => {
+  const handlers = new Map<string, (event: any, ctx: any) => any>();
+  const ctx = {
+    mode: "tui",
+    model: { provider: "llamacpp", api: "openai-completions" },
+    ui: { setStatus: () => {} },
+    sessionManager: { getBranch: () => [] },
+  };
+  const rates = installThroughput({ on: (name: string, fn: any) => handlers.set(name, fn) } as never, () => {});
+  const emit = (name: string, event: any = {}) => handlers.get(name)!(event, ctx);
+  const message = { role: "assistant", content: [{ type: "toolCall", id: "a" }] };
+  const delta = (fragment: string) =>
+    emit("message_update", {
+      message,
+      assistantMessageEvent: { type: "toolcall_delta", contentIndex: 0, delta: fragment },
+    });
+  jest.useFakeTimers();
+  try {
+    emit("before_provider_request", { payload: { stream: true } });
+    delta("first");
+    jest.advanceTimersByTime(100);
+    delta("1234567890123456");
+    expect(rates("a")?.outputRate).toBe(40);
+    emit("provider_stream_event", { data: { timings: { predicted_per_second: 45 } } });
+    const saved = emit("message_end", { message });
+    expect(saved.message.prismThroughput.output).toEqual([{ id: "a", rate: 45 }]);
+    expect(rates("a")?.outputRate).toBe(45);
+  } finally {
+    jest.useRealTimers();
+  }
+});
