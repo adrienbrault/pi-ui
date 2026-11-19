@@ -33,7 +33,8 @@ import {
 import { type FoldMode, type LiveFoldGroup, registerToolInfo, resetFolds, setGroupOpen, toolPlan } from "./fold.ts";
 import { claimHover, highlightGroupRow, isOmissionRow, releaseHover } from "./hover.ts";
 import { expandedRegions, paintBar, styleBarCell } from "./viewport.ts";
-import { installThinkingRenderer, paintLeaving, scheduleThinkingFold, toolFade } from "./thinking.ts";
+import { paintLeaving, toolFade } from "./fade.ts";
+import { installThinkingRenderer, scheduleThinkingFold } from "./thinking.ts";
 
 /**
  * Duck-typed on purpose: pi ships several tui copies, so structural types beat

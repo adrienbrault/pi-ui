@@ -1,0 +1,44 @@
+import { describe, expect, test } from "bun:test";
+import { advanceFade, endFade, FADE_FRAMES, fadeOf, startFade, toolFade } from "./fade.ts";
+
+/** Tick until the step completes; the states seen before each tick. */
+function ticks(frame: ReturnType<typeof startFade>): Array<[number, number]> {
+  const seen: Array<[number, number]> = [];
+  for (let guard = 0; guard < 100; guard++) {
+    seen.push([frame.removed, frame.phase]);
+    if (advanceFade(frame)) return seen;
+  }
+  throw new Error("the fade never completed");
+}
+
+describe("fade advance", () => {
+  test("a step runs its phases, then completes", () => {
+    const frame = startFade({}, undefined, false);
+    expect(ticks(frame)).toEqual(Array.from({ length: FADE_FRAMES }, (_, phase) => [0, phase]));
+  });
+
+  test("a step that drops no row completes on its first tick", () => {
+    const frame = startFade({}, undefined, false);
+    frame.idle = true;
+    expect(ticks(frame)).toEqual([[0, 0]]);
+  });
+
+  test("a fold removes one row per fade, ending with its heading", () => {
+    const frame = startFade({}, undefined, true);
+    frame.foldRows = 3;
+    const phases = Array.from({ length: FADE_FRAMES }, (_, phase) => phase);
+    expect(ticks(frame)).toEqual([0, 1, 2].flatMap((removed) => phases.map((phase) => [removed, phase])));
+  });
+
+  test("a tool frame is found by its call id until it ends", () => {
+    const component = {};
+    const frame = startFade(component, "call", false);
+    expect(toolFade("call")).toBe(frame);
+    expect(fadeOf(component)).toBe(frame);
+    endFade(component, "call");
+    expect(toolFade("call")).toBeUndefined();
+    expect(fadeOf(component)).toBeUndefined();
+    startFade(component, "fold", true);
+    expect(toolFade("fold")).toBeUndefined();
+  });
+});

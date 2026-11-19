@@ -14,8 +14,8 @@
  */
 
 import type { Component } from "@earendil-works/pi-tui";
-import { mixColors, stripTerminalSequences, truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
-import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
+import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
+import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { COMPACT_LEVEL, FOLD_DISTANCE, type DetailLevel } from "../render/detail.ts";
 import { glyphsFor } from "../render/glyphs.ts";
 import { renderGroupMember, renderGroupRow } from "../render/group-row.ts";
@@ -41,68 +41,16 @@ import {
 } from "./viewport.ts";
 import { installThinkingClock, thinkingTime, type TimedMessage } from "./thinking-time.ts";
 import { highlightGroupRow, claimHover, clearHover, onSpacerMouse, releaseHover } from "./hover.ts";
-
-interface DecayFrame {
-  folding: boolean;
-  phase: number;
-  removed: number;
-  foldRows: number;
-  /** The step drops no row: nothing to fade, so the next tick commits it. */
-  idle?: boolean;
-}
-
-// Keep each departing row in the layout until its final fade frame.
-const decayFrames = new WeakMap<object, DecayFrame>();
-/** The same frames by tool call id: the body renderer knows the id, not the shell. */
-const toolFrames = new Map<string, DecayFrame>();
-
-/** A tool's step-down fade, if one is running: its body paints the leaving row. */
-export function toolFade(key: string): DecayFrame | undefined {
-  const frame = toolFrames.get(key);
-  return frame && !frame.folding ? frame : undefined;
-}
-
-/**
- * Paint the row a step drops at the frame's phase. An undefined row means the
- * step drops nothing, and the frame goes idle.
- */
-export function paintLeaving(rows: string[], row: number | undefined, frame: DecayFrame, theme: RenderTheme): string[] {
-  if (row === undefined || row < 0 || row >= rows.length) {
-    frame.idle = true;
-    return rows;
-  }
-  const lines = rows.slice();
-  lines[row] = fadeLine(lines[row]!, frame.phase, theme);
-  return lines;
-}
-const DECAY_FRAME_MS = 90;
-// Four 90 ms frames: a departing row is gone in 360 ms.
-const FADE_FRAMES = 4;
-
-function fadeLine(line: string, phase: number, theme: RenderTheme): string {
-  if (phase === 0) return line;
-  const remaining = stripTerminalSequences(line);
-  const palette = theme as unknown as Pick<Theme, "colors" | "style">;
-  const foreground = palette.colors?.toolOutput;
-  const background = palette.colors?.toolPendingBg;
-  if (!foreground || !background) return theme.fg("dim", remaining);
-  const fg = mixColors(foreground, background, phase / (FADE_FRAMES - 1), "srgb");
-  return palette.style(remaining, { fg });
-}
-
-/** A block joining a group folds from the bottom, one row per fade, ending with its heading. */
-function paintFold(rows: string[], theme: RenderTheme, component: object): string[] {
-  const frame = decayFrames.get(component);
-  if (!frame?.folding || !rows.length) return rows;
-  const lines = rows.slice();
-  const heading = lines.findIndex((line) => visibleWidth(line) > 0);
-  if (heading < 0) return rows;
-  frame.foldRows = lines.length - heading;
-  lines.length = Math.max(heading + 1, lines.length - frame.removed);
-  const last = lines.length - 1;
-  lines[last] = fadeLine(lines[last]!, frame.phase, theme);
-  return lines;
-}
+import {
+  advanceFade,
+  DECAY_FRAME_MS,
+  endFade,
+  fadeOf,
+  paintFold,
+  paintLeaving,
+  resetFades,
+  startFade,
+} from "./fade.ts";
 
 const GLYPHS = glyphsFor("unicode");
 const PROBE_WIDGET = "pi-prism-thinking-probe";
@@ -405,7 +353,7 @@ function labelComponent(
       };
       if (!group) {
         const lines = thoughtLines(width);
-        const frame = decayFrames.get(owner);
+        const frame = fadeOf(owner);
         if (streaming || expanded || !frame || frame.folding || !settled) return lines;
         return paintLeaving(lines, thinkingLeavingRow(api, settled), frame, theme);
       }
@@ -741,34 +689,27 @@ function patchTree(
   for (const unit of units) {
     const target = Math.min(FOLD_DISTANCE, unit.distance);
     const previous = distances.get(unit.component);
-    const frame = decayFrames.get(unit.component);
+    const frame = fadeOf(unit.component);
+    const key = unit.kind === "tool" ? unit.key : undefined;
     unit.distance = target;
     if (previous !== undefined && previous < target && !history.has(unit.component) && !unit.boundary) {
       unit.distance = previous;
       if (!pending) {
         if (!frame) {
-          const created: DecayFrame = { folding: previous + 1 === FOLD_DISTANCE, phase: 0, removed: 0, foldRows: 0 };
-          decayFrames.set(unit.component, created);
-          if (unit.kind === "tool") toolFrames.set(unit.key, created);
+          startFade(unit.component, key, previous + 1 === FOLD_DISTANCE);
           repaint.add(unit.component);
         } else if (advance) {
-          if (frame.phase < FADE_FRAMES - 1 && !frame.idle) frame.phase++;
-          else if (frame.folding && frame.removed + 1 < frame.foldRows) {
-            frame.removed++;
-            frame.phase = 0;
-          } else {
+          if (advanceFade(frame)) {
             unit.distance++;
             committed = unit;
-            decayFrames.delete(unit.component);
-            if (unit.kind === "tool") toolFrames.delete(unit.key);
+            endFade(unit.component, key);
           }
           repaint.add(unit.component);
         }
       }
       pending = true;
     } else if (frame) {
-      decayFrames.delete(unit.component);
-      if (unit.kind === "tool") toolFrames.delete(unit.key);
+      endFade(unit.component, key);
       repaint.add(unit.component);
     }
     distances.set(unit.component, unit.distance);
@@ -867,6 +808,6 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
   pi.on("session_shutdown", () => {
     clearTimeout(decayTimer);
     decayTimer = undefined;
-    toolFrames.clear();
+    resetFades();
   });
 }
