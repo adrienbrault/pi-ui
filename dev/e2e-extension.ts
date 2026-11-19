@@ -21,7 +21,7 @@ interface Pi {
 }
 
 export default function e2e(pi: Pi): void {
-  setTailLines(Number(process.env.PRISM_E2E_TAIL ?? 7));
+  if (process.env.PRISM_E2E_TAIL) setTailLines(Number(process.env.PRISM_E2E_TAIL));
   prism(pi as unknown as Parameters<typeof prism>[0]);
   pi.registerProvider("flan", {
     name: "flan",

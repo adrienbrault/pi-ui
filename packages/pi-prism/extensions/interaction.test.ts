@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, afterEach, describe, expect, jest, test } from "bun:test";
+import { beforeAll, describe, expect, jest, test } from "bun:test";
 import { initTheme } from "@earendil-works/pi-coding-agent";
 import {
   rgbColor,
@@ -11,12 +11,8 @@ import { highlightGroupRow } from "./hover.ts";
 import { toolPlan } from "./fold.ts";
 import prism, { actionFor, hintFor } from "./index.ts";
 
-import { DEFAULT_TAIL_LINES, setTailLines } from "../render/detail.ts";
 // Syntax highlighting reads pi's global theme; do not depend on another test file installing it.
 beforeAll(() => initTheme("dark"));
-// Exercise the compact seven-row configuration used by these fixtures.
-beforeEach(() => setTailLines(7));
-afterEach(() => setTailLines(DEFAULT_TAIL_LINES));
 
 const theme = {
   fg: (_token: string, text: string) => text,
@@ -109,8 +105,8 @@ describe("expansion cycle", () => {
   });
 
   test("an aged row only expands past its own budget", () => {
-    expect(actionFor(0, 6, 2)).toBe(1);
-    expect(actionFor(0, 4, 2)).toBeNull();
+    expect(actionFor(0, 7, 2)).toBe(1);
+    expect(actionFor(0, 6, 2)).toBeNull();
   });
 });
 
@@ -169,7 +165,7 @@ describe("tool renderers", () => {
     expect(body.render(80)).toHaveLength(40);
     expect(body.render(80).join("\n")).not.toContain("[ click");
     body.handleMouse?.({ ...click(), y: 20 });
-    expect(body.render(80)).toHaveLength(7);
+    expect(body.render(80)).toHaveLength(8);
   });
 
   test("a grouped hover covers the indent, gap and trailing cells on just the pointed row", () => {
@@ -203,9 +199,9 @@ describe("tool renderers", () => {
     expect(idle.some((row) => row.includes("48;5;"))).toBe(false);
     body.handleMouse?.({ ...move(), y: 1 });
     const hovered = body.render(80);
-    // Six of 40 lines shown, all at the end: each cell stands for a seventh of the output, so only the last fills.
+    // Seven of 40 lines shown, all at the end: each cell stands for five lines, so the last two fill.
     const cells = hovered.map((row) => (row.includes("48;5;1m") ? "fill" : row.includes("48;5;2m") ? "track" : "none"));
-    expect(cells).toEqual(["track", "track", "track", "track", "track", "track", "fill"]);
+    expect(cells).toEqual(["track", "track", "track", "track", "track", "track", "fill", "fill"]);
     expect(plainRows(hovered)).toEqual(plainRows(idle));
   });
 
@@ -243,8 +239,8 @@ describe("tool renderers", () => {
     );
     expect(receipt.render(80)).toEqual([]);
     const preview = call.render(80);
-    const cut = preview.findIndex((line) => line.includes("+ 34 lines"));
-    expect(preview[cut - 1]).toContain("line 3");
+    const cut = preview.findIndex((line) => line.includes("+ 33 lines"));
+    expect(preview[cut - 1]).toContain("line 4");
     expect(preview.at(-1)).toContain("line 40");
     call.handleMouse?.({ ...click(), y: cut });
     expect(
@@ -441,7 +437,7 @@ describe("tool renderers", () => {
       children.push(oldest);
       dispatch("agent_settled");
       jest.advanceTimersByTime(1);
-      for (let i = 1; i <= 4; i++) {
+      for (let i = 1; i <= 5; i++) {
         children.push(makeShell("animated-" + i));
         dispatch("agent_settled");
         const first = oldest.render(80);
@@ -450,7 +446,7 @@ describe("tool renderers", () => {
         expect(second.map(stripTerminalSequences)).toEqual(first.map(stripTerminalSequences));
         expect(second.filter((line, index) => line !== first[index])).toHaveLength(1);
         expect(second.join("")).toContain("38;2;140;140;140");
-        if (i === 4) {
+        if (i === 5) {
           jest.advanceTimersByTime(270);
           for (let height = first.length - 1; height > 0; height--) {
             expect(oldest.render(80).map(stripTerminalSequences)).toEqual(
@@ -503,9 +499,9 @@ describe("tool renderers", () => {
     children.push({ ...children[0]!, toolCallId: "newer" });
     tool.renderCall(ctx.args, theme, { ...ctx, toolCallId: "newer", state: {} });
     await Bun.sleep(10);
-    expect(body.render(80)).toHaveLength(7);
+    expect(body.render(80)).toHaveLength(8);
     dispatch("agent_settled");
-    expect(body.render(80)).toHaveLength(6);
+    expect(body.render(80)).toHaveLength(7);
   });
 
   test("open members survive turn boundaries and a growing live group", async () => {
@@ -537,14 +533,14 @@ describe("tool renderers", () => {
       dispatch("message_end", { message: { role: "toolResult", toolCallId, timestamp: 2000 + index * 100 } });
       return () => tool.renderCall(context.args, theme, context);
     };
-    const headers = Array.from({ length: 6 }, (_, index) => add(index));
+    const headers = Array.from({ length: 7 }, (_, index) => add(index));
     await Bun.sleep(10);
     const anchor = headers[0]!;
     const member = headers[1]!;
     anchor().handleMouse?.(click());
     member().handleMouse?.(click());
     expect(member().render(80)).toHaveLength(41);
-    add(6);
+    add(7);
     dispatch("turn_end");
     dispatch("turn_start");
     expect(member().render(80)).toHaveLength(41);
@@ -566,6 +562,6 @@ describe("tool renderers", () => {
     for (const handler of handlers) handler();
     expect(body.render(80)).toHaveLength(40);
     header.handleMouse?.(click());
-    expect(body.render(80)).toHaveLength(7);
+    expect(body.render(80)).toHaveLength(8);
   });
 });

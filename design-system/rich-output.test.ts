@@ -1,4 +1,4 @@
-import { beforeEach, afterEach, expect, test } from "bun:test";
+import { expect, test } from "bun:test";
 import { glyphsFor } from "../packages/pi-prism/render/glyphs.ts";
 import { cleanOutput } from "../packages/pi-prism/render/text.ts";
 import { thinkingLayout } from "../packages/pi-prism/render/thinking.ts";
@@ -7,11 +7,6 @@ import { MAX_FULL_LINES } from "../packages/pi-prism/render/detail.ts";
 import { resolvePi } from "./lib/pi.ts";
 import { createKit } from "./lib/surface.ts";
 import { installTheme, loadThemeJson } from "./lib/theme.ts";
-
-import { DEFAULT_TAIL_LINES, setTailLines } from "../packages/pi-prism/render/detail.ts";
-// Exercise the compact seven-row configuration used by these fixtures.
-beforeEach(() => setTailLines(7));
-afterEach(() => setTailLines(DEFAULT_TAIL_LINES));
 
 test("reads, shell file previews and Markdown thoughts use pi's active syntax palette", async () => {
   const pi = await resolvePi();

@@ -1,10 +1,5 @@
-import { beforeEach, afterEach, describe, expect, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { type FoldUnit, planFolds, setGroupOpen, thinkingPlan, toolPlan } from "./fold.ts";
-
-import { DEFAULT_TAIL_LINES, setTailLines } from "../render/detail.ts";
-// Exercise the compact seven-row configuration used by these fixtures.
-beforeEach(() => setTailLines(7));
-afterEach(() => setTailLines(DEFAULT_TAIL_LINES));
 
 function unit(kind: "thinking" | "tool", key: string, distance: number): FoldUnit {
   const component = { key };
@@ -32,10 +27,11 @@ describe("live fold plan", () => {
     expect(anchor?.mode).toBe("anchor");
     expect(anchor?.group?.segments).toEqual([
       { cls: "thinking", count: 3 },
-      { cls: "shell", count: 12 },
+      { cls: "shell", count: 11 },
     ]);
     expect(toolPlan("c0")?.mode).toBe("hidden");
-    expect(toolPlan("c12")?.mode).toBe("normal");
+    expect(toolPlan("c10")?.mode).toBe("hidden");
+    expect(toolPlan("c11")?.mode).toBe("normal");
   });
 
   test("a summary totals thinking time and shell runtime, and a later timing refreshes it", () => {
