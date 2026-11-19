@@ -8,9 +8,11 @@ import {
   fadeDurationMs,
   fadeOf,
   nextPace,
+  paintLeaving,
   startFade,
   toolFade,
 } from "./fade.ts";
+import type { RenderTheme } from "../render/kit.ts";
 
 /** Tick until the step completes; the states seen before each tick. */
 function ticks(frame: ReturnType<typeof startFade>): Array<[number, number]> {
@@ -39,6 +41,17 @@ describe("fade advance", () => {
     frame.foldRows = 3;
     const phases = Array.from({ length: FADE_FRAMES }, (_, phase) => phase);
     expect(ticks(frame)).toEqual([0, 1, 2].flatMap((removed) => phases.map((phase) => [removed, phase])));
+  });
+
+  test("a block with several parts goes idle only when no part has a row to fade", () => {
+    const theme = { fg: (_token: string, text: string) => text } as unknown as RenderTheme;
+    const frame = startFade({}, undefined, false);
+    // Two thinking runs of one message share the frame: the first fades a row, the second has none.
+    paintLeaving(["a", "b"], 1, frame, theme, 0);
+    paintLeaving(["c"], undefined, frame, theme, 1);
+    expect(frame.idle).toBe(false);
+    paintLeaving(["a"], undefined, frame, theme, 0);
+    expect(frame.idle).toBe(true);
   });
 
   test("a tool frame is found by its call id until it ends", () => {

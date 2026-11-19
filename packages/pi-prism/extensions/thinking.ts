@@ -341,7 +341,7 @@ function labelComponent(
         const lines = thoughtLines(width);
         const frame = fadeOf(owner);
         if (streaming || expanded || !frame || frame.folding || !settled) return paint(lines);
-        return paint(paintLeaving(lines, thinkingLeavingRow(api, settled), frame, theme));
+        return paint(paintLeaving(lines, thinkingLeavingRow(api, settled), frame, theme, ordinal));
       }
       const memberLines = () => {
         const rows = renderGroupMember(KIT, width, thoughtLines);

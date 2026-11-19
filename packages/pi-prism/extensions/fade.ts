@@ -28,6 +28,8 @@ export interface DecayFrame {
   blocks?: number;
   /** A group collapse: the members whose rows were listed when it started. The others are gone. */
   shown?: Set<object>;
+  /** Per part of a block (a message's thinking runs): whether that part has a row to fade. */
+  parts?: boolean[];
   /** The tool call id that also indexes this frame. */
   key?: string;
 }
@@ -152,13 +154,20 @@ export function fadeLine(line: string, phase: number, theme: RenderTheme): strin
 
 /**
  * Paint the row a step drops at the frame's phase. An undefined row means the
- * step drops nothing, and the frame goes idle.
+ * step drops nothing from this part of the block (a message can hold several
+ * thinking runs); the frame goes idle only when no part has a row to fade.
  */
-export function paintLeaving(rows: string[], row: number | undefined, frame: DecayFrame, theme: RenderTheme): string[] {
-  if (row === undefined || row < 0 || row >= rows.length) {
-    frame.idle = true;
-    return rows;
-  }
+export function paintLeaving(
+  rows: string[],
+  row: number | undefined,
+  frame: DecayFrame,
+  theme: RenderTheme,
+  part = 0,
+): string[] {
+  const leaving = row !== undefined && row >= 0 && row < rows.length;
+  (frame.parts ??= [])[part] = leaving;
+  frame.idle = !frame.parts.some(Boolean);
+  if (!leaving) return rows;
   const lines = rows.slice();
   lines[row] = fadeLine(lines[row]!, frame.phase, theme);
   return lines;
