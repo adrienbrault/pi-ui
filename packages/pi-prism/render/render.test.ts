@@ -20,6 +20,7 @@ import {
   renderToolRow,
   toolHeader,
   toolRowLayout,
+  type FileChanges,
   type ToolRowInput,
 } from "./tool-row.ts";
 import {
@@ -514,6 +515,118 @@ describe("diff line numbers", () => {
     const input = { name: "edit", status: "success", level: 4, output: "--- a\n+++ a\n@@ -1 +1 @@\n-x\n+y" } as const;
     expect(previewLineCount(input)).toBe(2);
     expect(toolRowLayout(api, input, 80).omission).toBeUndefined();
+  });
+});
+
+describe("files a shell command changed", () => {
+  const changes: FileChanges = {
+    files: [
+      {
+        path: "tmp/one.txt",
+        kind: "modified",
+        patch: "--- tmp/one.txt\n+++ tmp/one.txt\n@@ -1,2 +1,2 @@\n-Edits: 4\n+Edits: 5\n keep\n",
+      },
+      { path: "tmp/two.txt", kind: "created", patch: "--- tmp/two.txt\n+++ tmp/two.txt\n@@ -0,0 +1,2 @@\n+a\n+b\n" },
+    ],
+  };
+  const bash = (extra: Partial<ToolRowInput> = {}) =>
+    toolRowLayout(
+      api,
+      {
+        name: "bash",
+        status: "success",
+        level: 0,
+        args: { command: "printf 'Edits: 5' > tmp/one.txt" },
+        output: "(no output)",
+        changes,
+        ...extra,
+      },
+      80,
+    );
+  const body = (extra: Partial<ToolRowInput> = {}) =>
+    bash(extra)
+      .rows.slice(1)
+      .map((row) => row.trimEnd());
+
+  test("each changed file follows the output: a path row, then its diff numbered like an edit's", () => {
+    expect(body()).toEqual([
+      "    (no output)",
+      "    tmp/one.txt",
+      "    1  -Edits: 4",
+      "    1  +Edits: 5",
+      "    2   keep",
+      "    tmp/two.txt",
+      "    1  +a",
+      "    2  +b",
+    ]);
+  });
+
+  test("the changed lines take the edit's backgrounds", () => {
+    const tokens = {
+      ...api,
+      theme: {
+        ...theme,
+        style: (text: string, options: { bg?: string }) => (options.bg ? `<${options.bg}>${text}` : text),
+      },
+    };
+    const rows = toolRowLayout(
+      tokens,
+      { name: "bash", status: "success", level: 0, output: "(no output)", changes },
+      80,
+    ).rows.map((row) => row.trim());
+    expect(rows.filter((row) => row.startsWith("<toolErrorBg>"))).toHaveLength(1);
+    expect(rows.filter((row) => row.startsWith("<toolSuccessBg>"))).toHaveLength(3);
+  });
+
+  test("the file rows count in the row budget, so an older block keeps fewer", () => {
+    const heights = ([0, 2, 4] as const).map((level) => bash({ level }).rows.length - 1);
+    expect(heights).toEqual([8, 6, 4]);
+    // The output keeps its row; the files keep what they can of their evidence and count the rest.
+    expect(body({ level: 4 })).toEqual([
+      "    (no output)",
+      "    tmp/one.txt",
+      "    1  -Edits: 4",
+      "    ↓  4 more lines",
+    ]);
+    expect(bash({ level: 4 }).omission).toBe(4);
+    // Hidden file rows make the block openable, and opening it shows them all.
+    expect(previewLineCount({ name: "bash", status: "success", level: 4, output: "(no output)", changes })).toBe(8);
+    expect(body({ level: 4, expanded: true, full: true })).toHaveLength(8);
+  });
+
+  test("a long log keeps its newest lines above the files, which take the larger half", () => {
+    const rows = body({ level: 1, output: OUTPUT });
+    expect(rows).toHaveLength(7);
+    expect(rows.slice(0, 3)).toEqual(["    ↑  38 more lines", "    line 39", "    line 40"]);
+    expect(rows[3]).toBe("    tmp/one.txt");
+  });
+
+  test("a deleted, a binary and an oversized file say so instead of a diff", () => {
+    const rows = body({
+      expanded: true,
+      full: true,
+      changes: {
+        files: [
+          { path: "gone.txt", kind: "deleted" },
+          { path: "logo.png", kind: "modified", note: "binary" },
+          { path: "dump.sql", kind: "created", note: "too large" },
+          { path: "empty.txt", kind: "created", patch: "" },
+        ],
+        more: 3,
+      },
+    });
+    expect(rows).toEqual([
+      "    (no output)",
+      "    gone.txt",
+      "    deleted",
+      "    logo.png",
+      "    binary file changed",
+      "    dump.sql",
+      "    new file, too large to diff",
+      "    empty.txt",
+      "    new empty file",
+      "    3 more files changed",
+    ]);
   });
 });
 

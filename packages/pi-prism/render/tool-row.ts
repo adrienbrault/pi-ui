@@ -58,6 +58,25 @@ export interface ToolRowInput extends TokenRates {
   frame?: number;
   /** As an open group's member: the group's column widths, so its rows line up. */
   columns?: MemberColumns;
+  /** Files a shell command created, changed or deleted in its git work tree, shown after its output. */
+  changes?: FileChanges;
+}
+
+/** A file a shell command changed, as the extension recorded it on the tool result. */
+export interface FileChange {
+  /** Relative to the session's working directory. */
+  path: string;
+  kind: "created" | "modified" | "deleted";
+  /** A unified patch from the file before the command to after it; absent when there is none to show. */
+  patch?: string;
+  /** Why a created or modified file has no patch. */
+  note?: "binary" | "too large";
+}
+
+export interface FileChanges {
+  files: FileChange[];
+  /** Changed files beyond the recorded list. */
+  more?: number;
 }
 
 /** The verb a tool row leads with: `bash`, `read`, an MCP `server/tool`. */
@@ -325,8 +344,11 @@ interface Selected {
   number?: number;
   /** The file a grep line came from: a path row heads each run of its lines. */
   path?: string;
-  /** A row that is neither output nor a notice: grep's divider between groups, or a path row. */
-  rule?: "divider" | "path";
+  /**
+   * A row that is neither output nor a notice: grep's or a diff's divider, a path row, or a note
+   * on a changed file that has no diff to show (its words are in `line`).
+   */
+  rule?: "divider" | "path" | "note";
   /** A diff row's colour, read from its place in the patch: additions green, removals red. */
   tone?: "success" | "error" | "accent" | "dim";
   /** An edit-style change row: its tone is a background, the full width of the code column. */
@@ -373,6 +395,7 @@ const notice = (count: number, side: OmissionSide): Selected => ({ line: "", not
  */
 function selectDiff(lines: Selected[], show: number): Selected[] {
   if (lines.length <= show) return lines;
+  if (show <= 0) return [];
 
   const essential = lines.filter((row) => !row.context);
   const contextHidden = lines.length - essential.length;
@@ -508,10 +531,11 @@ function takesRow(line: ShellLine): boolean {
 export function previewLineCount(input: ToolRowInput): number {
   const raw = previewText(input);
   const text = cleanOutput(raw);
+  const files = changeRows(input.changes).length;
   // A diff's rows are its lines and the dividers between hunks; an edit's headers take none.
-  if (isDiff(input, text)) return diffRows(logicalLines(text), input.name === "edit").length;
+  if (isDiff(input, text)) return diffRows(logicalLines(text), input.name === "edit").length + files;
   const view = shellViewOf(input, text);
-  return view ? view.lines.filter(takesRow).length : nonEmptyLineCount(raw);
+  return (view ? view.lines.filter(takesRow).length : nonEmptyLineCount(raw)) + files;
 }
 
 /** Whether a body reads as a diff: an edit's patch, or a shell command's output that is one. */
@@ -696,6 +720,36 @@ function diffRows(lines: string[], edit: boolean, highlight?: (source: string) =
   return tidyDividers(rows);
 }
 
+/** What a changed file without a diff shows instead. */
+function changeNote(file: FileChange): string | undefined {
+  if (file.kind === "deleted") return "deleted";
+  if (file.note === "binary") return file.kind === "created" ? "new binary file" : "binary file changed";
+  if (file.note === "too large") return file.kind === "created" ? "new file, too large to diff" : "too large to diff";
+  if (!file.patch?.trim()) return file.kind === "created" ? "new empty file" : "changed, same content";
+  return undefined;
+}
+
+/**
+ * The rows of the files a shell command changed: a path row per file, then its diff read like an
+ * edit's (numbered, headers dropped, changes on the edit backgrounds), or a note saying why there
+ * is none. Each file's code takes the syntax colours of its language.
+ */
+function changeRows(
+  changes: FileChanges | undefined,
+  highlight?: (path: string) => ((code: string) => string[] | undefined) | undefined,
+): Selected[] {
+  if (!changes) return [];
+  const rows = changes.files.flatMap((file): Selected[] => {
+    const path: Selected = { line: "", rule: "path", path: file.path };
+    const note = changeNote(file);
+    if (note !== undefined) return [path, { line: note, rule: "note" }];
+    return [path, ...diffRows(logicalLines(cleanOutput(file.patch ?? "")), true, highlight?.(file.path))];
+  });
+  const more = changes.more ?? 0;
+  if (more > 0) rows.push({ line: `${more} more file${more === 1 ? "" : "s"} changed`, rule: "note" });
+  return rows;
+}
+
 /**
  * pi's read ends a partial range with how to continue it: `[N more lines in file. Use offset=X
  * to continue.]` after a `limit`, or `[Showing lines A-B of T. Use offset=X to continue.]`, with
@@ -773,7 +827,14 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
         ? [{ line: styledSource?.[raw] ?? line, ...(start === undefined ? {} : { number: start + raw }) }]
         : [],
     );
-  if (lines.length === 0) return empty;
+  const highlight = kit.highlight;
+  /** A changed file's diff takes the syntax colours of its language, within the same work bound. */
+  const fileHighlight = (path: string) => {
+    const fileLanguage = highlight && kit.languageFromPath?.(path);
+    return fileLanguage ? (code: string) => highlight(code, fileLanguage, theme) : undefined;
+  };
+  const changed = changeRows(input.changes, fileHighlight);
+  if (lines.length === 0 && changed.length === 0) return empty;
   // The lines pi's read left in the file: a notice on the last row, which the code may not take.
   // It gives way when the rows left would hold a notice and no line of code.
   const remaining = input.name === "read" && !input.error ? splitReadTrailer(input.output ?? "").remaining : undefined;
@@ -782,8 +843,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
 
   const streamingWrite = input.name === "write" && input.status === "pending" && !input.expanded;
   const trend = streamingWrite || meta.trend === "tail" ? selectTail : selectHead;
-  const highlight = kit.highlight;
-  const changes = diff
+  const patchRows = diff
     ? indexLines(
         diffRows(
           source,
@@ -793,10 +853,10 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
       )
     : [];
   const indexed = lines.map((line, index): Selected => ({ ...line, index }));
-  const pick = (show: number) => (diff ? selectDiff(changes, show) : trend(indexed, show));
+  const pick = (show: number) => (diff ? selectDiff(patchRows, show) : trend(indexed, show));
   const paths = !!shell?.view.paths;
   // Path rows take rows too: keep fewer lines until the lines and their path rows fit.
-  const select = (show: number): Selected[] => {
+  const selectOutput = (show: number): Selected[] => {
     if (!paths) return pick(show);
     // Dropping a line drops at most one path row too, so the lines that fit are at most
     // half the overshoot fewer: step down by that much, never past the most that fit.
@@ -806,6 +866,23 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
       kept -= Math.ceil((rows.length - show) / 2);
     }
     return pick(show);
+  };
+  const outputLines = diff ? lineCount(patchRows) : lines.length;
+  const outputRows = diff ? patchRows.length : paths ? withPaths(indexed).length : lines.length;
+  // The files a command changed come after its output, numbered on from its lines.
+  const files = indexLines(changed).map((row) =>
+    row.index === undefined ? row : { ...row, index: outputLines + row.index },
+  );
+  /**
+   * The output and the changed files share the budget. When both cannot fit, the files take the
+   * larger half, the output at least one row, and either gives the other what it does not use.
+   */
+  const select = (show: number): Selected[] => {
+    if (!files.length) return selectOutput(show);
+    if (outputRows + files.length <= show) return [...selectOutput(outputRows), ...files];
+    const share = Math.min(outputRows, Math.max(1, show - files.length, Math.floor(show / 2)));
+    const output = share > 0 ? selectOutput(share) : [];
+    return [...output, ...selectDiff(files, show - output.length)];
   };
   // grep's numbers jump where it skipped lines: a gap there is not a run of hidden lines.
   const contiguous = shell?.view.contiguous ?? true;
@@ -847,6 +924,11 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
     }
     if (rule === "path")
       return [indent + truncateLeft(kit, path ?? "", inner, mark, (part) => theme.fg("dim", part)).text];
+    // A changed file's note sits in the code column, in the notice style.
+    if (rule === "note") {
+      const lead = " ".repeat(digits ? digits + 2 : 0);
+      return [indent + kit.truncateToWidth(lead + omissionStyle(theme, line), inner, mark)];
+    }
     const gutter = digits && number !== undefined ? digits + 2 : 0;
     const room = inner - gutter;
     const content = styled ?? line;
@@ -890,7 +972,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
   };
 
   // A notice counts against the budget: total body rows never exceed it.
-  const show = Math.min(budget, diff ? changes.length : paths ? withPaths(indexed).length : lines.length);
+  const show = Math.min(budget, outputRows + files.length);
   let selected = select(show);
   let items = layout(selected);
   if (wrap && rowCount(items) > budget) {
@@ -930,7 +1012,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
   return {
     rows,
     clipped,
-    bar: previewBar(diff ? lineCount(changes) : lines.length, shown, rows.length),
+    bar: previewBar(outputLines + lineCount(files), shown, rows.length),
     // One row per selected line, then the file note: a preview never wraps.
     sources: [...selected.map((item) => item.index), ...(fileNote ? [undefined] : [])],
     ...(omission === -1 ? {} : { omission }),

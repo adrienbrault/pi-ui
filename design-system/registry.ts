@@ -194,6 +194,38 @@ const bashRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
   ...overrides,
 });
 
+/** A few lines of `render/detail.ts`, with the fold distance given. */
+const detailSource = (fold: number) =>
+  `export const TAIL_BUDGET = 8;\nexport const BLOCKS_PER_STEP = 2;\nexport const FOLD_DISTANCE = ${fold};\nexport const FORMING_ROWS = 5;\n`;
+
+/**
+ * A bash that wrote two files in its git work tree, as the extension records it: each patch made
+ * by the pi install's own `generateUnifiedPatch`, the helper its edit tool uses.
+ */
+const changedFilesRow = (ctx: RenderCtx): ToolRowInput => {
+  const patch = (path: string, before: string, after: string): string =>
+    ctx.pi.modules.coding.generateUnifiedPatch(path, before, after);
+  return bashRow({
+    args: {
+      command:
+        "printf 'Edits: 5\\nLines: 12\\n' > ./tmp/one.txt; sed -i '' 's/DISTANCE = 10/DISTANCE = 12/' packages/pi-prism/render/detail.ts",
+    },
+    title: undefined,
+    output: "(no output)",
+    durationMs: 40,
+    changes: {
+      files: [
+        {
+          path: "packages/pi-prism/render/detail.ts",
+          kind: "modified",
+          patch: patch("packages/pi-prism/render/detail.ts", detailSource(10), detailSource(12)),
+        },
+        { path: "tmp/one.txt", kind: "created", patch: patch("tmp/one.txt", "", "Edits: 5\nLines: 12\n") },
+      ],
+    },
+  });
+};
+
 const editRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
   name: "edit",
   args: { path: editPath },
@@ -652,6 +684,20 @@ const oursEntries: EntryDef[] = [
             full: true,
           }),
         "the header keeps the command's first segment; the rest lines up under it",
+      ),
+      levelState(
+        "changes",
+        "changed two files",
+        0,
+        (ctx) => changedFilesRow(ctx),
+        "files the command created or changed in its git work tree follow the output: a path row, then the diff read like an edit's",
+      ),
+      levelState(
+        "changes-l4",
+        "changed two files, aged L4",
+        4,
+        (ctx) => changedFilesRow(ctx),
+        "the diffs share the row budget with the output: an older block keeps fewer of their lines",
       ),
     ],
   },
