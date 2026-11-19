@@ -891,7 +891,8 @@ describe("tool renderers", () => {
         shells.push(session.add(ids[settled]!));
         session.dispatch("agent_settled");
         jest.advanceTimersByTime(180);
-        shells.push(session.add(ids[settled + 1]!));
+        // A whole step: a block already held one level back lands two levels behind and must wait.
+        shells.push(...addStep(session, ids[settled + 1]!));
         session.dispatch("agent_settled");
         let joinerRows = joiner.render(80).length;
         let groupRows = shells[0]!.render(80).length;
