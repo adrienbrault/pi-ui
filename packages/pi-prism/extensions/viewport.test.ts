@@ -87,9 +87,9 @@ describe("scroll bar of an open block", () => {
     expect(thumbs(15)).toEqual([21]);
   });
 
-  test("a block that fits on screen keeps its thumb on its first row", () => {
+  test("a block shown whole fills its bar: there is nothing to scroll", () => {
     const bar = scrollBarRows([{ start: 2, end: 6 }], 0, 10);
-    expect([...bar.values()]).toEqual(["fill", "track", "track", "track"]);
+    expect([...bar.values()]).toEqual(["fill", "fill", "fill", "fill"]);
   });
 
   test("each open block on screen has its own single thumb", () => {
@@ -147,9 +147,9 @@ describe("hovered open block", () => {
       { mode: "fullscreen", getPrimaryScrollView: () => view },
       { bar: (kind, over) => (over ? (kind === "fill" ? "H" : "h") : kind === "fill" ? "#" : ":") },
     );
-    expect(doc.render(20).map((line) => stripTerminalSequences(line)[1])).toEqual([" ", " ", "H", "h", "h", "h"]);
+    expect(doc.render(20).map((line) => stripTerminalSequences(line)[1])).toEqual([" ", " ", "H", "H", "H", "H"]);
     hovered = false;
-    expect(doc.render(20).map((line) => stripTerminalSequences(line)[1])).toEqual([" ", " ", "#", ":", ":", ":"]);
+    expect(doc.render(20).map((line) => stripTerminalSequences(line)[1])).toEqual([" ", " ", "#", "#", "#", "#"]);
   });
 
   test("a hovered bar paints accent on selectedBg; at rest pi's scrollbar pair", () => {

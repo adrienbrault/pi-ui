@@ -175,7 +175,7 @@ export function paintBar(
  * every visible row and one thumb cell ("fill") marking the reader's position
  * in the block. The thumb sits on the first visible row at the block's top, on
  * the last at its end, and moves down as the reader scrolls down. A block that
- * fits on screen has nothing to scroll: its thumb stays on its first row.
+ * fits on screen has nothing to scroll: its thumb fills the whole track.
  */
 export function scrollBarRows(spans: Span[], top: number, height: number): Map<number, BarCell> {
   const cells = new Map<number, BarCell>();
@@ -185,8 +185,9 @@ export function scrollBarRows(spans: Span[], top: number, height: number): Map<n
     const visible = last - first;
     if (visible <= 0) continue;
     const range = span.end - span.start - visible;
-    const thumb = range > 0 ? first + Math.round(((visible - 1) * (first - span.start)) / range) : first;
-    for (let row = first; row < last; row++) cells.set(row, row === thumb ? "fill" : "track");
+    // Shown whole, like a real scroll bar: the thumb is the whole track.
+    const thumb = range > 0 ? first + Math.round(((visible - 1) * (first - span.start)) / range) : undefined;
+    for (let row = first; row < last; row++) cells.set(row, thumb === undefined || row === thumb ? "fill" : "track");
   }
   return cells;
 }
