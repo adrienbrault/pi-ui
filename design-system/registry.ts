@@ -179,6 +179,9 @@ const readRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
   ...overrides,
 });
 
+/** A path too long for a header at most widths. */
+const LONG_READ_PATH = "packages/pi-prism/extensions/interaction/fixtures/sessions/thinking-and-tools.ts";
+
 /** A command long enough to wrap, over two lines, as an agent writes it. */
 const OPENED_COMMAND =
   "cd packages/pi-prism && bun test render/render.test.ts extensions/interaction.test.ts --timeout 20000 --bail\nbun run typecheck";
@@ -602,6 +605,20 @@ const oursEntries: EntryDef[] = [
       ),
       levelState("error", "error", 0, () =>
         readRow({ status: "error", error: "ENOENT: no such file", output: "", summary: "" }),
+      ),
+      levelState(
+        "opened-path",
+        "opened, long path",
+        0,
+        () =>
+          readRow({
+            args: { path: LONG_READ_PATH },
+            title: LONG_READ_PATH,
+            output: FILE_TEXT.split("\n").slice(0, 3).join("\n"),
+            expanded: true,
+            full: true,
+          }),
+        "an opened block never cuts its title: the path breaks after a `/` and continues under its start",
       ),
     ],
   },

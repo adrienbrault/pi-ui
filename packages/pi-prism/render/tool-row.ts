@@ -167,8 +167,9 @@ function truncateLeft(
 /**
  * Split a line at `width` columns: the largest prefix that fits, broken after
  * its last space when it has one, and the rest without its leading spaces.
+ * With `slashes`, a path breaks after its last `/` that fits when that comes later.
  */
-function splitAt(kit: RenderKit, line: string, width: number): [string, string] {
+function splitAt(kit: RenderKit, line: string, width: number, slashes = false): [string, string] {
   if (kit.visibleWidth(line) <= width) return [line, ""];
   const chars = [...line];
   let end = 0;
@@ -180,8 +181,23 @@ function splitAt(kit: RenderKit, line: string, width: number): [string, string] 
     end++;
   }
   const space = chars.slice(0, end + 1).lastIndexOf(" ");
-  const cut = space > 0 ? space : Math.max(1, end);
+  // Break after the slash, so each row of a path ends with a directory's `/`.
+  const slash = slashes ? chars.slice(0, end).lastIndexOf("/") + 1 : 0;
+  const cut = slash > Math.max(0, space) ? slash : space > 0 ? space : Math.max(1, end);
   return [chars.slice(0, cut).join("").trimEnd(), chars.slice(cut).join("").trimStart()];
+}
+
+/** A line broken into rows of at most `width` columns, at spaces and, with `slashes`, after `/`. */
+function breakRows(kit: RenderKit, line: string, width: number, slashes: boolean): string[] {
+  const rows: string[] = [];
+  let rest = line;
+  // No line can need more rows than the whole cap: bound the work.
+  while (rest && rows.length <= MAX_FULL_LINES) {
+    const [head, tail] = splitAt(kit, rest, width, slashes);
+    rows.push(head);
+    rest = tail;
+  }
+  return rows;
 }
 
 type HeaderPiece = { kind: "title" | "summary" | "tokens" | "error" | "duration"; text: string };
@@ -293,36 +309,48 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, width: number) {
   const room = width - kit.visibleWidth(compose(others)) - kit.visibleWidth(sep);
   // Whether a closed header cuts the title; an opened one reports the same, so the row stays openable.
   const truncated = !!titlePiece && kit.visibleWidth(compose(pieces)) > width;
-  const command = meta.cls === "shell" ? cleanOutput(String(input.args?.command ?? title)) : "";
-  const hiddenCommand = command && (truncated || command !== title) ? command : undefined;
-  /** Opened: the command's rows after the header, each starting in `column`. */
+  const shell = meta.cls === "shell";
+  const command = shell ? cleanOutput(String(input.args?.command ?? title)) : "";
+  /**
+   * What a closed header does not show of its title: a shell command it cut or folded onto one
+   * line, or any other title too wide for the row (a path, a pattern, a query, an MCP argument).
+   */
+  const hiddenTitle = shell
+    ? command && (truncated || command !== title)
+      ? command
+      : undefined
+    : truncated
+      ? title
+      : undefined;
+  // Hovering a block that can open or close lights its clipped title, foreground only: the cut mark stays.
+  const tone = input.lit ? "text" : "accent";
+  /** Opened: the title's rows after the header, each starting in `column`. */
   let continuation: { column: number; rows: string[] } | undefined;
-  if (titlePiece && hiddenCommand && (input.expanded || input.full)) {
-    // Opened: the header carries the command's first segment, and the rest continues on the
-    // following rows in the column where the command starts.
+  if (titlePiece && hiddenTitle && (input.expanded || input.full)) {
+    // Opened: the header carries the title's first segment, and the rest continues on the
+    // following rows in the column where the title starts. A path breaks after a `/`.
     const column = kit.visibleWidth(prefix + sep);
-    const [first = "", ...lines] = hiddenCommand.split("\n");
-    const [head, rest] = splitAt(kit, first, Math.max(1, room));
-    titlePiece.text = theme.fg("accent", head);
+    const [first = "", ...lines] = hiddenTitle.split("\n");
+    const [head, rest] = splitAt(kit, first, Math.max(1, room), !shell);
+    titlePiece.text = theme.fg(tone, head);
     const inner = Math.max(1, width - column);
     continuation = {
       column,
       rows: (rest ? [rest, ...lines] : lines).flatMap((line) =>
-        // No line can need more rows than the whole cap: bound the wrap work.
-        kit
-          .wrap(kit.truncateToWidth(line, inner * (MAX_FULL_LINES + 1), ""), inner)
-          .map((part) => " ".repeat(column) + theme.fg("accent", part)),
+        (shell
+          ? // No line can need more rows than the whole cap: bound the wrap work.
+            kit.wrap(kit.truncateToWidth(line, inner * (MAX_FULL_LINES + 1), ""), inner)
+          : breakRows(kit, line, inner, true)
+        ).map((part) => " ".repeat(column) + theme.fg(tone, part)),
       ),
     };
   } else if (titlePiece && truncated) {
-    const truncate = meta.cls === "shell" ? truncateMiddle : truncateLeft;
-    // Hovering a block that can open lights its clipped title, foreground only: the cut mark stays.
-    const tone = input.lit ? "text" : "accent";
+    const truncate = shell ? truncateMiddle : truncateLeft;
     titlePiece.text = truncate(kit, title, room, mark, (part) => theme.fg(tone, part)).text;
   }
 
   const metrics = pieces.filter((part) => part.kind === "tokens" || part.kind === "duration");
-  if (!metrics.length) return { line: kit.truncateToWidth(compose(pieces), width, mark), hiddenCommand, continuation };
+  if (!metrics.length) return { line: kit.truncateToWidth(compose(pieces), width, mark), hiddenTitle, continuation };
   const left = compose(pieces.filter((part) => !metrics.includes(part))) + sep;
   const right = metrics.map((part) => part.text).join(sep);
   const line = kit.truncateToWidth(
@@ -330,7 +358,7 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, width: number) {
     width,
     mark,
   );
-  return { line, hiddenCommand, continuation };
+  return { line, hiddenTitle, continuation };
 }
 
 interface Selected {

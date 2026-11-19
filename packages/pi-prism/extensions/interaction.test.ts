@@ -523,6 +523,20 @@ describe("tool renderers", () => {
     }
   });
 
+  test("a read whose path the header cuts opens to show the whole path", () => {
+    const tool = resolver()("read", () => undefined) as Renderers;
+    const path = "packages/pi-prism/extensions/some/deeply/nested/folder/thinking.ts";
+    const context = { ...ctx, args: { path }, state: {} };
+    const header = tool.renderCall(context.args, theme, context);
+    const body = tool.renderResult({ content: [{ type: "text", text: "one" }] }, {}, theme, context);
+    expect(header.render(50)[0]).toContain(" … ");
+    body.render(50);
+    header.handleMouse?.(click());
+    const opened = [...header.render(50), ...body.render(50)];
+    expect(opened[0]).not.toContain("…");
+    expect(opened.map((row) => row.trim()).join("")).toContain("deeply/nested/folder/thinking.ts");
+  });
+
   test("hovering a clipped silent command marks its header, the only row it has", () => {
     const tool = resolver()("bash", () => undefined) as Renderers;
     const command = "echo " + "abcdefghij".repeat(12);

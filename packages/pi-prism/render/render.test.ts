@@ -977,13 +977,100 @@ describe("opened command", () => {
   test("an opened header still reports the command a closed one hides", () => {
     const command = "cd /tmp\nls -la";
     const input = { name: "bash", status: "success", level: 0, args: { command } } as const;
-    expect(toolHeader(api, input, 80).hiddenCommand).toBe(command);
-    expect(toolHeader(api, { ...input, expanded: true, full: true }, 80).hiddenCommand).toBe(command);
+    expect(toolHeader(api, input, 80).hiddenTitle).toBe(command);
+    expect(toolHeader(api, { ...input, expanded: true, full: true }, 80).hiddenTitle).toBe(command);
+  });
+});
+
+describe("opened titles", () => {
+  const path = "packages/pi-prism/extensions/some/deeply/nested/folder/thinking.ts";
+  const read = (extra: Partial<ToolRowInput> = {}) =>
+    renderToolRow(api, {
+      name: "read",
+      status: "success",
+      level: 0,
+      args: { path },
+      output: "one\ntwo",
+      durationMs: 10,
+      ...extra,
+    }).render(50);
+  /** The column a read's title starts in: after `● read · `. */
+  const titleColumn = "● read · ".length;
+
+  test("a closed block keeps a long path's left cut", () => {
+    expect(read()[0]).toContain(" … ");
+    expect(read()[0]).toContain("thinking.ts");
+  });
+
+  test("an opened block shows the whole path, breaking after a `/`, aligned under its start", () => {
+    const rows = read({ expanded: true, full: true });
+    expect(rows[0]).not.toContain("…");
+    const header = rows[0]!.slice(titleColumn).split(" · ")[0]!;
+    expect(header.endsWith("/")).toBe(true);
+    const continued = rows.slice(1).filter((line) => !/^\s+\d+ {2}/.test(line));
+    expect(continued.every((line) => line.startsWith(" ".repeat(titleColumn)) && line[titleColumn] !== " ")).toBe(true);
+    expect(continued.slice(0, -1).every((line) => line.trimEnd().endsWith("/"))).toBe(true);
+    expect(header + continued.map((line) => line.trim()).join("")).toBe(path);
+    // The file's lines follow the path.
+    expect(rows.slice(-2).map((line) => line.trim())).toEqual(["1  one", "2  two"]);
+    expect(rows.every((line) => line.length <= 50)).toBe(true);
+  });
+
+  test("an opened grep shows its whole pattern", () => {
+    const pattern = "toolRowLayout\\(|renderToolRow\\(|previewLineCount\\(|selectDiff\\(";
+    const rows = renderToolRow(api, {
+      name: "grep",
+      status: "success",
+      level: 0,
+      expanded: true,
+      full: true,
+      args: { pattern },
+      output: "a.ts:1:x",
+    }).render(40);
+    const column = "● grep · ".length;
+    const titleRows = [rows[0]!.slice(column).split(" · ")[0]!, ...rows.slice(1, -1).map((line) => line.trim())];
+    expect(titleRows.join("")).toBe(pattern);
+  });
+
+  test("an opened title takes at most half the budget when there is output to show", () => {
+    const long = Array.from({ length: 3000 }, (_, index) => `dir${index}`).join("/");
+    const rows = renderToolRow(api, {
+      name: "read",
+      status: "success",
+      level: 0,
+      expanded: true,
+      full: true,
+      args: { path: long },
+      output: many(1000),
+    }).render(60);
+    expect(rows.length).toBeLessThanOrEqual(1 + MAX_FULL_LINES);
+    const notice = rows.findIndex((line) => line.trim().endsWith("more lines"));
+    expect(notice).toBe(Math.ceil(MAX_FULL_LINES / 2));
+    expect(rows.join("\n")).toContain("out 1");
+  });
+
+  test("a lit opened title lights every line it takes", () => {
+    const tokens = {
+      ...api,
+      theme: { ...theme, fg: (token: string, text: string) => (token === "text" ? text.toUpperCase() : text) },
+    };
+    const rows = renderToolRow(tokens, {
+      name: "read",
+      status: "success",
+      level: 0,
+      expanded: true,
+      full: true,
+      lit: true,
+      args: { path },
+      output: "one",
+    }).render(50);
+    expect(rows.slice(1, -1).every((line) => line.trim() === line.trim().toUpperCase())).toBe(true);
+    expect(rows[0]).toContain("PACKAGES/");
   });
 });
 
 describe("full body budget", () => {
-  test("an expanded command and its output share one row cap", () => {
+  test("an expanded command and its output share one line cap", () => {
     const command = Array.from({ length: 47 }, (_, index) => `echo step ${index + 1}`).join("\n");
     for (const output of [many(1000), many(380), "done"]) {
       const rows = renderToolRow(api, {

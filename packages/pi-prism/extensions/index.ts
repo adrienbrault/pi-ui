@@ -98,6 +98,7 @@ interface BlockRecord {
   mode?: FoldMode;
   group?: LiveFoldGroup;
   expansion: Expansion;
+  /** The header cuts its title (a command, a path, a pattern…): opening the block shows it whole. */
   commandClipped?: boolean;
   hoverSummary: boolean;
   hover: boolean;
@@ -316,7 +317,7 @@ function headerComponent(record: BlockRecord, theme: Theme): Component {
     KIT.component((width) => {
       const input = inputFor(record);
       let header = toolHeader(api, input, width);
-      record.commandClipped = !!header.hiddenCommand;
+      record.commandClipped = !!header.hiddenTitle;
       // Hovering a block a click would open or close lights its clipped title.
       if (record.hover && (record.expansion === 1 || record.commandClipped || record.expandRow !== undefined))
         header = toolHeader(api, { ...input, lit: true }, width);
@@ -410,7 +411,7 @@ function memberLines(member: BlockRecord, theme: Theme, width: number): string[]
       };
       if (member.expansion === 0) {
         const header = toolHeader(api, input, innerWidth);
-        member.commandClipped = !!header.hiddenCommand;
+        member.commandClipped = !!header.hiddenTitle;
         // Hovering a member a click would open lights its clipped title.
         if (member.hover && canCycle(member)) return [toolHeader(api, { ...input, lit: true }, innerWidth).line];
         return [header.line];
