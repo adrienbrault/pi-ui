@@ -21,7 +21,14 @@ import { KIT } from "./kit.ts";
 import type { RenderTheme } from "../render/kit.ts";
 import { callTokens, toolTokenCounts } from "../render/tools.ts";
 import { nonEmptyLineCount } from "../render/text.ts";
-import { previewText, toolHeader, renderToolRow, type ToolRowInput, type ToolStatus } from "../render/tool-row.ts";
+import {
+  previewText,
+  toolHeader,
+  toolRowLayout,
+  renderToolRow,
+  type ToolRowInput,
+  type ToolStatus,
+} from "../render/tool-row.ts";
 import { type FoldMode, type LiveFoldGroup, registerToolInfo, resetFolds, setGroupOpen, toolPlan } from "./fold.ts";
 import { claimHover, highlightGroupRow, isOmissionRow, releaseHover } from "./hover.ts";
 import { expandedRegions } from "./viewport.ts";
@@ -358,15 +365,14 @@ function bodyComponent(record: BlockRecord, theme: Theme, includeHeader = false)
   const api = { kit: KIT, theme: theme as unknown as RenderTheme, glyphs: GLYPHS };
   return region(
     KIT.component((width) => {
-      const rows = renderToolRow({ ...api, owner: record }, inputFor(record))
-        .render(width)
-        .slice(includeHeader ? 0 : 1);
+      const layout = toolRowLayout({ ...api, owner: record }, inputFor(record), width);
+      const rows = layout.rows.slice(includeHeader ? 0 : 1);
       if (record.expansion === 1) collapseFooter(theme, rows, width);
       else {
         // The chip sits on the omission notice: last for tails, at the cut for head-and-tail reads.
         const omission = rows.findLastIndex(isOmissionRow);
         const hint =
-          record.commandClipped || omission !== -1
+          record.commandClipped || omission !== -1 || layout.clipped
             ? "click · expand"
             : hintFor(record.expansion, nonEmptyLineCount(previewText(record)), levelOf(record));
         record.expandRow = hint && rows.length ? (omission === -1 ? rows.length - 1 : omission) : undefined;

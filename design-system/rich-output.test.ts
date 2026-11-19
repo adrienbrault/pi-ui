@@ -3,6 +3,7 @@ import { glyphsFor } from "../packages/pi-prism/render/glyphs.ts";
 import { cleanOutput } from "../packages/pi-prism/render/text.ts";
 import { thinkingLayout } from "../packages/pi-prism/render/thinking.ts";
 import { renderToolRow } from "../packages/pi-prism/render/tool-row.ts";
+import { MAX_FULL_LINES } from "../packages/pi-prism/render/detail.ts";
 import { resolvePi } from "./lib/pi.ts";
 import { createKit } from "./lib/surface.ts";
 import { installTheme, loadThemeJson } from "./lib/theme.ts";
@@ -72,5 +73,39 @@ test("reads, shell file previews and Markdown thoughts use pi's active syntax pa
       }).render(width);
       expect(plain.join("\n")).not.toContain(keyword);
     }
+  }
+});
+
+test("expanded rows wrap highlighted lines and edit backgrounds within the width and the row cap", async () => {
+  const pi = await resolvePi();
+  const kit = createKit(pi);
+  const { theme } = installTheme(pi, loadThemeJson(pi, "dark"));
+  const api = { kit, theme, glyphs: glyphsFor("unicode"), owner: {} };
+  const long = `const values = [${Array.from({ length: 60 }, (_, index) => index).join(", ")}];`;
+  for (const width of [40, 80, 120]) {
+    const read = renderToolRow(api, {
+      name: "read",
+      args: { path: "file.ts" },
+      output: long,
+      level: 0,
+      status: "success",
+      expanded: true,
+      full: true,
+    }).render(width);
+    expect(read.length).toBeGreaterThan(2);
+    expect(read.length).toBeLessThanOrEqual(1 + MAX_FULL_LINES);
+    expect(read.every((row) => kit.visibleWidth(row) <= width)).toBe(true);
+    expect(read.slice(1).map(cleanOutput).join("").replace(/\s+/g, "")).toBe(long.replace(/\s+/g, ""));
+
+    const edit = renderToolRow(api, {
+      name: "edit",
+      args: { path: "file.ts" },
+      output: `@@ -1 +1 @@\n-${long}\n+${long.replace("values", "numbers")}`,
+      level: 0,
+      status: "success",
+      expanded: true,
+      full: true,
+    }).render(width);
+    expect(edit.slice(2).every((row) => kit.visibleWidth(row) === width)).toBe(true);
   }
 });

@@ -1,9 +1,17 @@
 import { beforeEach, afterEach, describe, expect, test } from "bun:test";
-import { DEFAULT_TAIL_LINES, bodyLinesFor, detailFor, maxRowsFor, setTailLines, settleLevel } from "./detail.ts";
+import {
+  DEFAULT_TAIL_LINES,
+  MAX_FULL_LINES,
+  bodyLinesFor,
+  detailFor,
+  maxRowsFor,
+  setTailLines,
+  settleLevel,
+} from "./detail.ts";
 import { groupVerb, mcpLabel, toolMeta, groupNoun, toolTokenLabel } from "./tools.ts";
 import { formatDuration, headLines, omittedCount, tailLines } from "./text.ts";
 import { renderGroupMember, renderGroupRow } from "./group-row.ts";
-import { renderToolRow } from "./tool-row.ts";
+import { renderToolRow, toolRowLayout } from "./tool-row.ts";
 import { thinkingFrame, thinkingLabel, thinkingLayout } from "./thinking.ts";
 import { glyphsFor } from "./glyphs.ts";
 import { planTranscript, type BlockShape } from "./layout.ts";
@@ -381,6 +389,95 @@ describe("taxonomy", () => {
 const LONG = "src/modes/interactive/components/assistant-message.js";
 const row = (overrides: Parameters<typeof renderToolRow>[1], width: number) =>
   renderToolRow(api, overrides).render(width)[0] ?? "";
+
+const many = (n: number) => Array.from({ length: n }, (_, index) => `out ${index + 1}`).join("\n");
+
+describe("full body budget", () => {
+  test("an expanded command and its output share one row cap", () => {
+    const command = Array.from({ length: 47 }, (_, index) => `echo step ${index + 1}`).join("\n");
+    for (const output of [many(1000), many(380), "done"]) {
+      const rows = renderToolRow(api, {
+        name: "bash",
+        status: "success",
+        level: 0,
+        expanded: true,
+        full: true,
+        args: { command },
+        output,
+      }).render(80);
+      expect(rows.length).toBeLessThanOrEqual(1 + MAX_FULL_LINES);
+      expect(rows.join("\n")).toContain("echo step 1");
+      expect(rows.join("\n")).toContain(output === "done" ? "done" : `out ${output.split("\n").length}`);
+    }
+  });
+
+  test("a command longer than the cap leaves room for its output", () => {
+    const command = Array.from({ length: 900 }, (_, index) => `echo step ${index + 1}`).join("\n");
+    const rows = renderToolRow(api, {
+      name: "bash",
+      status: "success",
+      level: 0,
+      expanded: true,
+      full: true,
+      args: { command },
+      output: many(900),
+    }).render(80);
+    expect(rows.length).toBe(1 + MAX_FULL_LINES);
+    expect(rows.join("\n")).toContain("out 900");
+    expect(rows.some((line) => /^ +\+ \d+ lines$/.test(line))).toBe(true);
+  });
+
+  test("an expanded row wraps a long line instead of clipping it, within the cap", () => {
+    const line = Array.from({ length: 40 }, (_, index) => `word${index}`).join(" ");
+    for (const [budget, extra] of [
+      [{ expanded: true }, maxRowsFor(0, true)],
+      [{ expanded: true, full: true }, 1 + MAX_FULL_LINES],
+    ] as const) {
+      const rows = renderToolRow(api, { name: "bash", status: "success", level: 0, ...budget, output: line }).render(
+        40,
+      );
+      expect(rows.length).toBeGreaterThan(2);
+      expect(rows.length).toBeLessThanOrEqual(extra);
+      expect(rows.join(" ")).toContain("word39");
+      expect(rows.join("")).not.toContain("…");
+    }
+  });
+
+  test("one enormous line is cut to the cap and says so", () => {
+    const rows = renderToolRow(api, {
+      name: "read",
+      status: "success",
+      level: 0,
+      expanded: true,
+      full: true,
+      output: "x".repeat(200_000),
+    }).render(80);
+    expect(rows.length).toBe(1 + MAX_FULL_LINES);
+    expect(rows.at(-1)).toEndWith("…");
+  });
+
+  test("wrapped rows still keep the end of a tail-trend log", () => {
+    const output = Array.from({ length: 300 }, (_, index) => `${index + 1} ${"y".repeat(100)}`).join("\n");
+    const rows = renderToolRow(api, {
+      name: "bash",
+      status: "success",
+      level: 0,
+      expanded: true,
+      full: true,
+      output,
+    }).render(80);
+    expect(rows.length).toBeLessThanOrEqual(1 + MAX_FULL_LINES);
+    expect(rows).toContain("    300");
+    expect(rows.at(-1)).toMatch(/\+ \d+ lines$/);
+  });
+
+  test("a preview reports when a line was clipped to the width", () => {
+    const long = { name: "bash", status: "success", level: 0, output: "z".repeat(200) } as const;
+    expect(toolRowLayout(api, long, 80).clipped).toBe(true);
+    expect(toolRowLayout(api, { ...long, output: "short" }, 80).clipped).toBe(false);
+    expect(toolRowLayout(api, { ...long, expanded: true, full: true }, 80).clipped).toBe(false);
+  });
+});
 
 describe("header budget", () => {
   test("a wide header keeps every field", () => {

@@ -242,6 +242,27 @@ describe("tool renderers", () => {
     expect(body.render(40)).toEqual([]);
   });
 
+  test("a single clipped output line offers expand and wraps when opened", () => {
+    const tool = resolver()("bash", () => undefined) as Renderers;
+    const text = Array.from({ length: 30 }, (_, index) => `token${index}`).join(" ");
+    const context = { ...ctx, state: {} };
+    const header = tool.renderCall(context.args, theme, context);
+    const body = tool.renderResult({ content: [{ type: "text", text }] }, {}, theme, context);
+    const preview = body.render(60);
+    expect(preview).toHaveLength(1);
+    expect(preview[0]).toContain("…");
+    body.handleMouse?.({ ...click(), type: "move", y: 0 });
+    expect(body.render(60)[0]).toContain("click · expand");
+    body.handleMouse?.({ ...click(), y: 0 });
+    const open = body.render(60);
+    expect(open.length).toBeGreaterThan(1);
+    expect(open.join(" ")).toContain("token29");
+    header.handleMouse?.(click());
+    // Collapsed again; the pointer still rests on the row, so its chip stays lit.
+    expect(body.render(60)).toHaveLength(1);
+    expect(body.render(60)[0]).toContain("click · expand");
+  });
+
   test("owned tools claim the row and grow the body on click", () => {
     const renderers = resolver()("bash", () => undefined) as Renderers;
     const header = renderers.renderCall(ctx.args, theme, ctx);

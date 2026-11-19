@@ -58,6 +58,7 @@ Rules:
 - Bodies spend their budget on evidence: diffs shed unchanged context lines
   before hiding any hunk, reads keep their opening and their end, and logs and thinking previews keep their newest lines.
   An omission notice sits where lines were removed: below a tail, and between the opening and the end of a read.
+- A preview gives each output line one row and cuts it at the terminal width; a cut line offers `click · expand` even when every line is present. An opened tool row wraps long lines instead. Its full command, its wrapped output and any omission notices share one cap of 400 body rows; the command takes at most half of the cap when there is output to show.
 - Hovering a group summary or a member of an open group highlights the full width of the terminal row under the pointer, including its indentation and trailing space. Under an open group summary, member headers occupy consecutive rows two columns in,
   starting immediately below the summary. Tool and thinking bodies begin four columns past their own heading marker, two columns past the heading label. Output, omission notices, and wrapped Markdown share this inset.
 - A click opens a block all the way, and the next click folds it back: a folded

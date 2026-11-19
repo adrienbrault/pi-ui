@@ -6,7 +6,15 @@
 import { bodyLinesFor, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
 import { frameAt, type GlyphSet } from "./glyphs.ts";
 import { blockBodyIndent, type ComponentLike, type RenderKit, type RenderTheme } from "./kit.ts";
-import { cleanOutput, formatDuration, logicalLines, oneLine, omittedLinesLabel, MAX_FORMAT_CHARS } from "./text.ts";
+import {
+  cleanOutput,
+  formatDuration,
+  logicalLines,
+  nonEmptyLineCount,
+  oneLine,
+  omittedLinesLabel,
+  MAX_FORMAT_CHARS,
+} from "./text.ts";
 import { describeCall, toolTokenCounts, toolMeta, toolTokenLabel, type TokenRates } from "./tools.ts";
 
 export interface RenderApi {
@@ -321,11 +329,31 @@ export function previewText(input: Pick<ToolRowInput, "name" | "args" | "output"
   return input.output ?? "";
 }
 
-function body(api: RenderApi, input: ToolRowInput, width: number): string[] {
+const rowCount = (items: string[][]) => items.reduce((sum, rows) => sum + rows.length, 0);
+
+interface BodyLayout {
+  rows: string[];
+  /** A preview cut a line at the terminal width, so opening the row shows more. */
+  clipped: boolean;
+}
+
+/** Cut wrapped rows to `room`, ending the last kept row with an ellipsis. */
+function clipRows(kit: RenderKit, rows: string[], room: number, width: number): string[] {
+  if (rows.length <= room) return rows;
+  const kept = rows.slice(0, Math.max(0, room));
+  if (kept.length) kept[kept.length - 1] = kit.truncateToWidth(`${kept.at(-1)!}…`, width, "…");
+  return kept;
+}
+
+/**
+ * The body under a header, in at most `budget` rows. A preview gives each line
+ * one row, cut at the width. An expanded row wraps long lines, and wrapped rows
+ * count against the same budget as everything else.
+ */
+function body(api: RenderApi, input: ToolRowInput, width: number, budget: number): BodyLayout {
   const { theme, kit } = api;
-  // A "full" read is allowed to be long, just not unbounded.
-  const budget = input.full ? MAX_FULL_LINES : bodyLinesFor(input.level, input.expanded ?? false);
-  if (budget <= 0) return [];
+  const empty: BodyLayout = { rows: [], clipped: false };
+  if (budget <= 0) return empty;
 
   const meta = toolMeta(input.name);
   const text = cleanOutput(input.error ? errorDetail(input, meta) : previewText(input));
@@ -342,47 +370,113 @@ function body(api: RenderApi, input: ToolRowInput, width: number): string[] {
       : undefined;
   const styledSource = language && !diff ? kit.highlight?.(text, language, theme, api.owner) : undefined;
   const lines = source.flatMap((line, index) => (line.trim() ? [styledSource?.[index] ?? line] : []));
-  if (lines.length === 0) return [];
+  if (lines.length === 0) return empty;
 
-  // A notice counts against the budget: total body rows never exceed it.
-  const show = Math.min(budget, lines.length);
   const streamingWrite = input.name === "write" && input.status === "pending" && !input.expanded;
-  const select = streamingWrite || meta.trend === "tail" ? selectTail : selectHead;
-  const selected = diff
-    ? selectDiff(
-        editDiffRows(api, source, language).filter(({ line }) => line.trim()),
-        show,
-      )
-    : select(lines, show);
+  const trend = streamingWrite || meta.trend === "tail" ? selectTail : selectHead;
+  const diffRows = diff ? editDiffRows(api, source, language).filter(({ line }) => line.trim()) : [];
+  const select = (show: number) => (diff ? selectDiff(diffRows, show) : trend(lines, show));
 
   const indent = blockBodyIndent(width);
-  return selected.map(({ line, styled, notice: isNotice }) => {
-    const content = kit.truncateToWidth(styled ?? line, Math.max(1, width - indent.length), "…");
-    if (isNotice) return indent + theme.fg("dim", content);
-    const tone = diff ? diffTone(line) : undefined;
-    if (diff && input.name === "edit" && (tone === "success" || tone === "error")) {
-      const bg = tone === "success" ? "toolSuccessBg" : "toolErrorBg";
-      const padding = " ".repeat(Math.max(0, width - indent.length - kit.visibleWidth(content)));
-      return indent + theme.style(content + padding, { bg });
+  const inner = Math.max(1, width - indent.length);
+  const wrap = !!(input.expanded || input.full);
+  let clipped = false;
+  // Wrapping is the costly step and a selection can repeat lines: do each once.
+  const wrapped = new Map<string, string[]>();
+  const paint = ({ line, styled, notice: isNotice }: Selected): string[] => {
+    const content = styled ?? line;
+    if (isNotice) return [indent + theme.fg("dim", kit.truncateToWidth(content, inner, "…"))];
+    let parts: string[];
+    if (wrap) {
+      parts = wrapped.get(content) ?? [];
+      if (!wrapped.has(content)) {
+        // No line can need more than the whole budget: bound the wrap work.
+        parts = kit.wrap(kit.truncateToWidth(content, inner * (budget + 1), ""), inner);
+        wrapped.set(content, parts);
+      }
+    } else {
+      const cut = kit.truncateToWidth(content, inner, "…");
+      if (cut !== content) clipped = true;
+      parts = [cut];
     }
-    return indent + (tone ? theme.fg(tone, content) : theme.fg("toolOutput", content));
+    const tone = diff ? diffTone(line) : undefined;
+    return parts.map((part) => {
+      if (diff && input.name === "edit" && (tone === "success" || tone === "error")) {
+        const bg = tone === "success" ? "toolSuccessBg" : "toolErrorBg";
+        const padding = " ".repeat(Math.max(0, inner - kit.visibleWidth(part)));
+        return indent + theme.style(part + padding, { bg });
+      }
+      return indent + (tone ? theme.fg(tone, part) : theme.fg("toolOutput", part));
+    });
+  };
+  const layout = (selected: Selected[]) => selected.map(paint);
+
+  // A notice counts against the budget: total body rows never exceed it.
+  const show = Math.min(budget, diff ? diffRows.length : lines.length);
+  let selected = select(show);
+  let items = layout(selected);
+  if (wrap && rowCount(items) > budget) {
+    // Wrapping overflowed: keep the most lines that still fit, chosen by the same trend.
+    let low = 1;
+    let high = show - 1;
+    let best: { selected: Selected[]; items: string[][] } | undefined;
+    while (low <= high) {
+      const mid = Math.floor((low + high) / 2);
+      const candidate = select(mid);
+      const candidateItems = layout(candidate);
+      if (rowCount(candidateItems) <= budget) {
+        best = { selected: candidate, items: candidateItems };
+        low = mid + 1;
+      } else high = mid - 1;
+    }
+    if (best) ({ selected, items } = best);
+    else {
+      selected = select(1);
+      items = layout(selected);
+    }
+  }
+  // Still over: a single line alone outgrows the budget. Notices keep their row.
+  let room = budget - selected.filter((item) => item.notice).length;
+  const rows = items.flatMap((item, index) => {
+    if (selected[index]?.notice) return item;
+    const kept = clipRows(kit, item, room, width);
+    room -= kept.length;
+    return kept;
   });
+  return { rows, clipped };
+}
+
+/** The header, an expanded row's full command, and the body: one row budget for all. */
+export function toolRowLayout(api: RenderApi, input: ToolRowInput, width: number): BodyLayout {
+  const { line, hiddenCommand } = toolHeader(api, input, width);
+  const rows = [line];
+  // A "full" read is allowed to be long, just not unbounded.
+  let budget = input.full ? MAX_FULL_LINES : bodyLinesFor(input.level, input.expanded ?? false);
+  if ((input.expanded || input.full) && hiddenCommand) {
+    const indent = blockBodyIndent(width);
+    const sources = hiddenCommand.split("\n");
+    const wrapped = sources.flatMap((source) =>
+      api.kit.wrap(api.kit.truncateToWidth(source, width * (budget + 1), ""), Math.max(1, width - indent.length)),
+    );
+    // The command is evidence too, but it may not crowd out the output.
+    const hasOutput = nonEmptyLineCount(cleanOutput(input.error ? input.error : previewText(input))) > 0;
+    const room = hasOutput ? Math.ceil(budget / 2) : budget;
+    const command =
+      wrapped.length <= room
+        ? wrapped.map((part) => indent + api.theme.fg("accent", part))
+        : [
+            ...wrapped.slice(0, room - 1).map((part) => indent + api.theme.fg("accent", part)),
+            indent + api.theme.fg("dim", omittedLinesLabel(wrapped.length - (room - 1))),
+          ];
+    rows.push(...command);
+    budget -= command.length;
+  }
+  const { rows: bodyRows, clipped } = body(api, input, width, budget);
+  return { rows: rows.concat(bodyRows), clipped };
 }
 
 export function renderToolRow(api: RenderApi, input: ToolRowInput): ComponentLike {
-  return api.kit.component((width) => {
-    const { line, hiddenCommand } = toolHeader(api, input, width);
-    const rows = [line];
-    if ((input.expanded || input.full) && hiddenCommand) {
-      const indent = blockBodyIndent(width);
-      for (const source of hiddenCommand.split("\n")) {
-        for (const part of api.kit.wrap(source, Math.max(1, width - indent.length))) {
-          rows.push(indent + api.theme.fg("accent", part));
-        }
-      }
-    }
-    return rows.concat(body(api, input, width));
-  });
+  return api.kit.component((width) => toolRowLayout(api, input, width).rows);
 }
 
 /** One collapsed row, no body: the aged 3 form. */
