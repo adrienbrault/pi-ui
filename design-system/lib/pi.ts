@@ -1,9 +1,11 @@
 /**
- * Resolve the pi install this machine actually runs, so the gallery shows truth
- * rather than a pinned approximation.
+ * Resolve the pi install the gallery and the golden fixtures render against.
  *
- * Order: explicit env, the newest nvm global install, homebrew/system globals,
- * then a repo-local install.
+ * Order: explicit env, the repo-local install pinned in pi-prism's
+ * devDependencies, then the newest nvm global install, then homebrew/system
+ * globals. The pinned copy comes first so `ds:check` gives the same answer on
+ * every machine and in CI; set `PI_CODING_AGENT_ROOT` to render against another
+ * install.
  */
 
 import { existsSync, readFileSync, readdirSync, realpathSync } from "node:fs";
@@ -53,6 +55,12 @@ function resolveRoot(): { root: string; source: PiInstall["source"] } {
   const env = process.env.PI_CODING_AGENT_ROOT;
   if (env && existsSync(join(env, "dist", "index.js"))) return { root: env, source: "env" };
 
+  try {
+    return { root: packageRoot(PKG, WORKSPACE), source: "local" };
+  } catch {
+    // Dependencies not installed: fall back to whatever this machine has.
+  }
+
   const fromNvm = nvmInstall();
   if (fromNvm) return { root: fromNvm, source: "nvm" };
 
@@ -61,7 +69,7 @@ function resolveRoot(): { root: string; source: PiInstall["source"] } {
     if (existsSync(join(candidate, "dist", "index.js"))) return { root: candidate, source: "global" };
   }
 
-  return { root: packageRoot(PKG, WORKSPACE), source: "local" };
+  throw new Error(`${PKG} not found: run \`bun install\` or set PI_CODING_AGENT_ROOT`);
 }
 
 const WORKSPACE = join(import.meta.dir, "../../packages/pi-prism");
