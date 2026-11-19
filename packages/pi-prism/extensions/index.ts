@@ -19,7 +19,7 @@ import { renderGroupMember, renderGroupRow } from "../render/group-row.ts";
 import { installThroughput } from "./throughput.ts";
 import { KIT } from "./kit.ts";
 import type { RenderTheme } from "../render/kit.ts";
-import { callTokens, toolTokenCounts } from "../render/tools.ts";
+import { callTokens, ownsTool, toolTokenCounts } from "../render/tools.ts";
 import { nonEmptyLineCount } from "../render/text.ts";
 import {
   previewText,
@@ -61,7 +61,6 @@ interface ToolRenderContext<State = unknown, Args = unknown> {
 const GLYPHS = glyphsFor("unicode");
 
 /** Tool kinds pi-prism owns. Anything else keeps whatever renderer it already had. */
-const OWNED = /^(read|ls|grep|find|write|edit|bash|web|fetch|mcp__.*)$/;
 
 type Expansion = 0 | 1;
 
@@ -510,7 +509,7 @@ function groupComponent(record: BlockRecord, theme: Theme): Component {
 }
 
 const resolver: ToolRendererResolver = (toolName, next) => {
-  if (!OWNED.test(toolName)) return next();
+  if (!ownsTool(toolName)) return next();
   return {
     renderShell: "self",
     renderCall: (args, theme, ctx) => {

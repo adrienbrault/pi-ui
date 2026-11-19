@@ -24,6 +24,7 @@ const META: Record<string, ToolMeta> = {
   powershell: { cls: "shell", label: "powershell", trend: "tail" },
   web_fetch: { cls: "web", label: "fetch", trend: "head" },
   web_search: { cls: "web", label: "search", trend: "head" },
+  fetch_content: { cls: "web", label: "fetch", trend: "head" },
   codemode: { cls: "code", label: "codemode", trend: "tail" },
   tool_search: { cls: "code", label: "tool_search", trend: "head" },
 };
@@ -40,6 +41,17 @@ export function toolMeta(name: string): ToolMeta {
   if (known) return known;
   if (name.startsWith("mcp__")) return { cls: "mcp", label: mcpLabel(name), trend: "head" };
   return { cls: "generic", label: name, trend: "head" };
+}
+
+/**
+ * Whether pi-prism renders this tool's rows. Every classified tool and every MCP
+ * tool is owned, so it can fold with its peers. The `code` class is not: its
+ * nested-call rollup does not exist yet, so those tools keep their own renderer.
+ * Unknown tools (pi-code's todo, subagent, …) are always left alone.
+ */
+export function ownsTool(name: string): boolean {
+  if (name.startsWith("mcp__")) return true;
+  return Object.hasOwn(META, name) && META[name]!.cls !== "code";
 }
 
 /** Keys that identify a call when we know nothing else about the tool. */

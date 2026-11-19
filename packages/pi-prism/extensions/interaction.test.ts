@@ -119,7 +119,32 @@ const move = (): TuiMouseEvent => ({ ...click(), type: "move", button: "none" })
 describe("tool renderers", () => {
   test("leaves unowned tools to the next resolver", () => {
     const base = { renderShell: "default" };
-    expect(resolver()("todo", () => base)).toBe(base);
+    for (const name of ["todo", "subagent", "ask_user_question", "codemode", "tool_search", "web", "fetch"]) {
+      expect(resolver()(name, () => base)).toBe(base);
+    }
+  });
+
+  test("owns every classified tool it renders, so they fold with their peers", () => {
+    const base = { renderShell: "default" };
+    for (const name of [
+      "read",
+      "ls",
+      "grep",
+      "find",
+      "ffgrep",
+      "fffind",
+      "multi_grep",
+      "write",
+      "edit",
+      "bash",
+      "powershell",
+      "web_fetch",
+      "web_search",
+      "fetch_content",
+      "mcp__memory__search",
+    ]) {
+      expect(resolver()(name, () => base)).not.toBe(base);
+    }
   });
 
   test("hovering a tool puts the chip beside the footer and keeps its header clear", () => {

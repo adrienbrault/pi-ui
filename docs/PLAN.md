@@ -114,9 +114,9 @@ The four-row preview fits three content lines and one omission notice.
 | write | write | `Wrote 42 lines · b.ts` | `Wrote 2 files` |
 | edit | edit | `Edited +8/-2 · c.ts` | `Edited 3 files` |
 | shell | bash, powershell | last tail line + exit | `Ran 2 commands` |
-| web | web_fetch, web_search | `Fetched example.com` | `Fetched 2 URLs` |
+| web | web_fetch, web_search, fetch_content | `Fetched example.com` | `Fetched 2 URLs` |
 | mcp | `mcp__*` | `mcp · server/tool` | `Called 2 MCP tools` |
-| code | codemode, tool_search | nested-call rollup | `Ran 1 script` |
+| code | codemode, tool_search | nested-call rollup (not built; not owned yet) | `Ran 1 script` |
 | think | thinking runs | tail lines + duration | `Thought 12s` |
 
 Failed calls fold with their peers. Each affected summary segment includes its failure count, and opening the group reveals the failed calls in order.
@@ -126,7 +126,7 @@ Failed calls fold with their peers. Each affected summary segment includes its f
 The standalone build owns chrome, so v1 must not double-install with pi-open-tui. Detection rules:
 
 - If pi-open-tui's footer/editor is detected, warn and leave it alone until its features are disabled (or offer a `/prism takeover` command).
-- pi-code's renderers (todo, question, subagent) are left untouched; the decorator only touches tool rows it owns.
+- pi-code's renderers (todo, question, subagent) are left untouched; the decorator only touches tool rows it owns. It owns every tool in the taxonomy above except the code class, plus every `mcp__*` tool (`ownsTool` in `render/tools.ts`, the single source). Any other tool keeps its own renderer and ends a fold group.
 - Two copies of `pi-coding-agent` would break `instanceof`; the decorator duck-types (as pi-open-tui does) and probes methods before wrapping.
 
 #### Edge cases to handle explicitly

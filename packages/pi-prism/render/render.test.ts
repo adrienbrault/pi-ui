@@ -374,6 +374,10 @@ describe("taxonomy", () => {
     expect(toolMeta("mcp__github__create_pr").cls).toBe("mcp");
   });
 
+  test("tools fetched from the web read as web calls", () => {
+    expect(toolMeta("fetch_content")).toEqual({ cls: "web", label: "fetch", trend: "head" });
+  });
+
   test("unknown tools fall back to generic", () => {
     expect(toolMeta("some_new_tool").cls).toBe("generic");
   });
