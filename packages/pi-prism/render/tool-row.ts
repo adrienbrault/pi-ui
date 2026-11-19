@@ -699,9 +699,12 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
   // Path rows take rows too: keep fewer lines until the lines and their path rows fit.
   const select = (show: number): Selected[] => {
     if (!paths) return pick(show);
-    for (let kept = Math.min(show, lines.length); kept >= 1; kept--) {
+    // Dropping a line drops at most one path row too, so the lines that fit are at most
+    // half the overshoot fewer: step down by that much, never past the most that fit.
+    for (let kept = Math.min(show, lines.length); kept >= 1; ) {
       const rows = withPaths(pick(kept));
       if (rows.length <= show) return rows;
+      kept -= Math.ceil((rows.length - show) / 2);
     }
     return pick(show);
   };

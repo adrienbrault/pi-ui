@@ -573,8 +573,17 @@ function operandPrefix(operand: Word | undefined): string | undefined {
   return operand.text.slice(0, glob < 0 ? undefined : glob);
 }
 
-// A context line whose code holds `:N:` reads as a match in a file named like `a.ts-3-…`: drop it.
-const contextOf = (path: string, known: string) => path.startsWith(known) && /^[-:]\d+-/.test(path.slice(known.length));
+/**
+ * The known paths `text` starts with, longest first: each ends just before a `:` or a `-`. Only
+ * the first `longest` columns can hold one, so a long line costs no more than a short one.
+ */
+function* knownPrefixes(text: string, known: Set<string>, longest: number): Generator<string> {
+  for (let end = Math.min(text.length - 1, longest); end > 0; end--) {
+    const char = text[end];
+    if ((char === ":" || char === "-") && known.has(text.slice(0, end))) yield text.slice(0, end);
+  }
+}
+
 const pathAt = (line: ShellLine | undefined) => (line?.kind === "code" ? line.path : undefined);
 
 function grepView(format: GrepFormat, lines: string[], options: ShellViewOptions): ShellView {
@@ -612,22 +621,32 @@ function grepView(format: GrepFormat, lines: string[], options: ShellViewOptions
     const path = matchLine.exec(line)?.[1];
     if (path && isPath(path) && (!prefix || path.startsWith(prefix))) named.add(path);
   }
-  // Without numbers nothing tells such a line from a file named with a `-`: keep every path.
-  const known = [...named]
-    .filter(
+  let longest = 0;
+  for (const path of named) longest = Math.max(longest, path.length);
+  // A context line whose code holds `:N:` reads as a match in a file named like `a.ts-3-…`: drop
+  // that path. Without numbers nothing tells such a line from a file named with a `-`: keep it.
+  const known = new Set(
+    [...named].filter(
       (path) =>
-        !format.numbers || !format.context || ![...named].some((other) => other !== path && contextOf(path, other)),
-    )
-    .toSorted((a, b) => b.length - a.length);
+        !format.numbers ||
+        !format.context ||
+        [...knownPrefixes(path, named, longest)].every((other) => !/^[-:]\d+-/.test(path.slice(other.length))),
+    ),
+  );
+  const prefixed = format.numbers
+    ? format.context
+      ? format.ag
+        ? /^[:-](\d+)[:-](.*)$/
+        : /^([:-])(\d+)\1(.*)$/
+      : /^:(\d+):(.*)$/
+    : format.context
+      ? /^[:-](.*)$/
+      : /^:(.*)$/;
 
   const parsed = lines.map((line): ShellLine => {
     if (separator(line)) return { kind: "divider" };
-    for (const path of known) {
-      if (!line.startsWith(path)) continue;
-      const rest = line.slice(path.length);
-      const match = format.numbers
-        ? (format.context ? (format.ag ? /^[:-](\d+)[:-](.*)$/ : /^([:-])(\d+)\1(.*)$/) : /^:(\d+):(.*)$/).exec(rest)
-        : (format.context ? /^[:-](.*)$/ : /^:(.*)$/).exec(rest);
+    for (const path of knownPrefixes(line, known, longest)) {
+      const match = prefixed.exec(line.slice(path.length));
       if (!match) continue;
       if (!format.numbers) return { kind: "code", code: match[1]!, path, ...language(path) };
       const [number, code] = format.ag || !format.context ? [match[1]!, match[2]!] : [match[2]!, match[3]!];
