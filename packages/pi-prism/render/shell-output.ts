@@ -401,8 +401,6 @@ interface GrepSpec {
   noPaths: Set<string>;
   recursive: Set<string>;
   context: Set<string>;
-  /** Numbers are on unless an option turns them off. */
-  numbersByDefault?: boolean;
 }
 
 const CONTEXT = set("-A -B -C --context --after-context --before-context");
@@ -471,8 +469,6 @@ const AG: GrepSpec = {
   noPaths: set("--nofilename"),
   recursive: new Set(),
   context: CONTEXT,
-  // ag numbers the lines of the files it searches, and leaves them off only for stdin.
-  numbersByDefault: true,
 };
 
 /** The grep at the head of the pipeline: how its lines are prefixed, from its options and operands. */
@@ -494,7 +490,8 @@ function grepFormat(words: Word[]): GrepFormat | undefined {
   }
   const spec = name === "rg" ? RG : name === "git grep" ? GIT_GREP : name === "ag" ? AG : GREP;
   if (!["grep", "egrep", "fgrep", "rg", "git grep", "ag"].includes(name)) return undefined;
-  let numbers = !!spec.numbersByDefault;
+  let numbers = false;
+  let stated = false;
   let paths: boolean | undefined;
   let recursive = false;
   let context = false;
@@ -506,9 +503,11 @@ function grepFormat(words: Word[]): GrepFormat | undefined {
       if (option === "-NUM" || spec.context.has(option)) {
         if (!/^\d+$/.test(value ?? "")) return false;
         context ||= Number(value) > 0;
-      } else if (spec.numbers.has(option)) numbers = true;
-      else if (spec.noNumbers.has(option)) numbers = false;
-      else if (spec.paths.has(option)) paths = true;
+      } else if (spec.numbers.has(option)) numbers = stated = true;
+      else if (spec.noNumbers.has(option)) {
+        numbers = false;
+        stated = true;
+      } else if (spec.paths.has(option)) paths = true;
       else if (spec.noPaths.has(option)) paths = false;
       else if (spec.recursive.has(option)) recursive = true;
       else if (!spec.values.has(option) && !spec.flags.has(option)) return false;
@@ -517,7 +516,9 @@ function grepFormat(words: Word[]): GrepFormat | undefined {
       return true;
     },
   );
-  if (!operands) return undefined;
+  // Whether ag numbers its lines without a terminal is not something the command shows: read it
+  // only when the command says.
+  if (!operands || (name === "ag" && !stated)) return undefined;
   const files = pattern ? operands : operands.slice(1);
   if (!pattern && !operands.length) return undefined;
   if (paths === undefined) {

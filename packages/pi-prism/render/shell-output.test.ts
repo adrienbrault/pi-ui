@@ -138,6 +138,15 @@ describe("grep output", () => {
     ]);
   });
 
+  test("ag is read only when its command says whether it numbers its lines", () => {
+    expect(shell("ag --numbers foo src", lines("src/a.ts:3:foo()"))).toEqual([
+      "    src/a.ts",
+      "    3  <typescript>foo()",
+    ]);
+    expect(shell("ag --nonumbers foo src/a.ts", lines("foo()"))).toEqual(["    <typescript>foo()"]);
+    expect(shell("ag foo src", lines("src/a.ts:3:foo()"))).toEqual(["    src/a.ts:3:foo()"]);
+  });
+
   test("one operand prints paths when it is a directory and bare lines when it is a file", () => {
     expect(shell("rg -n foo src", lines("src/a.ts:3:foo()"))).toEqual(["    src/a.ts", "    3  <typescript>foo()"]);
     expect(shell("rg -n foo src/a.ts", lines("3:foo()"))).toEqual(["    3  <typescript>foo()"]);
