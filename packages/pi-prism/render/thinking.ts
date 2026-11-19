@@ -33,6 +33,8 @@ export interface ThinkingApi {
 export type ThinkingPhase = "thinking" | "done" | "aged";
 
 export interface ThinkingLabelInput {
+  /** The pointer is over a thought that can open or close: its omission notices light up. */
+  lit?: boolean;
   phase: ThinkingPhase;
   level: DetailLevel;
   text: string;
@@ -283,7 +285,7 @@ export function composeThinkingLabel(
 ): ThinkingLayout {
   const { theme } = api;
   const notice = (hidden: number, side: OmissionSide) =>
-    frame.indent + omissionStyle(theme, omittedLinesLabel(hidden, side, api.glyphs));
+    frame.indent + omissionStyle(theme, omittedLinesLabel(hidden, side, api.glyphs), input.lit);
 
   const inline = oneRow(api, input, frame);
   if (!input.expanded && (bodyLinesFor(input.level) <= 1 || inline.whole)) return inline.layout;

@@ -42,6 +42,8 @@ export interface ToolRowInput extends TokenRates {
   status: ToolStatus;
   level: DetailLevel;
   expanded?: boolean;
+  /** The pointer is over a block that can open or close: its omission notices light up. */
+  lit?: boolean;
   /** Read the whole body: no budget, no "more lines" cue. */
   full?: boolean;
   /** Override the derived path/command/query. */
@@ -759,7 +761,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
           "  " +
           label.slice(space + 1)
         : label;
-    return indent + kit.truncateToWidth(omissionStyle(theme, aligned), inner, mark);
+    return indent + kit.truncateToWidth(omissionStyle(theme, aligned, input.lit), inner, mark);
   };
   /** `digits` is the gutter's number width; 0 when the block has no gutter. */
   const paint = ({ line, styled, notice: hidden, number, rule, path }: Selected, digits: number): string[] => {
@@ -879,7 +881,7 @@ export function toolRowLayout(api: RenderApi, input: ToolRowInput, width: number
         : [
             ...lines.slice(0, room - 1),
             " ".repeat(column) +
-              omissionStyle(api.theme, omittedLinesLabel(lines.length - (room - 1), "below", api.glyphs)),
+              omissionStyle(api.theme, omittedLinesLabel(lines.length - (room - 1), "below", api.glyphs), input.lit),
           ];
     rows.push(...command);
     budget -= command.length;

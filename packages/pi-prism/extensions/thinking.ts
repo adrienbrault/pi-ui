@@ -311,6 +311,8 @@ function labelComponent(
           width: Math.max(1, innerWidth),
           frame: Math.floor(Date.now() / 120),
           expanded,
+          // Hovering a thought a click would open or close lights its notices.
+          lit: hover.target === "thought" && hover.canToggle,
         };
         settled = input;
         const animate = timing.running && streaming && !expanded && !group;

@@ -320,6 +320,16 @@ function headerComponent(record: BlockRecord, theme: Theme): Component {
   );
 }
 
+/** Whether a click on a closed tool row opens something: a clipped command or line, or hidden lines. */
+function canOpen(record: BlockRecord, input: ToolRowInput, layout: ReturnType<typeof toolRowLayout>): boolean {
+  return (
+    !!record.commandClipped ||
+    layout.omission !== undefined ||
+    layout.clipped ||
+    actionFor(record.expansion, previewLineCount(input), levelOf(record)) !== null
+  );
+}
+
 function bodyComponent(record: BlockRecord, theme: Theme, includeHeader = false): Component {
   const api = { kit: KIT, theme: theme as unknown as RenderTheme, glyphs: GLYPHS };
   return region(
@@ -327,9 +337,13 @@ function bodyComponent(record: BlockRecord, theme: Theme, includeHeader = false)
       const input = inputFor(record);
       // The record owns the row's highlighted code, so the fade's look at the next level reuses it.
       const owned = { ...api, owner: record };
-      const layout = toolRowLayout(owned, input, width);
+      let layout = toolRowLayout(owned, input, width);
+      const open = record.expansion === 1;
+      // Hovering a block a click would open or close lights its notices: what the click reveals.
+      if (record.hover && (open || canOpen(record, input, layout)))
+        layout = toolRowLayout(owned, { ...input, lit: true }, width);
       let rows = layout.rows.slice(includeHeader ? 0 : 1);
-      if (record.expansion === 1) return rows;
+      if (open) return rows;
       // A step down fades the row the next level drops, found by the renderer.
       const fade = typeof record.key === "string" ? toolFade(record.key) : undefined;
       if (fade) {
@@ -344,11 +358,7 @@ function bodyComponent(record: BlockRecord, theme: Theme, includeHeader = false)
       // The omission notice: above a tail, at the cut of a head-and-tail read, below a diff's evidence.
       // The renderer names its row, so output that reads like one is not, nor pi's note on a partial read.
       const omission = layout.omission === undefined ? -1 : layout.omission - (includeHeader ? 0 : 1);
-      const expandable =
-        record.commandClipped ||
-        omission !== -1 ||
-        layout.clipped ||
-        actionFor(record.expansion, previewLineCount(input), levelOf(record)) !== null;
+      const expandable = canOpen(record, input, layout);
       record.expandRow = expandable && rows.length ? (omission === -1 ? rows.length - 1 : omission) : undefined;
       // Hover shows only the scroll bar: where the preview sits in the whole output.
       if (expandable && record.hover && layout.bar?.length)
@@ -387,7 +397,9 @@ function memberLines(member: BlockRecord, theme: Theme, width: number): string[]
         member.commandClipped = !!header.hiddenCommand;
         return [header.line];
       }
-      return renderToolRow({ ...api, owner: member }, input).render(innerWidth);
+      return renderToolRow({ ...api, owner: member }, { ...input, lit: !!member.hover && canCycle(member) }).render(
+        innerWidth,
+      );
     },
     cutMark(api.theme),
   );

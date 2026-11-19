@@ -47,10 +47,12 @@ export function cutMark(theme: RenderTheme): string {
  * An omission notice's style: italic `thinkingOff`, the faintest text grey pi's
  * themes define (below `dim`: okhsl 49% vs 56% in dark, 80% vs 59% in light).
  * It recedes behind the output and stays clear of the `accent` used by commands
- * and headings; the italic and the direction glyph set it apart.
+ * and headings; the italic and the direction glyph set it apart. `lit` while
+ * the pointer is over a block that can open or close: the notice's words turn
+ * the bright text colour, with no background, saying what a click reveals.
  */
-export function omissionStyle(theme: RenderTheme, label: string): string {
-  return theme.italic(theme.fg("thinkingOff", label));
+export function omissionStyle(theme: RenderTheme, label: string, lit = false): string {
+  return theme.italic(theme.fg(lit ? "text" : "thinkingOff", label));
 }
 
 /** Body text starts one two-column step past the heading label, leaving room for content on narrow screens. */

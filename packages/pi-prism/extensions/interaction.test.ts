@@ -396,6 +396,23 @@ describe("tool renderers", () => {
     ).toEqual(output.split("\n"));
   });
 
+  test("hovering a block that can open lights its notice's words, without a background", () => {
+    const tokens = { ...barred, fg: (token: string, text: string) => `<${token}>${text}</${token}>` };
+    const tool = resolver()("bash", () => undefined) as Renderers;
+    const context = { ...ctx, state: {} };
+    tool.renderCall(ctx.args, tokens, context);
+    const body = tool.renderResult(result, {}, tokens, context);
+    const notice = () => body.render(80).find((line) => line.includes("more lines")) ?? "";
+    expect(notice()).toContain("<thinkingOff>");
+    body.handleMouse?.(move());
+    expect(notice()).toContain("<text>");
+    expect(notice()).not.toContain("<thinkingOff>");
+    expect(backgrounds(notice()).filter((cell, column) => column !== 1 && cell !== undefined)).toEqual([]);
+    // Opened, the whole output shows: there is no notice left to light.
+    body.handleMouse?.(click());
+    expect(body.render(80).some((line) => line.includes("more lines"))).toBe(false);
+  });
+
   test("hovering a clipped silent command marks its header, the only row it has", () => {
     const tool = resolver()("bash", () => undefined) as Renderers;
     const command = "echo " + "abcdefghij".repeat(12);

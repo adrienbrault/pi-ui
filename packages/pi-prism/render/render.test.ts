@@ -974,6 +974,22 @@ describe("omission notices", () => {
     expect(rows.at(-1)?.trim()).toBe("⋮  3 more lines");
   });
 
+  test("a lit notice turns the text colour on every block kind", () => {
+    const tokens = { ...api, theme: { ...theme, fg: (token: string, text: string) => `<${token}>${text}</${token}>` } };
+    const tail = renderToolRow(tokens, { name: "bash", status: "success", level: 4, output: OUTPUT, lit: true }).render(
+      80,
+    );
+    expect(tail.find((line) => line.includes("more lines"))).toContain("<text>");
+    const thought = thinkingLabel(tokens, {
+      phase: "aged",
+      level: 3,
+      text: Array.from({ length: 10 }, (_, index) => `thought ${index + 1}`).join("\n"),
+      width: 80,
+      lit: true,
+    });
+    expect(thought.split("\n").find((line) => line.includes("more lines"))).toContain("<text>");
+  });
+
   test("every notice is italic and faint, apart from the grey output", () => {
     const tokens = {
       ...api,
