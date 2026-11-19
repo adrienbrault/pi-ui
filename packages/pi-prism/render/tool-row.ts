@@ -24,6 +24,7 @@ import {
   MAX_FORMAT_CHARS,
   type OmissionSide,
 } from "./text.ts";
+import { highlightShellLines, shellView, type ShellView } from "./shell-output.ts";
 import { describeCall, formatRate, toolTokenCounts, toolMeta, toolTokenLabel, type TokenRates } from "./tools.ts";
 
 export interface RenderApi {
@@ -334,6 +335,10 @@ interface Selected {
   index?: number;
   /** The line's number in its file, shown in the gutter. */
   number?: number;
+  /** The file a grep line came from: a path row heads each run of its lines. */
+  path?: string;
+  /** A row that is neither output nor a notice: grep's divider between groups, or a path row. */
+  rule?: "divider" | "path";
 }
 
 /** One cell of a block's scroll bar, drawn in column 1. */
@@ -422,16 +427,6 @@ function selectTail(lines: Selected[], show: number): Selected[] {
 
 const DIFF_HINT = /^(diff --git|@@ )/m;
 
-// Only recognise commands whose stdout is a single literal file or range of that file.
-const SHELL_FILE =
-  /^(?:cd\s+[\w./~-]+\s*&&\s*)?(?:cat(?:\s+--)?|sed\s+-n\s+['"]?(\d+)(?:,\d+)?p['"]?)\s+(?:"([\w./ ~-]+)"|'([\w./ ~-]+)'|([\w./~-]+))\s*$/u;
-
-/**
- * pi's bash keeps the tail of a long output and says so last: its lines no longer start at the
- * file's first. Its partial results while running are cut the same way, without the note.
- */
-const SHELL_TRUNCATED = /\n\n\[Showing [^\n]*Full output: [^\n]*\]$/;
-
 /** pi's read answers with a note instead of file lines for an image or a first line over its byte limit. */
 const READ_NOTE = /^(?:Read image file \[|\[Line \d+ is [^\n]*\]$)/;
 
@@ -439,28 +434,27 @@ const READ_NOTE = /^(?:Read image file \[|\[Line \d+ is [^\n]*\]$)/;
 const MIN_CODE_WIDTH = 20;
 
 /**
- * The file line the output starts at, when the output is a literal range of one
- * file: a read from its `offset` (1-based, like pi's), `sed -n 'A,Bp'` from A,
- * `cat` from 1. Undefined when the lines are not numbered from a known start.
+ * The file line a read starts at: its `offset` (1-based, like pi's). Undefined when
+ * the lines are not numbered from a known start. Shell output numbers itself through
+ * its command (`render/shell-output.ts`).
  */
 function firstLine(input: ToolRowInput, text: string): number | undefined {
-  if (input.error) return undefined;
-  if (input.name === "read") {
-    if (READ_NOTE.test(text)) return undefined;
-    // pi starts at `offset - 1` as an index, so a fractional offset reads from its whole part.
-    const offset = Number(input.args?.offset);
-    return Number.isFinite(offset) && offset >= 1 ? Math.trunc(offset) : 1;
+  if (input.error || input.name !== "read" || READ_NOTE.test(text)) return undefined;
+  // pi starts at `offset - 1` as an index, so a fractional offset reads from its whole part.
+  const offset = Number(input.args?.offset);
+  return Number.isFinite(offset) && offset >= 1 ? Math.trunc(offset) : 1;
+}
+
+/** Structured JSON results use pi's JSON grammar. */
+function jsonLanguage(text: string): string | undefined {
+  if (!/^\s*[[{]/.test(text)) return undefined;
+  try {
+    JSON.parse(text);
+    return "json";
+  } catch {
+    // A partial result or an ordinary log can start with the same characters.
+    return undefined;
   }
-  if (
-    input.name === "bash" &&
-    input.status === "success" &&
-    typeof input.args?.command === "string" &&
-    !SHELL_TRUNCATED.test(text)
-  ) {
-    const match = SHELL_FILE.exec(input.args.command);
-    if (match) return match[1] === undefined ? 1 : Math.max(1, Number(match[1]));
-  }
-  return undefined;
 }
 
 function outputLanguage(input: ToolRowInput, text: string, kit: RenderKit): string | undefined {
@@ -468,19 +462,60 @@ function outputLanguage(input: ToolRowInput, text: string, kit: RenderKit): stri
     const path = input.args?.path ?? input.args?.file_path ?? input.title;
     return typeof path === "string" ? kit.languageFromPath?.(path) : undefined;
   }
-  if (input.name === "bash" && typeof input.args?.command === "string") {
-    const match = SHELL_FILE.exec(input.args.command);
-    if (match) return kit.languageFromPath?.(match[2] ?? match[3] ?? match[4]!);
-  }
-  if (/^\s*[[{]/.test(text)) {
-    try {
-      JSON.parse(text);
-      return "json";
-    } catch {
-      // A partial result or an ordinary log can start with the same characters.
-    }
-  }
-  return undefined;
+  return jsonLanguage(text);
+}
+
+/**
+ * A shell command's output read through its command, when the command says what it printed:
+ * a range of one file, or grep's matches. Each line keeps its number and its file; the code is
+ * highlighted per run of one file's adjacent lines, within the same work bound as a read.
+ */
+function shellRows(
+  api: RenderApi,
+  input: ToolRowInput,
+  text: string,
+): { lines: Selected[]; view: ShellView } | undefined {
+  const { kit, theme } = api;
+  const command = input.args?.command;
+  if (typeof command !== "string" || toolMeta(input.name).cls !== "shell") return undefined;
+  const view = shellView(command, text, {
+    complete: input.status === "success",
+    ...(kit.languageFromPath ? { languageFromPath: kit.languageFromPath } : {}),
+    sniff: jsonLanguage,
+  });
+  if (!view) return undefined;
+  const highlight = kit.highlight;
+  const styled =
+    highlight && text.length <= MAX_FORMAT_CHARS
+      ? highlightShellLines(view.lines, (source, language) => highlight(source, language, theme, api.owner))
+      : [];
+  // Blank lines carry no evidence and take no row, but every line keeps its number in the file.
+  const lines = view.lines.flatMap((line, index): Selected[] => {
+    if (line.kind === "divider") return [{ line: "", rule: "divider" }];
+    if (line.kind === "plain") return line.text.trim() ? [{ line: line.text }] : [];
+    if (!line.code.trim()) return [];
+    return [
+      {
+        line: styled[index] ?? line.code,
+        ...(line.number === undefined ? {} : { number: line.number }),
+        ...(line.path === undefined ? {} : { path: line.path }),
+      },
+    ];
+  });
+  return { lines, view };
+}
+
+/**
+ * A path row above each kept line whose file differs from the kept line before it, so a
+ * preview that starts mid-output still names the file of its first line.
+ */
+function withPaths(selected: Selected[]): Selected[] {
+  let current: string | undefined;
+  return selected.flatMap((item) => {
+    if (item.path === undefined || item.path === current) return [item];
+    current = item.path;
+    return [{ line: "", rule: "path", path: item.path }, item];
+  });
 }
 
 const HUNK = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/;
@@ -628,17 +663,22 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
     // A write previews the file it wrote: its `-`/`+` lines are content, not changes.
     ((DIFF_HINT.test(text) && ["edit", "shell"].includes(meta.cls)) ||
       (input.name === "edit" && /^[+-] *\d+ /m.test(text)));
+  const shell = !input.error && !diff ? shellRows(api, input, text) : undefined;
   // Bound grammar work on oversized tool results. pi reads normally stop at 50 KiB.
   const language =
-    !input.error && (!diff || input.name === "edit") && text.length <= MAX_FORMAT_CHARS && kit.highlight
+    !shell && !input.error && (!diff || input.name === "edit") && text.length <= MAX_FORMAT_CHARS && kit.highlight
       ? outputLanguage(input, text, kit)
       : undefined;
   const styledSource = language && !diff ? kit.highlight?.(text, language, theme, api.owner) : undefined;
   // Blank lines carry no evidence and take no row, but every line keeps its number in the file.
   const start = diff ? undefined : firstLine(input, text);
-  const lines = source.flatMap((line, raw) =>
-    line.trim() ? [{ line: styledSource?.[raw] ?? line, ...(start === undefined ? {} : { number: start + raw }) }] : [],
-  );
+  const lines: Selected[] =
+    shell?.lines ??
+    source.flatMap((line, raw) =>
+      line.trim()
+        ? [{ line: styledSource?.[raw] ?? line, ...(start === undefined ? {} : { number: start + raw }) }]
+        : [],
+    );
   if (lines.length === 0) return empty;
   // The lines pi's read left in the file: a notice on the last row, which the code may not take.
   // It gives way when the rows left would hold a notice and no line of code.
@@ -654,7 +694,19 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
         .map((row, index) => ({ ...row, index }))
     : [];
   const indexed = lines.map((line, index): Selected => ({ ...line, index }));
-  const select = (show: number) => (diff ? selectDiff(diffRows, show) : trend(indexed, show));
+  const pick = (show: number) => (diff ? selectDiff(diffRows, show) : trend(indexed, show));
+  const paths = !!shell?.view.paths;
+  // Path rows take rows too: keep fewer lines until the lines and their path rows fit.
+  const select = (show: number): Selected[] => {
+    if (!paths) return pick(show);
+    for (let kept = Math.min(show, lines.length); kept >= 1; kept--) {
+      const rows = withPaths(pick(kept));
+      if (rows.length <= show) return rows;
+    }
+    return pick(show);
+  };
+  // grep's numbers jump where it skipped lines: a gap there is not a run of hidden lines.
+  const contiguous = shell?.view.contiguous ?? true;
 
   const indent = blockBodyIndent(width);
   const inner = Math.max(1, width - indent.length);
@@ -680,8 +732,16 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
     return indent + kit.truncateToWidth(omissionStyle(theme, aligned), inner, mark);
   };
   /** `digits` is the gutter's number width; 0 when the block has no gutter. */
-  const paint = ({ line, styled, notice: hidden, number }: Selected, digits: number): string[] => {
+  const paint = ({ line, styled, notice: hidden, number, rule, path }: Selected, digits: number): string[] => {
     if (hidden) return [noticeRow(omittedLinesLabel(hidden.count, hidden.side, api.glyphs), digits)];
+    // grep's divider sits in the number column, like a notice's glyph; a path row starts where the numbers start.
+    if (rule === "divider") {
+      const glyph = api.glyphs.between;
+      const aligned = " ".repeat(Math.max(0, digits - kit.visibleWidth(glyph))) + glyph;
+      return [indent + kit.truncateToWidth(omissionStyle(theme, aligned), inner, mark)];
+    }
+    if (rule === "path")
+      return [indent + truncateLeft(kit, path ?? "", inner, mark, (part) => theme.fg("dim", part)).text];
     const gutter = digits && number !== undefined ? digits + 2 : 0;
     const room = inner - gutter;
     const content = styled ?? line;
@@ -719,11 +779,13 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
   };
   const layout = (selected: Selected[]) => {
     const digits = gutterDigits(selected);
-    return selected.map((item, index) => paint(digits && !diff ? spanCount(selected, index) : item, digits));
+    return selected.map((item, index) =>
+      paint(digits && !diff && contiguous ? spanCount(selected, index) : item, digits),
+    );
   };
 
   // A notice counts against the budget: total body rows never exceed it.
-  const show = Math.min(budget, diff ? diffRows.length : lines.length);
+  const show = Math.min(budget, diff ? diffRows.length : paths ? withPaths(indexed).length : lines.length);
   let selected = select(show);
   let items = layout(selected);
   if (wrap && rowCount(items) > budget) {
@@ -746,10 +808,10 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
       items = layout(selected);
     }
   }
-  // Still over: a single line alone outgrows the budget. Notices keep their row.
-  let room = budget - selected.filter((item) => item.notice).length;
+  // Still over: a single line alone outgrows the budget. Notices, dividers and path rows keep their row.
+  let room = budget - selected.filter((item) => item.notice || item.rule).length;
   const rows = items.flatMap((item, index) => {
-    if (selected[index]?.notice) return item;
+    if (selected[index]?.notice || selected[index]?.rule) return item;
     const kept = clipRows(kit, item, room, width, mark);
     room -= kept.length;
     return kept;
@@ -765,7 +827,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
     clipped,
     bar: previewBar(diff ? diffRows.length : lines.length, shown, rows.length),
     // One row per selected line, then the file note: a preview never wraps.
-    sources: [...selected.map((item) => (item.notice ? undefined : item.index)), ...(fileNote ? [undefined] : [])],
+    sources: [...selected.map((item) => item.index), ...(fileNote ? [undefined] : [])],
     ...(omission === -1 ? {} : { omission }),
   };
 }

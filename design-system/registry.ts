@@ -35,6 +35,7 @@ import {
   EDIT_DIFF,
   FILE_TEXT,
   MCP_OUTPUT,
+  SHELL_GREP,
   SHELL_LONG,
   SHELL_OK,
   SHELL_OUTPUT,
@@ -610,6 +611,18 @@ const oursEntries: EntryDef[] = [
             output: SHELL_LONG,
           }),
         "the newest lines stay; the notice above them counts the lines hidden above",
+      ),
+      levelState(
+        "rg",
+        "rg across files",
+        0,
+        () =>
+          bashRow({
+            args: { command: "rg -n -A1 'toolRowLayout\\(|renderToolRow\\(' extensions render/index.ts" },
+            title: undefined,
+            output: SHELL_GREP,
+          }),
+        "grep's line numbers move into the gutter and each file's lines take its syntax colours; a path row heads each file and ⋮ marks the lines grep skipped",
       ),
       levelState("error", "failed", 0, () =>
         bashRow({ status: "error", output: SHELL_OUTPUT, summary: "", error: "exit 2" }),

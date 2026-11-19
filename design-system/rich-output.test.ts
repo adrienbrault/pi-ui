@@ -110,3 +110,40 @@ test("expanded rows wrap highlighted lines and edit backgrounds within the width
     expect(edit.slice(2).every((row) => kit.visibleWidth(row) === width)).toBe(true);
   }
 });
+
+test("grep output is highlighted per file group with pi's grammar, one row per line", async () => {
+  const pi = await resolvePi();
+  const kit = createKit(pi);
+  const { theme } = installTheme(pi, loadThemeJson(pi, "dark"));
+  const api = { kit, theme, glyphs: glyphsFor("unicode"), owner: {} };
+  // A one-line group, a group whose last context line is blank, and a comment that spans two lines.
+  const output = [
+    "src/a.ts:3:const value = 42;",
+    "--",
+    "src/a.ts:9:/* comment",
+    "src/a.ts-10-   continued */",
+    "src/a.ts-11-",
+    "src/b.py:1:def run():",
+  ].join("\n");
+  const rows = renderToolRow(api, {
+    name: "bash",
+    args: { command: "rg -n -A2 'value|comment|def' src" },
+    output,
+    level: 0,
+    status: "success",
+    expanded: true,
+    full: true,
+  }).render(80);
+  expect(rows.slice(1).map((row) => cleanOutput(row).trimEnd())).toEqual([
+    "    src/a.ts",
+    "     3  const value = 42;",
+    "     ⋮",
+    "     9  /* comment",
+    "    10     continued */",
+    "    src/b.py",
+    "     1  def run():",
+  ]);
+  expect(rows[2]).toContain(theme.fg("syntaxKeyword", "const"));
+  expect(rows[5]).toContain(theme.fg("syntaxComment", "   continued */"));
+  expect(rows[7]).toContain(theme.fg("syntaxKeyword", "def"));
+});

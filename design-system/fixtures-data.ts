@@ -46,6 +46,17 @@ export const SHELL_OK = [
 ].join("\n");
 
 /** A log longer than any preview: its tail is kept and the rest counted above it. */
+/** `rg -n -A1` across two files: context lines, a `--` between groups, and a change of file. */
+export const SHELL_GREP = [
+  "extensions/index.ts:326:      const layout = toolRowLayout({ ...api, owner: record }, input, width);",
+  "extensions/index.ts-327-      let rows = layout.rows.slice(includeHeader ? 0 : 1);",
+  "--",
+  "extensions/index.ts:387:      return renderToolRow({ ...api, owner: member }, input).render(innerWidth);",
+  "extensions/index.ts-388-    }) as Component,",
+  "--",
+  'render/index.ts:10:export { renderToolRow, toolRowLayout } from "./tool-row.ts";',
+].join("\n");
+
 export const SHELL_LONG = [
   "c477023 test(pi-prism): a collapsing group rebuilt mid-row hands its collapse on",
   "9bce9ff fix(pi-prism): a narrow open group drops its table on every row at once",
