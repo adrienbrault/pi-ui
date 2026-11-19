@@ -587,7 +587,7 @@ describe("tool renderers", () => {
         const fading = oldest.render(80).filter((line, index) => line !== first[index]);
         expect(fading).toHaveLength(1);
         const line = stripTerminalSequences(fading[0]!).trim();
-        expect(line).toMatch(/^line \d+$/);
+        expect(line).toMatch(/^\d+  line \d+$/);
         jest.advanceTimersByTime(10000);
         expect(oldest.render(80).map((row) => stripTerminalSequences(row).trim())).not.toContain(line);
       }

@@ -18,16 +18,19 @@ test("reads, shell file previews and Markdown thoughts use pi's active syntax pa
     const source = "/* comment\n   continued */\nconst value = 42;";
     const keyword = theme.fg("syntaxKeyword", "const");
     for (const width of [40, 80, 120]) {
-      for (const [tool, args] of [
-        ["read", { path: "file.ts" }],
-        ["bash", { command: "cd /project && sed -n '2,4p' file.ts" }],
+      for (const [tool, args, first] of [
+        ["read", { path: "file.ts" }, 1],
+        ["bash", { command: "cd /project && sed -n '2,4p' file.ts" }, 2],
       ] as const) {
         const rows = renderToolRow(api, { name: tool, args, output: source, level: 0, status: "success" }).render(
           width,
         );
         expect(rows[2]).toContain(theme.fg("syntaxComment", "   continued */"));
         expect(rows[3]).toContain(keyword);
-        expect(rows.map(cleanOutput).slice(1)).toEqual(source.split("\n").map((row) => "    " + row));
+        // Each line follows its number in the file, from the read's start or sed's first line.
+        expect(rows.map(cleanOutput).slice(1)).toEqual(
+          source.split("\n").map((row, index) => `    ${first + index}  ${row}`),
+        );
         expect(rows.every((row) => kit.visibleWidth(row) <= width)).toBe(true);
       }
       for (const patch of ["@@ -1 +1 @@\n-const old = 1;\n+const next = 2;", "-1 const old = 1;\n+1 const next = 2;"]) {
@@ -90,7 +93,10 @@ test("expanded rows wrap highlighted lines and edit backgrounds within the width
     expect(read.length).toBeGreaterThan(2);
     expect(read.length).toBeLessThanOrEqual(1 + MAX_FULL_LINES);
     expect(read.every((row) => kit.visibleWidth(row) <= width)).toBe(true);
-    expect(read.slice(1).map(cleanOutput).join("").replace(/\s+/g, "")).toBe(long.replace(/\s+/g, ""));
+    // The first row carries the line number; the wrapped rows leave its column blank.
+    expect(cleanOutput(read[1]!)).toStartWith("    1  ");
+    expect(read.slice(2).every((row) => cleanOutput(row).startsWith("       "))).toBe(true);
+    expect(read.slice(1).map(cleanOutput).join("").replace(/\s+/g, "")).toBe(`1${long.replace(/\s+/g, "")}`);
 
     const edit = renderToolRow(api, {
       name: "edit",

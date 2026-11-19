@@ -11,7 +11,7 @@ import {
 import { groupVerb, mcpLabel, toolMeta, groupNoun, toolTokenLabel } from "./tools.ts";
 import { formatDuration, headLines, omittedCount, tailLines } from "./text.ts";
 import { groupSegments, renderGroupMember, renderGroupRow } from "./group-row.ts";
-import { leavingRow, previewBar, renderToolRow, toolHeader, toolRowLayout } from "./tool-row.ts";
+import { leavingRow, previewBar, renderToolRow, toolHeader, toolRowLayout, type ToolRowInput } from "./tool-row.ts";
 import {
   thinkingFrame,
   thinkingKeep,
@@ -190,7 +190,7 @@ describe("tool row heights", () => {
   test("reads truncate in the middle, keeping head and tail", () => {
     const lines = renderToolRow(api, { name: "read", status: "success", level: 4, output: OUTPUT }).render(80);
     const body = lines.slice(1);
-    expect(body).toEqual(["    line 1", "    line 2", "    ⋮ 37 more lines", "    line 40"]);
+    expect(body).toEqual(["     1  line 1", "     2  line 2", "    ⋮ 37 more lines", "    40  line 40"]);
   });
 
   test("diffs drop context lines before they hide changes", () => {
@@ -272,6 +272,104 @@ describe("tool row heights", () => {
         expect(line.length).toBeLessThanOrEqual(width);
       }
     }
+  });
+});
+
+const numbered = (count: number, from = 1) =>
+  Array.from({ length: count }, (_, index) => `line ${from + index}`).join("\n");
+
+const readRow = (output: string, args: Record<string, unknown> = {}, extra: Partial<ToolRowInput> = {}) =>
+  renderToolRow(api, { name: "read", status: "success", level: 0, args: { path: "a.ts", ...args }, output, ...extra });
+
+/** A shell row's body rows. */
+const shell = (command: string, output: string) =>
+  renderToolRow(api, { name: "bash", status: "success", level: 0, args: { command }, output }).render(80).slice(1);
+
+describe("line numbers", () => {
+  test("a read numbers its lines from 1, right-aligned in front of the code", () => {
+    expect(readRow("alpha\nbeta\ngamma").render(80).slice(1)).toEqual(["    1  alpha", "    2  beta", "    3  gamma"]);
+  });
+
+  test("a read from offset 400 numbers from 400, and a skipped blank line keeps its number", () => {
+    expect(readRow("first\n\nthird", { offset: 400 }).render(80).slice(1)).toEqual([
+      "    400  first",
+      "    402  third",
+    ]);
+  });
+
+  test("the numbers show the jump across the omission notice", () => {
+    const body = readRow(numbered(21, 400), { offset: 400 }, { level: 4 }).render(80).slice(1);
+    expect(body).toEqual(["    400  line 400", "    401  line 401", "    ⋮ 18 more lines", "    420  line 420"]);
+  });
+
+  test("numbers align to the widest one shown", () => {
+    const nine = readRow(numbered(10), {}, { expanded: true, full: true }).render(80).slice(1);
+    expect(nine[0]).toBe("     1  line 1");
+    expect(nine[8]).toBe("     9  line 9");
+    expect(nine[9]).toBe("    10  line 10");
+    const hundred = readRow(numbered(6, 95), { offset: 95 }).render(80).slice(1);
+    expect(hundred[0]).toBe("     95  line 95");
+    expect(hundred[4]).toBe("     99  line 99");
+    expect(hundred[5]).toBe("    100  line 100");
+  });
+
+  test("an opened read wraps a long line under the code column, with a blank gutter", () => {
+    const long = "word ".repeat(12).trim();
+    const rows = readRow(`short\n${long}`, {}, { expanded: true, full: true }).render(40).slice(1);
+    expect(rows[0]).toBe("    1  short");
+    expect(rows[1]).toBe("    2  word word word word word word");
+    expect(rows[2]).toBe("       word word word word word word");
+    expect(rows.every((row) => row.length <= 40)).toBe(true);
+  });
+
+  test("a preview cuts its code at the width left beside the gutter", () => {
+    const rows = readRow("x".repeat(60)).render(40).slice(1);
+    expect(rows[0]).toBe(`    1  ${"x".repeat(30)} … `);
+    expect(rows[0]).toHaveLength(40);
+  });
+
+  test("a narrow row drops the gutter for the whole block", () => {
+    // Inner width 23 leaves 20 columns of code beside a three-column gutter: kept.
+    expect(readRow("alpha\nbeta").render(27).slice(1)).toEqual(["    1  alpha", "    2  beta"]);
+    // Inner width 22 would leave 19: the block shows code only.
+    expect(readRow("alpha\nbeta").render(26).slice(1)).toEqual(["    alpha", "    beta"]);
+  });
+
+  test("the gutter is dim, the code keeps its own colour", () => {
+    const tokens = { ...api, theme: { ...theme, fg: (token: string, text: string) => `<${token}>${text}` } };
+    const rows = renderToolRow(tokens, { name: "read", status: "success", level: 0, output: "alpha" }).render(80);
+    expect(rows[1]).toBe("    <dim>1  <toolOutput>alpha");
+  });
+
+  test("a failed read, an image read and pi's long-line notice carry no numbers", () => {
+    const failed = renderToolRow(api, { name: "read", status: "error", level: 0, error: "ENOENT: no such file" });
+    expect(failed.render(80).slice(1)).toEqual(["    ENOENT: no such file"]);
+    expect(readRow("Read image file [image/png]").render(80).slice(1)).toEqual(["    Read image file [image/png]"]);
+    const long = "[Line 3 is 80.0KB, exceeds 50.0KB limit. Use bash: sed -n '3p' a.ts | head -c 51200]";
+    expect(readRow(long).render(200).slice(1)).toEqual([`    ${long}`]);
+  });
+
+  test("sed and cat of one file number from their first line", () => {
+    expect(shell("sed -n '120,122p' src/a.ts", "one\ntwo\nthree")).toEqual([
+      "    120  one",
+      "    121  two",
+      "    122  three",
+    ]);
+    expect(shell("sed -n 7p src/a.ts", "seven")).toEqual(["    7  seven"]);
+    expect(shell("cd pkg && cat src/a.ts", "one\ntwo")).toEqual(["    1  one", "    2  two"]);
+    // A pipeline is not a file range, and a truncated shell output keeps its tail, not its start.
+    expect(shell("cat src/a.ts | sort", "one\ntwo")).toEqual(["    one", "    two"]);
+    const truncated = "late\n\n[Showing lines 1999-2000 of 2000. Full output: /tmp/pi-bash.log]";
+    expect(shell("cat src/a.ts", truncated)[0]).toBe("    late");
+    // While running, pi sends the tail of the output so far without saying so.
+    const running = renderToolRow(api, {
+      name: "bash",
+      status: "running",
+      level: 0,
+      args: { command: "cat a.ts" },
+      output: "one",
+    });
+    expect(running.render(80)[1]).toBe("    one");
   });
 });
 

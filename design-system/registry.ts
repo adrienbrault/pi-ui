@@ -555,6 +555,13 @@ const oursEntries: EntryDef[] = [
       levelState("l1", "aged L1", 1, () => readRow()),
       levelState("l2", "aged L2", 2, () => readRow()),
       levelState("l3", "aged L3", 3, () => readRow()),
+      levelState(
+        "range",
+        "range from offset 95",
+        0,
+        () => readRow({ args: { path: readPath, offset: 95, limit: 10 } }),
+        "line numbers start at the offset and align to the widest one shown",
+      ),
       levelState("error", "error", 0, () =>
         readRow({ status: "error", error: "ENOENT: no such file", output: "", summary: "" }),
       ),

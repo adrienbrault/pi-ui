@@ -310,6 +310,8 @@ interface Selected {
   styled?: string;
   /** Position among the body's non-empty source lines. */
   index?: number;
+  /** The line's number in its file, shown in the gutter. */
+  number?: number;
 }
 
 /** One cell of a block's scroll bar, drawn in column 1. */
@@ -388,7 +390,44 @@ const DIFF_HINT = /^(diff --git|@@ )/m;
 
 // Only recognise commands whose stdout is a single literal file or range of that file.
 const SHELL_FILE =
-  /^(?:cd\s+[\w./~-]+\s*&&\s*)?(?:cat(?:\s+--)?|sed\s+-n\s+['"]?\d+(?:,\d+)?p['"]?)\s+(?:"([\w./ ~-]+)"|'([\w./ ~-]+)'|([\w./~-]+))\s*$/u;
+  /^(?:cd\s+[\w./~-]+\s*&&\s*)?(?:cat(?:\s+--)?|sed\s+-n\s+['"]?(\d+)(?:,\d+)?p['"]?)\s+(?:"([\w./ ~-]+)"|'([\w./ ~-]+)'|([\w./~-]+))\s*$/u;
+
+/**
+ * pi's bash keeps the tail of a long output and says so last: its lines no longer start at the
+ * file's first. Its partial results while running are cut the same way, without the note.
+ */
+const SHELL_TRUNCATED = /\n\n\[Showing [^\n]*Full output: [^\n]*\]$/;
+
+/** pi's read answers with a note instead of file lines for an image or a first line over its byte limit. */
+const READ_NOTE = /^(?:Read image file \[|\[Line \d+ is [^\n]*\]$)/;
+
+/** Code needs this many columns beside the gutter, or the block shows code only. */
+const MIN_CODE_WIDTH = 20;
+
+/**
+ * The file line the output starts at, when the output is a literal range of one
+ * file: a read from its `offset` (1-based, like pi's), `sed -n 'A,Bp'` from A,
+ * `cat` from 1. Undefined when the lines are not numbered from a known start.
+ */
+function firstLine(input: ToolRowInput, text: string): number | undefined {
+  if (input.error) return undefined;
+  if (input.name === "read") {
+    if (READ_NOTE.test(text)) return undefined;
+    // pi starts at `offset - 1` as an index, so a fractional offset reads from its whole part.
+    const offset = Number(input.args?.offset);
+    return Number.isFinite(offset) && offset >= 1 ? Math.trunc(offset) : 1;
+  }
+  if (
+    input.name === "bash" &&
+    input.status === "success" &&
+    typeof input.args?.command === "string" &&
+    !SHELL_TRUNCATED.test(text)
+  ) {
+    const match = SHELL_FILE.exec(input.args.command);
+    if (match) return match[1] === undefined ? 1 : Math.max(1, Number(match[1]));
+  }
+  return undefined;
+}
 
 function outputLanguage(input: ToolRowInput, text: string, kit: RenderKit): string | undefined {
   if (input.name === "read" || input.name === "write" || input.name === "edit") {
@@ -397,7 +436,7 @@ function outputLanguage(input: ToolRowInput, text: string, kit: RenderKit): stri
   }
   if (input.name === "bash" && typeof input.args?.command === "string") {
     const match = SHELL_FILE.exec(input.args.command);
-    if (match) return kit.languageFromPath?.(match[1] ?? match[2] ?? match[3]!);
+    if (match) return kit.languageFromPath?.(match[2] ?? match[3] ?? match[4]!);
   }
   if (/^\s*[[{]/.test(text)) {
     try {
@@ -488,7 +527,11 @@ function body(api: RenderApi, input: ToolRowInput, width: number, budget: number
       ? outputLanguage(input, text, kit)
       : undefined;
   const styledSource = language && !diff ? kit.highlight?.(text, language, theme, api.owner) : undefined;
-  const lines = source.flatMap((line, index) => (line.trim() ? [styledSource?.[index] ?? line] : []));
+  // Blank lines carry no evidence and take no row, but every line keeps its number in the file.
+  const start = diff ? undefined : firstLine(input, text);
+  const lines = source.flatMap((line, raw) =>
+    line.trim() ? [{ line: styledSource?.[raw] ?? line, ...(start === undefined ? {} : { number: start + raw }) }] : [],
+  );
   if (lines.length === 0) return empty;
 
   const streamingWrite = input.name === "write" && input.status === "pending" && !input.expanded;
@@ -498,7 +541,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, budget: number
         .filter(({ line }) => line.trim())
         .map((row, index) => ({ ...row, index }))
     : [];
-  const indexed = lines.map((line, index): Selected => ({ line, index }));
+  const indexed = lines.map((line, index): Selected => ({ ...line, index }));
   const select = (show: number) => (diff ? selectDiff(diffRows, show) : trend(indexed, show));
 
   const indent = blockBodyIndent(width);
@@ -506,38 +549,54 @@ function body(api: RenderApi, input: ToolRowInput, width: number, budget: number
   const wrap = !!(input.expanded || input.full);
   const mark = cutMark(theme);
   let clipped = false;
-  // Wrapping is the costly step and a selection can repeat lines: do each once.
+  // Wrapping is the costly step and a selection can repeat lines: do each once per width.
   const wrapped = new Map<string, string[]>();
-  const paint = ({ line, styled, notice: hidden }: Selected): string[] => {
+  /** `digits` is the gutter's number width; 0 when the block has no gutter. */
+  const paint = ({ line, styled, notice: hidden, number }: Selected, digits: number): string[] => {
     if (hidden) {
+      // A notice starts where the gutter starts: it counts lines, it is not one.
       const label = omittedLinesLabel(hidden.count, hidden.side, api.glyphs);
       return [indent + kit.truncateToWidth(omissionStyle(theme, label), inner, mark)];
     }
+    const gutter = digits && number !== undefined ? digits + 2 : 0;
+    const room = inner - gutter;
     const content = styled ?? line;
     let parts: string[];
     if (wrap) {
-      parts = wrapped.get(content) ?? [];
-      if (!wrapped.has(content)) {
+      const key = `${room}:${content}`;
+      parts = wrapped.get(key) ?? [];
+      if (!wrapped.has(key)) {
         // No line can need more than the whole budget: bound the wrap work.
-        parts = kit.wrap(kit.truncateToWidth(content, inner * (budget + 1), ""), inner);
-        wrapped.set(content, parts);
+        parts = kit.wrap(kit.truncateToWidth(content, room * (budget + 1), ""), room);
+        wrapped.set(key, parts);
       }
     } else {
-      const cut = kit.truncateToWidth(content, inner, mark);
+      const cut = kit.truncateToWidth(content, room, mark);
       if (cut !== content) clipped = true;
       parts = [cut];
     }
     const tone = diff ? diffTone(line) : undefined;
-    return parts.map((part) => {
+    return parts.map((part, row) => {
+      // The number heads the line's first row; its wrapped rows keep the column blank.
+      const lead = !gutter ? "" : row ? " ".repeat(gutter) : `${theme.fg("dim", String(number).padStart(digits))}  `;
       if (diff && input.name === "edit" && (tone === "success" || tone === "error")) {
         const bg = tone === "success" ? "toolSuccessBg" : "toolErrorBg";
-        const padding = " ".repeat(Math.max(0, inner - kit.visibleWidth(part)));
-        return indent + theme.style(part + padding, { bg });
+        const padding = " ".repeat(Math.max(0, room - kit.visibleWidth(part)));
+        return indent + theme.style(lead + part + padding, { bg });
       }
-      return indent + (tone ? theme.fg(tone, part) : theme.fg("toolOutput", part));
+      return indent + lead + (tone ? theme.fg(tone, part) : theme.fg("toolOutput", part));
     });
   };
-  const layout = (selected: Selected[]) => selected.map(paint);
+  /** The gutter fits the widest number shown, unless it would leave the code too narrow. */
+  const gutterDigits = (selected: Selected[]): number => {
+    const widest = selected.reduce((max, item) => Math.max(max, item.number ?? 0), 0);
+    const digits = widest ? String(widest).length : 0;
+    return digits && inner - digits - 2 >= MIN_CODE_WIDTH ? digits : 0;
+  };
+  const layout = (selected: Selected[]) => {
+    const digits = gutterDigits(selected);
+    return selected.map((item) => paint(item, digits));
+  };
 
   // A notice counts against the budget: total body rows never exceed it.
   const show = Math.min(budget, diff ? diffRows.length : lines.length);
