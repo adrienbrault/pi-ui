@@ -115,6 +115,18 @@ export function thinkingPlan(component: object): FoldPlan | undefined {
   return THINKING_PLANS.get(component);
 }
 
+/**
+ * A backlog row that a level step takes away: the block's plan shows the next
+ * level at once, without a walk. A completed step commits directly, so this
+ * skips the hysteresis like a finished fade does.
+ */
+export function stepPlanLevel(component: object, key: string | undefined, level: DetailLevel): void {
+  const plan = key === undefined ? THINKING_PLANS.get(component) : toolPlans.get(key);
+  if (!plan) return;
+  plan.level = level;
+  plan.pending = undefined;
+}
+
 function choiceOf(member: FoldMember): boolean | undefined {
   return member.kind === "thinking" ? OPEN_THINKING.get(member.component) : OPEN_TOOLS.get(member.key);
 }

@@ -5,10 +5,15 @@
  * drops it. A fold removes rows from the bottom, one fade per row, ending with
  * the heading. Frames are keyed by the component in the tree; tool frames are
  * also indexed by call id, because the tool body renderer knows only the id.
+ *
+ * A backlog (blocks more than one level behind, or a finished run) uses the
+ * same frames without the fade phases: each tick takes one row away, at an
+ * interval that spreads the whole backlog over about BACKLOG_TOTAL_MS.
  */
 
 import { mixColors, stripTerminalSequences, visibleWidth } from "@earendil-works/pi-tui";
 import type { Theme } from "@earendil-works/pi-coding-agent";
+import { detailFor, type DetailLevel, FOLD_DISTANCE, maxRowsFor } from "../render/detail.ts";
 import type { RenderTheme } from "../render/kit.ts";
 
 export interface DecayFrame {
@@ -22,7 +27,7 @@ export interface DecayFrame {
   frameMs: number;
   /** A fold into a forming group: the heading stays, as the member row. */
   keepHeading?: boolean;
-  /** New blocks arrived mid-collapse: finish the row that is fading, then the rest at once. */
+  /** A backlog formed, or new blocks arrived mid-collapse: finish the row that is fading, then the rest at the backlog's pace. */
   hurry?: boolean;
   /** Blocks in the transcript when a collapse started: more later means new blocks arrived. */
   blocks?: number;
@@ -32,6 +37,13 @@ export interface DecayFrame {
   parts?: boolean[];
   /** The tool call id that also indexes this frame. */
   key?: string;
+  /** A backlog step: rows leave without fade phases, one per backlog interval. */
+  backlog?: boolean;
+  /** A backlog step of a standalone block: the level it shows now, and the level it heads for. */
+  level?: number;
+  goal?: number;
+  /** A backlog block that reaches the fold keeps its heading as the member row of a group that lists it. */
+  joins?: boolean;
 }
 
 export const DECAY_FRAME_MS = 90;
@@ -47,6 +59,35 @@ export const PACE_ALPHA = 0.3;
 export const IDLE_GAP_MS = 60_000;
 /** A shorter gap is the same arrival (parallel tool calls), not a pace: one frame at the fastest fade. */
 export const MIN_GAP_MS = MIN_FADE_MS / FADE_FRAMES;
+
+/** The level at which a block leaves its standalone row for a group. */
+export const FOLD_LEVEL = detailFor(FOLD_DISTANCE);
+
+/** A backlog spreads its rows over about this long, however many there are. */
+export const BACKLOG_TOTAL_MS = 1500;
+/** The shortest time between two rows of a backlog: a big backlog runs at this pace and takes longer. */
+export const BACKLOG_MIN_MS = 25;
+
+/**
+ * Time between two rows of a backlog of `rows` rows: the total spread over
+ * them, at least BACKLOG_MIN_MS, and never longer than one row's fade at the
+ * session's pace, so a small backlog moves no slower than the fades would.
+ */
+export function backlogIntervalMs(rows: number, pace?: number): number {
+  return Math.min(fadeDurationMs(pace), Math.max(BACKLOG_MIN_MS, BACKLOG_TOTAL_MS / Math.max(1, rows)));
+}
+
+/**
+ * Rows a block shown at `level` still has to lose to reach the `goal` level,
+ * counted from the detail budget: one per level, and for a fold its rows at the
+ * last standalone level, heading included unless it joins a group that lists
+ * it. Short outputs have fewer rows than their budget, so this overestimates.
+ */
+export function backlogRows(level: number, goal: number, keepsHeading = false): number {
+  if (goal < FOLD_LEVEL) return Math.max(0, goal - level);
+  const last = FOLD_LEVEL - 1;
+  return Math.max(0, last - level) + maxRowsFor(last as DetailLevel) - (keepsHeading ? 1 : 0);
+}
 
 /** How long one row takes to fade, given the average gap between new blocks. */
 export function fadeDurationMs(pace?: number): number {
@@ -125,11 +166,12 @@ export function toolFade(key: string): DecayFrame | undefined {
 }
 
 /**
- * One tick: the next phase, then for a fold the next row, then done. Returns
- * true when the step is complete and the plan may commit it.
+ * One tick: the next phase, then for a fold the next row, then done. A backlog
+ * frame has no phases: each tick is the next row. Returns true when the step
+ * is complete and the plan may commit it.
  */
 export function advanceFade(frame: DecayFrame): boolean {
-  if (frame.phase < FADE_FRAMES - 1 && !frame.idle) {
+  if (frame.phase < FADE_FRAMES - 1 && !frame.idle && !frame.backlog) {
     frame.phase++;
     return false;
   }

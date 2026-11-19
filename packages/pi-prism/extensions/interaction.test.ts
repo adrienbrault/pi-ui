@@ -9,7 +9,7 @@ import {
 } from "@earendil-works/pi-tui";
 import { BLOCKS_PER_STEP, detailFor, FOLD_DISTANCE, FORMING_ROWS } from "../render/detail.ts";
 import { keepGroupOpen, setGroupOpen, toolPlan } from "./fold.ts";
-import { toolFade } from "./fade.ts";
+import { BACKLOG_MIN_MS, backlogIntervalMs, fadeDurationMs, toolFade } from "./fade.ts";
 import prism, { actionFor } from "./index.ts";
 
 // Syntax highlighting reads pi's global theme; do not depend on another test file installing it.
@@ -221,17 +221,66 @@ function fadeSession(name: string, text = output, onVisit?: () => void, screenRo
         parts = build();
       },
       render: (w: number) => parts.flatMap((part) => part.render(w)),
+      /** A click on the heading: it opens the block, or closes it when open. */
+      click: () => parts[0]!.handleMouse?.(click()),
     };
     parts = build();
     children.push(shell);
     return shell;
   };
+  /** A settled thought: pi's assistant message, rendering its thinking label as its only content. */
+  const think = (thinking: string) => {
+    const region = { child: { setText: () => {} } as unknown as Row, onMouse: () => undefined };
+    const assistant = {
+      contentContainer: { children: [region] },
+      thinkingVisibilityOverrides: new Map<number, boolean>(),
+      hideThinkingBlock: true,
+      hiddenThinkingLabel: "Thinking...",
+      isStreaming: false,
+      lastMessage: { role: "assistant", content: [{ type: "thinking", thinking }] },
+      updateContent() {},
+      invalidate: () => {},
+      render: (w: number) => region.child.render(w),
+    };
+    children.push(assistant);
+    return assistant;
+  };
   const close = () => {
     dispatch("session_shutdown", "");
     jest.useRealTimers();
   };
-  return { add, dispatch, close, children, start };
+  return { add, think, dispatch, close, children, start };
 }
+
+/** Rows each block shows, blank ones aside: what the screen shows of the transcript. */
+const heights = (children: object[]) =>
+  children.map((child) => (child as Row).render(80).filter((row) => stripTerminalSequences(row).trim() !== "").length);
+
+/**
+ * Advance the clock in 5 ms frames, painting every block each frame as the screen does, and record
+ * each frame that changed a row count: when, and by how much per block. `faded` notes a faded colour.
+ */
+function trace(children: object[], ms = 5000) {
+  const changes: Array<{ at: number; diff: number[] }> = [];
+  let last = heights(children);
+  let faded = false;
+  for (let at = 5; at <= ms; at += 5) {
+    jest.advanceTimersByTime(5);
+    const next = heights(children);
+    faded ||= children.some((child) => (child as Row).render(80).join("").includes("38;2;"));
+    const diff = next.map((rows, index) => rows - (last[index] ?? 0));
+    if (diff.some(Boolean)) changes.push({ at, diff });
+    last = next;
+  }
+  const gaps = changes.slice(1).map((change, index) => change.at - changes[index]!.at);
+  return { changes, gaps, faded };
+}
+
+/** Each change takes exactly one row from exactly one block. */
+const oneRowEach = (changes: Array<{ diff: number[] }>) =>
+  changes.every((change) => change.diff.filter(Boolean).length === 1 && change.diff.some((rows) => rows === -1));
+
+const longThought = Array.from({ length: 40 }, (_, index) => `thought line ${index + 1}`).join("\n");
 
 /** An assistant message with prose only: a block that keeps its own row and splits the run. */
 const prose = () => ({
@@ -273,6 +322,19 @@ function collapseStart(session: ReturnType<typeof fadeSession>) {
     jest.advanceTimersByTime(10);
   }
   return { shells, rows };
+}
+
+/** The rows a hurried collapse shows from here until it closes, one state per change. */
+function closing(rows: () => number[]): number[][] {
+  const states: number[][] = [];
+  let last = rows();
+  for (let tick = 0; tick < 500 && last[0] !== 1; tick++) {
+    jest.advanceTimersByTime(5);
+    const next = rows();
+    if (next.join() !== last.join()) states.push(next);
+    last = next;
+  }
+  return states;
 }
 
 /** Blocks ten seconds apart are a slow session: a departing row fades over 480 ms, 120 ms a frame. */
@@ -712,7 +774,7 @@ describe("tool renderers", () => {
     }
   });
 
-  test("new blocks mid-collapse let the fading row finish, then the group closes", () => {
+  test("new blocks mid-collapse let the fading row finish, then the rest leave one row at a time", () => {
     const session = fadeSession("bash");
     try {
       const { rows } = collapseStart(session);
@@ -722,14 +784,20 @@ describe("tool renderers", () => {
       jest.advanceTimersByTime(SLOW_ROW_MS / 2 - 20);
       expect(rows()).toEqual([2, 1, 1, 1, 1, 0]);
       jest.advanceTimersByTime(20);
-      expect(rows()[0]).toBe(1);
+      expect(rows()).toEqual([2, 1, 1, 1, 0, 0]);
+      expect(closing(rows)).toEqual([
+        [2, 1, 1, 0, 0, 0],
+        [2, 1, 0, 0, 0, 0],
+        [2, 0, 0, 0, 0, 0],
+        [1, 0, 0, 0, 0, 0],
+      ]);
       expect(toolPlan("collapse-0")?.group?.open).toBe(false);
     } finally {
       session.close();
     }
   });
 
-  test("a collapsing group rebuilt mid-row hands its collapse on: the row finishes, then it closes", () => {
+  test("a collapsing group rebuilt mid-row hands its collapse on: the row finishes, then the rest leave one at a time", () => {
     const session = fadeSession("bash");
     try {
       const { shells, rows } = collapseStart(session);
@@ -742,7 +810,8 @@ describe("tool renderers", () => {
       expect(toolPlan("collapse-0")!.group).not.toBe(group);
       expect(rows()).toEqual([2, 1, 1, 1, 1, 0]);
       jest.advanceTimersByTime(SLOW_ROW_MS / 2 + 20);
-      expect(rows()).toEqual([1, 0, 0, 0, 0, 0]);
+      expect(rows()).toEqual([2, 1, 1, 1, 0, 0]);
+      expect(closing(rows).at(-1)).toEqual([1, 0, 0, 0, 0, 0]);
     } finally {
       session.close();
     }
@@ -944,7 +1013,7 @@ describe("tool renderers", () => {
     }
   });
 
-  test("blocks held back behind a folding block join at once when it lands, without a fade", () => {
+  test("blocks held back behind a folding block follow it one row at a time, without a fade", () => {
     const session = fadeSession("bash");
     try {
       const shells = Array.from({ length: FOLD_DISTANCE + 1 }, (_, index) => {
@@ -954,7 +1023,7 @@ describe("tool renderers", () => {
         return shell;
       });
       // A user message ends the run: every block heads for the group. held-1 up to held-BLOCKS_PER_STEP share
-      // the last standalone level, one step away: they fold in turn. The others are further behind and wait.
+      // the last standalone level, one step away: they fold first. The others are further behind and wait.
       session.children.push(user());
       session.dispatch("message_start", { message: { role: "user" } });
       let landed = false;
@@ -968,6 +1037,11 @@ describe("tool renderers", () => {
         }
       }
       expect(landed).toBe(true);
+      // The next block does not join at once: it loses its rows one at a time, then the next one does.
+      expect(toolPlan("held-" + (BLOCKS_PER_STEP + 1))?.mode).toBe("normal");
+      const { changes, faded } = trace(session.children);
+      expect(faded).toBe(false);
+      expect(oneRowEach(changes)).toBe(true);
       expect(shells.map((shell) => toolPlan(shell.toolCallId)?.mode)).toEqual(
         shells.map((_, index) => (index ? "hidden" : "anchor")),
       );
@@ -1088,7 +1162,7 @@ describe("tool renderers", () => {
     }
   });
 
-  test("blocks more than one step behind catch up without animation", () => {
+  test("blocks more than one step behind catch up one row at a time, without fade frames", () => {
     const session = fadeSession("bash");
     try {
       session.add("burst-0");
@@ -1102,12 +1176,205 @@ describe("tool renderers", () => {
         session.dispatch("agent_settled");
         jest.advanceTimersByTime(20);
       }
-      // The fading block finishes its row and takes its target; each other block animates one step at most.
-      jest.advanceTimersByTime(4 * 360);
+      // The fading block finishes its row; then every block still behind loses one row per interval.
+      const { changes } = trace(session.children);
+      expect(oneRowEach(changes)).toBe(true);
       const all = Array.from({ length: count + 1 }, (_, index) => index);
       expect(all.map((index) => toolPlan("burst-" + index)?.level)).toEqual(
         all.map((index) => detailFor(count - index)),
       );
+    } finally {
+      session.close();
+    }
+  });
+
+  test("a user message takes the finished run away one row at a time, oldest block first, thoughts and the forming group included", () => {
+    const session = fadeSession("bash");
+    try {
+      // FOLD_DISTANCE + 3 blocks: the oldest three form the run's group, a thought sits among the previews.
+      const blocks = FOLD_DISTANCE + 3;
+      for (let index = 0; index < blocks; index++) {
+        if (index === 6) session.think(longThought);
+        else session.add("run-" + index);
+        session.dispatch("agent_settled");
+        jest.advanceTimersByTime(10_000);
+      }
+      expect(toolPlan("run-0")?.group).toMatchObject({ forming: true, open: true });
+      expect(heights(session.children)).toEqual([2, 1, 1, 5, 5, 6, 5, 7, 7, 8, 8, 9, 9]);
+      session.children.push(user());
+      session.dispatch("message_start", { message: { role: "user" } });
+      session.dispatch("agent_settled");
+      const { changes, gaps, faded } = trace(session.children);
+      // No fade frames: each row simply leaves, one at a time, never two at once.
+      expect(faded).toBe(false);
+      expect(oneRowEach(changes)).toBe(true);
+      // Oldest first: the group (its three rows are one block) lists fewer members, then each block folds in turn.
+      const order = changes.map((change) => Math.max(0, change.diff.findIndex(Boolean) - 2));
+      expect(order).toEqual(order.toSorted((a, b) => a - b));
+      expect(new Set(order).size).toBe(blocks - 2);
+      // A big backlog runs at the floor.
+      expect(changes[0]!.at).toBe(BACKLOG_MIN_MS);
+      expect(new Set(gaps)).toEqual(new Set([BACKLOG_MIN_MS]));
+      // It lands where the instant catch-up did: one closed group of every block of the run.
+      expect(heights(session.children)).toEqual([1, ...Array.from({ length: blocks - 1 }, () => 0), 1]);
+      expect(toolPlan("run-0")?.group).toMatchObject({ open: false });
+      expect(toolPlan("run-0")?.group?.members).toHaveLength(blocks);
+      expect(stripTerminalSequences((session.children[0] as Row).render(80)[0]!)).toMatch(
+        new RegExp(`^▸ Ran ${blocks - 1} shell commands for \\d+ms, thought 1 time `),
+      );
+    } finally {
+      session.close();
+    }
+  });
+
+  test("a backlog's interval follows its rows: the floor for a big one, one fade at most for a small one", () => {
+    const session = fadeSession("bash");
+    try {
+      // Two blocks ten seconds apart, then three at once: the pace is ten seconds, a fade 480 ms.
+      session.add("small-0");
+      session.dispatch("agent_settled");
+      jest.advanceTimersByTime(10_000);
+      session.add("small-1");
+      session.dispatch("agent_settled");
+      jest.advanceTimersByTime(10_000);
+      for (let index = 2; index < 5; index++) session.add("small-" + index);
+      session.dispatch("agent_settled");
+      // small-0 is two levels behind, small-1 one: three rows, so 500 ms a row, capped at one fade.
+      const { changes, gaps } = trace(session.children);
+      expect(changes).toHaveLength(3);
+      expect(oneRowEach(changes)).toBe(true);
+      expect(backlogIntervalMs(3, 10_000)).toBe(fadeDurationMs(10_000));
+      expect([changes[0]!.at, ...gaps]).toEqual([480, 480, 480]);
+      expect(["small-0", "small-1"].map((id) => toolPlan(id)?.level)).toEqual([2, 1]);
+    } finally {
+      session.close();
+    }
+  });
+
+  test("new blocks mid-backlog extend it, and every block still lands where the plan puts it", () => {
+    const session = fadeSession("bash");
+    try {
+      for (let index = 0; index < 3; index++) {
+        session.add("extend-" + index);
+        session.dispatch("agent_settled");
+        jest.advanceTimersByTime(10_000);
+      }
+      // Two steps at once: every block is two levels behind, six rows at 250 ms each.
+      for (let index = 3; index < 7; index++) session.add("extend-" + index);
+      session.dispatch("agent_settled");
+      let { changes } = trace(session.children, 600);
+      expect(changes.map((change) => change.at)).toEqual([250, 500]);
+      // One more step arrives mid-backlog: the rows it adds spread over what is left.
+      for (let index = 7; index < 9; index++) session.add("extend-" + index);
+      session.dispatch("agent_settled");
+      ({ changes } = trace(session.children));
+      expect(oneRowEach(changes)).toBe(true);
+      const all = Array.from({ length: 9 }, (_, index) => index);
+      expect(all.map((index) => toolPlan("extend-" + index)?.level)).toEqual(all.map((index) => detailFor(8 - index)));
+    } finally {
+      session.close();
+    }
+  });
+
+  test("a click mid-backlog pins its block open, and the backlog goes on around it", () => {
+    const session = fadeSession("bash");
+    try {
+      const shells = Array.from({ length: FOLD_DISTANCE }, (_, index) => {
+        const shell = session.add("pin-" + index);
+        session.dispatch("agent_settled");
+        jest.advanceTimersByTime(10_000);
+        return shell;
+      });
+      session.children.push(user());
+      session.dispatch("message_start", { message: { role: "user" } });
+      session.dispatch("agent_settled");
+      trace(session.children, 100);
+      // The newest block still waits its turn: a click opens it, and it stays open.
+      const newest = shells.at(-1)!;
+      expect(toolPlan(newest.toolCallId)).toMatchObject({ mode: "normal", level: 0 });
+      newest.click();
+      const { changes } = trace(session.children);
+      expect(oneRowEach(changes.filter((change) => !change.diff.at(-2)))).toBe(true);
+      expect(newest.render(80)).toHaveLength(41);
+      expect(toolPlan(newest.toolCallId)?.mode).toBe("normal");
+      // Every other block of the run folded into the group above it.
+      expect(toolPlan("pin-0")?.group?.members).toHaveLength(FOLD_DISTANCE - 1);
+    } finally {
+      session.close();
+    }
+  });
+
+  test("offscreen blocks of a backlog change at once; the rows on screen leave one at a time", () => {
+    // Twenty rows show only the newest blocks; the older ones sit above them.
+    const session = fadeSession("bash", output, undefined, 20);
+    try {
+      const shells = Array.from({ length: FOLD_DISTANCE }, (_, index) => {
+        const shell = session.add("screen-" + index);
+        session.dispatch("agent_settled");
+        jest.advanceTimersByTime(10_000);
+        return shell;
+      });
+      session.children.push(user());
+      session.dispatch("message_start", { message: { role: "user" } });
+      session.dispatch("agent_settled");
+      jest.advanceTimersByTime(1);
+      // Before the first backlog row leaves, the offscreen blocks have folded and the visible ones wait.
+      expect(toolPlan("screen-0")?.mode).toBe("anchor");
+      expect(toolPlan("screen-4")?.mode).toBe("hidden");
+      expect(shells.slice(-2).map((shell) => toolPlan(shell.toolCallId)?.mode)).toEqual(["normal", "normal"]);
+      const { changes } = trace(session.children);
+      expect(changes.length).toBeGreaterThan(5);
+      expect(oneRowEach(changes)).toBe(true);
+      expect(shells.map((shell) => toolPlan(shell.toolCallId)?.mode)).toEqual(
+        shells.map((_, index) => (index ? "hidden" : "anchor")),
+      );
+    } finally {
+      session.close();
+    }
+  });
+
+  test("a backlog tick repaints one block: the transcript is walked once per block that lands", () => {
+    let visits = 0;
+    const session = fadeSession("bash", output, () => visits++);
+    try {
+      for (let index = 0; index < FOLD_DISTANCE; index++) {
+        session.add("walk-" + index);
+        session.dispatch("agent_settled");
+        jest.advanceTimersByTime(10_000);
+      }
+      // One walk of the transcript, as a structural event with nothing to change makes it.
+      let before = visits;
+      session.dispatch("agent_settled");
+      const walk = visits - before;
+      session.children.push(user());
+      before = visits;
+      session.dispatch("message_start", { message: { role: "user" } });
+      const { changes } = trace(session.children);
+      // Every block of the run lands once, and the message's own walk: far fewer walks than rows.
+      expect(changes.length).toBeGreaterThan(3 * FOLD_DISTANCE);
+      expect((visits - before) / walk).toBeLessThanOrEqual(FOLD_DISTANCE + 3);
+    } finally {
+      session.close();
+    }
+  });
+
+  test("shutting the session down mid-backlog cancels its timer", () => {
+    const session = fadeSession("bash");
+    try {
+      for (let index = 0; index < FOLD_DISTANCE; index++) {
+        session.add("halt-" + index);
+        session.dispatch("agent_settled");
+        jest.advanceTimersByTime(10_000);
+      }
+      session.children.push(user());
+      session.dispatch("message_start", { message: { role: "user" } });
+      session.dispatch("agent_settled");
+      expect(trace(session.children, 100).changes.length).toBeGreaterThan(0);
+      session.dispatch("session_shutdown", "");
+      const rows = heights(session.children);
+      jest.advanceTimersByTime(1000);
+      expect(jest.getTimerCount()).toBe(0);
+      expect(heights(session.children)).toEqual(rows);
     } finally {
       session.close();
     }
@@ -1127,16 +1394,18 @@ describe("tool renderers", () => {
       jest.advanceTimersByTime(1);
       addStep(session, "quick-b");
       session.dispatch("agent_settled");
-      // The oldest block fades its row, then takes the target the burst gave it.
+      // The oldest block fades its row over 200 ms; the level the burst added leaves next, as a backlog row.
       jest.advanceTimersByTime(150);
       expect(toolPlan("quick-0")?.level).toBe(1);
       jest.advanceTimersByTime(60);
-      expect(toolPlan("quick-0")?.level).toBe(3);
+      expect(toolPlan("quick-0")?.level).toBe(2);
       jest.advanceTimersByTime(10_000);
-      // A new run starts without a pace: the next fade takes the default 360 ms.
+      expect(toolPlan("quick-0")?.level).toBe(3);
+      // A new run starts without a pace: the next fade takes the default 360 ms. The finished run's
+      // blocks, older, leave first.
       session.children.push(user());
       session.dispatch("message_start", { message: { role: "user" } });
-      jest.advanceTimersByTime(1);
+      jest.advanceTimersByTime(10_000);
       session.add("next-0");
       session.dispatch("agent_settled");
       jest.advanceTimersByTime(1);

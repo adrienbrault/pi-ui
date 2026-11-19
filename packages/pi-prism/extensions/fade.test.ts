@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import {
   advanceFade,
+  BACKLOG_MIN_MS,
+  BACKLOG_TOTAL_MS,
+  backlogIntervalMs,
+  backlogRows,
   blocksArrived,
   endFade,
   type PaceClock,
@@ -14,6 +18,7 @@ import {
   toolFade,
 } from "./fade.ts";
 import type { RenderTheme } from "../render/kit.ts";
+import { maxRowsFor } from "../render/detail.ts";
 
 /** Tick until the step completes; the states seen before each tick. */
 function ticks(frame: ReturnType<typeof startFade>): Array<[number, number]> {
@@ -42,6 +47,17 @@ describe("fade advance", () => {
     frame.foldRows = 3;
     const phases = Array.from({ length: FADE_FRAMES }, (_, phase) => phase);
     expect(ticks(frame)).toEqual([0, 1, 2].flatMap((removed) => phases.map((phase) => [removed, phase])));
+  });
+
+  test("a backlog fold skips the fade phases: one row leaves per tick, ending with its heading", () => {
+    const frame = startFade({}, undefined, true);
+    frame.backlog = true;
+    frame.foldRows = 3;
+    expect(ticks(frame)).toEqual([
+      [0, 0],
+      [1, 0],
+      [2, 0],
+    ]);
   });
 
   test("a block with several parts goes idle only when no part has a row to fade", () => {
@@ -107,5 +123,31 @@ describe("fade pace", () => {
     expect(clock).toEqual({ pace: 800, lastAt: 1800 });
     blocksArrived(clock, 2600);
     expect(clock).toEqual({ pace: 800, lastAt: 2600 });
+  });
+});
+
+describe("backlog pace", () => {
+  test("a backlog spreads its rows over the total, no faster than the floor and no slower than one fade", () => {
+    expect(BACKLOG_TOTAL_MS).toBe(1500);
+    expect(BACKLOG_MIN_MS).toBe(25);
+    // A big backlog runs at the floor.
+    expect(backlogIntervalMs(120)).toBe(BACKLOG_MIN_MS);
+    expect(backlogIntervalMs(60, 10_000)).toBe(25);
+    // A small one takes no longer per row than a fade would.
+    expect(backlogIntervalMs(1)).toBe(fadeDurationMs());
+    expect(backlogIntervalMs(2, 10_000)).toBe(480);
+    expect(backlogIntervalMs(6, 10_000)).toBe(250);
+    expect(backlogIntervalMs(0)).toBe(fadeDurationMs());
+  });
+
+  test("rows still to leave count each level a block loses, and its rows at the last standalone level when it folds", () => {
+    // Two levels down, one row each.
+    expect(backlogRows(1, 3)).toBe(2);
+    // From the live level to the fold: four steps, then the heading and four body rows.
+    expect(backlogRows(0, 5)).toBe(4 + maxRowsFor(4));
+    // Already at the last standalone level; joining a group that lists it keeps the heading.
+    expect(backlogRows(4, 5)).toBe(maxRowsFor(4));
+    expect(backlogRows(4, 5, true)).toBe(maxRowsFor(4) - 1);
+    expect(backlogRows(3, 3)).toBe(0);
   });
 });

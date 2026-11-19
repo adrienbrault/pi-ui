@@ -6,8 +6,8 @@
  * a terminal would send. The scenarios cover:
  *
  * - A full screen of recent calls retains complete previews; the run's one small
- *   group lists its member, and a new prompt folds the blocks one step behind row
- *   by row, in turn.
+ *   group lists its member, and a new prompt takes the run's blocks away one row at
+ *   a time, oldest first, each joining the group in turn.
  * - A thought and two commands in the newest small group: the forming group lists
  *   them as consecutive member rows under its summary.
  * - FOLD_DISTANCE calls: the decay ladder, the hover bar, click expansion, inert rows.
@@ -128,6 +128,19 @@ function tmux(...args: string[]): string {
 
 function capture(): string {
   return tmux("capture-pane", "-p", "-t", SESSION);
+}
+
+/** Every distinct pane from now until `text` shows, captured as fast as tmux answers: motion too quick for waitFor. */
+async function watch(text: string, timeoutMs = 15_000): Promise<string[]> {
+  const deadline = Date.now() + timeoutMs;
+  const panes: string[] = [];
+  for (;;) {
+    const pane = capture();
+    if (pane !== panes.at(-1)) panes.push(pane);
+    if (pane.includes(text)) return panes;
+    if (Date.now() > deadline) throw new Error(`timed out watching for ${JSON.stringify(text)}\n--- pane ---\n${pane}`);
+    await Bun.sleep(1);
+  }
 }
 
 async function waitFor(text: string, timeoutMs = 15_000, ready = (_pane: string) => true): Promise<string> {
@@ -751,9 +764,10 @@ ${visible}`);
     // The run's only group is forming: its member row sits under the summary.
     assert(lineWith(visible, "Ran 1 shell command").includes("▾") && visible.split("\n")[rowOf(visible, "Ran 1 shell command")]?.includes("echo command-0 ·"), `a one-member forming group should list its member\n${visible}`);
     tmux("send-keys", "-t", SESSION, "new run for animation", "Enter");
-    // The new prompt ends the run: the blocks one step behind fold row by row, oldest first, and the
-    // later blocks, further behind, wait below them and join at once when they land.
-    await waitFor("Ran 1 shell command", 8000, screen => {
+    // The new prompt ends the run: its blocks leave one row at a time, oldest first, without fades,
+    // each folding into the run's group in turn rather than all at once.
+    const panes = await watch(`Ran ${liveCalls} shell commands`, 12_000);
+    const midFold = panes.some((screen) => {
       const start = screen.indexOf("echo command-1");
       const end = screen.indexOf("echo command-2");
       if (start < 0 || end < start) return false;
@@ -761,7 +775,9 @@ ${visible}`);
       // Mid-fold: the newest line at the bottom has left, the notice above the tail has not.
       return folding.includes("↑ 37 more lines") && !folding.includes("animated line 39");
     });
-    await waitFor(`Ran ${liveCalls} shell commands`, 12_000);
+    assert(midFold, `a block should lose its preview one row at a time\n${panes.at(-1)}`);
+    const grouped = new Set(panes.map((screen) => Number(/Ran (\d+) shell command/.exec(screen)?.[1] ?? 0)));
+    assert([...grouped].filter((count) => count > 1 && count < liveCalls).length >= 3, `blocks should join the group one at a time, saw ${[...grouped].join(", ")}`);
     tmux("kill-server");
 
     const decay = join(dir, "decay.jsonl");

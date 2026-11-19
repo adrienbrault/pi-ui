@@ -15,7 +15,7 @@
 
 import type { Component } from "@earendil-works/pi-tui";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { COMPACT_LEVEL, detailFor, FOLD_DISTANCE, type DetailLevel } from "../render/detail.ts";
+import { BLOCKS_PER_STEP, COMPACT_LEVEL, detailFor, FOLD_DISTANCE, type DetailLevel } from "../render/detail.ts";
 import { glyphsFor } from "../render/glyphs.ts";
 import { renderGroupMember, renderGroupRow } from "../render/group-row.ts";
 import { KIT } from "./kit.ts";
@@ -44,6 +44,7 @@ import {
   memberRows,
   planFolds,
   setGroupOpen,
+  stepPlanLevel,
   thinkingPlan,
   toolInfo,
   toolPlan,
@@ -65,11 +66,15 @@ import { installThinkingClock, thinkingTime, type TimedMessage } from "./thinkin
 import { claimHover, clearHover, onSpacerMouse, releaseHover } from "./hover.ts";
 import {
   advanceFade,
+  backlogIntervalMs,
+  backlogRows,
+  type DecayFrame,
   endFade,
   fadeLine,
   FADE_FRAMES,
   fadeDurationMs,
   blocksArrived,
+  FOLD_LEVEL,
   type PaceClock,
   fadeOf,
   moveFade,
@@ -146,6 +151,9 @@ interface EraseState {
 const ERASES = new WeakMap<object, Array<EraseState | undefined>>();
 
 const NORMAL_PLAN: FoldPlan = { mode: "normal", level: 0 };
+
+/** The width each block last rendered at: a backlog tick renders it again to see what a step takes away. */
+const WIDTHS = new WeakMap<object, number>();
 
 /** Tool rows register their metadata then ask the tree plan to recompute. */
 let scheduleFold: (() => void) | undefined;
@@ -482,6 +490,7 @@ function patchInstance(component: AssistantLike, theme: RenderTheme, repaint: ()
   const render = component.render;
   if (render) {
     component.render = function (width) {
+      WIDTHS.set(this, width);
       const rows = render.call(this, width);
       return paintFold(rows, theme, this);
     };
@@ -539,6 +548,7 @@ function compactToolMember(component: ToolComponentLike, key: string, theme: Ren
   );
   hoveredRegions.set(component, () => !!component.selfRenderContainer && insideHovered(component.selfRenderContainer));
   component.render = function (width) {
+    WIDTHS.set(component, width);
     const lines = render.call(this, width);
     const plan = toolPlan(key);
     skippedSpacer = plan?.mode === "hidden" && plan.group?.open === true && lines[0] === "";
@@ -566,6 +576,18 @@ function groupOf(unit: FoldUnit): LiveFoldGroup | undefined {
   return (unit.kind === "tool" ? toolPlan(unit.key) : thinkingPlan(unit.component))?.group;
 }
 
+/** The rows a backlog has: those still to leave, and those that left since it began. */
+interface Backlog {
+  rows: number;
+  done: number;
+}
+
+/** The level a block shows once its frame completes: the next one, the one a backlog reached, or the fold. */
+function reachedLevel(frame: DecayFrame, previous: number): number {
+  if (frame.folding) return FOLD_LEVEL;
+  return frame.backlog && frame.level !== undefined ? frame.level : detailFor(previous) + 1;
+}
+
 /**
  * Walk the TUI in visual order, then read the ladder backwards: each component
  * knows how many blocks follow it in its run. This is what restored transcripts
@@ -577,8 +599,8 @@ function patchTree(
   theme: RenderTheme,
   liveToolEnds: ReadonlyMap<string, number>,
   distances: WeakMap<object, number>,
-  /** Blocks catching up without animation that an older block on its way holds back. */
-  catching: WeakSet<object>,
+  /** Rows still to leave, counted on every walk; the backlog interval spreads them. */
+  backlog: Backlog,
   commit: object | undefined,
   /** Called with the number of runs and of blocks in the current run, before any fade starts. */
   countBlocks: (runs: number, blocks: number) => void,
@@ -693,6 +715,8 @@ function patchTree(
   let committed: FoldUnit | undefined;
   // Visible blocks behind their target, in visual order: they step down one at a time.
   const waiting: FoldUnit[] = [];
+  // Where each waiting block heads: its target, and as far as the blocks older than it allow.
+  const targets = new Map<FoldUnit, { target: number; allowed: number }>();
   // Nothing overtakes an older block that is still on its way: a newer block of
   // the run goes no further than the distance an older one is held at.
   let cap = Infinity;
@@ -705,37 +729,33 @@ function patchTree(
       const fading = fadeOf(unit.component);
       const allowed = Math.max(previous, Math.min(target, cap));
       if (commit === unit.component && fading) {
-        // The fade has run its course: this walk commits the step, and a block
-        // that fell further behind meanwhile takes the rest with it.
+        // The step has run its course: this walk commits the level it reached. A
+        // block that fell further behind meanwhile stays on its way, row by row.
         committed = unit;
         endFade(unit.component);
         repaint.add(unit.component);
-        unit.distance = allowed;
-        if (allowed < target) catching.add(unit.component);
-      } else if (fading) {
-        // Mid-row: the fade finishes first.
+        const reached = reachedLevel(fading, previous);
+        unit.distance = detailFor(allowed) <= reached ? allowed : Math.max(previous, reached * BLOCKS_PER_STEP);
+      } else if (fading || detailFor(target) !== detailFor(previous)) {
+        // Mid-step, or a level to lose: it waits its turn at the level it shows.
         unit.distance = previous;
-      } else if (detailFor(target) === detailFor(previous)) {
-        // Newer blocks that leave the level as it is: nothing to animate or to wait for.
-        unit.distance = target;
-      } else if (detailFor(target) - detailFor(previous) === 1 && !catching.has(unit.component)) {
-        // One step behind: animate in turn.
-        unit.distance = previous;
-      } else {
-        // More than one step behind and not fading: catch up without animation,
-        // through the usual two agreeing recomputes, as offscreen blocks do. Held
-        // back by an older block, it takes the rest of the way once that block lands.
-        unit.distance = allowed;
-        if (allowed < target) catching.add(unit.component);
       }
+      // Otherwise newer blocks leave the level as it is: nothing to animate or to wait for.
       if (unit.distance < target) {
-        if (!catching.has(unit.component)) waiting.push(unit);
+        waiting.push(unit);
+        targets.set(unit, { target, allowed });
         cap = Math.min(cap, unit.distance);
       }
     }
-    if (unit.distance >= target) catching.delete(unit.component);
     distances.set(unit.component, unit.distance);
   }
+  // A backlog: a visible block more than one level behind, or the blocks of a run
+  // a user message ended. Its rows leave one at a time, without fade phases.
+  const ended = (component: object): boolean =>
+    units.find((unit) => unit.component === component)?.currentRun === false;
+  const inBacklog = waiting.some(
+    (unit) => detailFor(targets.get(unit)!.target) - detailFor(unit.distance) > 1 || unit.currentRun === false,
+  );
   // A collapse that has run its course: the group now shows only its summary.
   if (commit && fadeOf(commit) && !units.some((unit) => unit.component === commit)) endFade(commit);
   const changed = planFolds(units, committed?.component, (group, shown) => {
@@ -746,6 +766,7 @@ function patchTree(
     frame.foldRows = rows;
     frame.shown = shown;
     frame.blocks = units.length;
+    if (inBacklog || ended(group.anchor.component)) frame.backlog = true;
     group.open = true;
   });
   // Collapses in visual order; a group sits where its first member does.
@@ -762,7 +783,7 @@ function patchTree(
       floor = current;
     } else if (old.members) {
       // The collapsing group gained or lost members: the group that replaced it
-      // finishes the fading row, then closes.
+      // finishes the fading row, then lets the rest leave one at a time.
       const members = new Set(old.members.map((member) => member.component));
       const successor = units
         .map(groupOf)
@@ -799,9 +820,16 @@ function patchTree(
       if (floor) break;
     }
   }
-  // A collapse hurries when new blocks arrive or another collapse waits: the fading row finishes, the rest close at once.
-  const floorFrame = collapses.includes(floor as LiveFoldGroup) ? fadeOf(floor!) : undefined;
-  if (floorFrame && (units.length > (floorFrame.blocks ?? units.length) || collapses.length > 1))
+  // A fold or collapse in progress hurries when a backlog forms, new blocks arrive
+  // mid-collapse or another collapse waits: the fading row finishes, then the rest
+  // leave at the backlog's pace.
+  const floorFrame = floor ? fadeOf(floor) : undefined;
+  const collapsing = collapses.includes(floor as LiveFoldGroup);
+  if (
+    floorFrame &&
+    !floorFrame.backlog &&
+    (inBacklog || (collapsing && (units.length > (floorFrame.blocks ?? units.length) || collapses.length > 1)))
+  )
     floorFrame.hurry = true;
   for (const unit of units) {
     if (unit.component === floor || !fadeOf(unit.component)) continue;
@@ -809,18 +837,42 @@ function patchTree(
     repaint.add(unit.component);
   }
   const head = waiting.find((unit) => unit.component === floor);
-  if (head && !fadeOf(head.component)) {
+  const headFrame = head && fadeOf(head.component);
+  if (head && !headFrame) {
     // A step is a level: the one after the last standalone level is the fold.
-    const folding = detailFor(head.distance) + 1 === detailFor(FOLD_DISTANCE);
-    startFade(
+    const level = detailFor(head.distance);
+    const goal = detailFor(targets.get(head)!.allowed);
+    const folding = level + 1 === FOLD_LEVEL;
+    const joins = goal >= FOLD_LEVEL && joinsOpenGroup(units, units.indexOf(head));
+    const frame = startFade(
       head.component,
       head.kind === "tool" ? head.key : undefined,
       folding,
       frameMs(),
-      folding && joinsOpenGroup(units, units.indexOf(head)),
+      folding && joins,
     );
+    // In a backlog the block takes every level to its goal in one frame, one row per tick.
+    if (inBacklog) Object.assign(frame, { backlog: true, level, goal, joins });
     repaint.add(head.component);
+  } else if (head && headFrame?.backlog && headFrame.goal !== undefined) {
+    // New blocks mid-backlog: the block on its way heads for its new goal.
+    headFrame.goal = Math.max(headFrame.goal, detailFor(targets.get(head)!.allowed));
   }
+  // The rows still to leave, held-back blocks counted to their targets: each waiting
+  // block's levels and fold, and each collapse's listed rows.
+  let rows = 0;
+  for (const unit of waiting) {
+    const frame = fadeOf(unit.component);
+    if (frame?.folding && frame.foldRows > 0) rows += Math.max(1, frame.foldRows - frame.removed);
+    else rows += backlogRows(detailFor(unit.distance), detailFor(targets.get(unit)!.target), !!frame?.joins);
+  }
+  for (const group of collapses) {
+    const frame = fadeOf(group);
+    if (frame) rows += Math.max(0, frame.foldRows - frame.removed);
+  }
+  backlog.rows = rows;
+  // Once no backlog is on its way, the next one counts its rows from zero.
+  if (!inBacklog && !fadeOf(floor ?? {})?.backlog) backlog.done = 0;
 
   for (const component of ordered) {
     if (!isAssistant(component)) continue;
@@ -867,7 +919,7 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
   const liveToolEnds = new Map<string, number>();
 
   const distances = new WeakMap<object, number>();
-  const catching = new WeakSet<object>();
+  const backlog: Backlog = { rows: 0, done: 0 };
   // The block whose fade is running. A tick touches only it; a finished step walks once.
   let fading: object | undefined;
   let decayTimer: ReturnType<typeof setTimeout> | undefined;
@@ -875,6 +927,43 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
   let clock: PaceClock = {};
   let counted: { runs: number; blocks: number } | undefined;
   const frameMs = (): number => fadeDurationMs(clock.pace) / FADE_FRAMES;
+  // A backlog spreads all its rows, those gone and those to go, over its total time.
+  const backlogMs = (): number => backlogIntervalMs(backlog.done + backlog.rows, clock.pace);
+  const delayOf = (frame: DecayFrame | undefined): number =>
+    frame?.backlog ? backlogMs() : (frame?.frameMs ?? frameMs());
+  /**
+   * One backlog row: a standalone block steps down a level, or once past its
+   * last standalone level folds one row; a collapsing group lists one row fewer.
+   * Only this block changes, and its plan takes the level directly. The block is
+   * rendered again at its last width, as the screen will paint it: a step that
+   * drops no row takes the next one in the same tick, and a fold counts its rows.
+   * Returns true when the frame is complete and the walk may commit it.
+   */
+  const stepBacklog = (component: object, frame: DecayFrame): boolean => {
+    const block = component as { render?: (width: number) => string[]; invalidate?: () => void };
+    const width = WIDTHS.get(component);
+    const rows = (): number | undefined => {
+      if (width === undefined || typeof block.render !== "function") return undefined;
+      block.invalidate?.();
+      return block.render(width).length;
+    };
+    if (!frame.folding && frame.level !== undefined && frame.goal !== undefined) {
+      const before = rows();
+      while (frame.level + 1 < FOLD_LEVEL) {
+        frame.level += 1;
+        stepPlanLevel(component, frame.key, frame.level as DetailLevel);
+        distances.set(component, frame.level * BLOCKS_PER_STEP);
+        if (frame.level >= frame.goal) return true;
+        const after = rows();
+        if (before === undefined || after === undefined || after < before) return false;
+      }
+      // The last standalone level: the fold comes next, in this same tick.
+      frame.folding = true;
+      frame.keepHeading = !!frame.joins;
+    }
+    if (frame.folding) rows();
+    return advanceFade(frame);
+  };
   const countBlocks = (runs: number, blocks: number): void => {
     // A user message starts a new run, and a new pace.
     if (counted && runs !== counted.runs) clock = {};
@@ -890,16 +979,27 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
       patch();
       return;
     }
-    // Hurried, a collapse ends with the row that was fading.
-    if (advanceFade(frame) || (frame.hurry && frame.phase === 0)) {
-      patch(fading);
-      return;
+    if (frame.backlog) {
+      if (stepBacklog(fading, frame)) {
+        backlog.done += 1;
+        patch(fading);
+        return;
+      }
+      backlog.done += 1;
+      backlog.rows = Math.max(0, backlog.rows - 1);
+    } else {
+      if (advanceFade(frame)) {
+        patch(fading);
+        return;
+      }
+      // Hurried, a fold or collapse finishes the row that was fading; the rest leave at the backlog's pace.
+      if (frame.hurry && frame.phase === 0) frame.backlog = true;
+      // A fold's next row starts a new fade: it reads the current pace.
+      else if (frame.phase === 0) frame.frameMs = frameMs();
     }
-    // A fold's next row starts a new fade: it reads the current pace.
-    if (frame.phase === 0) frame.frameMs = frameMs();
     (fading as { invalidate?: () => void }).invalidate?.();
     tui?.requestRender?.();
-    decayTimer = setTimeout(tick, frame.frameMs);
+    decayTimer = setTimeout(tick, delayOf(frame));
   };
   const patch = (commit?: object): void => {
     if (!tui || !theme) return;
@@ -908,13 +1008,13 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
       decorateViewport(tui, {
         bar: (cell, hovered) => styleBarCell(activeTheme, cell, hovered),
       });
-      const head = patchTree(tui, theme, liveToolEnds, distances, catching, commit, countBlocks, frameMs, fading);
+      const head = patchTree(tui, theme, liveToolEnds, distances, backlog, commit, countBlocks, frameMs, fading);
       if (head !== fading) {
         clearTimeout(decayTimer);
         decayTimer = undefined;
         fading = head;
       }
-      if (fading && !decayTimer) decayTimer = setTimeout(tick, fadeOf(fading)?.frameMs ?? frameMs());
+      if (fading && !decayTimer) decayTimer = setTimeout(tick, delayOf(fadeOf(fading)));
     } catch {
       // Keep pi's native label if the tree shape changed.
     }
@@ -978,6 +1078,8 @@ export function installThinkingRenderer(pi: ExtensionAPI): void {
     clearTimeout(decayTimer);
     decayTimer = undefined;
     fading = undefined;
+    backlog.rows = 0;
+    backlog.done = 0;
     clock = {};
     counted = undefined;
     resetFades();
