@@ -24,6 +24,7 @@ import type { RenderTheme } from "../render/kit.ts";
 import { estimatedTokens, toolMeta } from "../render/tools.ts";
 import { composeThinkingLabel, thinkingFrame, type ThinkingLabelInput } from "../render/thinking.ts";
 import { advanceTailWindow, isDropping, planTailWindow, type TailWindow } from "../render/window.ts";
+import { blockDistances, type PlanBlock } from "../render/layout.ts";
 import { type FoldPlan, type FoldUnit, planFolds, setGroupOpen, thinkingPlan, toolInfo, toolPlan } from "./fold.ts";
 import {
   decorateViewport,
@@ -619,22 +620,20 @@ function patchTree(
   }
 
   const history = offscreenHistory(root);
-  let behind = 0;
-  const units: FoldUnit[] = [];
-  for (let index = ordered.length - 1; index >= 0; index -= 1) {
-    const component = ordered[index];
-
+  // Visual order: the blocks the distance rule weighs, and the units among them.
+  const blocks: PlanBlock[] = [];
+  const owners: Array<FoldUnit | undefined> = [];
+  for (const component of ordered) {
     if (isUserComponent(component)) {
-      // Everything before a new user message belongs to an older run: floor it.
-      const firstAfterUser = units.at(-1);
-      if (firstAfterUser) firstAfterUser.startsRun = true;
-      behind = FOLD_DISTANCE;
+      blocks.push({ kind: "user" });
+      owners.push(undefined);
       continue;
     }
     if (isToolComponent(component)) {
       const key = component.toolCallId;
+      blocks.push({ kind: "tool" });
       if (!key) {
-        behind += 1;
+        owners.push(undefined);
         continue;
       }
       const info = toolInfo(key);
@@ -642,7 +641,7 @@ function patchTree(
       const meta = toolMeta(info?.name ?? component.toolName ?? "");
       const failed = info?.status === "error";
       const endedAt = component.result?.timestamp ?? liveToolEnds.get(key);
-      units.push({
+      owners.push({
         kind: "tool",
         key,
         component,
@@ -653,11 +652,10 @@ function patchTree(
         endedAt,
         startedAt: endedAt !== undefined && info?.durationMs !== undefined ? endedAt - info.durationMs : undefined,
         activeMs: info?.durationMs,
-        distance: behind,
+        distance: 0,
         boundary: !info || info.pinned || info.status === "pending" || info.status === "running",
         invalidate: () => (component as { invalidate?: () => void }).invalidate?.(),
       });
-      behind += 1;
       continue;
     }
     if (!isAssistant(component)) continue;
@@ -670,9 +668,10 @@ function patchTree(
     // An assistant that only owns tool calls is the container for the tool
     // components below it, not a block in its own right.
     if (runs === 0 && !hasProse) continue;
+    blocks.push(runs === 0 ? { kind: "prose" } : { kind: "thinking", count: runs, withProse: hasProse });
     const pinned =
       !thinkingPlan(component)?.group && [...(component.thinkingVisibilityOverrides?.values() ?? [])].includes(false);
-    units.push({
+    owners.push({
       kind: "thinking",
       key: "thinking",
       component,
@@ -690,16 +689,23 @@ function patchTree(
           ? message.timestamp + message.durationMs
           : undefined,
       activeMs: thinkingMs(message, thoughts),
-      distance: behind,
+      distance: 0,
       boundary: !!component.isStreaming || runs === 0 || hasProse || pinned,
       invalidate: () => component.invalidate?.(),
     });
-    // Prose is an anchor, not a decay block: it ends a group but does not make
-    // the blocks before it look older than they are.
-    if (!hasProse) behind += Math.max(1, runs);
   }
-
-  units.reverse();
+  const units: FoldUnit[] = [];
+  let startsRun = false;
+  blockDistances(blocks).forEach((placed, index) => {
+    startsRun ||= placed.startsRun;
+    const unit = owners[index];
+    if (!unit) return;
+    units.push(unit);
+    unit.distance = placed.distance;
+    // A keyless tool is weighed but owns no row: the run starts at the next unit.
+    if (startsRun) unit.startsRun = true;
+    startsRun = false;
+  });
   let pending = false;
   const repaint = new Set<object>();
   let committed: FoldUnit | undefined;

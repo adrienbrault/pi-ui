@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   DEFAULT_TAIL_LINES,
+  FOLD_DISTANCE,
   MAX_FULL_LINES,
   bodyLinesFor,
   detailFor,
@@ -14,7 +15,7 @@ import { groupSegments, renderGroupMember, renderGroupRow } from "./group-row.ts
 import { previewBar, renderToolRow, toolRowLayout } from "./tool-row.ts";
 import { thinkingFrame, thinkingLabel, thinkingLayout } from "./thinking.ts";
 import { glyphsFor } from "./glyphs.ts";
-import { planTranscript, type BlockShape } from "./layout.ts";
+import { blockDistances, planTranscript, type BlockShape, type PlanBlock } from "./layout.ts";
 import { advanceTailWindow, isDropping, planTailWindow } from "./window.ts";
 import type { RenderKit, RenderTheme } from "./kit.ts";
 
@@ -615,6 +616,35 @@ describe("header budget", () => {
 });
 
 const shapes = (n: number, cls: "read" | "prose" | "thinking" = "read") => Array.from({ length: n }, () => ({ cls }));
+
+describe("block distances", () => {
+  const tool: PlanBlock = { kind: "tool" };
+  const prose: PlanBlock = { kind: "prose" };
+  const user: PlanBlock = { kind: "user" };
+
+  test("prose ends a group but does not age the blocks before it", () => {
+    expect(blockDistances([tool, prose, prose, prose, prose, prose])[0]?.distance).toBe(0);
+  });
+
+  test("a user message floors the run before it and starts the next", () => {
+    const distances = blockDistances([tool, user, tool]);
+    expect(distances[0]).toMatchObject({ distance: FOLD_DISTANCE, currentRun: false });
+    expect(distances[2]).toMatchObject({ distance: 0, startsRun: true, currentRun: true });
+    expect(distances[0]?.startsRun).toBe(false);
+  });
+
+  test("a thought counts its runs and a thought beside prose counts nothing", () => {
+    expect(blockDistances([{ kind: "thinking", count: 2 }, tool])[0]?.distance).toBe(1);
+    expect(blockDistances([tool, { kind: "thinking", count: 2 }])[0]?.distance).toBe(2);
+    const mixed = blockDistances([{ kind: "thinking", withProse: true }, tool, tool, tool, tool, tool, tool]);
+    expect(mixed.map((block) => block.distance)).toEqual([FOLD_DISTANCE, 5, 4, 3, 2, 1, 0]);
+  });
+
+  test("distances stop at the fold distance", () => {
+    const distances = blockDistances(Array.from({ length: 12 }, () => tool));
+    expect(distances.map((block) => block.distance)).toEqual([5, 5, 5, 5, 5, 5, 5, 4, 3, 2, 1, 0]);
+  });
+});
 
 describe("transcript plan", () => {
   test("a folded run becomes one group before the surviving rows", () => {
