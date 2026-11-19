@@ -22,30 +22,48 @@ export interface GroupRowInput {
   durationMs?: number;
 }
 
+const failureLabel = (count: number) => `${count} ${count === 1 ? "failure" : "failures"}`;
+
+/**
+ * Fit order when the terminal is narrow: drop the duration, then the token
+ * count (keeping the shorter duration if it still fits), and only then cut
+ * segments. A cut summary trades its per-segment
+ * failure counts for one right-aligned total, so failures are the last thing
+ * to leave the row.
+ */
 export function renderGroupRow(api: RenderApi, input: GroupRowInput): ComponentLike {
   return api.kit.component((width) => {
     const { theme, glyphs, kit } = api;
     const marker = theme.fg("dim", input.expanded ? glyphs.expanded : glyphs.collapsed);
-    const segments = input.segments.map((segment) => {
-      const verb = groupVerb(segment.cls, segment.count);
-      const label = theme.style(verb, { fg: "toolOutput", bold: true });
-      const failures = segment.failed ?? 0;
-      return failures
-        ? label + " " + theme.fg("error", `(${failures} ${failures === 1 ? "failure" : "failures"})`)
-        : label;
-    });
     const dot = theme.fg("dim", ` ${glyphs.dot} `);
-    const details: string[] = [];
-    if (input.tokens) details.push(toolTokenLabel(input.tokens.outputTokens, input.tokens.inputTokens));
-    if (input.durationMs !== undefined) details.push(formatDuration(input.durationMs));
-    const suffix = details.map((part) => dot + theme.fg("dim", part)).join("");
-    const title = `${marker} ${segments.join(dot)}`;
-    const room = width - kit.visibleWidth(suffix);
-    if (room >= 8 && suffix) {
-      const left = kit.truncateToWidth(title, room, "…");
-      return [left + " ".repeat(Math.max(0, room - kit.visibleWidth(left))) + suffix];
+    const title = (withFailures: boolean) =>
+      `${marker} ${input.segments
+        .map((segment) => {
+          const label = theme.style(groupVerb(segment.cls, segment.count), { fg: "toolOutput", bold: true });
+          const failures = segment.failed ?? 0;
+          return withFailures && failures ? `${label} ${theme.fg("error", `(${failureLabel(failures)})`)}` : label;
+        })
+        .join(dot)}`;
+    const alignRight = (left: string, right: string) =>
+      left + " ".repeat(Math.max(0, width - kit.visibleWidth(left) - kit.visibleWidth(right))) + right;
+
+    const tokens = input.tokens && toolTokenLabel(input.tokens.outputTokens, input.tokens.inputTokens);
+    const duration = input.durationMs === undefined ? undefined : formatDuration(input.durationMs);
+    const full = title(true);
+    for (const metrics of [[tokens, duration], [tokens], [duration], []]) {
+      const suffix = metrics
+        .filter((part) => part !== undefined)
+        .map((part) => dot + theme.fg("dim", part))
+        .join("");
+      if (kit.visibleWidth(full + suffix) <= width) return [alignRight(full, suffix)];
     }
-    return [kit.truncateToWidth(title + suffix, width, "…")];
+
+    const failed = input.segments.reduce((sum, segment) => sum + (segment.failed ?? 0), 0);
+    if (!failed) return [kit.truncateToWidth(full, width, "…")];
+    const total = theme.fg("error", `${failed} failed`);
+    const room = width - kit.visibleWidth(dot + total);
+    if (room < 4) return [kit.truncateToWidth(`${marker} ${total}`, width, "…")];
+    return [alignRight(kit.truncateToWidth(title(false), room, "…"), dot + total)];
   });
 }
 

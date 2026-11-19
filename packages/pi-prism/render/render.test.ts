@@ -522,6 +522,60 @@ describe("transcript plan", () => {
   });
 });
 
+describe("group summary width", () => {
+  const segments = [
+    { cls: "read", count: 4 },
+    { cls: "shell", count: 24, failed: 4 },
+    { cls: "edit", count: 2, failed: 1 },
+  ] as const;
+  const input = { segments: [...segments], tokens: { outputTokens: 1200, inputTokens: 48000 }, durationMs: 93000 };
+
+  test("failure counts outlast the metrics at every width", () => {
+    for (let width = 12; width <= 120; width++) {
+      const line = renderGroupRow(api, input).render(width)[0]!;
+      expect(line.length).toBeLessThanOrEqual(width);
+      const perSegment = line.includes("(4 failures)") && line.includes("(1 failure)");
+      if (!perSegment) {
+        expect(line).toContain("5 failed");
+        expect(line).not.toContain("tokens");
+        expect(line).not.toContain("93s");
+      }
+      if (line.includes("tokens") || line.includes("93s")) expect(perSegment).toBe(true);
+      if (line.includes("tokens") && !line.includes("93s")) {
+        expect(renderGroupRow(api, { ...input, tokens: undefined }).render(width)[0]).toContain("93s");
+      }
+    }
+  });
+
+  test("a wide summary keeps every segment, its failures and the metrics", () => {
+    const line = renderGroupRow(api, input).render(120)[0]!;
+    expect(line).toMatch(/^▸ Read 4 files · Ran 24 commands \(4 failures\) · Edited 2 files \(1 failure\) +· /);
+    expect(line).toEndWith("93s");
+  });
+
+  test("metrics go before any segment is cut, duration first", () => {
+    const title = "▸ Read 4 files · Ran 24 commands (4 failures) · Edited 2 files (1 failure)";
+    const tokens = renderGroupRow(api, { ...input, durationMs: undefined }).render(120)[0]!;
+    const tokensOnly = tokens.slice(tokens.lastIndexOf("·") - 1);
+    const line = renderGroupRow(api, input).render(title.length + tokensOnly.length)[0]!;
+    expect(line).toStartWith(title);
+    expect(line).toContain("tokens");
+    expect(line).not.toContain("93s");
+    expect(renderGroupRow(api, input).render(title.length + 6)[0]).toBe(`${title} · 93s`);
+    expect(renderGroupRow(api, input).render(title.length)[0]).toBe(title);
+  });
+
+  test("a summary without failures truncates as before", () => {
+    const line = renderGroupRow(api, {
+      segments: [
+        { cls: "read", count: 4 },
+        { cls: "shell", count: 24 },
+      ],
+    }).render(16)[0];
+    expect(line).toBe("▸ Read 4 files …");
+  });
+});
+
 describe("streaming thinking preview", () => {
   test("bursts show the newest line immediately and replace one stale row per tick", () => {
     let window = planTailWindow(100, 5, planTailWindow(5, 5));
