@@ -249,6 +249,31 @@ export interface ThinkingLayout {
 }
 
 /**
+ * The thought on its heading row: the start and the end of the reasoning, cut
+ * in the middle like a command. `whole` when a settled one-line thought fits
+ * there uncut, so a second row would only repeat the heading's room.
+ */
+function oneRow(
+  api: ThinkingApi,
+  input: ThinkingLabelInput,
+  frame: ThinkingFrame,
+): { layout: ThinkingLayout; whole: boolean } {
+  const { kit, theme } = api;
+  const prefix = `${frame.marker} ${frame.dot} `;
+  const room = input.width - (frame.metrics ? kit.visibleWidth(frame.metrics) + 3 : 0) - kit.visibleWidth(prefix);
+  const excerpt = frame.flat
+    ? truncateMiddle(kit, frame.flat, Math.max(0, room), cutMark(theme), (part) => theme.fg("thinkingText", part))
+    : undefined;
+  return {
+    layout: {
+      label: frame.heading(excerpt?.text ? prefix + excerpt.text : frame.marker),
+      canToggle: !!excerpt?.cut,
+    },
+    whole: input.phase !== "thinking" && frame.sourceCount === 1 && !!excerpt?.text && !excerpt.cut,
+  };
+}
+
+/**
  * Compose the header, selected body rows and omission notice within the current budget.
  */
 export function composeThinkingLabel(
@@ -256,22 +281,12 @@ export function composeThinkingLabel(
   input: ThinkingLabelInput,
   frame: ThinkingFrame,
 ): ThinkingLayout {
-  const { kit, theme } = api;
+  const { theme } = api;
   const notice = (hidden: number, side: OmissionSide) =>
     frame.indent + omissionStyle(theme, omittedLinesLabel(hidden, side, api.glyphs));
 
-  if (bodyLinesFor(input.level) <= 1 && !input.expanded) {
-    // One row: the start and the end of the reasoning, cut in the middle like a command.
-    const prefix = `${frame.marker} ${frame.dot} `;
-    const room = input.width - (frame.metrics ? kit.visibleWidth(frame.metrics) + 3 : 0) - kit.visibleWidth(prefix);
-    const excerpt = frame.flat
-      ? truncateMiddle(kit, frame.flat, Math.max(0, room), cutMark(theme), (part) => theme.fg("thinkingText", part))
-      : undefined;
-    return {
-      label: frame.heading(excerpt?.text ? prefix + excerpt.text : frame.marker),
-      canToggle: !!excerpt?.cut,
-    };
-  }
+  const inline = oneRow(api, input, frame);
+  if (!input.expanded && (bodyLinesFor(input.level) <= 1 || inline.whole)) return inline.layout;
 
   if (input.expanded) {
     // Match tool output's safety cap. Keep both ends in order and count the notice in the budget;
@@ -325,6 +340,7 @@ export function thinkingLayout(api: ThinkingApi, input: ThinkingLabelInput): Thi
 export function thinkingLeavingRow(api: ThinkingApi, input: ThinkingLabelInput): number | undefined {
   if (input.expanded || bodyLinesFor(input.level) <= 1) return undefined;
   const frame = thinkingFrame(api, input);
+  if (oneRow(api, input, frame).whole) return undefined;
   const rows = frame.rows.length;
   const oldest = composeThinkingLabel(api, input, frame).noticeRow === 1 ? 2 : 1;
   const next = Math.min(input.level + 1, COMPACT_LEVEL) as DetailLevel;

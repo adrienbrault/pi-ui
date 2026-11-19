@@ -12,7 +12,14 @@ import { groupVerb, mcpLabel, toolMeta, groupNoun, toolTokenLabel } from "./tool
 import { formatDuration, headLines, omittedCount, tailLines } from "./text.ts";
 import { groupSegments, renderGroupMember, renderGroupRow } from "./group-row.ts";
 import { leavingRow, previewBar, renderToolRow, toolHeader, toolRowLayout } from "./tool-row.ts";
-import { thinkingFrame, thinkingKeep, thinkingLabel, thinkingLayout, thinkingLeavingRow } from "./thinking.ts";
+import {
+  thinkingFrame,
+  thinkingKeep,
+  thinkingLabel,
+  thinkingLayout,
+  thinkingLeavingRow,
+  type ThinkingLabelInput,
+} from "./thinking.ts";
 import { glyphsFor } from "./glyphs.ts";
 import { blockDistances, type PlanBlock } from "./layout.ts";
 import { advanceTailWindow, isDropping, planTailWindow } from "./window.ts";
@@ -268,6 +275,9 @@ describe("tool row heights", () => {
   });
 });
 
+const thoughtRows = (input: Partial<ThinkingLabelInput>) =>
+  thinkingLayout(api, { phase: "aged", level: 0, text: "Scoping", width: 100, ...input }).label.split("\n").length;
+
 describe("thinking labels", () => {
   test("only hidden thought content offers a toggle at the current width", () => {
     const input = { phase: "aged", level: 0, text: "Everything fits.", width: 80 } as const;
@@ -307,7 +317,7 @@ describe("thinking labels", () => {
       durationMs: 3200,
       turnDuration: true,
     });
-    expect(label.split("\n")[0]).toMatch(/^✻ think · +17 tokens · 3.2s turn$/);
+    expect(label).toMatch(/^✻ think · done · +17 tokens · 3.2s turn$/);
   });
 
   test("live label stays within the pool of rows", () => {
@@ -319,6 +329,32 @@ describe("thinking labels", () => {
     const layout = thinkingLayout(api, { phase: "aged", level: 7, text: "first\nlast", width: 80 });
     expect(layout.label).toMatch(/^✻ think · first last · +\d+ tokens$/);
     expect(layout.canToggle).toBe(false);
+  });
+
+  test("a settled one-line thought that fits its heading row takes one row at every level", () => {
+    for (const level of [0, 3, 5] as const) {
+      const layout = thinkingLayout(api, {
+        phase: "aged",
+        level,
+        text: "Scoping latest commit review",
+        width: 100,
+        durationMs: 5200,
+      });
+      expect(layout.label.split("\n")).toHaveLength(1);
+      expect(layout.label).toMatch(/^✻ think · Scoping latest commit review · +\d+ tokens [^·]+ · 5.2s$/);
+      expect(layout.canToggle).toBe(false);
+      expect(layout.bar).toBeUndefined();
+      expect(thinkingLeavingRow(api, { phase: "aged", level, text: "Scoping latest commit review", width: 100 })).toBe(
+        undefined,
+      );
+    }
+  });
+
+  test("a streaming, a multi-line or a too-long thought keeps its body rows", () => {
+    const rows = thoughtRows;
+    expect(rows({ phase: "thinking" })).toBe(2);
+    expect(rows({ text: "one\ntwo" })).toBe(3);
+    expect(rows({ text: "word ".repeat(40), width: 60 })).toBeGreaterThan(1);
   });
 
   test("a one-row thought too long for the row keeps its start and its end", () => {
