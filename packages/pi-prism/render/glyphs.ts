@@ -8,6 +8,10 @@ export interface GlyphSet {
   expanded: string;
   thinking: string;
   dot: string;
+  /** An omission notice's side: its hidden lines are above it, below it, or between the rows around it. */
+  above: string;
+  below: string;
+  between: string;
   spinner: readonly string[];
 }
 
@@ -19,6 +23,9 @@ export const UNICODE_GLYPHS: GlyphSet = {
   expanded: "▾",
   thinking: "✻",
   dot: "·",
+  above: "↑",
+  below: "↓",
+  between: "⋮",
   spinner: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"],
 };
 
@@ -30,6 +37,9 @@ export const ASCII_GLYPHS: GlyphSet = {
   expanded: "v",
   thinking: "~",
   dot: ".",
+  above: "^",
+  below: "v",
+  between: ":",
   spinner: ["-", "\\", "|", "/"],
 };
 
@@ -41,6 +51,9 @@ export const NERD_GLYPHS: GlyphSet = {
   expanded: "",
   thinking: "",
   dot: "·",
+  above: "↑",
+  below: "↓",
+  between: "⋮",
   spinner: ["󰪚", "󰪛", "󰪜", "󰪝"],
 };
 

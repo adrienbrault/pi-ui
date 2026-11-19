@@ -6,6 +6,8 @@
  * Dependency-free; width work is injected through RenderKit.
  */
 
+import type { GlyphSet } from "./glyphs.ts";
+
 /** Rich parsers handle ordinary pi read results (up to 50 KiB) and bounded thought bodies. */
 export const MAX_FORMAT_CHARS = 64 * 1024;
 
@@ -65,8 +67,12 @@ export function tailLines(text: string, count: number): string[] {
   return lines.toReversed();
 }
 
-export function omittedLinesLabel(count: number): string {
-  return `+ ${count} ${count === 1 ? "line" : "lines"}`;
+/** Where an omission notice's hidden lines are, relative to the notice. */
+export type OmissionSide = "above" | "below" | "between";
+
+/** `↑ 16 more lines`: the glyph points at the hidden lines, the count says how many. */
+export function omittedLinesLabel(count: number, side: OmissionSide, glyphs: Pick<GlyphSet, OmissionSide>): string {
+  return `${glyphs[side]} ${count} more ${count === 1 ? "line" : "lines"}`;
 }
 
 /** Hidden count above a tail (or below a head) so the reader knows what is gone. */

@@ -242,20 +242,20 @@ async function decayScenario(sessionPath: string): Promise<void> {
   mouse(35, 5, rowOf(pane, headers[0] ?? ""));
   await Bun.sleep(400);
   pane = capture();
-  assert(barred("+ 2 lines") && !pane.includes("[ click"), `header hover should show only the preview bar\n${pane}`);
+  assert(barred("↑ 2 more lines") && !pane.includes("[ click"), `header hover should show only the preview bar\n${pane}`);
 
   const gap = rowOf(pane, headers[1]!) - 1;
   assert(pane.split("\n")[gap - 1]?.trim() === "", "expected a blank row between commands");
   mouse(35, 5, gap);
   await Bun.sleep(150);
-  assert(!barred("+ 2 lines"), "the tool spacer must clear the previous hover");
+  assert(!barred("↑ 2 more lines"), "the tool spacer must clear the previous hover");
   mouse(0, 5, gap);
   mouse(0, 5, gap, true);
   await Bun.sleep(150);
   assert(!capture().includes("output 0 line A"), "a spacer click must leave the previous tool collapsed");
 
   pane = capture();
-  const clickRow = rowOf(pane, "+ 2 lines");
+  const clickRow = rowOf(pane, "↑ 2 more lines");
   mouse(0, 5, clickRow);
   mouse(0, 5, clickRow, true);
   await Bun.sleep(400);
@@ -657,11 +657,11 @@ async function thinkingScenario(sessionPath: string): Promise<void> {
   const tail = pane.split("\n").filter((line) => line.includes("thought line "));
   assert(tail.length >= 1, `thinking should keep a decayed tail, not vanish\n${pane}`);
   assert(pane.includes("thought line 10"), `the newest thought lines should survive\n${pane}`);
-  assert(/\+ \d+ lines?/.test(pane), `thinking should say how much it hid\n${pane}`);
+  assert(/↑ \d+ more lines?/.test(pane), `thinking should say how much it hid\n${pane}`);
   assert(!pane.includes("SECRET_MIDDLE_CLAUSE"), `collapsed thinking should keep only its tail\n${pane}`);
 
   pane = capture();
-  const hoverRow = pane.split("\n").findIndex(line => /^\s*\+ \d+ lines?\s*$/.test(line)) + 1;
+  const hoverRow = pane.split("\n").findIndex(line => /^\s*↑ \d+ more lines?\s*$/.test(line)) + 1;
   mouse(35, 5, hoverRow);
   await Bun.sleep(400);
   pane = capture();
@@ -741,7 +741,7 @@ ${visible}`);
       if (start < 0 || end < start) return false;
       const folding = screen.slice(start, end);
       // Mid-fold: the newest line at the bottom has left, the notice above the tail has not.
-      return folding.includes("+ 37 lines") && !folding.includes("animated line 39");
+      return folding.includes("↑ 37 more lines") && !folding.includes("animated line 39");
     });
     await waitFor("Ran 6 shell commands", 8000);
     tmux("kill-server");
@@ -755,8 +755,8 @@ ${visible}`);
     const long = join(dir, "long.jsonl");
     fixture(long, 1, [{ output: Array.from({ length: 160 }, (_, i) => `long output line ${i}.`).join("\n") }]);
     await openHistory(long, 45);
-    let pane = await waitFor("+ 153 lines");
-    const footer = rowOf(pane, "+ 153 lines");
+    let pane = await waitFor("↑ 153 more lines");
+    const footer = rowOf(pane, "↑ 153 more lines");
     mouse(0, 5, footer);
     mouse(0, 5, footer, true);
     await Bun.sleep(250);
@@ -784,11 +784,11 @@ ${visible}`);
     mouse(0, 5, inside, true);
     await Bun.sleep(200);
     assert(!capture().includes("long output line 80."), "a click inside the open block should close it");
-    for (let i = 0; i < 60 && !capture().includes("+ 153 lines"); i++) {
+    for (let i = 0; i < 60 && !capture().includes("↑ 153 more lines"); i++) {
       mouse(64, 20, 15);
       await Bun.sleep(50);
     }
-    await waitFor("+ 153 lines");
+    await waitFor("↑ 153 more lines");
     console.log("long bash output shows its scroll bar and collapses from a click inside it");
     tmux("kill-server");
     const forming = join(dir, "forming.jsonl");

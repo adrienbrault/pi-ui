@@ -10,7 +10,7 @@
 import { bodyLinesFor, COMPACT_LEVEL, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
 import { frameAt, type GlyphSet } from "./glyphs.ts";
 import { cellPadding, metricColumns, tableFits, type MemberCells, type MemberColumns } from "./columns.ts";
-import { blockBodyIndent, cutMark, type RenderKit, type RenderTheme } from "./kit.ts";
+import { blockBodyIndent, cutMark, omissionStyle, type RenderKit, type RenderTheme } from "./kit.ts";
 import { previewBar, styleMetric, truncateMiddle, type BarCell } from "./tool-row.ts";
 import { estimatedTokens, formatRate } from "./tools.ts";
 import {
@@ -20,6 +20,7 @@ import {
   logicalLines,
   omittedLinesLabel,
   MAX_FORMAT_CHARS,
+  type OmissionSide,
 } from "./text.ts";
 
 export interface ThinkingApi {
@@ -256,7 +257,8 @@ export function composeThinkingLabel(
   frame: ThinkingFrame,
 ): ThinkingLayout {
   const { kit, theme } = api;
-  const notice = (hidden: number) => theme.fg("dim", `${frame.indent}${omittedLinesLabel(hidden)}`);
+  const notice = (hidden: number, side: OmissionSide) =>
+    frame.indent + omissionStyle(theme, omittedLinesLabel(hidden, side, api.glyphs));
 
   if (bodyLinesFor(input.level) <= 1 && !input.expanded) {
     // One row: the start and the end of the reasoning, cut in the middle like a command.
@@ -279,7 +281,7 @@ export function composeThinkingLabel(
       ? frame.rows
       : [
           ...frame.rows.slice(0, MAX_FULL_LINES - 2),
-          notice(frame.rows.length - (MAX_FULL_LINES - 1)),
+          notice(frame.rows.length - (MAX_FULL_LINES - 1), "between"),
           frame.rows[frame.rows.length - 1]!,
         ];
     return {
@@ -297,7 +299,7 @@ export function composeThinkingLabel(
   const omitted = hidden || frame.rows.length - visible.length;
   // The preview keeps the newest rows, streaming or settled: the hidden ones are above, and so is the notice.
   const noticed = collapsedBudget(input.level) > 1 && frame.canToggle && omitted > 0;
-  if (noticed) rows.unshift(notice(omitted));
+  if (noticed) rows.unshift(notice(omitted, "above"));
   return {
     label: [frame.head, ...rows].map((row) => clampLine(api, row, input.width)).join("\n"),
     canToggle: frame.canToggle,

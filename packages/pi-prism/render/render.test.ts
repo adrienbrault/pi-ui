@@ -112,7 +112,7 @@ describe("head truncation", () => {
     // Level 5 leaves three body rows: head, the notice at the cut, tail.
     expect(rows.length).toBe(4);
     expect(rows[1]).toContain("a");
-    expect(rows[2]).toMatch(/\+ 3 lines$/m);
+    expect(rows[2]).toMatch(/⋮ 3 more lines$/m);
     expect(rows[3]).toContain("e");
   });
 });
@@ -183,7 +183,7 @@ describe("tool row heights", () => {
   test("reads truncate in the middle, keeping head and tail", () => {
     const lines = renderToolRow(api, { name: "read", status: "success", level: 4, output: OUTPUT }).render(80);
     const body = lines.slice(1);
-    expect(body).toEqual(["    line 1", "    line 2", "    + 37 lines", "    line 40"]);
+    expect(body).toEqual(["    line 1", "    line 2", "    ⋮ 37 more lines", "    line 40"]);
   });
 
   test("diffs drop context lines before they hide changes", () => {
@@ -203,7 +203,7 @@ describe("tool row heights", () => {
     const text = body.join("\n");
     expect(text).toContain("DetailLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6");
     expect(text).toContain("FOLD_DISTANCE = 8");
-    expect(text).toContain("+ 5 lines");
+    expect(text).toContain("⋮ 5 more lines");
     expect(text).not.toContain("unchanged context one");
   });
 
@@ -231,7 +231,7 @@ describe("tool row heights", () => {
   test("a one-row shell tail prefers content over trailing delimiters", () => {
     for (const [output, preview] of [
       ["setup();\n  return result;\n});\n}", "      return result;"],
-      ["{\n}", "    + 2 lines"],
+      ["{\n}", "    ↓ 2 more lines"],
       ["0", "    0"],
     ] as const) {
       const rows = renderToolRow(api, { name: "bash", status: "success", level: 7, output }).render(80);
@@ -242,7 +242,7 @@ describe("tool row heights", () => {
   test("shell rows trend on the tail, read rows on the head", () => {
     const shell = renderToolRow(api, { name: "bash", status: "success", level: 2, output: OUTPUT }).render(80);
     // The hidden lines are above the tail, so the notice heads the body.
-    expect(shell[1]).toMatch(/\+ \d+ lines?$/);
+    expect(shell[1]).toMatch(/↑ \d+ more lines?$/);
     expect(shell.at(-1)).toContain("line 40");
     const read = renderToolRow(api, { name: "read", status: "success", level: 2, output: OUTPUT }).render(80);
     expect(read[1]).toContain("line 1");
@@ -294,7 +294,7 @@ describe("thinking labels", () => {
     expect(lines).toHaveLength(401);
     expect(lines[1]).toBe("    part 0");
     // The hidden rows sit between the opening and the last row: so does the notice.
-    expect(lines.slice(-3)).toEqual(["    part 397", "    + 21 lines", "    part 419"]);
+    expect(lines.slice(-3)).toEqual(["    part 397", "    ⋮ 21 more lines", "    part 419"]);
   });
 
   test("a reported reasoning count and legacy turn timing are identified in the header", () => {
@@ -368,10 +368,10 @@ describe("thinking labels", () => {
     const text = Array.from({ length: 10 }, (_, index) => `thought ${index + 1}`).join("\n");
     const label = thinkingLabel(api, { phase: "aged", level: 3, text, width: 80 });
     // A settled thought keeps its newest rows: the hidden ones are above them, and so is the notice.
-    expect(label.split("\n")[1]).toContain("+ 7 lines");
+    expect(label.split("\n")[1]).toContain("↑ 7 more lines");
     expect(label.split("\n").at(-1)).toContain("thought 10");
     const expanded = thinkingLabel(api, { phase: "aged", level: 3, text, width: 80, expanded: true });
-    expect(expanded).not.toMatch(/\+ \d+ lines?$/m);
+    expect(expanded).not.toMatch(/more lines?$/m);
     expect(expanded).toContain("thought 1");
   });
 });
@@ -499,7 +499,7 @@ describe("full body budget", () => {
     }).render(80);
     expect(rows.length).toBe(1 + MAX_FULL_LINES);
     expect(rows.join("\n")).toContain("out 900");
-    expect(rows.some((line) => /^ +\+ \d+ lines$/.test(line))).toBe(true);
+    expect(rows.some((line) => /^ +↓ \d+ more lines$/.test(line))).toBe(true);
   });
 
   test("an expanded row wraps a long line instead of clipping it, within the cap", () => {
@@ -543,7 +543,7 @@ describe("full body budget", () => {
     }).render(80);
     expect(rows.length).toBeLessThanOrEqual(1 + MAX_FULL_LINES);
     expect(rows).toContain("    300");
-    expect(rows[1]).toMatch(/\+ \d+ lines$/);
+    expect(rows[1]).toMatch(/↑ \d+ more lines$/);
   });
 
   test("a preview reports when a line was clipped to the width", () => {
@@ -604,13 +604,110 @@ describe("the row that leaves", () => {
   });
 });
 
+/** A notice row styled as italic `accent`, under a theme that prints its tokens. */
+const styled = (line: string | undefined) =>
+  expect(line?.trim()).toMatch(/^<i><accent>[↑↓⋮] \d+ more lines?<\/accent><\/i>$/);
+
+describe("omission notices", () => {
+  const diff = ["@@ -1,30 +1,30 @@", ...Array.from({ length: 15 }, (_, index) => `-old ${index}\n+new ${index}`)].join(
+    "\n",
+  );
+  const command = Array.from({ length: 900 }, (_, index) => `echo step ${index + 1}`).join("\n");
+  const thoughts = Array.from({ length: 10 }, (_, index) => `thought ${index + 1}`).join("\n");
+  const long = Array.from({ length: 420 }, (_, i) => `part ${i}`).join("\n");
+  /** Every notice row an api renders, trimmed, in order. */
+  const notices = (glyphs: ReturnType<typeof glyphsFor>) => {
+    const glyphed = { ...api, glyphs };
+    const body = (input: Parameters<typeof renderToolRow>[1]) =>
+      renderToolRow(glyphed, input)
+        .render(80)
+        .map((line) => line.trim())
+        .filter((line) => /more lines?$/.test(line));
+    const thought = (input: Parameters<typeof thinkingLabel>[1]) =>
+      thinkingLabel(glyphed, input)
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => /more lines?$/.test(line));
+    return {
+      tail: body({ name: "bash", status: "success", level: 4, output: OUTPUT }),
+      read: body({ name: "read", status: "success", level: 4, output: OUTPUT }),
+      readHead: body({ name: "read", status: "success", level: 6, output: OUTPUT }),
+      alone: body({ name: "bash", status: "success", level: 7, output: "{\n}" }),
+      diff: body({ name: "edit", status: "success", level: 3, output: diff }),
+      command: body({ name: "bash", status: "success", level: 0, expanded: true, full: true, args: { command } }),
+      settled: thought({ phase: "aged", level: 3, text: thoughts, width: 80 }),
+      streaming: thought({ phase: "thinking", level: 3, text: thoughts, width: 80 }),
+      opened: thought({ phase: "aged", level: 0, text: long, width: 80, expanded: true }),
+    };
+  };
+
+  test("a notice names the side its hidden lines are on", () => {
+    expect(notices(glyphsFor("unicode"))).toEqual({
+      tail: ["↑ 37 more lines"],
+      read: ["⋮ 37 more lines"],
+      readHead: ["↓ 39 more lines"],
+      alone: ["↓ 2 more lines"],
+      diff: ["↓ 27 more lines"],
+      command: ["↓ 500 more lines"],
+      settled: ["↑ 7 more lines"],
+      streaming: ["↑ 7 more lines"],
+      opened: ["⋮ 21 more lines"],
+    });
+  });
+
+  test("ASCII glyphs carry the side as ^, v and :", () => {
+    const { tail, read, alone, opened } = notices(glyphsFor("ascii"));
+    expect([tail, read, alone, opened]).toEqual([
+      ["^ 37 more lines"],
+      [": 37 more lines"],
+      ["v 2 more lines"],
+      [": 21 more lines"],
+    ]);
+  });
+
+  test("one hidden line reads in the singular", () => {
+    const label = thinkingLabel(api, { phase: "aged", level: 3, text: "a\nb\nc\nd", width: 80 });
+    expect(label.split("\n")[1]?.trim()).toBe("↑ 1 more line");
+  });
+
+  test("unchanged context dropped between a diff's changes is marked as between them", () => {
+    const small = ["@@ -1,4 +1,4 @@", " context one", "-old", "+new", " context two", " context three"].join("\n");
+    const rows = renderToolRow(api, { name: "edit", status: "success", level: 3, output: small }).render(80);
+    expect(rows.at(-1)?.trim()).toBe("⋮ 3 more lines");
+  });
+
+  test("every notice is italic accent, apart from the grey output", () => {
+    const tokens = {
+      ...api,
+      theme: {
+        ...theme,
+        fg: (token: string, text: string) => `<${token}>${text}</${token}>`,
+        italic: (text: string) => `<i>${text}</i>`,
+      },
+    };
+    const tail = renderToolRow(tokens, { name: "bash", status: "success", level: 4, output: OUTPUT }).render(80);
+    styled(tail[1]);
+    expect(tail.at(-1)).toContain("<toolOutput>");
+    const opened = renderToolRow(tokens, {
+      name: "bash",
+      status: "success",
+      level: 0,
+      expanded: true,
+      full: true,
+      args: { command },
+    }).render(80);
+    styled(opened.find((line) => line.includes("more lines")));
+    styled(thinkingLabel(tokens, { phase: "aged", level: 3, text: thoughts, width: 80 }).split("\n")[1]);
+  });
+});
+
 describe("preview bar", () => {
   test("a tail of a long log fills only the bottom of the bar", () => {
     const layout = toolRowLayout(api, { name: "bash", status: "success", level: 0, output: many(160) }, 80);
     expect(layout.bar).toEqual(["track", "track", "track", "track", "track", "track", "track", "fill"]);
     expect(layout.bar).toHaveLength(layout.rows.length - 1);
     // The notice heads the tail, beside a track cell; the filled cell sits beside the newest line.
-    expect(layout.rows[1]).toMatch(/\+ 153 lines$/);
+    expect(layout.rows[1]).toMatch(/↑ 153 more lines$/);
     expect(layout.sources?.[0]).toBeUndefined();
   });
 
@@ -640,7 +737,7 @@ describe("preview bar", () => {
     const rows = layout.label.split("\n");
     // The notice above three kept lines: ten sources over four cells, the last three shown,
     // so the filled cell sits beside the newest row and the notice's cell is track.
-    expect(rows[1]).toContain("+ 7 lines");
+    expect(rows[1]).toContain("↑ 7 more lines");
     expect(rows.at(-1)).toContain("thought 10");
     expect(layout.bar).toEqual(["track", "track", "track", "fill"]);
     expect(layout.bar).toHaveLength(rows.length - 1);
@@ -650,7 +747,7 @@ describe("preview bar", () => {
     const text = Array.from({ length: 100 }, (_, index) => `line ${index}`).join("\n");
     const layout = thinkingLayout(api, { phase: "thinking", level: 0, text, width: 40 });
     const rows = layout.label.split("\n");
-    expect(rows[1]?.trim()).toBe("+ 94 lines");
+    expect(rows[1]?.trim()).toBe("↑ 94 more lines");
     expect(layout.bar).toEqual(["track", "track", "track", "track", "track", "track", "fill"]);
     expect(layout.bar).toHaveLength(rows.length - 1);
   });
@@ -659,7 +756,7 @@ describe("preview bar", () => {
     const markdown = { ...api, kit: { ...kit, markdown: (text: string, width: number) => wrapPlain(text, width) } };
     const text = Array.from({ length: 12 }, (_, index) => `- item ${index + 1}`).join("\n");
     const layout = thinkingLayout(markdown, { phase: "aged", level: 3, text, width: 80 });
-    expect(layout.label).toContain("+ 9 lines");
+    expect(layout.label).toContain("↑ 9 more lines");
     expect(layout.bar).toEqual(["track", "track", "track", "fill"]);
   });
 
@@ -902,7 +999,7 @@ describe("streaming thinking preview", () => {
     const frame = thinkingFrame(api, input);
     expect(frame.rows).toHaveLength(frame.keep);
     const label = thinkingLabel(api, input);
-    expect(label.split("\n")[1]?.trim()).toBe("+ 94 lines");
+    expect(label.split("\n")[1]?.trim()).toBe("↑ 94 more lines");
     expect(label.split("\n").at(-1)).toContain("line 99");
   });
 });

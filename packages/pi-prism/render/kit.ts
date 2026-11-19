@@ -43,6 +43,14 @@ export function cutMark(theme: RenderTheme): string {
   return theme.style(" … ", { fg: "text", bold: true });
 }
 
+/**
+ * An omission notice's style: italic `accent`, so the count of hidden lines
+ * stands apart from the grey output around it and still reads as secondary.
+ */
+export function omissionStyle(theme: RenderTheme, label: string): string {
+  return theme.italic(theme.fg("accent", label));
+}
+
 /** Body text starts one two-column step past the heading label, leaving room for content on narrow screens. */
 export function blockBodyIndent(width: number): string {
   return "    ".slice(0, Math.max(0, width - 1));

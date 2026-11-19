@@ -1,9 +1,3 @@
-import { cleanOutput } from "../render/text.ts";
-
-export function isOmissionRow(line: string): boolean {
-  return /^\+ \d+ lines?$/.test(cleanOutput(line).trim());
-}
-
 /**
  * One hovered surface at a time.
  *

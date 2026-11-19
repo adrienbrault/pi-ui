@@ -6,7 +6,14 @@
 import { bodyLinesFor, COMPACT_LEVEL, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
 import { frameAt, type GlyphSet } from "./glyphs.ts";
 import { cellPadding, metricColumns, tableFits, type MemberCells, type MemberColumns } from "./columns.ts";
-import { blockBodyIndent, cutMark, type ComponentLike, type RenderKit, type RenderTheme } from "./kit.ts";
+import {
+  blockBodyIndent,
+  cutMark,
+  omissionStyle,
+  type ComponentLike,
+  type RenderKit,
+  type RenderTheme,
+} from "./kit.ts";
 import {
   cleanOutput,
   formatDuration,
@@ -15,6 +22,7 @@ import {
   oneLine,
   omittedLinesLabel,
   MAX_FORMAT_CHARS,
+  type OmissionSide,
 } from "./text.ts";
 import { describeCall, formatRate, toolTokenCounts, toolMeta, toolTokenLabel, type TokenRates } from "./tools.ts";
 
@@ -297,8 +305,8 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, width: number) {
 
 interface Selected {
   line: string;
-  /** A notice row rather than a body row. */
-  notice?: boolean;
+  /** A notice row rather than a body row: how many lines it hides, and on which side. */
+  notice?: { count: number; side: OmissionSide };
   styled?: string;
   /** Position among the body's non-empty source lines. */
   index?: number;
@@ -326,7 +334,7 @@ export function previewBar(total: number, shown: ReadonlySet<number>, rows: numb
 const DIFF_NOISE = /^(diff --git|index |new file|deleted file|similarity |rename |--- |\+\+\+ )/;
 const isDiffContext = (line: string): boolean => DIFF_NOISE.test(line) || line.startsWith(" ");
 
-const notice = (count: number): Selected => ({ line: omittedLinesLabel(count), notice: true });
+const notice = (count: number, side: OmissionSide): Selected => ({ line: "", notice: { count, side } });
 
 /**
  * Diffs keep what changed. Before hiding any hunk, drop the unchanged context
@@ -338,13 +346,14 @@ function selectDiff(lines: Selected[], show: number): Selected[] {
   const essential = lines.filter(({ line }) => !isDiffContext(line));
   const contextHidden = lines.length - essential.length;
   if (essential.length + 1 <= show) {
-    return [...essential, notice(contextHidden)];
+    // The dropped context sat between the changes kept in order.
+    return [...essential, notice(contextHidden, "between")];
   }
 
-  // Still too long: read the evidence in order, and say how much is left.
+  // Still too long: read the evidence in order, and say how much is left below it.
   const kept = show - 1;
   const hidden = lines.length - kept;
-  return [...essential.slice(0, kept), notice(hidden)];
+  return [...essential.slice(0, kept), notice(hidden, "below")];
 }
 
 /** Reads keep their opening and their end; the notice marks the cut between them. */
@@ -356,7 +365,7 @@ function selectHead(lines: Selected[], show: number): Selected[] {
   const hidden = lines.length - head - tail;
   // `slice(-0)` is `slice(0)`: a zero tail would spill the whole file.
   const keptTail = tail > 0 ? lines.slice(-tail) : [];
-  return [...lines.slice(0, head), notice(hidden), ...keptTail];
+  return [...lines.slice(0, head), notice(hidden, tail > 0 && head > 0 ? "between" : "below"), ...keptTail];
 }
 
 /** Logs keep the end: the last line is the one that explains the run. */
@@ -367,11 +376,12 @@ function selectTail(lines: Selected[], show: number): Selected[] {
       const text = cleanOutput(line).trim();
       return /^.{2}/u.test(text) && !/^[\s()[\]{},;]+$/u.test(text);
     });
-    return useful ? [useful] : [notice(lines.length)];
+    // A notice alone stands for the whole body, below the header.
+    return useful ? [useful] : [notice(lines.length, "below")];
   }
   // The hidden lines come before the kept ones, so the notice heads them.
   const kept = show - 1;
-  return [notice(lines.length - kept), ...lines.slice(-kept)];
+  return [notice(lines.length - kept, "above"), ...lines.slice(-kept)];
 }
 
 const DIFF_HINT = /^(diff --git|@@ )/m;
@@ -498,9 +508,12 @@ function body(api: RenderApi, input: ToolRowInput, width: number, budget: number
   let clipped = false;
   // Wrapping is the costly step and a selection can repeat lines: do each once.
   const wrapped = new Map<string, string[]>();
-  const paint = ({ line, styled, notice: isNotice }: Selected): string[] => {
+  const paint = ({ line, styled, notice: hidden }: Selected): string[] => {
+    if (hidden) {
+      const label = omittedLinesLabel(hidden.count, hidden.side, api.glyphs);
+      return [indent + kit.truncateToWidth(omissionStyle(theme, label), inner, mark)];
+    }
     const content = styled ?? line;
-    if (isNotice) return [indent + kit.truncateToWidth(theme.fg("dim", content), inner, mark)];
     let parts: string[];
     if (wrap) {
       parts = wrapped.get(content) ?? [];
@@ -585,7 +598,8 @@ export function toolRowLayout(api: RenderApi, input: ToolRowInput, width: number
         ? lines
         : [
             ...lines.slice(0, room - 1),
-            " ".repeat(column) + api.theme.fg("dim", omittedLinesLabel(lines.length - (room - 1))),
+            " ".repeat(column) +
+              omissionStyle(api.theme, omittedLinesLabel(lines.length - (room - 1), "below", api.glyphs)),
           ];
     rows.push(...command);
     budget -= command.length;

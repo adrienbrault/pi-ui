@@ -46,7 +46,7 @@ import {
   toolInfo,
   toolPlan,
 } from "./fold.ts";
-import { claimHover, isOmissionRow, releaseHover } from "./hover.ts";
+import { claimHover, releaseHover } from "./hover.ts";
 import { expandedRegions, hoveredRegions, paintBar, paintBarCell, styleBarCell } from "./viewport.ts";
 import { fadeLine, paintLeaving, toolFade } from "./fade.ts";
 import { installThinkingRenderer, scheduleThinkingFold } from "./thinking.ts";
@@ -339,7 +339,10 @@ function bodyComponent(record: BlockRecord, theme: Theme, includeHeader = false)
         );
       }
       // The omission notice: above a tail, at the cut of a head-and-tail read, below a diff's evidence.
-      const omission = rows.findLastIndex(isOmissionRow);
+      // The renderer marks it as the body row with no source line, so output that reads like one is not.
+      const sources = layout.sources ?? [];
+      const notice = sources.indexOf(undefined);
+      const omission = notice === -1 ? -1 : rows.length - sources.length + notice;
       const expandable =
         record.commandClipped ||
         omission !== -1 ||

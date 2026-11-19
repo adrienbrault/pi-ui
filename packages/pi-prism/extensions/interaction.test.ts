@@ -364,7 +364,7 @@ describe("tool renderers", () => {
     );
     expect(receipt.render(80)).toEqual([]);
     const preview = call.render(80);
-    const cut = preview.findIndex((line) => line.includes("+ 33 lines"));
+    const cut = preview.findIndex((line) => line.includes("⋮ 33 more lines"));
     expect(preview[cut - 1]).toContain("line 4");
     expect(preview.at(-1)).toContain("line 40");
     call.handleMouse?.({ ...click(), y: cut });
