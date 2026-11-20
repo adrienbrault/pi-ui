@@ -137,20 +137,33 @@ export class Replay {
   /** Reports `event`; reaching the stop pauses every later wait. */
   report(event: ReplayEvent, log = true): void {
     if (log) this.write(JSON.stringify({ t: Math.round(performance.now() - this.started), ...event }));
-    if (!this.paused && this.stop && reached(this.stop, event)) {
-      this.paused = true;
-      this.release = new Promise<void>((resolve) => {
-        this.unpause = resolve;
-      });
-      this.write(
-        JSON.stringify({
-          t: Math.round(performance.now() - this.started),
-          type: "paused",
-          stop: formatStop(this.stop),
-        }),
-      );
-      this.onPause();
-    }
+    this.remember(event);
+    if (!this.paused && this.stop && reached(this.stop, event)) this.pause();
+  }
+
+  /** What has happened so far, compactly: every event but progress, and each stream's furthest progress. */
+  private readonly past: ReplayEvent[] = [];
+  private readonly furthest = new Map<string, ReplayEvent>();
+
+  private remember(event: ReplayEvent): void {
+    if (event.type === "progress") this.furthest.set(`message:${event.message}`, event);
+    else if (event.type === "tool_progress") this.furthest.set(`tool:${event.tool}`, event);
+    else this.past.push(event);
+  }
+
+  private pause(): void {
+    this.paused = true;
+    this.release = new Promise<void>((resolve) => {
+      this.unpause = resolve;
+    });
+    this.write(
+      JSON.stringify({
+        t: Math.round(performance.now() - this.started),
+        type: "paused",
+        stop: this.stop ? formatStop(this.stop) : "",
+      }),
+    );
+    this.onPause();
   }
 
   /** Event times count from now: the replay starts. */
@@ -158,11 +171,15 @@ export class Replay {
     this.started = performance.now();
   }
 
-  /** Replays on from a pause, to `stop`. */
+  /**
+   * Replays on from a pause, to `stop`. A stop is reached once it has happened: when it already
+   * has (two tool calls of one message can end in either order), the replay pauses again at once.
+   */
   resume(stop: Stop | undefined): void {
     this.stop = stop;
     this.paused = false;
     this.unpause();
+    if (stop && [...this.past, ...this.furthest.values()].some((event) => reached(stop, event))) this.pause();
   }
 
   /** A recorded wait, scaled and capped; holds while paused. */

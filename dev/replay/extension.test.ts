@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import replayExtension, { BUILTIN_TOOLS, countMice, PROVIDER, Replay, type ReplayConfig } from "./extension.ts";
 import { responseIdOf } from "./session.ts";
+import { parseStop } from "./stops.ts";
 
 const FIXTURE = `${import.meta.dir}/fixtures/synthetic.jsonl`;
 const dir = mkdtempSync(join(tmpdir(), "pi-replay-test-"));
@@ -109,6 +110,23 @@ describe("Replay.respond", () => {
     replay.resume(undefined);
     await run;
     expect(updates.length).toBeGreaterThan(shown);
+  });
+
+  test("resuming to a stop that has already happened pauses again at once", () => {
+    const replay = new Replay(config({ until: "tool:2:end" }));
+    let pauses = 0;
+    replay.onPause = () => pauses++;
+    replay.report({ type: "tool_end", tool: 3, id: "c3", name: "bash", isError: false });
+    replay.report({ type: "progress", message: 4, pct: 30, block: 0, kind: "text" }, false);
+    replay.report({ type: "tool_end", tool: 2, id: "c2", name: "bash", isError: false });
+    expect(pauses).toBe(1);
+    replay.resume(parseStop("tool:3:end"));
+    expect(replay.isPaused).toBe(true);
+    expect(pauses).toBe(2);
+    replay.resume(parseStop("message:4@20%"));
+    expect(pauses).toBe(3);
+    replay.resume(parseStop("message:4@50%"));
+    expect(replay.isPaused).toBe(false);
   });
 
   test("a tool returns its recorded result after streaming a command's output", async () => {
