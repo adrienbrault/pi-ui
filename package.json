@@ -23,6 +23,7 @@
     "test": "bun test",
     "test:watch": "bun test --watch",
     "e2e": "bun dev/tui-e2e.ts",
+    "replay": "bun dev/replay/run.ts",
     "check": "bun run typecheck && bun run lint && bun run format:check && bun test && bun run ds:check"
   },
   "devDependencies": {

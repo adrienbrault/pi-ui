@@ -71,6 +71,11 @@ function resolveRoot(): { root: string; source: PiInstall["source"] } {
   throw new Error(`${PKG} not found: run \`bun install\` or set PI_CODING_AGENT_ROOT`);
 }
 
+/** The root of the pi install the fixtures render against: the same order as `resolvePi`. */
+export function piInstallRoot(): string {
+  return resolveRoot().root;
+}
+
 const WORKSPACE = join(import.meta.dir, "../../packages/pi-ui");
 
 function packageRoot(name: string, from: string): string {
