@@ -102,7 +102,7 @@ test("group members reserve two columns for indentation and keep wrapped content
         thinkingLabel(api, { phase: "aged", level: 0, text: thought, width: innerWidth, expanded: true }).split("\n"),
       "…",
     );
-    expect(rows[0]).toMatch(/^  ✻ think +35 tokens$/);
+    expect(rows[0]).toMatch(/^  ✻ think +out 35$/);
     // The heading stops one column short of the edge, where pi draws its scroll bar.
     expect(rows[0]?.length).toBe(width - 1);
     expect(rows.slice(1).every((line) => line.startsWith("      "))).toBe(true);
@@ -797,7 +797,7 @@ describe("thinking labels", () => {
       durationMs: 3200,
       turnDuration: true,
     });
-    expect(label).toMatch(/^✻ think · done {2,}17 tokens · 3.2s turn$/);
+    expect(label).toMatch(/^✻ think · done {2,}out 17 · 3.2s turn$/);
   });
 
   test("live label stays within the pool of rows", () => {
@@ -807,7 +807,7 @@ describe("thinking labels", () => {
 
   test("a one-row thought that fits whole shows all of it and cannot open", () => {
     const layout = thinkingLayout(api, { phase: "aged", level: 7, text: "first\nlast", width: 80 });
-    expect(layout.label).toMatch(/^✻ think · first last {2,}\d+ tokens$/);
+    expect(layout.label).toMatch(/^✻ think · first last {2,}out \d+$/);
     expect(layout.canToggle).toBe(false);
   });
 
@@ -821,7 +821,7 @@ describe("thinking labels", () => {
         durationMs: 5200,
       });
       expect(layout.label.split("\n")).toHaveLength(1);
-      expect(layout.label).toMatch(/^✻ think · Scoping latest commit review {2,}\d+ tokens [^·]+ · 5.2s$/);
+      expect(layout.label).toMatch(/^✻ think · Scoping latest commit review {2,}out \d+ @ [^·]+ · 5.2s$/);
       expect(layout.canToggle).toBe(false);
       expect(layout.bar).toBeUndefined();
       expect(thinkingLeavingRow(api, { phase: "aged", level, text: "Scoping latest commit review", width: 100 })).toBe(
@@ -840,12 +840,12 @@ describe("thinking labels", () => {
   test("a one-row thought too long for the row keeps its start and its end", () => {
     for (const width of [80, 120]) {
       const layout = thinkingLayout(api, { phase: "aged", level: 7, text: OUTPUT, width, durationMs: 12400 });
-      expect(layout.label).toMatch(/^✻ think · line 1 .* … .*line 40 · +\d+ tokens/);
+      expect(layout.label).toMatch(/^✻ think · line 1 .* … .*line 40 · +out \d+/);
       expect(layout.label.length).toBe(width - 1);
       expect(layout.canToggle).toBe(true);
     }
     const narrow = thinkingLayout(api, { phase: "aged", level: 7, text: OUTPUT, width: 41, durationMs: 12400 });
-    expect(narrow.label).toMatch(/^✻ think · li … 0 · /);
+    expect(narrow.label).toMatch(/^✻ think · li.* … .*0 · out 78/);
     expect(narrow.label.length).toBe(40);
   });
 
@@ -853,7 +853,7 @@ describe("thinking labels", () => {
     const label = thinkingLabel(api, { phase: "aged", level: 7, text: OUTPUT, width: 80, durationMs: 12400 });
     expect(label.split("\n")).toHaveLength(1);
     expect(label).toContain("line 40");
-    expect(label).toContain("tokens 6.3/s · 12s");
+    expect(label).toContain("out 78 @ 6.3/s · 12s");
   });
 
   test("expanded label shows more rows than collapsed", () => {
@@ -1565,11 +1565,11 @@ describe("group summary width", () => {
       const perSegment = line.includes("(4 failed)") && line.includes("(1 failed)");
       if (!perSegment) {
         expect(line).toContain("5 failed");
-        expect(line).not.toContain("tokens");
+        expect(line).not.toContain(" in 48k");
         expect(line).not.toContain("1m 33s");
       }
-      if (line.includes("tokens") || line.includes("1m 33s")) expect(perSegment).toBe(true);
-      if (line.includes("tokens") && !line.includes("1m 33s")) {
+      if (line.includes(" in 48k") || line.includes("1m 33s")) expect(perSegment).toBe(true);
+      if (line.includes(" in 48k") && !line.includes("1m 33s")) {
         expect(renderGroupRow(api, { ...input, tokens: undefined }).render(width)[0]).toContain("1m 33s");
       }
     }
@@ -1578,7 +1578,7 @@ describe("group summary width", () => {
   test("a wide summary keeps every segment, its failures and the metrics", () => {
     const line = renderGroupRow(api, input).render(120)[0]!;
     expect(line).toMatch(
-      /^▸ Read 4 files, ran 24 shell commands \(4 failed\), edited 2 files \(1 failed\) {2,}1200 out/,
+      /^▸ Read 4 files, ran 24 shell commands \(4 failed\), edited 2 files \(1 failed\) {2,}out 1.2k · in 48k/,
     );
     expect(line).toEndWith("1m 33s");
   });
@@ -1590,7 +1590,7 @@ describe("group summary width", () => {
     const tokensOnly = ` · ${tokens.trimEnd().split(/ {2,}/).at(-1)}`;
     const line = renderGroupRow(api, input).render(title.length + tokensOnly.length + HEADER_MARGIN)[0]!;
     expect(line).toStartWith(title);
-    expect(line).toContain("tokens");
+    expect(line).toContain(" in 48k");
     expect(line).not.toContain("1m 33s");
     expect(renderGroupRow(api, input).render(title.length + " · 1m 33s".length + HEADER_MARGIN)[0]).toBe(
       `${title} · 1m 33s`,

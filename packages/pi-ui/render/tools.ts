@@ -131,9 +131,9 @@ function rateSuffix(rate?: number, estimated = false): string {
   return rate ? ` @ ${estimated ? "~" : ""}${formatRate(rate)}/s` : "";
 }
 
+/** Every header's token numbers, one format: `out 9 @ 48/s · in 2.6k`, counts abbreviated past a thousand. */
 export function toolTokenLabel(outputTokens: number, inputTokens: number, rates?: TokenRates): string {
-  if (!rates?.outputRate && !rates?.inputRate) return `${outputTokens} out / ${inputTokens} in tokens`;
-  return `out ${formatRate(outputTokens)}${rateSuffix(rates.outputRate)} · in ${formatRate(inputTokens)}${rateSuffix(rates.inputRate, rates.inputRateEstimated)}`;
+  return `out ${formatRate(outputTokens)}${rateSuffix(rates?.outputRate)} · in ${formatRate(inputTokens)}${rateSuffix(rates?.inputRate, rates?.inputRateEstimated)}`;
 }
 
 /** Thinking folds with tool rows; its verb belongs to the same vocabulary. */

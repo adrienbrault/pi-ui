@@ -136,13 +136,13 @@ function headerFor(api: ThinkingApi, input: ThinkingLabelInput): Header {
   const marker = `${theme.fg("accent", glyph)} ${theme.style(THINKING_LABEL, { fg: "toolTitle", bold: true })}${labelPad}`;
   const dot = theme.fg("dim", glyphs.dot);
   const { count, rate, duration } = thoughtNumbers(input);
-  const tokens = `${count} token${count === 1 ? "" : "s"}`;
-  const timing = duration ? ` ${dot} ${theme.fg("dim", duration)}` : "";
-  const speed = rate ? ` ${formatRate(rate)}/s` : "";
+  // A thought is model output: its tokens read like a tool call's, `out 79 @ 149/s`.
+  const tokens = `out ${formatRate(count)}${rate ? ` @ ${formatRate(rate)}/s` : ""}`;
+  const timing = duration ? ` ${dot} ${styleMetric(theme, duration)}` : "";
   // As a group member, the thought's tokens (model output), rate and time fill the group's columns.
   // Too narrow for the group's table, every member row leaves it out.
   const metrics = !input.columns
-    ? theme.fg("dim", tokens + speed) + timing
+    ? styleMetric(theme, tokens) + timing
     : tableFits(input.columns, input.width - HEADER_MARGIN)
       ? styleMetric(theme, metricColumns(thoughtCells(input), input.columns))
       : "";

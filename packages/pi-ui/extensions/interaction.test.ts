@@ -703,15 +703,15 @@ describe("tool renderers", () => {
     const tool = resolver()("edit", () => undefined) as Renderers;
     const context = { ...ctx, args: { path: "test" }, state: {}, isPartial: true };
     const header = tool.renderCall(context.args, theme, context);
-    expect(header.render(120)[0]).toContain("5 out / 0 in tokens");
+    expect(header.render(120)[0]).toContain("out 5 · in 0");
     tool.renderCall({ path: "test-long" }, theme, context);
-    expect(header.render(120)[0]).toContain("6 out / 0 in tokens");
+    expect(header.render(120)[0]).toContain("out 6 · in 0");
     const content = [
       { type: "text", text: "abcde" },
       { type: "image", mimeType: "image/png", data: "abcd" },
     ];
     tool.renderResult({ content, details: { diff: "+ display only" } }, {}, theme, context);
-    expect(header.render(120)[0]).toContain("5 out / 1202 in tokens");
+    expect(header.render(120)[0]).toContain("out 5 · in 1.2k");
   });
 
   test("edits show the structured diff, with text as a fallback", () => {
