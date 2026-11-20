@@ -29,12 +29,14 @@ export const AGG_THEMES: Record<string, string> = {
 };
 
 /**
- * One frame as terminal output: a cleared screen, then each row from a clean style, cursor hidden.
- * The clear matters: a captured row stops at its last written cell, short of the pane's width.
+ * One frame as terminal output: a cleared screen, then the rows, cursor hidden. The clear matters:
+ * a captured row stops at its last written cell, short of the pane's width. tmux writes a style
+ * only where it changes, so a style can carry over from one row to the next: the rows must not
+ * be reset between them.
  */
 export function frameOutput(pane: string): string {
   const rows = pane.replace(/\n$/, "").split("\n");
-  return `\x1b[?25l\x1b[0m\x1b[H\x1b[2J${rows.map((row) => `\x1b[0m${row}`).join("\r\n")}\x1b[0m`;
+  return `\x1b[?25l\x1b[0m\x1b[H\x1b[2J${rows.join("\r\n")}\x1b[0m`;
 }
 
 export function asciicast(frames: Frame[], width: number, height: number): string {

@@ -75,11 +75,17 @@ describe("replaySession", () => {
 });
 
 describe("capture", () => {
-  test("a frame clears the screen and redraws every row from a clean style, cursor hidden", () => {
+  test("a frame clears the screen and redraws every row, cursor hidden", () => {
     const output = frameOutput("\x1b[31mred\x1b[39m\nplain\n");
     expect(output).toStartWith("\x1b[?25l\x1b[0m\x1b[H\x1b[2J");
-    expect(output).toContain("\x1b[0m\x1b[31mred\x1b[39m\r\n\x1b[0mplain");
+    expect(output).toContain("\x1b[31mred\x1b[39m\r\nplain");
     expect(output).not.toEndWith("\r\n\x1b[0m");
+  });
+
+  test("a style tmux carries from one row to the next is not reset between them", () => {
+    // tmux wrote the background once, on the first row, and resets it only before the last.
+    const output = frameOutput("\x1b[48;2;1;2;3m one\n\n two\n\x1b[49m three\n");
+    expect(output).toContain("\x1b[48;2;1;2;3m one\r\n\r\n two\r\n\x1b[49m three");
   });
 
   test("a cast is an asciicast v2 header and one output event per frame", () => {
