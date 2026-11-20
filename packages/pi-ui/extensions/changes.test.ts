@@ -1,7 +1,17 @@
 import { afterAll, afterEach, describe, expect, test } from "bun:test";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  unlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import * as coding from "@earendil-works/pi-coding-agent";
@@ -196,6 +206,23 @@ function commit(root: string, files: Record<string, string>) {
   git(root, "add", ...Object.keys(files));
   git(root, "commit", "-q", "-m", "files");
 }
+
+describe("files outside the work tree", () => {
+  test("a directory replaced by a symlink does not lead the diff outside the work tree", async () => {
+    const root = repository();
+    const outside = mkdtempSync(join(tmpdir(), "pi-ui-outside-"));
+    repos.push(outside);
+    writeFileSync(join(outside, "gone.ts"), "a secret outside the work tree\n");
+    const before = await takeSnapshot(root);
+    await tick();
+    rmSync(join(root, "src"), { recursive: true });
+    symlinkSync(outside, join(root, "src"));
+    writeFileSync(join(root, "tmp", "one.txt"), "Edits: 5\n");
+    const changes = await collectChanges(before!);
+    expect(changes?.files.map((file) => file.path)).toEqual(["tmp/one.txt"]);
+    expect(JSON.stringify(changes)).not.toContain("secret");
+  });
+});
 
 describe("old contents are read only for the files shown", () => {
   test("a tracked file past the per-file cap is never read from git", async () => {

@@ -16,8 +16,8 @@
  */
 
 import { spawn } from "node:child_process";
-import { lstat, readFile } from "node:fs/promises";
-import { join, posix, relative, resolve as resolvePath, sep } from "node:path";
+import { lstat, readFile, realpath } from "node:fs/promises";
+import { dirname, join, posix, relative, resolve as resolvePath, sep } from "node:path";
 import { createTwoFilesPatch, FILE_HEADERS_ONLY } from "diff";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { toolMeta } from "../render/tools.ts";
@@ -167,6 +167,15 @@ async function each<T>(items: T[], work: (item: T) => Promise<void>, width = 64)
 
 const remaining = (deadline: number) => Math.max(1, deadline - Date.now());
 
+/**
+ * Whether `path` still sits inside `root` once its directories are resolved. The stat checks the
+ * last path component only, and a parent directory replaced by a symlink could lead anywhere.
+ */
+async function inside(root: string, path: string): Promise<boolean> {
+  const [top, parent] = await Promise.all([realpath(root), realpath(dirname(join(root, path)))]).catch(() => []);
+  return !!top && !!parent && (parent === top || parent.startsWith(top + sep));
+}
+
 /** The work tree before a command; undefined outside a git work tree, past a limit or on failure. */
 export async function takeSnapshot(
   cwd: string,
@@ -217,7 +226,7 @@ export async function takeSnapshot(
     reads.push(path);
   }
   await each(reads, async (path) => {
-    const content = await readFile(join(root, path)).catch(() => null);
+    const content = (await inside(root, path)) ? await readFile(join(root, path)).catch(() => null) : null;
     saved.set(path, content && content.length <= limits.maxFileBytes ? content : null);
   });
   if (Date.now() > deadline) return undefined;
@@ -347,6 +356,9 @@ export async function collectChanges(
           : snapshot.saved.has(path)
             ? snapshot.saved.get(path)
             : blobs.get(snapshot.blobs.get(path) ?? "");
+      // A file reached through a symlinked directory is not in the work tree: it is not shown at all.
+      // oxlint-disable-next-line no-await-in-loop
+      if (!(await inside(root, path))) continue;
       let after: Buffer | undefined;
       // One at a time, in path order: the patch budget goes in that order.
       // oxlint-disable-next-line no-await-in-loop
