@@ -54,7 +54,13 @@ describe("shell-class commands", () => {
       expect(closed.rows).toHaveLength(1);
       expect(opened.rows.length).toBeGreaterThan(1);
       expect(closed.rows[0]).toContain("…");
-      expect(opened.rows.slice(1).join(" ")).toContain("Measure-Object");
+      // The command wraps by column, so a word can break across rows.
+      expect(
+        opened.rows
+          .slice(1)
+          .map((row) => row.trim())
+          .join(""),
+      ).toContain("Measure-Object");
     }
   });
 });

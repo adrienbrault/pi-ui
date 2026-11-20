@@ -25,7 +25,15 @@ import {
   type OmissionSide,
 } from "./text.ts";
 import { highlightShellLines, shellView, type ShellLine, type ShellView } from "./shell-output.ts";
-import { describeCall, formatRate, toolTokenCounts, toolMeta, toolTokenLabel, type TokenRates } from "./tools.ts";
+import {
+  describeCall,
+  formatRate,
+  HEADER_MARGIN,
+  toolTokenCounts,
+  toolMeta,
+  toolTokenLabel,
+  type TokenRates,
+} from "./tools.ts";
 
 export interface RenderApi {
   kit: RenderKit;
@@ -248,8 +256,10 @@ export function toolRowCells(input: ToolRowInput): MemberCells {
   };
 }
 
-export function toolHeader(api: RenderApi, input: ToolRowInput, width: number) {
+export function toolHeader(api: RenderApi, input: ToolRowInput, rowWidth: number) {
   const { theme, glyphs, kit } = api;
+  // The header, and an opened title's rows under it, stop short of the scroll bar's column.
+  const width = Math.max(1, rowWidth - HEADER_MARGIN);
   const meta = toolMeta(input.name);
   // Names, titles, summaries and errors come from the model or the tool: never trust them.
   const label = toolLabel(input.name);

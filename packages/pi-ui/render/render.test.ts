@@ -9,7 +9,7 @@ import {
   maxRowsFor,
   settleLevel,
 } from "./detail.ts";
-import { groupVerb, mcpLabel, toolMeta, groupNoun, toolTokenLabel } from "./tools.ts";
+import { groupVerb, HEADER_MARGIN, mcpLabel, toolMeta, groupNoun, toolTokenLabel } from "./tools.ts";
 import { formatDuration, headLines, nonEmptyLineCount, omittedCount, tailLines } from "./text.ts";
 import { groupSegments, renderGroupMember, renderGroupRow } from "./group-row.ts";
 import {
@@ -103,7 +103,8 @@ test("group members reserve two columns for indentation and keep wrapped content
       "…",
     );
     expect(rows[0]).toMatch(/^  ✻ think · +35 tokens$/);
-    expect(rows[0]?.length).toBe(width);
+    // The heading stops one column short of the edge, where pi draws its scroll bar.
+    expect(rows[0]?.length).toBe(width - 1);
     expect(rows.slice(1).every((line) => line.startsWith("      "))).toBe(true);
     expect(rows.every((line) => kit.visibleWidth(line) <= width)).toBe(true);
     expect(
@@ -840,10 +841,10 @@ describe("thinking labels", () => {
     for (const width of [80, 120]) {
       const layout = thinkingLayout(api, { phase: "aged", level: 7, text: OUTPUT, width, durationMs: 12400 });
       expect(layout.label).toMatch(/^✻ think · line 1 .* … .*line 40 · +\d+ tokens/);
-      expect(layout.label.length).toBe(width);
+      expect(layout.label.length).toBe(width - 1);
       expect(layout.canToggle).toBe(true);
     }
-    const narrow = thinkingLayout(api, { phase: "aged", level: 7, text: OUTPUT, width: 40, durationMs: 12400 });
+    const narrow = thinkingLayout(api, { phase: "aged", level: 7, text: OUTPUT, width: 41, durationMs: 12400 });
     expect(narrow.label).toMatch(/^✻ think · li … 0 · /);
     expect(narrow.label.length).toBe(40);
   });
@@ -1456,10 +1457,11 @@ describe("header budget", () => {
   test("a long title keeps its basename instead of a clipped tail", () => {
     const head = row(
       { name: "read", status: "success", level: 0, title: LONG, summary: "1 match", durationMs: 400 },
-      40,
+      41,
     );
     expect(head).toContain("assistant-message.js");
     expect(head.endsWith("0.…")).toBe(false);
+    // One column short of the edge, where pi draws its scroll bar.
     expect(head.length).toBe(40);
   });
 
@@ -1581,12 +1583,14 @@ describe("group summary width", () => {
     const title = "▸ Read 4 files, ran 24 shell commands (4 failed), edited 2 files (1 failed)";
     const tokens = renderGroupRow(api, { ...input, durationMs: undefined }).render(120)[0]!;
     const tokensOnly = tokens.slice(tokens.lastIndexOf("·") - 1);
-    const line = renderGroupRow(api, input).render(title.length + tokensOnly.length)[0]!;
+    const line = renderGroupRow(api, input).render(title.length + tokensOnly.length + HEADER_MARGIN)[0]!;
     expect(line).toStartWith(title);
     expect(line).toContain("tokens");
     expect(line).not.toContain("1m 33s");
-    expect(renderGroupRow(api, input).render(title.length + " · 1m 33s".length)[0]).toBe(`${title} · 1m 33s`);
-    expect(renderGroupRow(api, input).render(title.length)[0]).toBe(title);
+    expect(renderGroupRow(api, input).render(title.length + " · 1m 33s".length + HEADER_MARGIN)[0]).toBe(
+      `${title} · 1m 33s`,
+    );
+    expect(renderGroupRow(api, input).render(title.length + HEADER_MARGIN)[0]).toBe(title);
   });
 
   test("a mixed run reads as one sentence with thinking and shell time", () => {
@@ -1623,7 +1627,7 @@ describe("group summary width", () => {
         { cls: "read", count: 4 },
         { cls: "shell", count: 24 },
       ],
-    }).render(16)[0];
+    }).render(17)[0];
     expect(line).toBe("▸ Read 4 file … ");
   });
 });

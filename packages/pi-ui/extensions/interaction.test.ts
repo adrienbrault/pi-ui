@@ -1231,7 +1231,8 @@ describe("tool renderers", () => {
       expect(new Set(rows.map((row) => row.indexOf("out ")))).toEqual(new Set([rows[0]!.indexOf("out ")]));
       expect(rows[1]!.indexOf("· in ")).toBe(rows[2]!.indexOf("· in "));
       expect(rows[0]).not.toContain(" in ");
-      expect(new Set(rows.map((row) => row.length))).toEqual(new Set([80]));
+      // Every row stops one column short of the edge, where pi draws its scroll bar.
+      expect(new Set(rows.map((row) => row.length))).toEqual(new Set([79]));
     } finally {
       session.close();
     }

@@ -6,7 +6,7 @@
 import { cutMark, type ComponentLike, type RenderKit } from "./kit.ts";
 import { formatDuration } from "./text.ts";
 import type { RenderApi } from "./tool-row.ts";
-import { groupVerb, toolTokenLabel, type TokenCounts, type GroupClass } from "./tools.ts";
+import { groupVerb, HEADER_MARGIN, toolTokenLabel, type TokenCounts, type GroupClass } from "./tools.ts";
 
 export interface GroupSegment {
   cls: GroupClass;
@@ -32,7 +32,9 @@ export interface GroupRowInput {
  * to leave the row.
  */
 export function renderGroupRow(api: RenderApi, input: GroupRowInput): ComponentLike {
-  return api.kit.component((width) => {
+  return api.kit.component((rowWidth) => {
+    // The summary stops short of the scroll bar's column, like every header.
+    const width = Math.max(1, rowWidth - HEADER_MARGIN);
     const { theme, glyphs, kit } = api;
     const mark = cutMark(theme);
     const marker = theme.fg("dim", input.expanded ? glyphs.expanded : glyphs.collapsed);

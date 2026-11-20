@@ -12,7 +12,7 @@ import { frameAt, type GlyphSet } from "./glyphs.ts";
 import { cellPadding, metricColumns, tableFits, type MemberCells, type MemberColumns } from "./columns.ts";
 import { blockBodyIndent, cutMark, omissionStyle, type RenderKit, type RenderTheme } from "./kit.ts";
 import { previewBar, styleMetric, truncateMiddle, type BarCell } from "./tool-row.ts";
-import { estimatedTokens, formatRate } from "./tools.ts";
+import { estimatedTokens, formatRate, HEADER_MARGIN } from "./tools.ts";
 import {
   cleanOutput,
   cleanThinking,
@@ -143,14 +143,15 @@ function headerFor(api: ThinkingApi, input: ThinkingLabelInput): Header {
   // Too narrow for the group's table, every member row leaves it out.
   const metrics = !input.columns
     ? theme.fg("dim", tokens + speed) + timing
-    : tableFits(input.columns, input.width)
+    : tableFits(input.columns, input.width - HEADER_MARGIN)
       ? styleMetric(theme, metricColumns(thoughtCells(input), input.columns))
       : "";
   const heading = (left: string) => {
     if (!metrics) return clampLine(api, left, input.width);
     const prefix = left + ` ${dot} `;
-    const gap = Math.max(0, input.width - kit.visibleWidth(prefix + metrics));
-    return clampLine(api, prefix + " ".repeat(gap) + metrics, input.width);
+    const edge = input.width - HEADER_MARGIN;
+    const gap = Math.max(0, edge - kit.visibleWidth(prefix + metrics));
+    return clampLine(api, prefix + " ".repeat(gap) + metrics, edge);
   };
   return { indent, bodyWidth, source, formatted, last, flat, marker, dot, metrics, heading };
 }
@@ -265,7 +266,8 @@ function oneRow(
 ): { layout: ThinkingLayout; whole: boolean } {
   const { kit, theme } = api;
   const prefix = `${frame.marker} ${frame.dot} `;
-  const room = input.width - (frame.metrics ? kit.visibleWidth(frame.metrics) + 3 : 0) - kit.visibleWidth(prefix);
+  const room =
+    input.width - (frame.metrics ? kit.visibleWidth(frame.metrics) + 3 + HEADER_MARGIN : 0) - kit.visibleWidth(prefix);
   // Hovering a thought that can open lights its excerpt when it is cut, foreground only.
   const tone = input.lit && kit.visibleWidth(frame.flat) > room ? "text" : "thinkingText";
   const excerpt = frame.flat

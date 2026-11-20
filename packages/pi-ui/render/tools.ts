@@ -114,6 +114,13 @@ export interface TokenRates {
   outputRate?: number;
 }
 
+/**
+ * Columns a header row leaves empty at its right edge. pi draws its scroll bar
+ * over the last column while the transcript is scrolled, and right-aligned
+ * metrics end there: a duration would lose its unit (`28ms` reads `28m`).
+ */
+export const HEADER_MARGIN = 1;
+
 export function formatRate(value: number): string {
   if (value >= 1000) return `${Number((value / 1000).toFixed(1))}k`;
   return value < 10 ? String(Number(value.toFixed(1))) : String(Math.round(value));
