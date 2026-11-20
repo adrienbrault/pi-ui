@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { asciicast, distinct, frameOutput } from "./capture.ts";
-import { checkStop, parseOptions, replaySession } from "./run.ts";
+import { capturesOf, checkStop, parseOptions, replaySession, rowFor } from "./run.ts";
 import { buildScript, parseSession } from "./session.ts";
 import { parseStop } from "./stops.ts";
 
@@ -74,6 +74,50 @@ describe("replaySession", () => {
     expect(lines.at(-1)).toMatchObject({ type: "thinking_level_change", thinkingLevel: "medium", parentId: model.id });
     expect(JSON.stringify(lines)).toContain("Fixed. `greet` used an undefined `nam`");
     expect(JSON.stringify(lines)).not.toContain("Run the linter and the type checker.");
+  });
+
+  test("is the same text every time", async () => {
+    const full = await script();
+    expect(replaySession(full, "/w", "m")).toBe(replaySession(full, "/w", "m"));
+  });
+});
+
+describe("rowFor", () => {
+  const pane = ["✻ think · read docs/PLAN.md first", "● read · ~/pi-ui/docs/PLAN.md · 9 out", "    1  # Plan"].join(
+    "\n",
+  );
+
+  test("finds the one row holding the text, 1-based, with its column", () => {
+    expect(rowFor(pane, "read · ~/pi-ui/docs/PLAN.md")).toEqual({ row: 2, column: 3 });
+  });
+
+  test("text on several rows is an error listing them; text on none, an error too", () => {
+    const several = rowFor(pane, "docs/PLAN.md");
+    expect("error" in several && several.error).toBe(
+      [
+        '2 rows hold "docs/PLAN.md"; name one of them:',
+        "  row 1: ✻ think · read docs/PLAN.md first",
+        "  row 2: ● read · ~/pi-ui/docs/PLAN.md · 9 out",
+      ].join("\n"),
+    );
+    const none = rowFor(pane, "DESIGN.md");
+    expect("error" in none && none.error).toBe('no row on screen holds "DESIGN.md"');
+  });
+});
+
+describe("capturesOf", () => {
+  test("one capture from the command line, or the list a caller gives", () => {
+    const options = parseOptions(["a.jsonl", "--until", "tool:3", "--hover", "bash", "--ansi", "a.ans"]);
+    expect(capturesOf(options)).toEqual([
+      {
+        until: { kind: "tool", tool: 3, at: "start" },
+        actions: [{ kind: "hover", text: "bash" }],
+        shot: undefined,
+        ansi: expect.stringMatching(/\/a\.ans$/),
+      },
+    ]);
+    const captures = [{ until: parseStop("end"), actions: [] }];
+    expect(capturesOf({ ...options, captures })).toBe(captures);
   });
 });
 

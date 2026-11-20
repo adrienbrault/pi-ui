@@ -15,12 +15,18 @@
  *   after pi settles, after the recorded pause (capped). A steer is sent while the tools of the
  *   message before it run.
  * - Progress events go to `<control>/events.jsonl`. When an event reaches the `until` stop, every
- *   wait in the replay holds from then on, so the screen stops changing except for pi-ui's own
- *   timers.
+ *   wait in the replay holds from then on.
+ * - Under the virtual clock (clock.ts, installed by clock-preload.ts), the replay's waits are
+ *   virtual timers like every other timer in pi, so the stop always lands at the same virtual
+ *   instant. At the stop the clock runs `settleMs` further, so the last change paints, then holds:
+ *   nothing on screen moves until the driver says so. The driver sends commands as JSON lines in
+ *   `<control>/commands.jsonl`: `go` starts the replay, `advance` runs the clock a fixed step once
+ *   pi has read the mouse input the driver sent, `resume` replays on to a next stop.
  */
 
 import { appendFileSync, existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { type ClockMode, installedClock } from "./clock.ts";
 import { deltas, planMessage } from "./pacing.ts";
 import {
   type AssistantStep,
@@ -49,8 +55,30 @@ export interface ReplayConfig {
   startTurn?: number;
   until?: string;
   theme?: string;
-  /** A directory for `events.jsonl`, and the `go` file the driver creates when it watches. */
+  /** A directory for `events.jsonl`, and the `commands.jsonl` the driver writes. */
   control?: string;
+  /** How the virtual clock runs once the replay starts (default fast). */
+  clock?: ClockMode;
+  /**
+   * Recorded milliseconds between deltas of a message no mid-stream stop names (default 40).
+   * Each delta repaints pi, and a long thought repaints all of itself: wider deltas replay faster.
+   */
+  coarseMs?: number;
+  /** Virtual milliseconds the clock runs on after reaching a stop, before it holds (default 200). */
+  settleMs?: number;
+}
+
+/** What the driver asks of the replay, one JSON line each in `<control>/commands.jsonl`. */
+export type Command =
+  | { type: "go" }
+  /** Once pi has read `mice` mouse sequences since go, run the clock `ms` further and hold. */
+  | { type: "advance"; ms: number; mice: number }
+  | { type: "resume"; until: string };
+
+/** SGR mouse reports in terminal input. */
+export function countMice(input: string): number {
+  // oxlint-disable-next-line no-control-regex -- the report starts with ESC
+  return input.match(/\x1b\[<\d+;\d+;\d+[Mm]/g)?.length ?? 0;
 }
 
 export const PROVIDER = "replay";
@@ -81,12 +109,15 @@ type ArgumentsParser = { append(chunk: string): Record<string, unknown> };
 /** The replay's state and its waits. Kept apart from pi so the provider stream can be tested. */
 export class Replay {
   readonly script: Script;
-  readonly stop: Stop | undefined;
+  stop: Stop | undefined;
   private paused = false;
   private release: Promise<void> = Promise.resolve();
+  private unpause: () => void = () => {};
+  /** Called once each time the replay pauses at its stop. */
+  onPause: () => void = () => {};
   private readonly emittedErrors = new Set<number>();
   private readonly sent = new Set<PromptStep>();
-  private readonly started = performance.now();
+  private started = performance.now();
   turn = 0;
 
   constructor(
@@ -108,7 +139,9 @@ export class Replay {
     if (log) this.write(JSON.stringify({ t: Math.round(performance.now() - this.started), ...event }));
     if (!this.paused && this.stop && reached(this.stop, event)) {
       this.paused = true;
-      this.release = new Promise<void>(() => {});
+      this.release = new Promise<void>((resolve) => {
+        this.unpause = resolve;
+      });
       this.write(
         JSON.stringify({
           t: Math.round(performance.now() - this.started),
@@ -116,7 +149,20 @@ export class Replay {
           stop: formatStop(this.stop),
         }),
       );
+      this.onPause();
     }
+  }
+
+  /** Event times count from now: the replay starts. */
+  begin(): void {
+    this.started = performance.now();
+  }
+
+  /** Replays on from a pause, to `stop`. */
+  resume(stop: Stop | undefined): void {
+    this.stop = stop;
+    this.paused = false;
+    this.unpause();
   }
 
   /** A recorded wait, scaled and capped; holds while paused. */
@@ -198,11 +244,12 @@ export class Replay {
       else partial.content.push({ ...source, arguments: {} });
       yield { type: `${kind}_start`, contentIndex: index, partial: { ...partial } };
       const parser = block.kind === "toolCall" ? options.parser?.() : undefined;
-      // A delta every 40 ms of replay time: each one repaints pi, so a fast replay needs fewer.
-      // The message a mid-stream stop names keeps fine deltas, so the pause lands near its percentage.
+      // A delta every 40 ms of replay time: each one repaints pi, so a fast replay needs fewer, and
+      // `coarseMs` spaces them further. The message a mid-stream stop names keeps fine deltas, so
+      // the pause lands near its percentage.
       const stop = this.stop;
       const fine = stop?.kind === "message" && stop.message === step.index && stop.pct < 100;
-      const pieces = deltas(block, fine ? 40 : 40 * this.config.speed);
+      const pieces = deltas(block, fine ? 40 : (this.config.coarseMs ?? 40) * this.config.speed);
       if (!pieces.length) await this.wait(block.durationMs);
       for (const piece of pieces) {
         await this.wait(piece.delayMs);
@@ -255,15 +302,26 @@ export class Replay {
     const duration = this.clip(result.durationMs ?? 0);
     const text = result.content.map((part: any) => (part?.type === "text" ? part.text : "")).join("");
     const lines = SHELL_TOOLS.has(name) && onUpdate ? text.split("\n") : [];
+    const index = call?.index ?? 0;
+    const progress = (pct: number) => this.report({ type: "tool_progress", tool: index, id, pct }, false);
     if (lines.length > 1) {
       const updates = Math.min(lines.length, Math.max(1, Math.round(duration / this.config.speed / 80)));
       for (let step = 1; step <= updates; step++) {
         await this.wait(duration / updates);
         const shown = lines.slice(0, Math.round((lines.length * step) / updates)).join("\n");
         if (step < updates) onUpdate?.({ content: [{ type: "text", text: shown }], details: {} });
+        progress((100 * step) / updates);
       }
     } else {
-      await this.wait(duration);
+      // A stop part way through a call without output splits its wait there.
+      const stop = this.stop;
+      const share =
+        stop?.kind === "tool" && stop.at === "progress" && (stop.tool === index || stop.tool === id)
+          ? stop.pct / 100
+          : 1;
+      await this.wait(duration * share);
+      progress(100 * share);
+      if (share < 1) await this.wait(duration * (1 - share));
     }
     return { content: result.content, details: result.details ?? {} };
   }
@@ -282,6 +340,15 @@ export default function replayExtension(pi: Pi): void {
     if (events) appendFileSync(events, `${line}\n`);
   });
   const { script } = replay;
+  const clock = installedClock();
+  // The replay's own polling runs on real time: virtual time may be held.
+  const sleep = (ms: number) =>
+    new Promise<void>((resolve) => (clock ? clock.real.setTimeout(resolve, ms) : setTimeout(resolve, ms)));
+  const settleMs = config.settleMs ?? 200;
+  replay.onPause = () => {
+    if (!clock) return;
+    void clock.hold(settleMs).then(() => replay.report({ type: "held", at: clock.now() }));
+  };
   let parser: (() => ArgumentsParser) | undefined;
   // pi maps this import to its own copy; outside pi (tests, tsgo) it does not resolve, and tool
   // call arguments then appear whole at the end of each call instead of growing.
@@ -396,12 +463,52 @@ export default function replayExtension(pi: Pi): void {
       replay.report({ type: "ready" });
       // Not awaited: pi finishes starting while the driver gets ready to watch.
       void (async () => {
-        if (config.control)
-          while (!existsSync(join(config.control, "go"))) await new Promise((resolve) => setTimeout(resolve, 50));
+        if (config.control) await follow(config.control);
         await sendNext();
       })();
     },
   );
+
+  /** Reads the driver's commands until `go`, then keeps following them in the background. */
+  let mice = 0;
+  const follow = async (control: string): Promise<void> => {
+    // Alongside pi's own reader: the mouse reports the driver sends, counted.
+    process.stdin.on("data", (data: Buffer | string) => {
+      mice += countMice(data.toString());
+    });
+    const path = join(control, "commands.jsonl");
+    let read = 0;
+    const next = async (): Promise<Command> => {
+      for (;;) {
+        const text = existsSync(path) ? readFileSync(path, "utf8") : "";
+        const end = text.indexOf("\n", read);
+        if (end !== -1) {
+          const line = text.slice(read, end);
+          read = end + 1;
+          return JSON.parse(line) as Command;
+        }
+        await sleep(10);
+      }
+    };
+    while ((await next()).type !== "go");
+    mice = 0;
+    replay.begin();
+    if (clock && !clock.go(config.clock ?? "fast"))
+      replay.report({ type: "warning", text: "pi took longer to start than the clock allows: the replay may vary" });
+    void (async () => {
+      for (;;) {
+        const command = await next();
+        if (command.type === "advance") {
+          while (mice < command.mice) await sleep(5);
+          await clock?.hold(command.ms);
+          replay.report({ type: "advanced", mice, at: clock?.now() ?? 0 });
+        } else if (command.type === "resume") {
+          clock?.release();
+          replay.resume(parseStop(command.until));
+        }
+      }
+    })();
+  };
   pi.on("agent_settled", () => {
     replay.report({ type: "settled", turn: replay.turn });
     void sendNext();

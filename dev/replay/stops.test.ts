@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { formatStop, parseStop, reached } from "./stops.ts";
 
+const toolProgress = (pct: number) => ({ type: "tool_progress" as const, tool: 4, id: "c4", pct });
+
 const progress = (message: number, pct: number) => ({
   type: "progress" as const,
   message,
@@ -18,16 +20,17 @@ describe("parseStop", () => {
     expect(parseStop("tool:4")).toEqual({ kind: "tool", tool: 4, at: "start" });
     expect(parseStop("tool:4:end")).toEqual({ kind: "tool", tool: 4, at: "end" });
     expect(parseStop("tool:call_abc|fc_1:end")).toEqual({ kind: "tool", tool: "call_abc|fc_1", at: "end" });
+    expect(parseStop("tool:4@40%")).toEqual({ kind: "tool", tool: 4, at: "progress", pct: 40 });
     expect(parseStop("end")).toEqual({ kind: "end" });
   });
 
   test("rejects what it cannot read", () => {
-    for (const spec of ["turn:0", "turn:x", "message:2@150%", "message:", "tool:", "step:1", ""])
+    for (const spec of ["turn:0", "turn:x", "message:2@150%", "message:", "tool:", "tool:3@101%", "step:1", ""])
       expect(() => parseStop(spec)).toThrow("bad stop");
   });
 
   test("formats back to a spec it reads", () => {
-    for (const spec of ["turn:3", "message:7", "message:7@40%", "tool:4:end", "tool:abc:start", "end"])
+    for (const spec of ["turn:3", "message:7", "message:7@40%", "tool:4:end", "tool:abc:start", "tool:4@40%", "end"])
       expect(parseStop(formatStop(parseStop(spec)))).toEqual(parseStop(spec));
   });
 });
@@ -59,6 +62,15 @@ describe("reached", () => {
     expect(reached(parseStop("tool:4"), end)).toBe(false);
     expect(reached(parseStop("tool:c4:end"), end)).toBe(true);
     expect(reached(parseStop("tool:5"), start)).toBe(false);
+  });
+
+  test("a tool percentage is reached as the call reports progress, or at its end", () => {
+    const stop = parseStop("tool:4@50%");
+    expect(reached(stop, toolProgress(40))).toBe(false);
+    expect(reached(stop, { ...toolProgress(60), tool: 5 })).toBe(false);
+    expect(reached(stop, toolProgress(50))).toBe(true);
+    expect(reached(stop, { type: "tool_end", tool: 4, id: "c4", name: "read", isError: false })).toBe(true);
+    expect(reached(stop, { type: "tool_start", tool: 4, id: "c4", name: "read" })).toBe(false);
   });
 
   test("end is the finished event", () => {

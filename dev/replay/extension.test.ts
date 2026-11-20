@@ -3,7 +3,7 @@ import { afterAll, describe, expect, test } from "bun:test";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import replayExtension, { BUILTIN_TOOLS, PROVIDER, Replay, type ReplayConfig } from "./extension.ts";
+import replayExtension, { BUILTIN_TOOLS, countMice, PROVIDER, Replay, type ReplayConfig } from "./extension.ts";
 import { responseIdOf } from "./session.ts";
 
 const FIXTURE = `${import.meta.dir}/fixtures/synthetic.jsonl`;
@@ -89,6 +89,28 @@ describe("Replay.respond", () => {
     void pump;
   });
 
+  test("a tool stop part way through a call holds the call there until resumed", async () => {
+    const lines: string[] = [];
+    const replay = new Replay(config({ until: "tool:3@50%", speed: 4 }), undefined, (line) => lines.push(line));
+    let pauses = 0;
+    replay.onPause = () => pauses++;
+    const updates: string[] = [];
+    let done = false;
+    const run = replay
+      .execute("toolu_bash_1", "bash", (partial) => updates.push((partial.content[0] as { text: string }).text))
+      .then(() => (done = true));
+    for (let i = 0; i < 200 && !replay.isPaused; i++) await Bun.sleep(5);
+    expect(replay.isPaused).toBe(true);
+    expect(pauses).toBe(1);
+    const shown = updates.length;
+    await Bun.sleep(150);
+    expect(updates.length).toBe(shown);
+    expect(done).toBe(false);
+    replay.resume(undefined);
+    await run;
+    expect(updates.length).toBeGreaterThan(shown);
+  });
+
   test("a tool returns its recorded result after streaming a command's output", async () => {
     const replay = new Replay(config({ speed: 4 }));
     const updates: string[] = [];
@@ -163,5 +185,13 @@ describe("the extension", () => {
       .split("\n")
       .map((line) => JSON.parse(line));
     expect(events.at(-1)).toMatchObject({ type: "tool_end", tool: 1, id: "toolu_read_1" });
+  });
+});
+
+describe("countMice", () => {
+  test("counts SGR mouse reports, presses and releases alike, and nothing else", () => {
+    expect(countMice("\x1b[<35;10;4M")).toBe(1);
+    expect(countMice("\x1b[<0;3;7M\x1b[<0;3;7m\x1b[<64;60;20M")).toBe(3);
+    expect(countMice("\x1b[A plain text \x1b]11;rgb:0/0/0\x07")).toBe(0);
   });
 });

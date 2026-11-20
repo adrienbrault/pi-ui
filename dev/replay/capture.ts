@@ -4,6 +4,9 @@
  * A frame is `tmux capture-pane -e -p -N`: every row with its SGR styling and its trailing
  * blanks. In a cast, each frame redraws the whole screen from the top left with the cursor hidden.
  * `agg` renders a cast to a GIF; a PNG is the first frame of a one-frame GIF, through `ffmpeg`.
+ *
+ * Renders are reproducible: the fonts are named (macOS system fonts, no fallback search), and the
+ * PNG carries no encoder string or metadata, so one cast gives the same bytes every time.
  */
 
 export interface Frame {
@@ -11,6 +14,9 @@ export interface Frame {
   time: number;
   pane: string;
 }
+
+/** The fonts agg draws with: Menlo, then symbols and emoji it lacks. */
+export const FONT_FAMILY = "Menlo,Apple Symbols,Apple Color Emoji";
 
 /** agg's custom theme: background, foreground, then the 16 ANSI colours, as hex without `#`. */
 export const AGG_THEMES: Record<string, string> = {
@@ -70,6 +76,8 @@ export function renderGif(
     "--quiet",
     "--theme",
     AGG_THEMES[options.theme] ?? AGG_THEMES.dark!,
+    "--font-family",
+    FONT_FAMILY,
     "--font-size",
     String(options.fontSize),
     "--line-height",
@@ -85,5 +93,20 @@ export function renderGif(
 
 export function renderPng(castPath: string, gifPath: string, pngPath: string, options: RenderOptions): void {
   renderGif(castPath, gifPath, { ...options, lastFrameSeconds: 0.1 });
-  run(["ffmpeg", "-loglevel", "error", "-y", "-i", gifPath, "-frames:v", "1", "-update", "1", pngPath]);
+  run([
+    "ffmpeg",
+    "-loglevel",
+    "error",
+    "-y",
+    "-i",
+    gifPath,
+    "-frames:v",
+    "1",
+    "-update",
+    "1",
+    "-bitexact",
+    "-map_metadata",
+    "-1",
+    pngPath,
+  ]);
 }

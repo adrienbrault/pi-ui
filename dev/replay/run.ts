@@ -8,14 +8,23 @@
  * pi-ui and dev/replay/extension.ts only, an empty agent directory, and a session file of its own:
  * nothing reads or writes ~/.pi, and the recorded session is only read.
  *
- * The working directory defaults to an empty temporary directory named like the recorded one, so
- * pi's footer reads sensibly and pi-ui's bash diff hook finds no git work tree to snapshot. With
- * `--cwd`, the replay still shows each command's recorded changes, never the directory's.
+ * pi runs with a fixed environment (`env -i`): HOME is an empty directory of the work directory,
+ * and the working directory is `$HOME/<the recorded directory's name>`, so pi's footer reads
+ * `~/pi-ui` for a session recorded in a `pi-ui` checkout, and pi-ui's bash diff hook finds no git
+ * work tree to snapshot. With `--cwd`, the replay still shows each command's recorded changes,
+ * never the directory's.
+ *
+ * pi runs on a virtual clock (clock.ts): every timer and clock in the process reads replay time,
+ * and time stands still while pi does real work. A capture is therefore the same on every run:
+ * the replay stops at the same instant, the clock runs `--settle` virtual milliseconds further and
+ * holds, and the driver captures once the screen has stopped changing. Each mouse action runs the
+ * clock `--settle` further again. Without `--gif` the clock runs as fast as pi renders, so a long
+ * session replays in seconds; with `--gif` it keeps the recorded pace.
  *
  * What does not replay as recorded:
  * - pi's own clocks run on replay time: a running thought's timer, the spinner, and each tool's
  *   duration read the replay's time, so at `--speed N` they read 1/N of the recording. A finished
- *   thought shows its recorded time. While paused, pi-ui's timers and spinners keep moving.
+ *   thought shows its recorded time.
  * - The footer names the `replay` provider's copy of the model; the context bar is out of a very
  *   large window, so pi never compacts mid-replay. Model switches inside the replay are not
  *   applied.
@@ -35,13 +44,22 @@
  * Run with --help for the options.
  */
 
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  appendFileSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { piInstallRoot } from "../../design-system/lib/pi.ts";
-import { rowOf, tmuxSession } from "../tmux.ts";
+import { tmuxSession } from "../tmux.ts";
 import { asciicast, distinct, type Frame, renderGif, renderPng } from "./capture.ts";
-import type { ReplayConfig } from "./extension.ts";
+import type { Command, ReplayConfig } from "./extension.ts";
 import { assistantSteps, buildScript, liveSteps, outline, parseSession, type Script } from "./session.ts";
 import { formatStop, parseStop, reached, type Stop, type TimedEvent } from "./stops.ts";
 
@@ -54,22 +72,27 @@ Replays a recorded pi session in pi, offline, and captures the screen.
 
   --list               print the session's turns, messages and tools, and exit
   --until SPEC         pause there and capture (default: end)
-                       turn:N | message:N[@P%] | tool:N|ID[:start|:end] | end
+                       turn:N | message:N[@P%] | tool:N|ID[:start|:end|@P%] | end
                        A point is reached once it has happened: turn:N when pi settles
                        after turn N, message:N when it has streamed (message:N@0% at its
-                       first delta), tool:N when it starts (tool:N:end when it returns).
+                       first delta), tool:N when it starts (tool:N:end when it returns,
+                       tool:N@P% when P% of its recorded time has passed).
   --start turn:N       load the turns before N as history and replay from turn N
   --speed N            play N times as fast (default 1)
   --max-gap MS         longest pause between prompts (default 2000)
   --max-wait MS        longest a message or a tool may take, after --speed (default: none)
+  --coarse MS          recorded time between deltas of a message no mid-stream stop names
+                       (default 40); wider deltas replay a long session faster
   --width N --height N pane size (default 120x40)
   --theme dark|light   pi's theme and the render's palette (default dark)
   --cwd DIR            pi's working directory (default: an empty temporary one)
   --show-thinking      start pi with thinking blocks shown (default: hidden, pi-ui's decaying tails)
-  --hover TEXT         after the pause, move the mouse over the first row with TEXT
-  --click TEXT         after the pause, click the first row with TEXT
+  --hover TEXT         after the pause, move the mouse over the one row with TEXT
+  --click TEXT         after the pause, click the one row with TEXT
+                       (TEXT on no row, or on more than one, is an error listing them)
   --scroll N           after the pause, turn the mouse wheel N notches up (negative: down)
-  --settle MS          wait before each capture and after each action (default 1000)
+  --settle MS          virtual time the clock runs after the pause and after each action,
+                       before it holds for the capture (default 200)
   --shot FILE.png      a PNG of the final screen
   --ansi FILE          the final screen as ANSI text
   --gif FILE.gif       a GIF from --from (default: pi's first screen) to the pause,
@@ -83,7 +106,17 @@ Replays a recorded pi session in pi, offline, and captures the screen.
 
 With no output option, writes a PNG and the ANSI text under tmp/replay-out/.`;
 
-interface Options {
+export type Action = { kind: "hover" | "click"; text: string } | { kind: "scroll"; lines: number };
+
+/** A point to pause at, what to do there, and where to save the screen. */
+export interface Capture {
+  until: Stop;
+  actions: Action[];
+  shot?: string | undefined;
+  ansi?: string | undefined;
+}
+
+export interface Options {
   session: string;
   list: boolean;
   until: Stop;
@@ -92,11 +125,18 @@ interface Options {
   speed: number;
   maxGapMs: number;
   maxWaitMs: number | undefined;
+  coarseMs: number | undefined;
   width: number;
   height: number;
   theme: "dark" | "light";
   cwd: string | undefined;
-  actions: Array<{ kind: "hover" | "click"; text: string } | { kind: "scroll"; lines: number }>;
+  actions: Action[];
+  /**
+   * Several pauses in one replay, in order, instead of `until`, `actions`, `shot` and `ansi`.
+   * A capture with the same stop as the one before it does not replay on: its actions follow the
+   * earlier ones. Actions last: a click keeps its block open in every later capture.
+   */
+  captures?: Capture[];
   settleMs: number;
   showThinking: boolean;
   shot: string | undefined;
@@ -125,12 +165,13 @@ export function parseOptions(argv: string[]): Options {
     speed: 1,
     maxGapMs: 2000,
     maxWaitMs: undefined,
+    coarseMs: undefined,
     width: 120,
     height: 40,
     theme: "dark",
     cwd: undefined,
     actions: [],
-    settleMs: 1000,
+    settleMs: 200,
     showThinking: false,
     shot: undefined,
     ansi: undefined,
@@ -178,6 +219,9 @@ export function parseOptions(argv: string[]): Options {
       case "--max-wait":
         options.maxWaitMs = number(value(), flag);
         break;
+      case "--coarse":
+        options.coarseMs = number(value(), flag);
+        break;
       case "--width":
         options.width = Math.round(number(value(), flag));
         break;
@@ -210,7 +254,7 @@ export function parseOptions(argv: string[]): Options {
         options.showThinking = true;
         break;
       case "--settle":
-        options.settleMs = number(value(), flag);
+        options.settleMs = Math.round(number(value(), flag));
         break;
       case "--shot":
         options.shot = resolve(value());
@@ -261,10 +305,29 @@ export function checkStop(script: Script, stop: Stop, flag: string): void {
   }
 }
 
-/** The replay's session file: a fresh header, the history verbatim, then the replay model selected. */
+/** The capture rows on which `text` shows: one, or the error to report. */
+export function rowFor(pane: string, text: string): { row: number; column: number } | { error: string } {
+  const rows = pane.split("\n").flatMap((line, index) => (line.includes(text) ? [{ index, line }] : []));
+  if (rows.length === 1) return { row: rows[0]!.index + 1, column: rows[0]!.line.indexOf(text) + 1 };
+  if (!rows.length) return { error: `no row on screen holds ${JSON.stringify(text)}` };
+  const listed = rows.map(({ index, line }) => `  row ${index + 1}: ${line.trimEnd()}`).join("\n");
+  return { error: `${rows.length} rows hold ${JSON.stringify(text)}; name one of them:\n${listed}` };
+}
+
+/** The captures a run makes: `captures`, else one from `until`, `actions`, `shot` and `ansi`. */
+export function capturesOf(options: Options): Capture[] {
+  return (
+    options.captures ?? [{ until: options.until, actions: options.actions, shot: options.shot, ansi: options.ansi }]
+  );
+}
+
+/**
+ * The replay's session file: a header, the history verbatim, then the replay model selected.
+ * Fixed ids and times: nothing in it varies from run to run.
+ */
 export function replaySession(script: Script, cwd: string, model: string): string {
-  const now = new Date().toISOString();
-  const lines: object[] = [{ type: "session", version: 3, id: crypto.randomUUID(), timestamp: now, cwd }];
+  const now = typeof script.header?.timestamp === "string" ? script.header.timestamp : "2026-01-01T09:00:00.000Z";
+  const lines: object[] = [{ type: "session", version: 3, id: "replay", timestamp: now, cwd }];
   let parentId: string | null = null;
   for (const entry of script.history) {
     if (entry.type === "session") continue;
@@ -303,7 +366,7 @@ function replayLength(script: Script, options: Options): number {
 }
 
 function defaultOutputs(options: Options): void {
-  if (options.shot || options.ansi || options.gif) return;
+  if (options.captures || options.shot || options.ansi || options.gif) return;
   const dir = join(ROOT, "tmp", "replay-out");
   mkdirSync(dir, { recursive: true });
   const stem = `${basename(options.session, ".jsonl")}-${formatStop(options.until).replace(/[^a-z0-9]+/gi, "-")}`;
@@ -319,23 +382,28 @@ export async function replay(options: Options): Promise<{ outputs: string[]; eve
   }
   if (!liveSteps(script).some((step) => step.kind === "prompt"))
     throw new Error("nothing to replay: no prompt on the active branch");
-  checkStop(script, options.until, "--until");
-  if (options.from) checkStop(script, options.from, "--from");
   defaultOutputs(options);
+  const captures = capturesOf(options);
+  for (const capture of captures) checkStop(script, capture.until, "--until");
+  if (options.from) checkStop(script, options.from, "--from");
+  if (options.gif && captures.length > 1) throw new Error("--gif records up to one pause");
 
-  // A short path: pi's footer shows the working directory, which lives in here by default.
-  const work = mkdtempSync(join(existsSync("/tmp") ? "/tmp" : tmpdir(), "pi-replay-"));
+  // Outside any git work tree, so pi-ui's bash diff hook has nothing to snapshot; the real path,
+  // as pi reads its working directory, so the footer shortens it to ~.
+  const work = realpathSync(mkdtempSync(join(existsSync("/tmp") ? "/tmp" : tmpdir(), "pi-replay-")));
   const control = join(work, "control");
   const agent = join(work, "agent");
+  const home = join(work, "home");
   mkdirSync(control);
   mkdirSync(agent);
+  mkdirSync(home);
   // The startup listing would name the replay's own extension files.
   // pi-ui draws a thought as a decaying tail when pi hides thinking blocks, the setting it is designed for.
   writeFileSync(
     join(agent, "settings.json"),
     JSON.stringify({ quietStartup: true, hideThinkingBlock: !options.showThinking }),
   );
-  const cwd = options.cwd ?? join(work, basename(script.cwd ?? "") || "project");
+  const cwd = options.cwd ?? join(home, basename(script.cwd ?? "") || "project");
   mkdirSync(cwd, { recursive: true });
   const model = script.model ?? "replay";
   const sessionFile = join(work, "session.jsonl");
@@ -345,10 +413,13 @@ export async function replay(options: Options): Promise<{ outputs: string[]; eve
     speed: options.speed,
     maxGapMs: options.maxGapMs,
     ...(options.maxWaitMs ? { maxWaitMs: options.maxWaitMs } : {}),
+    ...(options.coarseMs ? { coarseMs: options.coarseMs } : {}),
     ...(options.startTurn ? { startTurn: options.startTurn } : {}),
-    until: formatStop(options.until),
+    until: formatStop(captures[0]!.until),
     theme: options.theme,
     control,
+    clock: options.gif ? "paced" : "fast",
+    settleMs: options.settleMs,
   };
   writeFileSync(join(work, "config.json"), JSON.stringify(config, null, 2));
   writeFileSync(
@@ -365,14 +436,24 @@ export async function replay(options: Options): Promise<{ outputs: string[]; eve
   const socket = `pi-replay-${process.pid}`;
   const { tmux, capture, captureStyled, mouse } = tmuxSession(socket, SESSION);
   const piCli = join(piInstallRoot(), "dist", "bundle", "cli.js");
-  const command = [
+  const node = process.execPath.endsWith("node") ? process.execPath : (Bun.which("node") ?? "node");
+  const piCommand = [
     "env",
+    "-i",
+    `PATH=${process.env.PATH ?? "/usr/bin:/bin"}`,
+    `HOME=${home}`,
+    "TERM=tmux-256color",
+    "COLORTERM=truecolor",
+    "LANG=en_US.UTF-8",
+    "LC_ALL=en_US.UTF-8",
+    "TZ=UTC",
     `PI_REPLAY_CONFIG=${join(work, "config.json")}`,
     `PI_CODING_AGENT_DIR=${agent}`,
     "PI_OFFLINE=1",
     "PI_SKIP_VERSION_CHECK=1",
-    "COLORTERM=truecolor",
-    process.execPath.endsWith("node") ? process.execPath : "node",
+    node,
+    "--import",
+    join(import.meta.dir, "clock-preload.ts"),
     piCli,
     "--offline",
     "--no-extensions",
@@ -435,9 +516,33 @@ export async function replay(options: Options): Promise<{ outputs: string[]; eve
       await Bun.sleep(tickMs);
     }
   };
-  const settle = (ms: number) => {
-    const end = performance.now() + ms;
-    return until(() => performance.now() >= end, "the screen to settle");
+  const command = (line: Command) => appendFileSync(join(control, "commands.jsonl"), `${JSON.stringify(line)}\n`);
+  const count = (type: TimedEvent["type"]) => events.filter((event) => event.type === type).length;
+  /**
+   * Once the clock holds, nothing in pi moves, but tmux may still be drawing what pi wrote: the
+   * screen is ready when several captures in a row agree.
+   */
+  const steady = async (): Promise<string> => {
+    let last = captureStyled();
+    for (let same = 0; same < 4; ) {
+      await until(() => true, "the screen to settle");
+      await Bun.sleep(40);
+      const next = captureStyled();
+      same = next === last ? same + 1 : 0;
+      last = next;
+    }
+    return last;
+  };
+  let mice = 0;
+  /** Sends a mouse report, then runs the clock `--settle` once pi has read it. */
+  const act = (...report: Parameters<typeof mouse>) => {
+    mouse(...report);
+    mice += 1;
+  };
+  const advance = async () => {
+    const before = count("advanced");
+    command({ type: "advance", ms: options.settleMs, mice });
+    await until(() => count("advanced") > before, "the clock to advance");
   };
 
   const outputs: string[] = [];
@@ -455,58 +560,64 @@ export async function replay(options: Options): Promise<{ outputs: string[]; eve
       String(options.height),
       "-c",
       cwd,
-      ...command,
+      ...piCommand,
     );
     await until(() => events.some((event) => event.type === "ready"), "pi to start");
     // The first paint follows the extension's ready event.
     await until(() => capture().trim().length > 0, "pi's first paint");
     await Bun.sleep(300);
     if (!options.from) recordingSince = performance.now();
-    writeFileSync(join(control, "go"), "");
-    // The pause can follow the finished event by a moment: give it half a second.
-    let finishedAt: number | undefined;
-    await until(() => {
-      if (events.some((event) => event.type === "paused")) return true;
-      if (finishedAt === undefined && events.some((event) => event.type === "finished")) finishedAt = performance.now();
-      if (finishedAt !== undefined && performance.now() - finishedAt > 500)
-        fail(`the replay ended without reaching --until ${formatStop(options.until)}`);
-      return false;
-    }, formatStop(options.until));
-    await settle(options.settleMs);
-    for (const action of options.actions) {
-      if (action.kind === "scroll") {
-        // SGR wheel buttons: 64 up, 65 down, over the middle of the transcript.
-        for (let notch = 0; notch < Math.abs(action.lines); notch++) {
-          mouse(action.lines > 0 ? 64 : 65, Math.ceil(options.width / 2), Math.ceil(options.height / 2));
-          // oxlint-disable-next-line no-await-in-loop -- one notch at a time, as a wheel turns
-          await settle(40);
+    command({ type: "go" });
+    let final = "";
+    for (const [index, current] of captures.entries()) {
+      const previous = captures[index - 1];
+      if (!previous || formatStop(previous.until) !== formatStop(current.until)) {
+        const held = count("held");
+        if (previous) command({ type: "resume", until: formatStop(current.until) });
+        // The pause can follow the finished event by a moment: give it half a second.
+        let finishedAt: number | undefined;
+        await until((fresh) => {
+          if (count("held") > held) return true;
+          if (finishedAt === undefined && fresh.some((event) => event.type === "finished"))
+            finishedAt = performance.now();
+          if (finishedAt !== undefined && performance.now() - finishedAt > 500)
+            fail(`the replay ended without reaching --until ${formatStop(current.until)}`);
+          return false;
+        }, formatStop(current.until));
+      }
+      final = await steady();
+      for (const action of current.actions) {
+        if (action.kind === "scroll") {
+          // SGR wheel buttons: 64 up, 65 down, over the middle of the transcript.
+          for (let notch = 0; notch < Math.abs(action.lines); notch++)
+            act(action.lines > 0 ? 64 : 65, Math.ceil(options.width / 2), Math.ceil(options.height / 2));
+          await advance();
+          final = await steady();
+          continue;
         }
-        await settle(options.settleMs);
-        continue;
+        const target = rowFor(capture(), action.text);
+        if ("error" in target) fail(`--${action.kind}: ${target.error}`);
+        const { row, column } = target as { row: number; column: number };
+        if (action.kind === "hover") act(35, column, row);
+        else {
+          act(0, column, row);
+          act(0, column, row, true);
+        }
+        await advance();
+        final = await steady();
       }
-      const pane = capture();
-      if (!pane.includes(action.text)) fail(`--${action.kind}: no row on screen holds ${JSON.stringify(action.text)}`);
-      const row = rowOf(pane, action.text);
-      const column = (pane.split("\n")[row - 1] ?? "").indexOf(action.text) + 1;
-      if (action.kind === "hover") mouse(35, column, row);
-      else {
-        mouse(0, column, row);
-        mouse(0, column, row, true);
+      if (current.ansi) {
+        mkdirSync(dirname(current.ansi), { recursive: true });
+        writeFileSync(current.ansi, final);
+        outputs.push(current.ansi);
       }
-      await settle(options.settleMs);
-    }
-    const final = captureStyled();
-    if (options.ansi) {
-      mkdirSync(dirname(options.ansi), { recursive: true });
-      writeFileSync(options.ansi, final);
-      outputs.push(options.ansi);
-    }
-    if (options.shot) {
-      mkdirSync(dirname(options.shot), { recursive: true });
-      const cast = join(work, "shot.cast");
-      writeFileSync(cast, asciicast([{ time: 0, pane: final }], options.width, options.height));
-      renderPng(cast, join(work, "shot.gif"), options.shot, { theme: options.theme, fontSize: options.fontSize });
-      outputs.push(options.shot);
+      if (current.shot) {
+        mkdirSync(dirname(current.shot), { recursive: true });
+        const cast = join(work, "shot.cast");
+        writeFileSync(cast, asciicast([{ time: 0, pane: final }], options.width, options.height));
+        renderPng(cast, join(work, "shot.gif"), current.shot, { theme: options.theme, fontSize: options.fontSize });
+        outputs.push(current.shot);
+      }
     }
     if (options.gif) {
       if (recordingSince === undefined)
