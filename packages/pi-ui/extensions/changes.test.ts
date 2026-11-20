@@ -224,6 +224,46 @@ describe("files outside the work tree", () => {
   });
 });
 
+/** A repository whose files git stores with LF and checks out with CRLF, as `configure` sets it up. */
+function crlfRepository(configure: (root: string) => void): string {
+  const root = mkdtempSync(join(tmpdir(), "pi-ui-crlf-"));
+  repos.push(root);
+  git(root, "init", "-q");
+  configure(root);
+  writeFileSync(join(root, "notes.txt"), "one\ntwo\nthree\n");
+  git(root, "add", ".");
+  git(root, "commit", "-q", "-m", "init");
+  rmSync(join(root, "notes.txt"));
+  git(root, "checkout", "-q", "notes.txt");
+  expect(readFileSync(join(root, "notes.txt"), "utf8")).toBe("one\r\ntwo\r\nthree\r\n");
+  return root;
+}
+
+describe("line ends git converts on checkout", () => {
+  for (const [name, configure] of [
+    ["core.autocrlf", (root: string) => git(root, "config", "core.autocrlf", "true")],
+    ["an eol=crlf attribute", (root: string) => writeFileSync(join(root, ".gitattributes"), "*.txt text eol=crlf\n")],
+  ] as const) {
+    test(`with ${name}, a file rewritten with its own bytes shows no change`, async () => {
+      const root = crlfRepository(configure);
+      const before = await takeSnapshot(root);
+      await tick();
+      writeFileSync(join(root, "notes.txt"), "one\r\ntwo\r\nthree\r\n");
+      expect(await collectChanges(before!)).toBeUndefined();
+    });
+
+    test(`with ${name}, an edit shows only the line it changed`, async () => {
+      const root = crlfRepository(configure);
+      const before = await takeSnapshot(root);
+      await tick();
+      writeFileSync(join(root, "notes.txt"), "one\r\nTWO\r\nthree\r\n");
+      const patch = (await collectChanges(before!))?.files[0]?.patch ?? "";
+      const changed = patch.split("\n").filter((line) => /^[+-](?![+-])/.test(line));
+      expect(changed.map((line) => line.replace("\r", ""))).toEqual(["-two", "+TWO"]);
+    });
+  }
+});
+
 describe("old contents are read only for the files shown", () => {
   test("a tracked file past the per-file cap is never read from git", async () => {
     const root = repository();

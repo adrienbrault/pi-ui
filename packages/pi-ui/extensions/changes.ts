@@ -281,6 +281,59 @@ async function readBlobs(
   return blobs;
 }
 
+/**
+ * The tracked files among `files` that git checks out with CRLF line ends while it stores LF:
+ * the index blob is then not the bytes the work tree held. Decided from `core.autocrlf`,
+ * `core.eol` and the `text`, `eol` and `crlf` attributes, as git does; undefined output from
+ * git means no conversion.
+ */
+async function checkedOutCrlf(git: Git, root: string, files: string[], timeout: number): Promise<Set<string>> {
+  const crlf = new Set<string>();
+  if (!files.length) return crlf;
+  const [config, attrs] = await Promise.all([
+    git(["config", "-z", "--get-regexp", "^core\\.(autocrlf|eol)$"], root, timeout),
+    git(["check-attr", "-z", "--stdin", "text", "eol", "crlf"], root, timeout, `${files.join("\0")}\0`),
+  ]);
+  const settings = new Map<string, string>();
+  // `<key>\n<value>\0` for each entry.
+  for (const entry of config?.toString("utf8").split("\0") ?? []) {
+    const [key = "", value = ""] = entry.split("\n");
+    settings.set(key.toLowerCase(), value.toLowerCase());
+  }
+  const autocrlf = settings.get("core.autocrlf") ?? "false";
+  const eol = settings.get("core.eol") ?? "native";
+  const nativeCrlf = eol === "crlf" || (eol === "native" && process.platform === "win32");
+  // `<path>\0<attribute>\0<value>\0` for each path and attribute.
+  const fields = attrs?.toString("utf8").split("\0") ?? [];
+  const values = new Map<string, Map<string, string>>();
+  for (let at = 0; at + 2 < fields.length; at += 3) {
+    const path = fields[at]!;
+    const own = values.get(path) ?? new Map<string, string>();
+    own.set(fields[at + 1]!, fields[at + 2]!);
+    values.set(path, own);
+  }
+  for (const [path, own] of values) {
+    const text = own.get("text") ?? "unspecified";
+    const attrEol = own.get("eol") ?? "unspecified";
+    const legacy = own.get("crlf") ?? "unspecified";
+    let out: boolean;
+    if (text === "unset" || legacy === "unset") out = false;
+    else if (attrEol === "crlf") out = true;
+    else if (attrEol === "lf" || legacy === "input") out = false;
+    else if (text === "unspecified" && legacy === "unspecified") out = autocrlf === "true";
+    else out = autocrlf === "true" || (autocrlf !== "input" && nativeCrlf);
+    if (out) crlf.add(path);
+  }
+  return crlf;
+}
+
+/** `content` with each LF that has no CR before it written as CRLF, as git's checkout writes it. */
+function toCrlf(content: Buffer): Buffer {
+  // A blob that already holds a CR, or is binary, is checked out as it is.
+  if (content.includes(13) || binary(content)) return content;
+  return Buffer.from(content.toString("utf8").replaceAll("\n", "\r\n"), "utf8");
+}
+
 /** What changed since `snapshot`, with a patch per file where one can be shown; undefined for nothing. */
 export async function collectChanges(
   snapshot: Snapshot,
@@ -311,25 +364,31 @@ export async function collectChanges(
   const files: FileChange[] = [];
   let patchBytes = 0;
   let blobBytes = 0;
-  /** The old contents git holds for `window`'s modified files, read only within the caps. */
-  const readOld = async (window: typeof changed): Promise<Map<string, Buffer>> => {
+  /** The old contents git holds for `window`'s modified files, read only within the caps, and which check out as CRLF. */
+  const readOld = async (window: typeof changed): Promise<{ blobs: Map<string, Buffer>; crlf: Set<string> }> => {
     // A deleted file shows no patch; a file too large now, or once the patch text is spent, shows none either.
-    if (patchBytes >= limits.maxPatchBytes) return new Map();
-    const wanted = window.flatMap(({ path, kind, size }) => {
-      const id =
-        kind === "modified" && size <= limits.maxFileBytes && !snapshot.saved.has(path)
-          ? snapshot.blobs.get(path)
-          : undefined;
-      return id ? [id] : [];
-    });
-    const sizes = await blobSizes(git, root, [...new Set(wanted)], remaining(deadline));
+    if (patchBytes >= limits.maxPatchBytes) return { blobs: new Map(), crlf: new Set() };
+    const wanted = window.filter(
+      ({ path, kind, size }) =>
+        kind === "modified" && size <= limits.maxFileBytes && !snapshot.saved.has(path) && snapshot.blobs.has(path),
+    );
+    const ids = [...new Set(wanted.map(({ path }) => snapshot.blobs.get(path)!))];
+    const [sizes, crlf] = await Promise.all([
+      blobSizes(git, root, ids, remaining(deadline)),
+      checkedOutCrlf(
+        git,
+        root,
+        wanted.map(({ path }) => path),
+        remaining(deadline),
+      ),
+    ]);
     const approved = new Map<string, number>();
     for (const [id, size] of sizes) {
       if (size > limits.maxFileBytes || blobBytes + size > limits.maxBlobBytes) continue;
       blobBytes += size;
       approved.set(id, size);
     }
-    return readBlobs(git, root, approved, remaining(deadline));
+    return { blobs: await readBlobs(git, root, approved, remaining(deadline)), crlf };
   };
   // In path order, a window at a time: each takes as many files as the listing has room for, and
   // reads only those files' old contents. A file rewritten with the same bytes is not listed, and
@@ -339,7 +398,7 @@ export async function collectChanges(
     const window = changed.slice(next, next + limits.maxListed - files.length);
     next += window.length;
     // oxlint-disable-next-line no-await-in-loop -- each window depends on how the last one filled the listing
-    const blobs = await readOld(window);
+    const { blobs, crlf } = await readOld(window);
     for (const [index, { path, kind, size }] of window.entries()) {
       if (Date.now() > deadline) {
         next -= window.length - index;
@@ -350,12 +409,15 @@ export async function collectChanges(
         files.push({ path: shown, kind });
         continue;
       }
+      const held = blobs.get(snapshot.blobs.get(path) ?? "");
       const before =
         kind === "created"
           ? Buffer.alloc(0)
           : snapshot.saved.has(path)
             ? snapshot.saved.get(path)
-            : blobs.get(snapshot.blobs.get(path) ?? "");
+            : held && crlf.has(path)
+              ? toCrlf(held)
+              : held;
       // A file reached through a symlinked directory is not in the work tree: it is not shown at all.
       // oxlint-disable-next-line no-await-in-loop
       if (!(await inside(root, path))) continue;
