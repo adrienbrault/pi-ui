@@ -1,3 +1,4 @@
+// oxlint-disable no-await-in-loop -- polling waits one capture at a time
 /**
  * A tmux server of its own, driven from a script: commands, pane captures, waits for text, and
  * SGR mouse input sent as a terminal would send it. Shared by the end-to-end harness and the
@@ -11,7 +12,7 @@ export interface Tmux {
   tmux(...args: string[]): string;
   /** The pane as plain text. */
   capture(): string;
-  /** The pane with its SGR styling, every row padded to the pane's width. */
+  /** The pane with its SGR styling, keeping trailing blanks (a background can end a row). */
   captureStyled(): string;
   /** Every distinct pane from now until `text` shows, captured as fast as tmux answers: motion too quick for waitFor. */
   watch(text: string, timeoutMs?: number): Promise<string[]>;
@@ -42,7 +43,8 @@ export function tmuxSession(socket: string, session: string): Tmux {
       const pane = capture();
       if (pane !== panes.at(-1)) panes.push(pane);
       if (pane.includes(text)) return panes;
-      if (Date.now() > deadline) throw new Error(`timed out watching for ${JSON.stringify(text)}\n--- pane ---\n${pane}`);
+      if (Date.now() > deadline)
+        throw new Error(`timed out watching for ${JSON.stringify(text)}\n--- pane ---\n${pane}`);
       await Bun.sleep(1);
     }
   }
@@ -52,7 +54,8 @@ export function tmuxSession(socket: string, session: string): Tmux {
     for (;;) {
       const pane = capture();
       if (pane.includes(text) && ready(pane)) return pane;
-      if (Date.now() > deadline) throw new Error(`timed out waiting for ${JSON.stringify(text)}\n--- pane ---\n${pane}`);
+      if (Date.now() > deadline)
+        throw new Error(`timed out waiting for ${JSON.stringify(text)}\n--- pane ---\n${pane}`);
       await Bun.sleep(200);
     }
   }

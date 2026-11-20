@@ -10,7 +10,7 @@
     "enabled": false
   },
   "files": {
-    "includes": ["design-system/**/*.ts", "packages/**/*.ts", "*.ts", "*.json", "!!**/.claude"],
+    "includes": ["design-system/**/*.ts", "packages/**/*.ts", "dev/tmux.ts", "dev/replay/**/*.ts", "*.ts", "*.json", "!!**/.claude"],
     "ignoreUnknown": true
   },
   "json": {
