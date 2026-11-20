@@ -84,7 +84,7 @@ export const SHELL_LONG = [
   "package.json",
   "packages",
   "README.md",
-  "review-eval",
+  "scripts",
   "tsconfig.json",
 ].join("\n");
 
