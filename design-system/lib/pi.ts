@@ -115,9 +115,3 @@ async function loadPi(): Promise<PiInstall> {
     modules,
   };
 }
-
-/** Installed extension packages (pi-code, pi-open-tui) live in the agent dir. */
-export function agentPackageRoot(name: string): string | undefined {
-  const candidate = join(homedir(), ".pi", "agent", "npm", "node_modules", name);
-  return existsSync(candidate) ? candidate : undefined;
-}

@@ -47,7 +47,7 @@ import {
   readPath,
 } from "./fixtures-data.ts";
 
-export type Variant = "base" | "open-tui" | "pi-code" | "ours";
+export type Variant = "base" | "ours";
 export type Group = "transcript" | "tools" | "thinking" | "groups" | "glyphs" | "scenarios";
 
 export interface RenderCtx {
@@ -1283,7 +1283,7 @@ const MOTION_OPTIONS: Record<string, MotionOption> = {
   },
   shade: {
     label: "Shade breathe",
-    note: "Six frames of ░▒▓█: reads as pressure building, not rotation (from agents-are-thinking).",
+    note: "Six frames of ░▒▓█: reads as pressure building, not rotation.",
     frames: ["░", "▒", "▓", "█", "▓", "▒"],
     colors: ["dim", "muted", "accent", "success", "accent", "muted"],
   },
@@ -1381,7 +1381,7 @@ const glyphEntries: EntryDef[] = [
     group: "glyphs",
     variant: "ours",
     description:
-      "Four candidates for the block icon: shape-coded by taxonomy, status rings, nerd font, or today's single marker. Chips switch candidate.",
+      "Four candidates for the block icon: shape-coded by taxonomy, status rings, nerd font, or today's single marker.",
     states: Object.entries(ICON_OPTIONS).map(([id, option]) => ({
       id,
       label: option.label,
@@ -1410,8 +1410,7 @@ const glyphEntries: EntryDef[] = [
     title: "Every spinner at once",
     group: "glyphs",
     variant: "ours",
-    description:
-      "All single-cell animations side by side, each cycling at its own length. Paused with the motion toggle.",
+    description: "All single-cell animations side by side, each cycling at its own length.",
     states: [
       {
         id: "all",

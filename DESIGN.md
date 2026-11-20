@@ -7,7 +7,6 @@ This file is for both audiences. Humans review cards in the terminal with `bun r
 Every card renders the **real** components:
 
 - base pi components come from the pi install resolved at build time;
-- pi-code and pi-open-tui come from vendored snapshots pinned by version;
 - ours comes from `packages/pi-ui/render/*`, the exact module the extension ships.
 - fold layouts are planned by `packages/pi-ui/extensions/fold.ts`, the module the live session uses, with distances from `blockDistances` in `render/layout.ts`.
 

@@ -20,7 +20,7 @@ Make a long agentic session readable at a glance without losing the live detail:
 - Older runs stop being a pile of one-liners and become one grouped summary that reads as a sentence: `Thought for 3m 40s, listed 3 directories, ran 30 shell commands for 2m 05s (4 failed)`.
 - Clicking a collapsed group member opens it until clicked again. A standalone tool pin lasts until clicked again.
 - The same rules apply to thinking, tool calls (builtin + MCP + codemode), reads, writes, edits, and shell output.
-- The design system shows base pi, pi-open-tui, pi-code, and ours side by side, in every state, so design decisions are made against truth.
+- The design system shows base pi and ours side by side, in every state, so design decisions are made against truth.
 
 ## Non-goals (v1)
 
@@ -56,16 +56,15 @@ design-system/
   lib/theme.ts     load dark/light theme JSON, resolve vars, initTheme + setThemeInstance
   lib/surface.ts   render kit + stack: component → string[]
   registry.ts      variant × component × state × width × theme
-  scenarios.ts     compositions: cold start, long run, failing bash, thinking-heavy, MCP, compaction…
   build.ts         writes fixtures/frames.json; --check guards drift
   show.ts          prints cards to the terminal as raw ANSI
 ```
 
-Every card is real output, not a drawing: base pi components from the resolved install, pi-code and pi-open-tui from vendored snapshots pinned by version, ours from the same `packages/pi-ui/render` module the extension will ship. That last point is the contract: **the design system and the implementation share one renderer module**, so the cards cannot drift from the product.
+Every card is real output, not a drawing: base pi components from the resolved install, ours from the same `packages/pi-ui/render` module the extension ships. That last point is the contract: **the design system and the implementation share one renderer module**, so the cards cannot drift from the product.
 
 Axes every card renders across:
 
-- variant: base / open-tui / pi-code / ours
+- variant: base / ours
 - state: pending, running (animated), success, error, partial, expanded, aged L0–L5
 - width: 40 / 60 / 80 / 100 / 120
 - theme: dark / light
@@ -81,14 +80,16 @@ Outputs for agents:
 ### B. Implementation: `packages/pi-ui`
 
 ```
-extensions/pi-ui/index.ts        wiring, settings, feature detection
-extensions/pi-ui/detail.ts       DetailLevel, decay curve, hysteresis, pins
-extensions/pi-ui/tool-rows.ts    registerToolRenderer over the taxonomy
-extensions/pi-ui/thinking.ts     per-message label tails + visibility
-extensions/pi-ui/groups.ts       grouping taxonomy + summaries
-extensions/pi-ui/decorator.ts    layout-root walk, child render wrapping, splice
-extensions/pi-ui/chrome/*        footer, editor, header (phase 4)
-render/                          pure renderers shared with the design system
+extensions/index.ts          wiring: tool renderers, hover, clicks, the running clock
+extensions/fold.ts           fold planner: which blocks join a group summary
+extensions/fade.ts           fades and the throttled backlog
+extensions/thinking.ts       layout-root walk: per-message thinking, group rows, spacers
+extensions/viewport.ts       fullscreen viewport and the scroll bar
+extensions/hover.ts          hover state
+extensions/throughput.ts     token counts, rates and prefill status
+extensions/thinking-time.ts  thinking duration and rates per message
+extensions/changes.ts        git snapshots and diffs for files a shell command changed
+render/                      pure renderers shared with the design system
 ```
 
 #### Detail model
@@ -149,8 +150,6 @@ Propose `pi.registerTranscriptRenderer` / per-message thinking renderer with an 
 ```
 pi-ui/
   docs/PLAN.md
-  docs/adr/0001-transcript-control.md
-  docs/rfc/transcript-api.md
   DESIGN.md
   design-system/…
   packages/pi-ui/…
