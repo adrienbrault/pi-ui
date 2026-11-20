@@ -21,6 +21,8 @@
  * - Thoughts and commands: both fold into one shared summary that opens both.
  * - A live bash, scripted in process, that writes files in a git work tree: their diffs
  *   show under its output, and the result records them.
+ * - The replay loop (dev/replay/smoke.ts): a recorded session replayed, paused mid-thought and
+ *   captured, then replayed to its end.
  *
  * Run: bun run e2e
  */
@@ -30,6 +32,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { FOLD_DISTANCE } from "../packages/pi-ui/render/detail.ts";
 import { SCRIPT_MODEL, SCRIPT_PROVIDER } from "./e2e-extension.ts";
+import { replaySmoke } from "./replay/smoke.ts";
 import { rowOf, tmuxSession } from "./tmux.ts";
 
 const ROOT = join(import.meta.dir, "..");
@@ -876,6 +879,9 @@ ${visible}`);
     tmux("kill-server");
     await bashChangesScenario(dir);
     console.log("bash changes ok: a live bash's file diffs show under its output and are recorded on its result");
+
+    tmux("kill-server");
+    await replaySmoke();
   } finally {
     try {
       tmux("kill-server");
