@@ -44,7 +44,7 @@ export interface ReplayConfig {
   speed: number;
   /** The longest pause between prompts, after scaling. */
   maxGapMs: number;
-  /** The longest single wait of any kind, after scaling; none when absent. */
+  /** The longest a message or a tool may take, after scaling; none when absent. */
   maxWaitMs?: number;
   startTurn?: number;
   until?: string;
@@ -120,10 +120,16 @@ export class Replay {
   }
 
   /** A recorded wait, scaled and capped; holds while paused. */
-  async wait(recordedMs: number, capMs = this.config.maxWaitMs): Promise<void> {
-    const ms = Math.min(recordedMs / this.config.speed, capMs ?? Number.POSITIVE_INFINITY);
+  async wait(recordedMs: number, capMs = Number.POSITIVE_INFINITY): Promise<void> {
+    const ms = Math.min(recordedMs / this.config.speed, capMs);
     if (ms > 0) await new Promise((resolve) => setTimeout(resolve, ms));
     while (this.paused) await this.release;
+  }
+
+  /** A recorded message's or tool's whole duration, shortened to `maxWaitMs` of replay time. */
+  clip(recordedMs: number): number {
+    const { maxWaitMs, speed } = this.config;
+    return maxWaitMs === undefined ? recordedMs : Math.min(recordedMs, maxWaitMs * speed);
   }
 
   /** The next prompt to send after pi settles, or undefined when the script is done. */
@@ -151,7 +157,12 @@ export class Replay {
     const prompt = step && promptBefore(this.script, step);
     const base = { role: "assistant", api: PROVIDER, provider: PROVIDER, timestamp: Date.now() };
     if (!step || (prompt?.live && !this.sent.has(prompt))) {
-      if (!step) this.report({ type: "warning", text: "a request after the last recorded message" });
+      this.report({
+        type: "warning",
+        text: step
+          ? `a request for message ${step.index} before its prompt was sent: answered with nothing`
+          : "a request after the last recorded message: answered with nothing",
+      });
       const empty = { ...base, model, usage: ZERO_USAGE, stopReason: "stop", content: [] };
       yield { type: "start", partial: { ...empty } };
       yield { type: "done", reason: "stop", message: empty };
@@ -170,7 +181,7 @@ export class Replay {
       content: structuredClone(step.blocks),
     };
     const partial: Partial = { ...final, content: [], stopReason: "pending" };
-    const plan = planMessage(recorded, step.durationMs);
+    const plan = planMessage(recorded, this.clip(step.durationMs));
     const aborted = () => ({ ...partial, stopReason: "aborted", errorMessage: "Operation aborted" });
 
     this.report({ type: "message_start", message: step.index, turn: step.turn });
@@ -187,7 +198,8 @@ export class Replay {
       else partial.content.push({ ...source, arguments: {} });
       yield { type: `${kind}_start`, contentIndex: index, partial: { ...partial } };
       const parser = block.kind === "toolCall" ? options.parser?.() : undefined;
-      const pieces = deltas(block);
+      // A delta every 40 ms of replay time: each one repaints pi, so a fast replay needs fewer.
+      const pieces = deltas(block, 40 * this.config.speed);
       if (!pieces.length) await this.wait(block.durationMs);
       for (const piece of pieces) {
         await this.wait(piece.delayMs);
@@ -237,7 +249,7 @@ export class Replay {
     this.report({ type: "tool_start", tool: call?.index ?? 0, id, name });
     await this.wait(0);
     if (!result) return { content: [{ type: "text", text: `replay: no recorded result for ${id}` }], details: {} };
-    const duration = result.durationMs ?? 0;
+    const duration = this.clip(result.durationMs ?? 0);
     const text = result.content.map((part: any) => (part?.type === "text" ? part.text : "")).join("");
     const lines = SHELL_TOOLS.has(name) && onUpdate ? text.split("\n") : [];
     if (lines.length > 1) {
@@ -342,13 +354,9 @@ export default function replayExtension(pi: Pi): void {
       isError: !!event.isError,
     });
   });
-  // Recorded timings and usage replace the ones measured at replay speed.
+  // A finished message keeps its recorded timing: a thought then shows its recorded time.
   pi.on("message_end", (event: { message: Record<string, unknown> }) => {
     const message = event.message;
-    if (message.role === "toolResult") {
-      const result = replay.call(String(message.toolCallId))?.result;
-      return result?.durationMs === undefined ? undefined : { message: { ...message, durationMs: result.durationMs } };
-    }
     const id = message.role === "assistant" ? message.responseId : undefined;
     if (typeof id !== "string" || !id.startsWith(RESPONSE_PREFIX)) return undefined;
     const step = script.steps.find(

@@ -53,10 +53,19 @@ describe("Replay.respond", () => {
     expect((done.message as { content: Array<{ id?: string }> }).content[1]!.id).toBe("toolu_read_1");
   });
 
-  test("answers with nothing until the next message's prompt has been sent", async () => {
-    const replay = new Replay(config());
+  test("answers with nothing, and warns, until the next message's prompt has been sent", async () => {
+    const lines: string[] = [];
+    const replay = new Replay(config(), undefined, (line) => lines.push(line));
     const events = await collect(replay.respond([{ role: "user" }], "claude-synthetic-1"));
     expect(events.at(-1)).toMatchObject({ type: "done", reason: "stop", message: { content: [] } });
+    expect(lines.map((line) => JSON.parse(line).type)).toEqual(["warning"]);
+  });
+
+  test("--max-wait shortens a whole message or tool, in replay time", () => {
+    const replay = new Replay(config({ speed: 2, maxWaitMs: 500 }));
+    expect(replay.clip(100_000)).toBe(1000);
+    expect(replay.clip(300)).toBe(300);
+    expect(new Replay(config()).clip(100_000)).toBe(100_000);
   });
 
   test("pauses at the stop: progress stops at the percentage and waits until released", async () => {

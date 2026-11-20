@@ -12,6 +12,22 @@
  * pi's footer reads sensibly and pi-ui's bash diff hook finds no git work tree to snapshot. With
  * `--cwd`, the replay still shows each command's recorded changes, never the directory's.
  *
+ * What does not replay as recorded:
+ * - pi's own clocks run on replay time: a running thought's timer, the spinner, and each tool's
+ *   duration read the replay's time, so at `--speed N` they read 1/N of the recording. A finished
+ *   thought shows its recorded time. While paused, pi-ui's timers and spinners keep moving.
+ * - The footer names the `replay` provider's copy of the model; the context bar is out of a very
+ *   large window, so pi never compacts mid-replay. Model switches inside the replay are not
+ *   applied.
+ * - Turns before the last compaction load as history; empty error messages that pi retried, user
+ *   `!` commands, custom entries and custom messages are left out (--list counts them).
+ * - Tools from extensions the recording had loaded (a todo list, a question prompt) render with
+ *   pi's generic renderer, not their own.
+ * - A shell command's output streams line by line over its recorded duration; the recording
+ *   holds only the final output, not when each line arrived.
+ * - A prompt after a tool result is sent as a steer while the tools run, also when the recorded
+ *   run was in fact interrupted there.
+ *
  * Run with --help for the options.
  */
 
@@ -35,10 +51,13 @@ Replays a recorded pi session in pi, offline, and captures the screen.
   --list               print the session's turns, messages and tools, and exit
   --until SPEC         pause there and capture (default: end)
                        turn:N | message:N[@P%] | tool:N|ID[:start|:end] | end
+                       A point is reached once it has happened: turn:N when pi settles
+                       after turn N, message:N when it has streamed (message:N@0% at its
+                       first delta), tool:N when it starts (tool:N:end when it returns).
   --start turn:N       load the turns before N as history and replay from turn N
   --speed N            play N times as fast (default 1)
   --max-gap MS         longest pause between prompts (default 2000)
-  --max-wait MS        longest single wait of any kind (default: none)
+  --max-wait MS        longest a message or a tool may take, after --speed (default: none)
   --width N --height N pane size (default 120x40)
   --theme dark|light   pi's theme and the render's palette (default dark)
   --cwd DIR            pi's working directory (default: an empty temporary one)
@@ -49,10 +68,10 @@ Replays a recorded pi session in pi, offline, and captures the screen.
   --ansi FILE          the final screen as ANSI text
   --gif FILE.gif       a GIF from --from (default: pi's first screen) to the pause,
                        and its asciicast next to it as FILE.cast
-  --from SPEC          where the GIF starts
+  --from SPEC          where the GIF starts, reached as --until is
   --fps N              GIF frames per second (default 12)
   --font-size N        render font size in pixels (default 16)
-  --timeout S          give up after S seconds (default: the replay's length plus 60)
+  --timeout S          give up after S seconds (default: 1.5 times the replay's length, plus 60)
   --keep               leave tmux running and keep the work directory
   --help
 
@@ -251,12 +270,14 @@ export function replaySession(script: Script, cwd: string, model: string): strin
   return `${lines.map((line) => JSON.stringify(line)).join("\n")}\n`;
 }
 
-/** The live replay's recorded length in milliseconds, at speed 1, gaps capped. */
-function recordedLength(script: Script, maxGapMs: number): number {
+/** About how long the live replay takes, in milliseconds of replay time. */
+function replayLength(script: Script, options: Options): number {
+  const scaled = (ms: number, cap = options.maxWaitMs ?? Number.POSITIVE_INFINITY) => Math.min(ms / options.speed, cap);
   let total = 0;
   for (const step of liveSteps(script)) {
-    if (step.kind === "prompt") total += Math.min(step.gapMs, maxGapMs);
-    else total += step.durationMs + Math.max(0, ...step.calls.map((call) => call.result?.durationMs ?? 0));
+    if (step.kind === "prompt") total += scaled(step.gapMs, options.maxGapMs);
+    else
+      total += scaled(step.durationMs) + Math.max(0, ...step.calls.map((call) => scaled(call.result?.durationMs ?? 0)));
   }
   return total;
 }
@@ -346,8 +367,8 @@ export async function replay(options: Options): Promise<{ outputs: string[]; eve
     `replay/${model}`,
     ...(script.thinkingLevel ? ["--thinking", script.thinkingLevel] : []),
   ];
-  const timeoutMs =
-    (options.timeoutS ?? (recordedLength(script, options.maxGapMs) / options.speed + 60_000) / 1000) * 1000;
+  // Rendering adds to the recorded waits, more so in a long session: half again, and a minute.
+  const timeoutMs = options.timeoutS ? options.timeoutS * 1000 : replayLength(script, options) * 1.5 + 60_000;
   const eventsPath = join(control, "events.jsonl");
   const events: TimedEvent[] = [];
   let read = 0;
@@ -446,6 +467,8 @@ export async function replay(options: Options): Promise<{ outputs: string[]; eve
       outputs.push(options.shot);
     }
     if (options.gif) {
+      if (recordingSince === undefined)
+        fail(`--from ${formatStop(options.from!)} was not reached before --until ${formatStop(options.until)}`);
       mkdirSync(dirname(options.gif), { recursive: true });
       const recorded = distinct([...frames, { time: (performance.now() - (recordingSince ?? 0)) / 1000, pane: final }]);
       // The cast stays next to the GIF: asciinema plays it, agg renders it again.
@@ -475,6 +498,8 @@ if (import.meta.main) {
     const paused = events.find((event) => event.type === "paused");
     if (paused) console.log(`paused at ${formatStop(options.until)} after ${(paused.t / 1000).toFixed(1)}s`);
     for (const output of outputs) console.log(`wrote ${output}`);
+    // A warning means the replay and pi disagreed about what comes next: the capture may be wrong.
+    for (const event of events) if (event.type === "warning") console.error(`warning: ${event.text}`);
   } catch (error) {
     console.error((error as Error).message);
     process.exit(1);
