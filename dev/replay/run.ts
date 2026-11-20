@@ -374,6 +374,8 @@ function defaultOutputs(options: Options): void {
   options.ansi = join(dir, `${stem}.ans`);
 }
 
+let replays = 0;
+
 export async function replay(options: Options): Promise<{ outputs: string[]; events: TimedEvent[] }> {
   const script = buildScript(parseSession(readFileSync(options.session, "utf8")), { startTurn: options.startTurn });
   if (options.list) {
@@ -433,7 +435,8 @@ export async function replay(options: Options): Promise<{ outputs: string[]; eve
     ].join("\n"),
   );
 
-  const socket = `pi-replay-${process.pid}`;
+  // One server per replay: a process can run several at once.
+  const socket = `pi-replay-${process.pid}-${++replays}`;
   const { tmux, capture, captureStyled, mouse } = tmuxSession(socket, SESSION);
   const piCli = join(piInstallRoot(), "dist", "bundle", "cli.js");
   const node = process.execPath.endsWith("node") ? process.execPath : (Bun.which("node") ?? "node");
@@ -534,15 +537,16 @@ export async function replay(options: Options): Promise<{ outputs: string[]; eve
     return last;
   };
   let mice = 0;
-  /** Sends a mouse report, then runs the clock `--settle` once pi has read it. */
-  const act = (...report: Parameters<typeof mouse>) => {
+  /**
+   * Sends one mouse report and waits until pi has read it, then runs the clock `ms` and holds.
+   * One report at a time: pi reads each in a read of its own, whatever the machine's timing.
+   */
+  const act = async (ms: number, ...report: Parameters<typeof mouse>) => {
     mouse(...report);
     mice += 1;
-  };
-  const advance = async () => {
     const before = count("advanced");
-    command({ type: "advance", ms: options.settleMs, mice });
-    await until(() => count("advanced") > before, "the clock to advance");
+    command({ type: "advance", ms, mice });
+    await until(() => count("advanced") > before, "pi to read the mouse");
   };
 
   const outputs: string[] = [];
@@ -589,21 +593,24 @@ export async function replay(options: Options): Promise<{ outputs: string[]; eve
       for (const action of current.actions) {
         if (action.kind === "scroll") {
           // SGR wheel buttons: 64 up, 65 down, over the middle of the transcript.
-          for (let notch = 0; notch < Math.abs(action.lines); notch++)
-            act(action.lines > 0 ? 64 : 65, Math.ceil(options.width / 2), Math.ceil(options.height / 2));
-          await advance();
+          for (let notch = 1; notch <= Math.abs(action.lines); notch++)
+            await act(
+              notch === Math.abs(action.lines) ? options.settleMs : 0,
+              action.lines > 0 ? 64 : 65,
+              Math.ceil(options.width / 2),
+              Math.ceil(options.height / 2),
+            );
           final = await steady();
           continue;
         }
         const target = rowFor(capture(), action.text);
         if ("error" in target) fail(`--${action.kind}: ${target.error}`);
         const { row, column } = target as { row: number; column: number };
-        if (action.kind === "hover") act(35, column, row);
+        if (action.kind === "hover") await act(options.settleMs, 35, column, row);
         else {
-          act(0, column, row);
-          act(0, column, row, true);
+          await act(0, 0, column, row);
+          await act(options.settleMs, 0, column, row, true);
         }
-        await advance();
         final = await steady();
       }
       if (current.ansi) {
