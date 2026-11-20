@@ -861,15 +861,19 @@ describe("thinking labels", () => {
     expect(expanded.split("\n").length).toBeGreaterThan(collapsed.split("\n").length);
   });
 
-  test("a streaming thought truncates each line and keeps a stable row count", () => {
-    const long = `word ${"tokens ".repeat(120)}`;
+  test("a streaming paragraph wraps and shows its newest words at the bottom", () => {
+    const long = `first ${Array.from({ length: 60 }, (_, index) => `w${index}`).join(" ")} newest`;
     const label = thinkingLabel(api, { phase: "thinking", level: 0, text: long, width: 40 });
     const lines = label.split("\n");
-    // Truncation keeps one terminal row per source line, so arriving tokens
-    // extend the last row instead of reflowing the tail.
-    expect(lines).toHaveLength(2);
-    expect(label).toContain("…");
+    // One paragraph, many rows: the tail keeps its newest rows, with the notice above them.
+    expect(label).not.toContain("…");
+    expect(lines[1]).toMatch(/↑ \d+ more lines?/);
+    expect(lines.at(-1)!.trimEnd()).toEndWith("newest");
+    expect(label).not.toContain("first");
     for (const line of lines) expect(line.length).toBeLessThanOrEqual(40);
+    // Tokens arriving at the end change only the bottom row (and the header's token count).
+    const more = thinkingLabel(api, { phase: "thinking", level: 0, text: `${long} more`, width: 40 }).split("\n");
+    expect(more.slice(1, -1)).toEqual(lines.slice(1, -1));
   });
 
   test("a settled thought wraps instead of ending in an ellipsis", () => {
@@ -1637,10 +1641,12 @@ describe("streaming thinking preview", () => {
     expect(window.rows).toEqual([95, 96, 97, 98, 99]);
     expect(planTailWindow(2, 5, window).rows).toEqual([0, 1]);
   });
-  test("an expanded clipped line can collapse even when its wrapped text fits the budget", () => {
+  test("a streaming paragraph that fits once wrapped hides nothing", () => {
     const input = { phase: "thinking" as const, level: 0 as const, text: "hello world ".repeat(5), width: 40 };
-    expect(thinkingLayout(api, input).canToggle).toBe(true);
-    expect(thinkingLayout(api, { ...input, expanded: true }).canToggle).toBe(true);
+    const label = thinkingLabel(api, input);
+    expect(label).not.toContain("…");
+    expect(label).not.toContain("more lines");
+    expect(thinkingLayout(api, input).canToggle).toBe(false);
   });
   test("only visible streaming rows are formatted and omissions count the whole thought", () => {
     const input = {

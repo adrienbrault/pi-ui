@@ -48,9 +48,10 @@ export interface ThinkingLabelInput {
   estimatedTokens?: number;
   expanded?: boolean;
   /**
-   * Streaming previews clamp each source line to the terminal width instead of
-   * wrapping it, so arriving tokens extend the last row instead of reflowing the
-   * whole tail. Defaults to `phase === "thinking"`; expansion always wraps.
+   * Streaming previews wrap the reasoning into rows before choosing the tail, one
+   * source line per terminal row, so arriving tokens extend the bottom row and a
+   * long paragraph shows its newest words. Defaults to `phase === "thinking"`;
+   * expansion always wraps.
    */
   truncate?: boolean;
   /** As an open group's member: the group's column widths, so its rows line up. */
@@ -123,7 +124,9 @@ function headerFor(api: ThinkingApi, input: ThinkingLabelInput): Header {
     !truncate && kit.markdown && input.text.length <= MAX_FORMAT_CHARS && markup.test(input.text)
       ? kit.markdown(cleanOutput(input.text), bodyWidth, theme, api.owner).map((row) => row.trimEnd())
       : undefined;
-  const source = formatted?.length ? formatted : logicalLines(cleanThinking(input.text));
+  const lines = logicalLines(cleanThinking(input.text));
+  // A streaming tail is chosen, and faded, row by row: a paragraph is as many rows as it wraps to.
+  const source = formatted?.length ? formatted : truncate ? lines.flatMap((line) => kit.wrap(line, bodyWidth)) : lines;
   const plain = (line: string) => (formatted ? cleanOutput(line) : line).trim();
   const last = source.findLast((line) => plain(line)) ?? "";
   // The whole thought on one line, as the reader sees it: rendered Markdown, no markup.
