@@ -8,6 +8,9 @@ This repository builds **pi-ui**, a recency-graded replacement terminal UI for t
 bun run check        # tsgo + oxlint + biome + bun test + fixture drift — under a second
 bun run ds           # regenerate the golden fixtures
 bun run ds:show read # print cards whose id contains "read" as ANSI (--width N, --theme dark|light, --ascii)
+bun run e2e          # real pi in tmux, offline scripted sessions, then the replay smoke (needs tmux, agg, ffmpeg; run outside the sandbox)
+bun run replay -- <session.jsonl> --list                      # a recorded session's numbered turns, messages and tool calls
+bun run replay -- <session.jsonl> --until message:7@50% --shot out.png   # replay offline in pi, pause, capture (--gif, --ansi, --click TEXT)
 ```
 
 `check` runs, in order: `tsgo` (native TypeScript preview) → `oxlint` → `biome format` → `bun test` → `ds:check`. A red gate means do not commit. If `tsgo` disagrees with an editor, `bun run typecheck:slow` falls back to classic `tsc`.
@@ -23,6 +26,8 @@ bun run ds:show read # print cards whose id contains "read" as ANSI (--width N, 
 | `design-system/build.ts` | Renders every cell and writes the fixtures. `--check` guards drift. |
 | `design-system/show.ts` | Prints matching cards to the terminal as raw ANSI, for review. A multi-frame state prints its last frame. |
 | `design-system/fixtures/` | Golden ANSI snapshots. Tracked. Never hand-edit. |
+| `dev/tui-e2e.ts`, `dev/tmux.ts` | The tmux end-to-end harness and its tmux helpers (socket, capture, waits, SGR mouse). |
+| `dev/replay/` | Replay of a recorded session in real pi, offline: `session.ts` (script and numbering), `pacing.ts`, `stops.ts`, `extension.ts` (provider, recorded tools, prompts, pause), `run.ts` (tmux driver, PNG/GIF/ANSI), `fixtures/synthetic.jsonl`. |
 | `docs/PLAN.md` | Decisions, architecture, phases P0–P5, risks. |
 | `DESIGN.md` | Component contract for both audiences. |
 
