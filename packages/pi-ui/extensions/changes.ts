@@ -377,9 +377,9 @@ export async function collectChanges(
 
 /** The changed files recorded on a tool result's details, when they are well formed. */
 export function recordedChanges(details: unknown): FileChanges | undefined {
-  const recorded = (details as { prismChanges?: unknown } | undefined)?.prismChanges as
-    | Partial<FileChanges>
-    | undefined;
+  // Sessions saved before the rename to pi-ui hold the changes under `prismChanges`.
+  const saved = details as { piUiChanges?: unknown; prismChanges?: unknown } | undefined;
+  const recorded = (saved?.piUiChanges ?? saved?.prismChanges) as Partial<FileChanges> | undefined;
   if (!recorded || !Array.isArray(recorded.files)) return undefined;
   const files = recorded.files.filter(
     (file): file is FileChange =>
@@ -424,7 +424,7 @@ export function installFileChanges(
       const changes = before ? await collectChanges(before, git, patch, limits) : undefined;
       if (!changes) return undefined;
       const details = event.details && typeof event.details === "object" ? event.details : {};
-      return { details: { ...details, prismChanges: changes } };
+      return { details: { ...details, piUiChanges: changes } };
     } catch {
       return undefined;
     }

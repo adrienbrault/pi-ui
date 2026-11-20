@@ -12,7 +12,7 @@ import { ENTRIES, GLYPH_MODES, THEME_NAMES, WIDTHS, type RenderCtx } from "./reg
 import { resolvePi } from "./lib/pi.ts";
 import { createKit } from "./lib/surface.ts";
 import { installTheme, loadThemeJson } from "./lib/theme.ts";
-import { glyphsFor } from "../packages/pi-prism/render/glyphs.ts";
+import { glyphsFor } from "../packages/pi-ui/render/glyphs.ts";
 
 const FIXTURES = join(process.cwd(), "design-system", "fixtures");
 

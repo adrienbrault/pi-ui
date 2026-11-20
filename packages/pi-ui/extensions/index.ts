@@ -1,5 +1,5 @@
 /**
- * pi-prism in the real session: tool rows you can open, close and read all the way.
+ * pi-ui in the real session: tool rows you can open, close and read all the way.
  *
  * The renderer slots are split so the header stays one row while the body grows:
  * `renderCall` owns the header, `renderResult` owns the body. Hovering a block
@@ -80,7 +80,7 @@ interface ToolRenderContext<State = unknown, Args = unknown> {
 
 const GLYPHS = glyphsFor("unicode");
 
-/** Tool kinds pi-prism owns. Anything else keeps whatever renderer it already had. */
+/** Tool kinds pi-ui owns. Anything else keeps whatever renderer it already had. */
 
 type Expansion = 0 | 1;
 
@@ -547,7 +547,7 @@ function toolMemberCells(member: FoldMember): MemberCells[] {
   return name === undefined ? [] : [{ label: toolLabel(name) }];
 }
 
-export default function prism(pi: ExtensionAPI): void {
+export default function piUi(pi: ExtensionAPI): void {
   pi.registerToolRenderer(resolver);
   registerMemberCells("tool", toolMemberCells);
   installThinkingRenderer(pi);

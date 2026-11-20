@@ -46,7 +46,7 @@ export function toolMeta(name: string): ToolMeta {
 }
 
 /**
- * Whether pi-prism renders this tool's rows. Every classified tool and every MCP
+ * Whether pi-ui renders this tool's rows. Every classified tool and every MCP
  * tool is owned, so it can fold with its peers. The `code` class is not: its
  * nested-call rollup does not exist yet, so those tools keep their own renderer.
  * Unknown tools (pi-code's todo, subagent, …) are always left alone.

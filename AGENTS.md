@@ -1,6 +1,6 @@
 # AGENTS.md
 
-`pi-extensions` builds **pi-prism**, a recency-graded replacement terminal UI for the pi coding agent, and the design system that keeps it honest. Everything here is Bun-first.
+`pi-extensions` builds **pi-ui**, a recency-graded replacement terminal UI for the pi coding agent, and the design system that keeps it honest. Everything here is Bun-first.
 
 ## Fast loop
 
@@ -16,8 +16,8 @@ bun run ds:show read # print cards whose id contains "read" as ANSI (--width N, 
 
 | Path | What lives there |
 |---|---|
-| `packages/pi-prism/render/` | Pure renderers: detail ladder, tool rows, group rows, thinking labels. No I/O, no timers, no globals. |
-| `packages/pi-prism/extensions/` | The live session: a tool-renderer resolver that owns tool rows, thoughts and groups, paints the hover scroll bar, and cycles expansion on click. |
+| `packages/pi-ui/render/` | Pure renderers: detail ladder, tool rows, group rows, thinking labels. No I/O, no timers, no globals. |
+| `packages/pi-ui/extensions/` | The live session: a tool-renderer resolver that owns tool rows, thoughts and groups, paints the hover scroll bar, and cycles expansion on click. |
 | `design-system/registry.ts` | Every card and scenario, declared once. |
 | `design-system/lib/` | Resolving the pi install, theme init, the render kit and `stack`. |
 | `design-system/build.ts` | Renders every cell and writes the fixtures. `--check` guards drift. |
@@ -30,7 +30,7 @@ bun run ds:show read # print cards whose id contains "read" as ANSI (--width N, 
 
 Breaking any of these is a design regression, not a style preference.
 
-1. **Render truth.** Every card renders real components: base pi from the resolved install, ours from `packages/pi-prism/render`. No mockups, no screenshots of mockups. Fold layouts in fixtures are planned by `extensions/fold.ts`, the module the live session uses. If the implementation changes, `bun run ds` changes the card's fixture and `bun run ds:show` prints the new card.
+1. **Render truth.** Every card renders real components: base pi from the resolved install, ours from `packages/pi-ui/render`. No mockups, no screenshots of mockups. Fold layouts in fixtures are planned by `extensions/fold.ts`, the module the live session uses. If the implementation changes, `bun run ds` changes the card's fixture and `bun run ds:show` prints the new card.
 2. Failed calls fold with their peers. Each affected summary segment includes its failure count, and opening the group reveals the failed calls in order.
 3. **The body budget is total.** A row's height is capped by its detail level; an expanded row's omission notice (`N more lines`) counts against that cap, not on top of it.
 4. **Fixtures are golden.** `ds:check` fails when committed fixtures disagree with what the renderers produce. Change a renderer → `bun run ds` → commit the fixtures in the same change.
@@ -48,7 +48,7 @@ Breaking any of these is a design regression, not a style preference.
 ## Adding a component
 
 1. Pick the semantic token and the detail ladder slots it must survive (`pending`, `running`, `success`, `error`, `expanded`, `aged0..5`).
-2. Write the pure renderer in `packages/pi-prism/render/`, returning a `ComponentLike` via `RenderKit`.
+2. Write the pure renderer in `packages/pi-ui/render/`, returning a `ComponentLike` via `RenderKit`.
 3. Add a test in `render.test.ts` — row counts, width fitting, and the failure cases.
 4. Register the card in `design-system/registry.ts` (id, title, group, description, one render fn per state).
 5. `bun run ds`, inspect with `bun run ds:show <id> --width 40|80|120`, with and without `--theme light`, then `bun run check`.

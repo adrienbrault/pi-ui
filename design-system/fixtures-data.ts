@@ -16,7 +16,7 @@ export const THINKING_TEXT = [
 
 export const FILE_TEXT = [
   "{",
-  '  "name": "pi-prism",',
+  '  "name": "@adrienbrault/pi-ui",',
   '  "version": "0.0.0",',
   '  "type": "module",',
   '  "pi": { "extensions": ["./extensions/index.ts"] },',
@@ -28,7 +28,7 @@ export const FILE_TEXT = [
 ].join("\n");
 
 export const SHELL_OUTPUT = [
-  "> pi-prism@0.0.0 typecheck",
+  "> @adrienbrault/pi-ui@0.0.0 typecheck",
   "> tsc --noEmit",
   "",
   "design-system/build.ts:41:18 - error TS2339:",
@@ -66,12 +66,12 @@ export const SHELL_NUMBERED = [
 ].join("\n");
 
 export const SHELL_LONG = [
-  "c477023 test(pi-prism): a collapsing group rebuilt mid-row hands its collapse on",
-  "9bce9ff fix(pi-prism): a narrow open group drops its table on every row at once",
-  "1ddc373 fix(pi-prism): a restarted session keeps its probe until it has the TUI",
-  "8b3bdec refactor(pi-prism): drop the unused indented and padBetween kit helpers",
+  "c477023 test(pi-ui): a collapsing group rebuilt mid-row hands its collapse on",
+  "9bce9ff fix(pi-ui): a narrow open group drops its table on every row at once",
+  "1ddc373 fix(pi-ui): a restarted session keeps its probe until it has the TUI",
+  "8b3bdec refactor(pi-ui): drop the unused indented and padBetween kit helpers",
   "c9ee8be test(dev): wait for an opened thought's own body row",
-  "* main c477023 test(pi-prism): a collapsing group rebuilt mid-row hands its collapse on",
+  "* main c477023 test(pi-ui): a collapsing group rebuilt mid-row hands its collapse on",
   "AGENTS.md",
   "biome.json",
   "bun.lock",
@@ -89,11 +89,11 @@ export const SHELL_LONG = [
 ].join("\n");
 
 export const EDIT_DIFF = [
-  "diff --git a/extensions/prism/decorator.ts b/extensions/prism/decorator.ts",
+  "diff --git a/extensions/pi-ui/decorator.ts b/extensions/pi-ui/decorator.ts",
   "index 3f9c1aa..8b2d410 100644",
   "@@ -1,8 +1,13 @@",
   ' import type { ComponentLike } from "../../tui/dist/index.js";',
-  ' import { renderToolRow } from "../../packages/pi-prism/render/tool-row.ts";',
+  ' import { renderToolRow } from "../../packages/pi-ui/render/tool-row.ts";',
   "-export function decorate(component: ComponentLike): ComponentLike {",
   "-  return component;",
   "+",
@@ -142,4 +142,4 @@ export const EDIT_DIFF = [
 export const MCP_OUTPUT = ["memory: 3 facts stored", "keys: onboarding, deploy, incident-2026-11"].join("\n");
 export const cwd = "/repo";
 export const readPath = "src/core/session.ts";
-export const editPath = "extensions/prism/decorator.ts";
+export const editPath = "extensions/pi-ui/decorator.ts";

@@ -13,7 +13,7 @@ import { ENTRIES, THEME_NAMES, type RenderCtx } from "./registry.ts";
 import { resolvePi } from "./lib/pi.ts";
 import { createKit } from "./lib/surface.ts";
 import { installTheme, loadThemeJson } from "./lib/theme.ts";
-import { glyphsFor, type GlyphMode } from "../packages/pi-prism/render/glyphs.ts";
+import { glyphsFor, type GlyphMode } from "../packages/pi-ui/render/glyphs.ts";
 
 type ThemeName = (typeof THEME_NAMES)[number];
 

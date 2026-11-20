@@ -1,6 +1,6 @@
 import { beforeAll, expect, test } from "bun:test";
-import { cleanOutput } from "../packages/pi-prism/render/text.ts";
-import { glyphsFor } from "../packages/pi-prism/render/glyphs.ts";
+import { cleanOutput } from "../packages/pi-ui/render/text.ts";
+import { glyphsFor } from "../packages/pi-ui/render/glyphs.ts";
 import { ENTRIES, type RenderCtx } from "./registry.ts";
 import { resolvePi, type PiInstall } from "./lib/pi.ts";
 import { createKit } from "./lib/surface.ts";

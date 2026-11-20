@@ -3,14 +3,14 @@
  * The golden fixtures and `bun run ds:show` both derive from this file.
  */
 
-import { formatDuration } from "../packages/pi-prism/render/text.ts";
-import type { GlyphSet, GlyphMode } from "../packages/pi-prism/render/glyphs.ts";
-import { glyphsFor } from "../packages/pi-prism/render/glyphs.ts";
-import { groupSegments, renderGroupMember, renderGroupRow } from "../packages/pi-prism/render/group-row.ts";
-import { cutMark, type RenderKit } from "../packages/pi-prism/render/kit.ts";
-import type { DetailLevel } from "../packages/pi-prism/render/detail.ts";
-import { BLOCKS_PER_STEP, COMPACT_LEVEL, FOLD_DISTANCE } from "../packages/pi-prism/render/detail.ts";
-import { blockDistances, type PlanBlock } from "../packages/pi-prism/render/layout.ts";
+import { formatDuration } from "../packages/pi-ui/render/text.ts";
+import type { GlyphSet, GlyphMode } from "../packages/pi-ui/render/glyphs.ts";
+import { glyphsFor } from "../packages/pi-ui/render/glyphs.ts";
+import { groupSegments, renderGroupMember, renderGroupRow } from "../packages/pi-ui/render/group-row.ts";
+import { cutMark, type RenderKit } from "../packages/pi-ui/render/kit.ts";
+import type { DetailLevel } from "../packages/pi-ui/render/detail.ts";
+import { BLOCKS_PER_STEP, COMPACT_LEVEL, FOLD_DISTANCE } from "../packages/pi-ui/render/detail.ts";
+import { blockDistances, type PlanBlock } from "../packages/pi-ui/render/layout.ts";
 import {
   type FoldUnit,
   planFolds,
@@ -18,18 +18,18 @@ import {
   setGroupOpen,
   thinkingPlan,
   toolPlan,
-} from "../packages/pi-prism/extensions/fold.ts";
-import { thinkingLabel, thoughtCells } from "../packages/pi-prism/render/thinking.ts";
-import { memberColumns, type MemberCells, type MemberColumns } from "../packages/pi-prism/render/columns.ts";
-import { renderToolRow, toolHeader, toolRowCells, type ToolRowInput } from "../packages/pi-prism/render/tool-row.ts";
+} from "../packages/pi-ui/extensions/fold.ts";
+import { thinkingLabel, thoughtCells } from "../packages/pi-ui/render/thinking.ts";
+import { memberColumns, type MemberCells, type MemberColumns } from "../packages/pi-ui/render/columns.ts";
+import { renderToolRow, toolHeader, toolRowCells, type ToolRowInput } from "../packages/pi-ui/render/tool-row.ts";
 import {
   callTokens,
   estimatedTokens,
   toolTokenCounts,
   toolMeta,
   toolTokenLabel,
-} from "../packages/pi-prism/render/tools.ts";
-import { boundedPatch } from "../packages/pi-prism/extensions/changes.ts";
+} from "../packages/pi-ui/render/tools.ts";
+import { boundedPatch } from "../packages/pi-ui/extensions/changes.ts";
 import type { PiInstall } from "./lib/pi.ts";
 import { stack } from "./lib/surface.ts";
 import {
@@ -181,11 +181,11 @@ const readRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
 });
 
 /** A path too long for a header at most widths. */
-const LONG_READ_PATH = "packages/pi-prism/extensions/interaction/fixtures/sessions/thinking-and-tools.ts";
+const LONG_READ_PATH = "packages/pi-ui/extensions/interaction/fixtures/sessions/thinking-and-tools.ts";
 
 /** A command long enough to wrap, over two lines, as an agent writes it. */
 const OPENED_COMMAND =
-  "cd packages/pi-prism && bun test render/render.test.ts extensions/interaction.test.ts --timeout 20000 --bail\nbun run typecheck";
+  "cd packages/pi-ui && bun test render/render.test.ts extensions/interaction.test.ts --timeout 20000 --bail\nbun run typecheck";
 
 const bashRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
   name: "bash",
@@ -210,7 +210,7 @@ const changedFilesRow = (): ToolRowInput =>
   bashRow({
     args: {
       command:
-        "printf 'Edits: 5\\nLines: 12\\n' > ./tmp/one.txt; sed -i '' 's/DISTANCE = 10/DISTANCE = 12/' packages/pi-prism/render/detail.ts",
+        "printf 'Edits: 5\\nLines: 12\\n' > ./tmp/one.txt; sed -i '' 's/DISTANCE = 10/DISTANCE = 12/' packages/pi-ui/render/detail.ts",
     },
     title: undefined,
     output: "(no output)",
@@ -218,9 +218,9 @@ const changedFilesRow = (): ToolRowInput =>
     changes: {
       files: [
         {
-          path: "packages/pi-prism/render/detail.ts",
+          path: "packages/pi-ui/render/detail.ts",
           kind: "modified",
-          patch: boundedPatch("packages/pi-prism/render/detail.ts", detailSource(10), detailSource(12)),
+          patch: boundedPatch("packages/pi-ui/render/detail.ts", detailSource(10), detailSource(12)),
         },
         { path: "tmp/one.txt", kind: "created", patch: boundedPatch("tmp/one.txt", "", "Edits: 5\nLines: 12\n") },
       ],
@@ -678,7 +678,7 @@ const oursEntries: EntryDef[] = [
         0,
         () =>
           bashRow({
-            args: { command: "cat -n packages/pi-prism/render/detail.ts | sed -n '48,51p'" },
+            args: { command: "cat -n packages/pi-ui/render/detail.ts | sed -n '48,51p'" },
             title: undefined,
             output: SHELL_NUMBERED,
           }),
@@ -812,17 +812,17 @@ const decayRows: ScenarioRow[] = [
   { ...readRow({ title: "src/core/session.ts" }), key: "read-1" },
   { ...readRow({ title: "src/modes/interactive/interactive-mode.js" }), key: "read-2" },
   { ...bashRow({ title: "rg -n 'registerToolRenderer' src", output: SHELL_OK }), key: "bash-1" },
-  { ...editRow({ title: "extensions/prism/decorator.ts", summary: "+42 −7" }), key: "edit-1" },
+  { ...editRow({ title: "extensions/pi-ui/decorator.ts", summary: "+42 −7" }), key: "edit-1" },
   {
     ...readRow({ title: "src/modes/interactive/components/assistant-message.js" }),
     key: "read-3",
   },
-  { ...editRow({ title: "extensions/prism/thinking.ts", summary: "+18 −3" }), key: "edit-2" },
+  { ...editRow({ title: "extensions/pi-ui/thinking.ts", summary: "+18 −3" }), key: "edit-2" },
   { ...bashRow({ title: "bun run typecheck", output: SHELL_OK, durationMs: 2400 }), key: "bash-3" },
-  { ...readRow({ title: "extensions/prism/fold.ts" }), key: "read-4" },
-  { ...editRow({ title: "extensions/prism/fold.ts", summary: "+9 −2" }), key: "edit-3" },
-  { ...readRow({ title: "extensions/prism/fold.test.ts" }), key: "read-5" },
-  { ...editRow({ title: "extensions/prism/fold.test.ts", summary: "+24 −0" }), key: "edit-4" },
+  { ...readRow({ title: "extensions/pi-ui/fold.ts" }), key: "read-4" },
+  { ...editRow({ title: "extensions/pi-ui/fold.ts", summary: "+9 −2" }), key: "edit-3" },
+  { ...readRow({ title: "extensions/pi-ui/fold.test.ts" }), key: "read-5" },
+  { ...editRow({ title: "extensions/pi-ui/fold.test.ts", summary: "+24 −0" }), key: "edit-4" },
   { ...bashRow({ title: "bun test", output: SHELL_OK, durationMs: 8100 }), key: "bash-2" },
   { ...mcpRow({ title: "memory/search" }), key: "mcp-1" },
 ];

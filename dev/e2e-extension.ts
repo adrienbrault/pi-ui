@@ -1,5 +1,5 @@
 /**
- * The extension the end-to-end harness loads into pi: pi-prism as it ships, plus
+ * The extension the end-to-end harness loads into pi: pi-ui as it ships, plus
  * a stand-in for the `flan` provider the synthetic sessions name.
  *
  * The stand-in is what keeps the run offline. pi catches an exception thrown
@@ -9,7 +9,7 @@
  * loopback port: a turn fails to connect and nothing leaves the machine.
  */
 
-import prism from "../packages/pi-prism/extensions/index.ts";
+import piUi from "../packages/pi-ui/extensions/index.ts";
 
 /** Port 9 (discard) is closed on a normal machine, so connecting fails at once. */
 export const OFFLINE_BASE_URL = "http://127.0.0.1:9/v1";
@@ -20,8 +20,8 @@ export const E2E_MODEL = "deepseek-v4.1-flash-1017";
  * without any network: a prompt `run: <command>` gets one bash call with that command, and the
  * turn after a tool result gets `Script done.`.
  */
-export const SCRIPT_PROVIDER = "prism-script";
-export const SCRIPT_MODEL = "prism-script-1";
+export const SCRIPT_PROVIDER = "pi-ui-script";
+export const SCRIPT_MODEL = "pi-ui-script-1";
 
 interface ScriptContext {
   messages: Array<{ role: string; content?: unknown }>;
@@ -73,7 +73,7 @@ interface ThemeUi {
 }
 
 export default function e2e(pi: Pi): void {
-  prism(pi as unknown as Parameters<typeof prism>[0]);
+  piUi(pi as unknown as Parameters<typeof piUi>[0]);
   // A fixed palette: the system theme stays grayscale under a headless tmux, where the
   // scroll bar's thumb and track share one colour. A Theme instance is not saved to settings.
   pi.on("session_start", (_event, ctx) => {

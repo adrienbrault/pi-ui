@@ -37,7 +37,7 @@ let template: string | undefined;
 /** A repository with a tracked file, a tracked file with unstaged edits, an ignored file and an untracked one. */
 function repository(): string {
   if (!template) {
-    template = mkdtempSync(join(tmpdir(), "prism-changes-template-"));
+    template = mkdtempSync(join(tmpdir(), "pi-ui-changes-template-"));
     git(template, "init", "-q");
     writeFileSync(join(template, ".gitignore"), "ignored.txt\n");
     writeFileSync(join(template, "clean.txt"), "one\ntwo\nthree\n");
@@ -52,7 +52,7 @@ function repository(): string {
     writeFileSync(join(template, "tmp", "notes.txt"), "draft\n");
   }
   // A copy is cheaper than a fresh repository; refreshing its index makes its clean files clean again.
-  const root = mkdtempSync(join(tmpdir(), "prism-changes-"));
+  const root = mkdtempSync(join(tmpdir(), "pi-ui-changes-"));
   repos.push(root);
   cpSync(template, root, { recursive: true });
   git(root, "update-index", "-q", "--refresh");
@@ -64,7 +64,7 @@ const tick = () => Bun.sleep(5);
 
 describe("a shell command's file changes", () => {
   test("outside a git work tree there is nothing to snapshot", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "prism-plain-"));
+    const dir = mkdtempSync(join(tmpdir(), "pi-ui-plain-"));
     repos.push(dir);
     expect(await takeSnapshot(dir)).toBeUndefined();
   });
@@ -351,12 +351,17 @@ describe("the diff's cost", () => {
 describe("recorded changes", () => {
   test("only well-formed records are read back", () => {
     expect(recordedChanges(undefined)).toBeUndefined();
-    expect(recordedChanges({ prismChanges: { files: "nope" } })).toBeUndefined();
+    expect(recordedChanges({ piUiChanges: { files: "nope" } })).toBeUndefined();
     expect(
       recordedChanges({
-        prismChanges: { files: [{ path: "a", kind: "modified", patch: "p" }, { path: 3 }, null], more: 2 },
+        piUiChanges: { files: [{ path: "a", kind: "modified", patch: "p" }, { path: 3 }, null], more: 2 },
       }),
     ).toEqual({ files: [{ path: "a", kind: "modified", patch: "p" }], more: 2 });
+  });
+
+  test("a result saved before the rename to pi-ui is read from its old key", () => {
+    const files = [{ path: "a", kind: "created" as const, patch: "p" }];
+    expect(recordedChanges({ prismChanges: { files } })).toEqual({ files });
   });
 });
 
@@ -383,7 +388,7 @@ describe("the hooks", () => {
       "tool_result",
       { toolName: "bash", toolCallId: "1", details: { fullOutputPath: "/tmp/x" } },
       ctx,
-    )) as { details: { fullOutputPath: string; prismChanges: unknown } };
+    )) as { details: { fullOutputPath: string; piUiChanges: unknown } };
     expect(result.details.fullOutputPath).toBe("/tmp/x");
     expect(recordedChanges(result.details)?.files.map((file) => file.path)).toEqual(["tmp/one.txt"]);
   });

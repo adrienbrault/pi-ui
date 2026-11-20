@@ -1,5 +1,5 @@
 {
-  "name": "pi-prism",
+  "name": "@adrienbrault/pi-ui",
   "version": "0.0.0",
   "private": true,
   "type": "module",

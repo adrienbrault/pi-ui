@@ -1,9 +1,9 @@
 import { expect, test } from "bun:test";
-import { glyphsFor } from "../packages/pi-prism/render/glyphs.ts";
-import { cleanOutput } from "../packages/pi-prism/render/text.ts";
-import { thinkingLayout } from "../packages/pi-prism/render/thinking.ts";
-import { renderToolRow } from "../packages/pi-prism/render/tool-row.ts";
-import { MAX_FULL_LINES } from "../packages/pi-prism/render/detail.ts";
+import { glyphsFor } from "../packages/pi-ui/render/glyphs.ts";
+import { cleanOutput } from "../packages/pi-ui/render/text.ts";
+import { thinkingLayout } from "../packages/pi-ui/render/thinking.ts";
+import { renderToolRow } from "../packages/pi-ui/render/tool-row.ts";
+import { MAX_FULL_LINES } from "../packages/pi-ui/render/detail.ts";
 import { resolvePi } from "./lib/pi.ts";
 import { createKit } from "./lib/surface.ts";
 import { installTheme, loadThemeJson } from "./lib/theme.ts";

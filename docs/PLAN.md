@@ -1,6 +1,6 @@
 # Plan: a recency-graded pi UI, with a design system both humans and agents can work from
 
-Status: agreed direction. Working package name `pi-prism` (rename later; nothing depends on it).
+Status: agreed direction. Package `@adrienbrault/pi-ui` (pi-ui in prose).
 
 ## Locked decisions
 
@@ -61,7 +61,7 @@ design-system/
   show.ts          prints cards to the terminal as raw ANSI
 ```
 
-Every card is real output, not a drawing: base pi components from the resolved install, pi-code and pi-open-tui from vendored snapshots pinned by version, ours from the same `packages/pi-prism/render` module the extension will ship. That last point is the contract: **the design system and the implementation share one renderer module**, so the cards cannot drift from the product.
+Every card is real output, not a drawing: base pi components from the resolved install, pi-code and pi-open-tui from vendored snapshots pinned by version, ours from the same `packages/pi-ui/render` module the extension will ship. That last point is the contract: **the design system and the implementation share one renderer module**, so the cards cannot drift from the product.
 
 Axes every card renders across:
 
@@ -78,16 +78,16 @@ Outputs for agents:
 - `fixtures/frames.json`: golden frames, checked by `ds:check` so rendering changes are reviewable.
 - `DESIGN.md`: how to add a component (token → renderer → registry entry → fixture → scenario).
 
-### B. Implementation: `packages/pi-prism`
+### B. Implementation: `packages/pi-ui`
 
 ```
-extensions/prism/index.ts        wiring, settings, feature detection
-extensions/prism/detail.ts       DetailLevel, decay curve, hysteresis, pins
-extensions/prism/tool-rows.ts    registerToolRenderer over the taxonomy
-extensions/prism/thinking.ts     per-message label tails + visibility
-extensions/prism/groups.ts       grouping taxonomy + summaries
-extensions/prism/decorator.ts    layout-root walk, child render wrapping, splice
-extensions/prism/chrome/*        footer, editor, header (phase 4)
+extensions/pi-ui/index.ts        wiring, settings, feature detection
+extensions/pi-ui/detail.ts       DetailLevel, decay curve, hysteresis, pins
+extensions/pi-ui/tool-rows.ts    registerToolRenderer over the taxonomy
+extensions/pi-ui/thinking.ts     per-message label tails + visibility
+extensions/pi-ui/groups.ts       grouping taxonomy + summaries
+extensions/pi-ui/decorator.ts    layout-root walk, child render wrapping, splice
+extensions/pi-ui/chrome/*        footer, editor, header (phase 4)
 render/                          pure renderers shared with the design system
 ```
 
@@ -126,7 +126,7 @@ Segments join into one sentence in encounter order, the first capitalised. A seg
 
 The standalone build owns chrome, so v1 must not double-install with pi-open-tui. Detection rules:
 
-- If pi-open-tui's footer/editor is detected, warn and leave it alone until its features are disabled (or offer a `/prism takeover` command).
+- If pi-open-tui's footer/editor is detected, warn and leave it alone until its features are disabled (or offer a `/pi-ui takeover` command).
 - pi-code's renderers (todo, question, subagent) are left untouched; the decorator only touches tool rows it owns. It owns every tool in the taxonomy above except the code class, plus every `mcp__*` tool (`ownsTool` in `render/tools.ts`, the single source). Any other tool keeps its own renderer and ends a fold group.
 - Two copies of `pi-coding-agent` would break `instanceof`; the decorator duck-types (as pi-open-tui does) and probes methods before wrapping.
 
@@ -138,7 +138,7 @@ The standalone build owns chrome, so v1 must not double-install with pi-open-tui
 - Compaction and branch summaries are boundaries: groups do not span them.
 - Fullscreen mode wraps the transcript in a `ScrollView`; the decorator resolves the layout root, not just `chatContainer.children`.
 - Errors and aborts stay visible at every level.
-- Files a shell command changes (`extensions/changes.ts`): a `tool_call` hook, which pi awaits after the row has started painting and before the command runs, snapshots the git work tree within a 1 s deadline: `git rev-parse --show-toplevel --show-prefix`, `git ls-files -z --stage`, `git ls-files -z --others --exclude-standard` and `git diff-files --name-only -z`, all with `--no-optional-locks` (about 10 ms together on this repository), then an `lstat` of every listed file and a read of the files git does not hold as they are (untracked, or differing from the index). A `tool_result` hook re-lists and re-stats, reads the old content of clean tracked files from their index blobs, only for the files it will list and only when they are modified (a deleted file shows no patch): in path order, a window as large as the room left in the listing, one `git cat-file --batch-check` for the blobs' sizes, then one `git cat-file --batch` for the blobs within the caps (a file rewritten with the same bytes is not listed and its place goes to the next window), diffs as pi's `generateUnifiedPatch` does (jsdiff's `createTwoFilesPatch`, a dependency of pi-prism pinned to the version pi ships, with file headers only and four lines of context) but bounded, and adds `prismChanges` to the result's `details`, which pi persists. Nothing writes to the repository: `git stash create` was rejected because it writes loose objects on every call. Limits: more than 20,000 files skips the snapshot; files over 256 KB before or after, past 4 MB or 2,000 files read before the command, past 4 MB of old content read from git after it, or past 256 KB of recorded patch text are reported without a diff; every git call stops reading and kills git past a byte cap (the sizes it asked for, plus 128 bytes of header per object, for `cat-file`; 64 MB otherwise); so is a change whose diff jsdiff gives up on: it runs synchronously and a deadline cannot interrupt it (reversing 12,000 lines, 132 KB, took 53 s), so each diff gets jsdiff's own `timeout` of 50 ms, or what is left of the 1 s deadline when less, and a `maxEditLength` of 131,072 lines removed plus added (a patch longer than that cannot fit the 256 KB of patch text, at two bytes or more per changed line); at most 50 files are listed per call, the rest counted. Concurrent shell calls each see the others' changes, since a change cannot be attributed to one process.
+- Files a shell command changes (`extensions/changes.ts`): a `tool_call` hook, which pi awaits after the row has started painting and before the command runs, snapshots the git work tree within a 1 s deadline: `git rev-parse --show-toplevel --show-prefix`, `git ls-files -z --stage`, `git ls-files -z --others --exclude-standard` and `git diff-files --name-only -z`, all with `--no-optional-locks` (about 10 ms together on this repository), then an `lstat` of every listed file and a read of the files git does not hold as they are (untracked, or differing from the index). A `tool_result` hook re-lists and re-stats, reads the old content of clean tracked files from their index blobs, only for the files it will list and only when they are modified (a deleted file shows no patch): in path order, a window as large as the room left in the listing, one `git cat-file --batch-check` for the blobs' sizes, then one `git cat-file --batch` for the blobs within the caps (a file rewritten with the same bytes is not listed and its place goes to the next window), diffs as pi's `generateUnifiedPatch` does (jsdiff's `createTwoFilesPatch`, a dependency of pi-ui pinned to the version pi ships, with file headers only and four lines of context) but bounded, and adds `piUiChanges` to the result's `details`, which pi persists. Nothing writes to the repository: `git stash create` was rejected because it writes loose objects on every call. Limits: more than 20,000 files skips the snapshot; files over 256 KB before or after, past 4 MB or 2,000 files read before the command, past 4 MB of old content read from git after it, or past 256 KB of recorded patch text are reported without a diff; every git call stops reading and kills git past a byte cap (the sizes it asked for, plus 128 bytes of header per object, for `cat-file`; 64 MB otherwise); so is a change whose diff jsdiff gives up on: it runs synchronously and a deadline cannot interrupt it (reversing 12,000 lines, 132 KB, took 53 s), so each diff gets jsdiff's own `timeout` of 50 ms, or what is left of the 1 s deadline when less, and a `maxEditLength` of 131,072 lines removed plus added (a patch longer than that cannot fit the 256 KB of patch text, at two bytes or more per changed line); at most 50 files are listed per call, the rest counted. Concurrent shell calls each see the others' changes, since a change cannot be attributed to one process.
 
 ### C. Upstream RFC (parallel, low effort)
 
@@ -153,7 +153,7 @@ pi-extensions/
   docs/rfc/transcript-api.md
   DESIGN.md
   design-system/…
-  packages/pi-prism/…
+  packages/pi-ui/…
 ```
 
 ## Phases
@@ -181,4 +181,4 @@ pi-extensions/
 
 - Package name and branding.
 - Whether "ours" absorbs pi-code's todo/subagent/tool renderers by import or reimplementation in P4.
-- Whether to expose the decay curve as a setting (`/prism decay 7,5,3,1`) or keep it fixed for v1. For now the tail budget, the blocks per step, the fold distance and the forming size are constants in `render/detail.ts`; a setting should arrive as explicit parameters with its own design, including the floor a separate fold distance needs.
+- Whether to expose the decay curve as a setting (`/pi-ui decay 7,5,3,1`) or keep it fixed for v1. For now the tail budget, the blocks per step, the fold distance and the forming size are constants in `render/detail.ts`; a setting should arrive as explicit parameters with its own design, including the floor a separate fold distance needs.

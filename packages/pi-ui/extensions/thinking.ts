@@ -62,7 +62,7 @@ import {
   type BarCell,
   type TranscriptTui,
 } from "./viewport.ts";
-import { installThinkingClock, thinkingTime, type TimedMessage } from "./thinking-time.ts";
+import { installThinkingClock, recordedThinkingMs, thinkingTime, type TimedMessage } from "./thinking-time.ts";
 import { claimHover, clearHover, onSpacerMouse, releaseHover } from "./hover.ts";
 import {
   advanceFade,
@@ -85,7 +85,7 @@ import {
 } from "./fade.ts";
 
 const GLYPHS = glyphsFor("unicode");
-const PROBE_WIDGET = "pi-prism-thinking-probe";
+const PROBE_WIDGET = "pi-ui-thinking-probe";
 
 interface ContentEntry {
   type: string;
@@ -134,7 +134,7 @@ interface HoverState {
 interface HiddenThinkingRegion {
   child: unknown;
   onMouse: (event: MouseEventLike) => unknown;
-  prismHover?: HoverState;
+  piUiHover?: HoverState;
 }
 
 /** One hover state per thinking run, so a rebuilt region does not reset it. */
@@ -177,7 +177,7 @@ interface ThinkingRun {
 
 /** Recorded thinking time of a message's runs; absent unless every run was timed. */
 function thinkingMs(message: AssistantLike | undefined, runs: ThinkingRun[]): number | undefined {
-  const recorded = message?.prismThinkingMs;
+  const recorded = recordedThinkingMs(message);
   if (!recorded || runs.length === 0) return undefined;
   let total = 0;
   for (const run of runs) {
@@ -441,8 +441,8 @@ function decorate(
       };
       const hover = (hoverStates[runIndex] ??= { canToggle: false });
       const erase = (eraseStates[runIndex] ??= {});
-      if (region.prismHover !== hover) {
-        region.prismHover = hover;
+      if (region.piUiHover !== hover) {
+        region.piUiHover = hover;
         bindHover(region, component, hover, foldOf);
         expandedRegions.set(region, (row) => !!hover.expanded && (foldOf().mode !== "anchor" || row > 0));
         hoveredRegions.set(region, () => hover.target === "thought");
@@ -481,7 +481,7 @@ function isAssistant(component: unknown): component is AssistantLike {
   );
 }
 
-const PATCHED = "__prismThinking";
+const PATCHED = "__piUiThinking";
 
 function patchInstance(component: AssistantLike, theme: RenderTheme, repaint: () => void): void {
   if ((component as Record<string, unknown>)[PATCHED]) return;

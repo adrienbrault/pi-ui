@@ -1,7 +1,7 @@
 /** Render surface: the injected RenderKit, and components stacked into lines. */
 
-import { createPiKit } from "../../packages/pi-prism/render/pi-kit.ts";
-import type { RenderKit } from "../../packages/pi-prism/render/kit.ts";
+import { createPiKit } from "../../packages/pi-ui/render/pi-kit.ts";
+import type { RenderKit } from "../../packages/pi-ui/render/kit.ts";
 import type { PiInstall } from "./pi.ts";
 
 export function createKit(pi: PiInstall): RenderKit {

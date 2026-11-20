@@ -36,6 +36,12 @@ interface MeasuredTurn {
   output?: Array<{ id: string; rate: number }>;
 }
 
+/** The throughput saved on an assistant message, under its current key or the one older sessions used. */
+function savedThroughput(message: object): MeasuredTurn | undefined {
+  const saved = message as { piUiThroughput?: MeasuredTurn; prismThroughput?: MeasuredTurn };
+  return saved.piUiThroughput ?? saved.prismThroughput;
+}
+
 interface CallStream {
   firstDelta: number;
   subsequentChars: number;
@@ -74,7 +80,7 @@ export function installThroughput(pi: ExtensionAPI, repaint: (id: string) => voi
   function showProgress(ctx: ExtensionContext, label?: string) {
     if (progressLabel === label) return;
     progressLabel = label;
-    ctx.ui.setStatus("prism-prefill", label);
+    ctx.ui.setStatus("pi-ui-prefill", label);
   }
 
   function reset(ctx: ExtensionContext) {
@@ -98,7 +104,7 @@ export function installThroughput(pi: ExtensionAPI, repaint: (id: string) => voi
     let latest: MeasuredTurn | undefined;
     for (const entry of ctx.sessionManager?.getBranch() ?? []) {
       if (entry.type !== "message" || entry.message.role !== "assistant") continue;
-      const saved = (entry.message as { prismThroughput?: MeasuredTurn }).prismThroughput;
+      const saved = savedThroughput(entry.message);
       latest = saved;
       if (saved?.input)
         for (const id of saved.input.toolIds) setInput(id, saved.input.rate, !!saved.input.estimated, false);
@@ -134,7 +140,7 @@ export function installThroughput(pi: ExtensionAPI, repaint: (id: string) => voi
     // These are llama-server request extensions. Generic OpenAI-compatible endpoints may reject them.
     const llama =
       ["llama.cpp", "llama-cpp", "llamacpp"].includes(ctx.model.provider) ||
-      process.env.PI_PRISM_LLAMA_TIMINGS === ctx.model.provider;
+      process.env.PI_UI_LLAMA_TIMINGS === ctx.model.provider;
     const body = object(payload);
     if (body?.stream && Array.isArray(body.messages)) {
       // Assume the previous conversation prefix was reused for this client-side estimate.
@@ -217,7 +223,7 @@ export function installThroughput(pi: ExtensionAPI, repaint: (id: string) => voi
     reset(ctx);
     resultIds = [];
     showLastPrefill(ctx, saved);
-    if (saved.input || saved.output) return { message: { ...message, prismThroughput: saved } };
+    if (saved.input || saved.output) return { message: { ...message, piUiThroughput: saved } };
   });
   return (id: string) => rates.get(id);
 }

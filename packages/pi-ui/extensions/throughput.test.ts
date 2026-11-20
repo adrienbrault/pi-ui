@@ -132,9 +132,26 @@ test("a server measurement that arrives after the last tool-call delta replaces 
     expect(rates("a")?.outputRate).toBe(40);
     emit("provider_stream_event", { data: { timings: { predicted_per_second: 45 } } });
     const saved = emit("message_end", { message });
-    expect(saved.message.prismThroughput.output).toEqual([{ id: "a", rate: 45 }]);
+    expect(saved.message.piUiThroughput.output).toEqual([{ id: "a", rate: 45 }]);
     expect(rates("a")?.outputRate).toBe(45);
   } finally {
     jest.useRealTimers();
   }
+});
+
+test("a session saved before the rename to pi-ui restores its rates from the old key", () => {
+  const handlers = new Map<string, (event: any, ctx: any) => any>();
+  const message = {
+    role: "assistant",
+    prismThroughput: { input: { toolIds: ["a"], rate: 3000 }, output: [{ id: "b", rate: 45 }] },
+  };
+  const ctx = {
+    mode: "tui",
+    ui: { setStatus: () => {} },
+    sessionManager: { getBranch: () => [{ type: "message", message }] },
+  };
+  const rates = installThroughput({ on: (name: string, fn: any) => handlers.set(name, fn) } as never, () => {});
+  handlers.get("session_start")!({}, ctx);
+  expect(rates("a")).toEqual({ inputRate: 3000 });
+  expect(rates("b")).toEqual({ outputRate: 45 });
 });

@@ -1,5 +1,5 @@
 /**
- * End-to-end check of pi-prism in a real pi TUI, driven through tmux.
+ * End-to-end check of pi-ui in a real pi TUI, driven through tmux.
  *
  * Synthetic sessions are restored so no model turn is needed. The pane is read
  * as text and SGR mouse sequences are injected as literal input, which is what
@@ -28,12 +28,12 @@
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { FOLD_DISTANCE } from "../packages/pi-prism/render/detail.ts";
+import { FOLD_DISTANCE } from "../packages/pi-ui/render/detail.ts";
 import { SCRIPT_MODEL, SCRIPT_PROVIDER } from "./e2e-extension.ts";
 
 const ROOT = join(import.meta.dir, "..");
-const SOCKET = `prism-e2e-${process.pid}`;
-const SESSION = "prism-e2e";
+const SOCKET = `pi-ui-e2e-${process.pid}`;
+const SESSION = "pi-ui-e2e";
 const WIDTH = 140;
 
 const NUMBER_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
@@ -230,7 +230,7 @@ function start(sessionPath: string, height: number, cwd = ROOT, extra: string[] 
   tmux("set", "-g", "extended-keys", "on");
   // Keep pi's startup warning from moving the row between capture and mouse dispatch.
   tmux("set", "-sq", "extended-keys-format", "csi-u");
-  // Only pi-prism and an offline stand-in provider load; see dev/e2e-extension.ts.
+  // Only pi-ui and an offline stand-in provider load; see dev/e2e-extension.ts.
   const pi = [
     "env PI_OFFLINE=1 PI_SKIP_VERSION_CHECK=1",
     "pi --no-extensions --tui-mode fullscreen",
@@ -788,11 +788,11 @@ async function bashChangesScenario(dir: string): Promise<void> {
   }
   assert(!pane.includes("@@") && !pane.includes("+++"), `the diffs should carry no headers\n${pane}`);
   const saved = await Bun.file(session).text();
-  assert(saved.includes('"prismChanges"'), "the result should record the changed files for a reload");
+  assert(saved.includes('"piUiChanges"'), "the result should record the changed files for a reload");
 }
 
 async function main(): Promise<void> {
-  const dir = mkdtempSync(join(tmpdir(), "pi-prism-e2e-"));
+  const dir = mkdtempSync(join(tmpdir(), "pi-ui-e2e-"));
   try {
     const live = join(dir, "visible.jsonl");
     const longPreview = { output: Array.from({ length: 40 }, (_, i) => "animated line " + i).join("\n") };

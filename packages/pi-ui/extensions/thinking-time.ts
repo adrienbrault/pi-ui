@@ -14,8 +14,20 @@ const live = new WeakMap<object, Map<number, Span>>();
 export interface TimedMessage {
   durationMs?: number;
   /** Elapsed milliseconds by the first content index of each visible thinking run. */
+  piUiThinkingMs?: Record<number, number>;
+  piUiThinkingRates?: Record<number, number>;
+  /** The keys sessions saved before the rename to pi-ui; read, never written. */
   prismThinkingMs?: Record<number, number>;
   prismThinkingRates?: Record<number, number>;
+}
+
+/** The thinking time recorded on a message, under its current key or the one older sessions used. */
+export function recordedThinkingMs(message: TimedMessage | undefined): Record<number, number> | undefined {
+  return message?.piUiThinkingMs ?? message?.prismThinkingMs;
+}
+
+function recordedThinkingRates(message: TimedMessage): Record<number, number> | undefined {
+  return message.piUiThinkingRates ?? message.prismThinkingRates;
 }
 
 function sampledRate(span: Span): number | undefined {
@@ -32,12 +44,13 @@ export function thinkingTime(message: TimedMessage, first: number, streaming: bo
       running: span.end === undefined,
       outputRate: sampledRate(span) ?? null,
     };
-  const elapsed = message.prismThinkingMs?.[first];
+  const elapsed = recordedThinkingMs(message)?.[first];
+  const rates = recordedThinkingRates(message);
   return {
     durationMs: elapsed ?? (streaming ? undefined : message.durationMs),
     turnDuration: !streaming && elapsed === undefined,
     running: false,
-    outputRate: message.prismThinkingRates ? (message.prismThinkingRates[first] ?? null) : undefined,
+    outputRate: rates ? (rates[first] ?? null) : undefined,
   };
 }
 
@@ -92,15 +105,15 @@ export function installThinkingClock(pi: ExtensionAPI, repaint: () => void): voi
   pi.on("message_end", ({ message }) => {
     if (message.role !== "assistant" || !spans.size) return;
     for (const index of active.keys()) finish(index);
-    const prismThinkingMs: Record<number, number> = {};
-    const prismThinkingRates: Record<number, number> = {};
+    const piUiThinkingMs: Record<number, number> = {};
+    const piUiThinkingRates: Record<number, number> = {};
     for (const [index, span] of spans) {
-      prismThinkingMs[index] = Math.round(span.end! - span.start);
+      piUiThinkingMs[index] = Math.round(span.end! - span.start);
       const rate = sampledRate(span);
-      if (rate !== undefined) prismThinkingRates[index] = rate;
+      if (rate !== undefined) piUiThinkingRates[index] = rate;
     }
     reset();
-    const timed = { ...message, prismThinkingMs, prismThinkingRates };
+    const timed = { ...message, piUiThinkingMs, piUiThinkingRates };
     return { message: timed };
   });
 }

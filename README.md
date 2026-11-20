@@ -1,12 +1,12 @@
 # pi-extensions
 
-A workspace for **pi-prism** — a recency-graded terminal UI for the pi coding agent — and the render-truth design system that keeps it honest.
+A workspace for **pi-ui** — a recency-graded terminal UI for the pi coding agent — and the render-truth design system that keeps it honest.
 
 - **`AGENTS.md`** — how to work in this repo: fast loop, invariants, gotchas. Start here if you are an agent.
 - **`docs/PLAN.md`** — the agreed plan: decisions, architecture, phases, risks.
 - **`DESIGN.md`** — the component contract for humans and agents.
 - **`design-system/`** — the card registry and golden ANSI fixtures: real components, rendered to the terminal.
-- **`packages/pi-prism/`** — the UI package (working name).
+- **`packages/pi-ui/`** — the UI package, `@adrienbrault/pi-ui`.
 
 ## Commands
 
@@ -25,18 +25,18 @@ bun run e2e          # drive a real pi in tmux through scripted sessions (offlin
 ## Trying it in pi
 
 ```bash
-pi -e /path/to/pi-extensions/packages/pi-prism/extensions/index.ts
-pi --tui-mode fullscreen -e /path/to/pi-extensions/packages/pi-prism/extensions/index.ts
+pi -e /path/to/pi-extensions/packages/pi-ui/extensions/index.ts
+pi --tui-mode fullscreen -e /path/to/pi-extensions/packages/pi-ui/extensions/index.ts
 ```
 
-Add `--no-extensions` to load pi-prism alone, plus `-e` for any provider extension you need.
+Add `--no-extensions` to load pi-ui alone, plus `-e` for any provider extension you need.
 
-Cards render against a real pi install: `PI_CODING_AGENT_ROOT` if set, otherwise the pi version pinned in `packages/pi-prism` (then `nvm` or a global install if dependencies are missing). Cards show the real thing rather than a drawing, and `ds:check` gives the same answer on every machine. The ANSI fixtures in `design-system/fixtures/` are tracked goldens. Review a card in the terminal with `bun run ds:show <id substring>`.
+Cards render against a real pi install: `PI_CODING_AGENT_ROOT` if set, otherwise the pi version pinned in `packages/pi-ui` (then `nvm` or a global install if dependencies are missing). Cards show the real thing rather than a drawing, and `ds:check` gives the same answer on every machine. The ANSI fixtures in `design-system/fixtures/` are tracked goldens. Review a card in the terminal with `bun run ds:show <id substring>`.
 
 ## Layout
 
 ```
-packages/pi-prism/render/   pure renderers + tests
+packages/pi-ui/render/   pure renderers + tests
 design-system/
   lib/                      pi resolution, theme init, render kit
   registry.ts               every card and scenario

@@ -983,7 +983,7 @@ describe("opened command", () => {
 });
 
 describe("opened titles", () => {
-  const path = "packages/pi-prism/extensions/some/deeply/nested/folder/thinking.ts";
+  const path = "packages/pi-ui/extensions/some/deeply/nested/folder/thinking.ts";
   const read = (extra: Partial<ToolRowInput> = {}) =>
     renderToolRow(api, {
       name: "read",
@@ -1309,7 +1309,7 @@ describe("omission notices", () => {
     // A title shown whole does not change.
     expect(bash(true, 200)).toContain(printf);
     // A path cut on the left lights its kept end.
-    const path = "packages/pi-prism/extensions/some/deeply/nested/folder/file.ts";
+    const path = "packages/pi-ui/extensions/some/deeply/nested/folder/file.ts";
     const read = toolHeader(tokens, { name: "read", status: "success", level: 0, args: { path }, lit: true }, 50).line;
     expect(read).toMatch(/ … [^a-z]*FILE\.TS/);
     // A thought's excerpt cut in the middle lights both its ends; one that fits does not change.

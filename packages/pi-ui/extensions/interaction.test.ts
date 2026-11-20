@@ -10,7 +10,7 @@ import {
 import { BLOCKS_PER_STEP, detailFor, FOLD_DISTANCE, FORMING_ROWS } from "../render/detail.ts";
 import { keepGroupOpen, setGroupOpen, toolPlan } from "./fold.ts";
 import { BACKLOG_MIN_MS, backlogIntervalMs, fadeDurationMs, toolFade } from "./fade.ts";
-import prism, { actionFor } from "./index.ts";
+import piUi, { actionFor } from "./index.ts";
 
 // Syntax highlighting reads pi's global theme; do not depend on another test file installing it.
 beforeAll(() => initTheme("dark"));
@@ -65,7 +65,7 @@ function resolver(
   on: (name: string, handler: (...args: any[]) => void) => void = () => {},
 ): (name: string, next: () => unknown) => Renderers | unknown {
   let captured: unknown;
-  prism({
+  piUi({
     registerToolRenderer: (r: unknown) => {
       captured = r;
     },
@@ -509,7 +509,7 @@ describe("tool renderers", () => {
 
   test("a shell result's recorded file changes show under its output, and survive a reload", () => {
     const patch = "--- tmp/one.txt\n+++ tmp/one.txt\n@@ -0,0 +1,1 @@\n+Edits: 5\n";
-    const details = { prismChanges: { files: [{ path: "tmp/one.txt", kind: "created", patch }] } };
+    const details = { piUiChanges: { files: [{ path: "tmp/one.txt", kind: "created", patch }] } };
     const silent = { content: [{ type: "text", text: "(no output)" }], details };
     // A reload renders the persisted result: the same details, a fresh renderer.
     for (const tool of [resolver(), resolver()].map((r) => r("bash", () => undefined) as Renderers)) {
@@ -525,7 +525,7 @@ describe("tool renderers", () => {
 
   test("a read whose path the header cuts opens to show the whole path", () => {
     const tool = resolver()("read", () => undefined) as Renderers;
-    const path = "packages/pi-prism/extensions/some/deeply/nested/folder/thinking.ts";
+    const path = "packages/pi-ui/extensions/some/deeply/nested/folder/thinking.ts";
     const context = { ...ctx, args: { path }, state: {} };
     const header = tool.renderCall(context.args, theme, context);
     const body = tool.renderResult({ content: [{ type: "text", text: "one" }] }, {}, theme, context);
@@ -1680,7 +1680,7 @@ describe("tool renderers", () => {
 /** A stand-in for pi's assistant message: one thinking run behind a MouseRegion whose click flips its visibility. */
 function thoughtSession(text: string) {
   const handlers = new Map<string, Array<(...args: any[]) => void>>();
-  prism({
+  piUi({
     registerToolRenderer: () => {},
     on: (event: string, handler: (...args: any[]) => void) =>
       handlers.set(event, [...(handlers.get(event) ?? []), handler]),

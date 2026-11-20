@@ -1,5 +1,5 @@
 import { beforeAll, expect, test } from "bun:test";
-import { barTokens } from "../packages/pi-prism/extensions/viewport.ts";
+import { barTokens } from "../packages/pi-ui/extensions/viewport.ts";
 import { resolvePi, type PiInstall } from "./lib/pi.ts";
 import { installTheme, loadThemeJson } from "./lib/theme.ts";
 

@@ -1,7 +1,7 @@
 /**
  * Resolve the pi install the golden fixtures and `ds:show` render against.
  *
- * Order: explicit env, the repo-local install pinned in pi-prism's
+ * Order: explicit env, the repo-local install pinned in pi-ui's
  * devDependencies, then the newest nvm global install, then homebrew/system
  * globals. The pinned copy comes first so `ds:check` gives the same answer on
  * every machine and in CI; set `PI_CODING_AGENT_ROOT` to render against another
@@ -71,7 +71,7 @@ function resolveRoot(): { root: string; source: PiInstall["source"] } {
   throw new Error(`${PKG} not found: run \`bun install\` or set PI_CODING_AGENT_ROOT`);
 }
 
-const WORKSPACE = join(import.meta.dir, "../../packages/pi-prism");
+const WORKSPACE = join(import.meta.dir, "../../packages/pi-ui");
 
 function packageRoot(name: string, from: string): string {
   // Both pi packages expose dist/index.js as their entry point.
