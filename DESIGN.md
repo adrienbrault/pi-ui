@@ -107,6 +107,7 @@ Rules:
   the outcome stays scannable while the evidence stays readable.
 - Long shell commands truncate in the middle, keeping the opening verb and the
   end target; paths keep their basename instead.
+- A user message keeps its own rows only, on the neutral `toolPendingBg` instead of `userMessageBg`: no padding row above or below it (`extensions/user-message.ts`).
 
 ## Width and glyphs
 

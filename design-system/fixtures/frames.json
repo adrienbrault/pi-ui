@@ -4391,6 +4391,276 @@
       ]
     }
   },
+  "ours.user": {
+    "default/dark/40/unicode": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mLet's make long sessions readable:     \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mkeep the live detail, fold the rest.\u001b[39m   \u001b[49m"
+      ]
+    },
+    "default/dark/40/ascii": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mLet's make long sessions readable:     \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mkeep the live detail, fold the rest.\u001b[39m   \u001b[49m"
+      ]
+    },
+    "default/dark/60/unicode": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mLet's make long sessions readable: keep the live detail,   \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mfold the rest.\u001b[39m                                             \u001b[49m"
+      ]
+    },
+    "default/dark/60/ascii": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mLet's make long sessions readable: keep the live detail,   \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mfold the rest.\u001b[39m                                             \u001b[49m"
+      ]
+    },
+    "default/dark/80/unicode": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mLet's make long sessions readable: keep the live detail, fold the rest.\u001b[39m        \u001b[49m"
+      ]
+    },
+    "default/dark/80/ascii": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mLet's make long sessions readable: keep the live detail, fold the rest.\u001b[39m        \u001b[49m"
+      ]
+    },
+    "default/dark/100/unicode": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mLet's make long sessions readable: keep the live detail, fold the rest.\u001b[39m                            \u001b[49m"
+      ]
+    },
+    "default/dark/100/ascii": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mLet's make long sessions readable: keep the live detail, fold the rest.\u001b[39m                            \u001b[49m"
+      ]
+    },
+    "default/dark/120/unicode": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mLet's make long sessions readable: keep the live detail, fold the rest.\u001b[39m                                                \u001b[49m"
+      ]
+    },
+    "default/dark/120/ascii": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mLet's make long sessions readable: keep the live detail, fold the rest.\u001b[39m                                                \u001b[49m"
+      ]
+    },
+    "multiline/dark/40/unicode": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mReview the fold planner.\u001b[39m               \u001b[49m",
+        "\u001b[48;2;52;56;58m                                        \u001b[49m",
+        "\u001b[48;2;52;56;58m \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mkeep failures visible\u001b[39m                \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mone summary per run\u001b[39m                  \u001b[49m"
+      ]
+    },
+    "multiline/dark/40/ascii": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mReview the fold planner.\u001b[39m               \u001b[49m",
+        "\u001b[48;2;52;56;58m                                        \u001b[49m",
+        "\u001b[48;2;52;56;58m \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mkeep failures visible\u001b[39m                \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mone summary per run\u001b[39m                  \u001b[49m"
+      ]
+    },
+    "multiline/dark/60/unicode": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mReview the fold planner.\u001b[39m                                   \u001b[49m",
+        "\u001b[48;2;52;56;58m                                                            \u001b[49m",
+        "\u001b[48;2;52;56;58m \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mkeep failures visible\u001b[39m                                    \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mone summary per run\u001b[39m                                      \u001b[49m"
+      ]
+    },
+    "multiline/dark/60/ascii": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mReview the fold planner.\u001b[39m                                   \u001b[49m",
+        "\u001b[48;2;52;56;58m                                                            \u001b[49m",
+        "\u001b[48;2;52;56;58m \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mkeep failures visible\u001b[39m                                    \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mone summary per run\u001b[39m                                      \u001b[49m"
+      ]
+    },
+    "multiline/dark/80/unicode": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mReview the fold planner.\u001b[39m                                                       \u001b[49m",
+        "\u001b[48;2;52;56;58m                                                                                \u001b[49m",
+        "\u001b[48;2;52;56;58m \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mkeep failures visible\u001b[39m                                                        \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mone summary per run\u001b[39m                                                          \u001b[49m"
+      ]
+    },
+    "multiline/dark/80/ascii": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mReview the fold planner.\u001b[39m                                                       \u001b[49m",
+        "\u001b[48;2;52;56;58m                                                                                \u001b[49m",
+        "\u001b[48;2;52;56;58m \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mkeep failures visible\u001b[39m                                                        \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mone summary per run\u001b[39m                                                          \u001b[49m"
+      ]
+    },
+    "multiline/dark/100/unicode": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mReview the fold planner.\u001b[39m                                                                           \u001b[49m",
+        "\u001b[48;2;52;56;58m                                                                                                    \u001b[49m",
+        "\u001b[48;2;52;56;58m \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mkeep failures visible\u001b[39m                                                                            \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mone summary per run\u001b[39m                                                                              \u001b[49m"
+      ]
+    },
+    "multiline/dark/100/ascii": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mReview the fold planner.\u001b[39m                                                                           \u001b[49m",
+        "\u001b[48;2;52;56;58m                                                                                                    \u001b[49m",
+        "\u001b[48;2;52;56;58m \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mkeep failures visible\u001b[39m                                                                            \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mone summary per run\u001b[39m                                                                              \u001b[49m"
+      ]
+    },
+    "multiline/dark/120/unicode": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mReview the fold planner.\u001b[39m                                                                                               \u001b[49m",
+        "\u001b[48;2;52;56;58m                                                                                                                        \u001b[49m",
+        "\u001b[48;2;52;56;58m \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mkeep failures visible\u001b[39m                                                                                                \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mone summary per run\u001b[39m                                                                                                  \u001b[49m"
+      ]
+    },
+    "multiline/dark/120/ascii": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mReview the fold planner.\u001b[39m                                                                                               \u001b[49m",
+        "\u001b[48;2;52;56;58m                                                                                                                        \u001b[49m",
+        "\u001b[48;2;52;56;58m \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mkeep failures visible\u001b[39m                                                                                                \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mone summary per run\u001b[39m                                                                                                  \u001b[49m"
+      ]
+    },
+    "default/light/40/unicode": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mLet's make long sessions readable:     \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mkeep the live detail, fold the rest.\u001b[39m   \u001b[49m"
+      ]
+    },
+    "default/light/40/ascii": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mLet's make long sessions readable:     \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mkeep the live detail, fold the rest.\u001b[39m   \u001b[49m"
+      ]
+    },
+    "default/light/60/unicode": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mLet's make long sessions readable: keep the live detail,   \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mfold the rest.\u001b[39m                                             \u001b[49m"
+      ]
+    },
+    "default/light/60/ascii": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mLet's make long sessions readable: keep the live detail,   \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mfold the rest.\u001b[39m                                             \u001b[49m"
+      ]
+    },
+    "default/light/80/unicode": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mLet's make long sessions readable: keep the live detail, fold the rest.\u001b[39m        \u001b[49m"
+      ]
+    },
+    "default/light/80/ascii": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mLet's make long sessions readable: keep the live detail, fold the rest.\u001b[39m        \u001b[49m"
+      ]
+    },
+    "default/light/100/unicode": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mLet's make long sessions readable: keep the live detail, fold the rest.\u001b[39m                            \u001b[49m"
+      ]
+    },
+    "default/light/100/ascii": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mLet's make long sessions readable: keep the live detail, fold the rest.\u001b[39m                            \u001b[49m"
+      ]
+    },
+    "default/light/120/unicode": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mLet's make long sessions readable: keep the live detail, fold the rest.\u001b[39m                                                \u001b[49m"
+      ]
+    },
+    "default/light/120/ascii": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mLet's make long sessions readable: keep the live detail, fold the rest.\u001b[39m                                                \u001b[49m"
+      ]
+    },
+    "multiline/light/40/unicode": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mReview the fold planner.\u001b[39m               \u001b[49m",
+        "\u001b[48;2;228;229;230m                                        \u001b[49m",
+        "\u001b[48;2;228;229;230m \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mkeep failures visible\u001b[39m                \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mone summary per run\u001b[39m                  \u001b[49m"
+      ]
+    },
+    "multiline/light/40/ascii": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mReview the fold planner.\u001b[39m               \u001b[49m",
+        "\u001b[48;2;228;229;230m                                        \u001b[49m",
+        "\u001b[48;2;228;229;230m \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mkeep failures visible\u001b[39m                \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mone summary per run\u001b[39m                  \u001b[49m"
+      ]
+    },
+    "multiline/light/60/unicode": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mReview the fold planner.\u001b[39m                                   \u001b[49m",
+        "\u001b[48;2;228;229;230m                                                            \u001b[49m",
+        "\u001b[48;2;228;229;230m \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mkeep failures visible\u001b[39m                                    \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mone summary per run\u001b[39m                                      \u001b[49m"
+      ]
+    },
+    "multiline/light/60/ascii": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mReview the fold planner.\u001b[39m                                   \u001b[49m",
+        "\u001b[48;2;228;229;230m                                                            \u001b[49m",
+        "\u001b[48;2;228;229;230m \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mkeep failures visible\u001b[39m                                    \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mone summary per run\u001b[39m                                      \u001b[49m"
+      ]
+    },
+    "multiline/light/80/unicode": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mReview the fold planner.\u001b[39m                                                       \u001b[49m",
+        "\u001b[48;2;228;229;230m                                                                                \u001b[49m",
+        "\u001b[48;2;228;229;230m \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mkeep failures visible\u001b[39m                                                        \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mone summary per run\u001b[39m                                                          \u001b[49m"
+      ]
+    },
+    "multiline/light/80/ascii": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mReview the fold planner.\u001b[39m                                                       \u001b[49m",
+        "\u001b[48;2;228;229;230m                                                                                \u001b[49m",
+        "\u001b[48;2;228;229;230m \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mkeep failures visible\u001b[39m                                                        \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mone summary per run\u001b[39m                                                          \u001b[49m"
+      ]
+    },
+    "multiline/light/100/unicode": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mReview the fold planner.\u001b[39m                                                                           \u001b[49m",
+        "\u001b[48;2;228;229;230m                                                                                                    \u001b[49m",
+        "\u001b[48;2;228;229;230m \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mkeep failures visible\u001b[39m                                                                            \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mone summary per run\u001b[39m                                                                              \u001b[49m"
+      ]
+    },
+    "multiline/light/100/ascii": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mReview the fold planner.\u001b[39m                                                                           \u001b[49m",
+        "\u001b[48;2;228;229;230m                                                                                                    \u001b[49m",
+        "\u001b[48;2;228;229;230m \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mkeep failures visible\u001b[39m                                                                            \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mone summary per run\u001b[39m                                                                              \u001b[49m"
+      ]
+    },
+    "multiline/light/120/unicode": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mReview the fold planner.\u001b[39m                                                                                               \u001b[49m",
+        "\u001b[48;2;228;229;230m                                                                                                                        \u001b[49m",
+        "\u001b[48;2;228;229;230m \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mkeep failures visible\u001b[39m                                                                                                \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mone summary per run\u001b[39m                                                                                                  \u001b[49m"
+      ]
+    },
+    "multiline/light/120/ascii": {
+      "lines": [
+        "\u001b]133;A\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mReview the fold planner.\u001b[39m                                                                                               \u001b[49m",
+        "\u001b[48;2;228;229;230m                                                                                                                        \u001b[49m",
+        "\u001b[48;2;228;229;230m \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mkeep failures visible\u001b[39m                                                                                                \u001b[49m",
+        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mone summary per run\u001b[39m                                                                                                  \u001b[49m"
+      ]
+    }
+  },
   "ours.thinking": {
     "streaming/dark/40/unicode": {
       "lines": [
@@ -20886,9 +21156,7 @@
         " The planner tests pass at the default  ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 tail.                                  ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                        \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
         "",
         "\u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m         \u001b[38;2;126;136;142m10 tokens 6.7/s\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;126;136;142m1.5s\u001b[39m",
         "    \u001b[1m\u001b[3m\u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m\u001b[23m\u001b[22m",
@@ -20912,9 +21180,7 @@
         " The planner tests pass at the default  ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 tail.                                  ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                        \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
         "",
         "\u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m         \u001b[38;2;126;136;142m10 tokens 6.7/s\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;126;136;142m1.5s\u001b[39m",
         "    \u001b[1m\u001b[3m\u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m\u001b[23m\u001b[22m",
@@ -20937,9 +21203,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                            \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                            \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
         "",
         "\u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m                             \u001b[38;2;126;136;142m10 tokens 6.7/s\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;126;136;142m1.5s\u001b[39m",
         "    \u001b[1m\u001b[3m\u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m\u001b[23m\u001b[22m",
@@ -20962,9 +21226,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                            \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                            \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
         "",
         "\u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m                             \u001b[38;2;126;136;142m10 tokens 6.7/s\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;126;136;142m1.5s\u001b[39m",
         "    \u001b[1m\u001b[3m\u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m\u001b[23m\u001b[22m",
@@ -20987,9 +21249,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                    ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                                                \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                                                \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
         "",
         "\u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m            \u001b[38;2;126;136;142m10 tokens 6.7/s\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;126;136;142m1.5s\u001b[39m",
         "",
@@ -21011,9 +21271,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                    ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                                                \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                                                \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
         "",
         "\u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m            \u001b[38;2;126;136;142m10 tokens 6.7/s\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;126;136;142m1.5s\u001b[39m",
         "",
@@ -21035,9 +21293,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                        ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                                                                    \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                                                                    \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
         "",
         "\u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m                                \u001b[38;2;126;136;142m10 tokens 6.7/s\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;126;136;142m1.5s\u001b[39m",
         "",
@@ -21059,9 +21315,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                        ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                                                                    \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                                                                    \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
         "",
         "\u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m                                \u001b[38;2;126;136;142m10 tokens 6.7/s\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;126;136;142m1.5s\u001b[39m",
         "",
@@ -21083,9 +21337,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                                            ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                                                                                        \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                                                                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
         "",
         "\u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m                                                    \u001b[38;2;126;136;142m10 tokens 6.7/s\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;126;136;142m1.5s\u001b[39m",
         "",
@@ -21107,9 +21359,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                                            ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                                                                                        \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                                                                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
         "",
         "\u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m                                                    \u001b[38;2;126;136;142m10 tokens 6.7/s\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;126;136;142m1.5s\u001b[39m",
         "",
@@ -21138,9 +21388,7 @@
         " The planner tests pass at the default  ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 tail.                                  ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                        \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
         "",
         "\u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m         \u001b[38;2;126;136;142m10 tokens 6.7/s\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;126;136;142m1.5s\u001b[39m",
         "    \u001b[1m\u001b[3m\u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m\u001b[23m\u001b[22m",
@@ -21170,9 +21418,7 @@
         " The planner tests pass at the default  ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 tail.                                  ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                        \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
         "",
         "\u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m         \u001b[38;2;126;136;142m10 tokens 6.7/s\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;126;136;142m1.5s\u001b[39m",
         "    \u001b[1m\u001b[3m\u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m\u001b[23m\u001b[22m",
@@ -21201,9 +21447,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                            \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                            \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
         "",
         "\u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m                             \u001b[38;2;126;136;142m10 tokens 6.7/s\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;126;136;142m1.5s\u001b[39m",
         "    \u001b[1m\u001b[3m\u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m\u001b[23m\u001b[22m",
@@ -21232,9 +21476,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                            \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                            \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
         "",
         "\u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m                             \u001b[38;2;126;136;142m10 tokens 6.7/s\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;126;136;142m1.5s\u001b[39m",
         "    \u001b[1m\u001b[3m\u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m\u001b[23m\u001b[22m",
@@ -21263,9 +21505,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                    ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                                                \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                                                \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
         "",
         "\u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m            \u001b[38;2;126;136;142m10 tokens 6.7/s\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;126;136;142m1.5s\u001b[39m",
         "",
@@ -21293,9 +21533,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                    ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                                                \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                                                \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
         "",
         "\u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m            \u001b[38;2;126;136;142m10 tokens 6.7/s\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;126;136;142m1.5s\u001b[39m",
         "",
@@ -21323,9 +21561,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                        ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                                                                    \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                                                                    \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
         "",
         "\u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m                                \u001b[38;2;126;136;142m10 tokens 6.7/s\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;126;136;142m1.5s\u001b[39m",
         "",
@@ -21353,9 +21589,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                        ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                                                                    \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                                                                    \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
         "",
         "\u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m                                \u001b[38;2;126;136;142m10 tokens 6.7/s\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;126;136;142m1.5s\u001b[39m",
         "",
@@ -21383,9 +21617,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                                            ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                                                                                        \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                                                                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
         "",
         "\u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m                                                    \u001b[38;2;126;136;142m10 tokens 6.7/s\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;126;136;142m1.5s\u001b[39m",
         "",
@@ -21413,9 +21645,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                                            ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                                                                                        \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                                                                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
         "",
         "\u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m                                                    \u001b[38;2;126;136;142m10 tokens 6.7/s\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;126;136;142m1.5s\u001b[39m",
         "",
@@ -21438,9 +21668,7 @@
         " The planner tests pass at the default  ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 tail.                                  ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                        \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
         "",
         "\u001b[38;2;126;136;142m▾\u001b[39m \u001b[38;2;157;165;169m\u001b[1mThought for 1.5s\u001b[22m\u001b[39m\u001b[38;2;126;136;142m, \u001b[39m\u001b[38;2;157;165;169m\u001b[1mread 1 file\u001b[22m\u001b[39m  \u001b[38;2;126;136;142m · \u001b[39m\u001b[38;2;126;136;142m2.0s\u001b[39m",
         "  \u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;150;160;164mthe fixtures \u001b[39m\u001b[38;2;222;224;225m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;150;160;164mll planFolds\u001b[39m",
@@ -21455,9 +21683,7 @@
         " The planner tests pass at the default  ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 tail.                                  ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                        \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
         "",
         "\u001b[38;2;126;136;142mv\u001b[39m \u001b[38;2;157;165;169m\u001b[1mThought for 1.5s\u001b[22m\u001b[39m\u001b[38;2;126;136;142m, \u001b[39m\u001b[38;2;157;165;169m\u001b[1mread 1 file\u001b[22m\u001b[39m  \u001b[38;2;126;136;142m . \u001b[39m\u001b[38;2;126;136;142m2.0s\u001b[39m",
         "  \u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;150;160;164mthe fixtures \u001b[39m\u001b[38;2;222;224;225m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;150;160;164mll planFolds\u001b[39m",
@@ -21471,9 +21697,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                            \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                            \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
         "",
         "\u001b[38;2;126;136;142m▾\u001b[39m \u001b[38;2;157;165;169m\u001b[1mThought for 1.5s\u001b[22m\u001b[39m\u001b[38;2;126;136;142m, \u001b[39m\u001b[38;2;157;165;169m\u001b[1mread 1 file\u001b[22m\u001b[39m     \u001b[38;2;126;136;142m · \u001b[39m\u001b[38;2;126;136;142m19 out / 60 in tokens\u001b[39m",
         "  \u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m",
@@ -21487,9 +21711,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                            \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                            \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
         "",
         "\u001b[38;2;126;136;142mv\u001b[39m \u001b[38;2;157;165;169m\u001b[1mThought for 1.5s\u001b[22m\u001b[39m\u001b[38;2;126;136;142m, \u001b[39m\u001b[38;2;157;165;169m\u001b[1mread 1 file\u001b[22m\u001b[39m     \u001b[38;2;126;136;142m . \u001b[39m\u001b[38;2;126;136;142m19 out / 60 in tokens\u001b[39m",
         "  \u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m",
@@ -21503,9 +21725,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                    ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                                                \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                                                \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
         "",
         "\u001b[38;2;126;136;142m▾\u001b[39m \u001b[38;2;157;165;169m\u001b[1mThought for 1.5s\u001b[22m\u001b[39m\u001b[38;2;126;136;142m, \u001b[39m\u001b[38;2;157;165;169m\u001b[1mread 1 file\u001b[22m\u001b[39m                  \u001b[38;2;126;136;142m · \u001b[39m\u001b[38;2;126;136;142m19 out / 60 in tokens\u001b[39m\u001b[38;2;126;136;142m · \u001b[39m\u001b[38;2;126;136;142m2.0s\u001b[39m",
         "  \u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m  \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m10\u001b[39m\u001b[38;2;157;165;169m @ \u001b[39m\u001b[38;2;222;224;225m6.7\u001b[39m\u001b[38;2;157;165;169m/\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m\u001b[38;2;157;165;169m         ·  \u001b[39m\u001b[38;2;222;224;225m1.5\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m",
@@ -21519,9 +21739,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                    ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                                                \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                                                \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
         "",
         "\u001b[38;2;126;136;142mv\u001b[39m \u001b[38;2;157;165;169m\u001b[1mThought for 1.5s\u001b[22m\u001b[39m\u001b[38;2;126;136;142m, \u001b[39m\u001b[38;2;157;165;169m\u001b[1mread 1 file\u001b[22m\u001b[39m                  \u001b[38;2;126;136;142m . \u001b[39m\u001b[38;2;126;136;142m19 out / 60 in tokens\u001b[39m\u001b[38;2;126;136;142m . \u001b[39m\u001b[38;2;126;136;142m2.0s\u001b[39m",
         "  \u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m  \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m10\u001b[39m\u001b[38;2;157;165;169m @ \u001b[39m\u001b[38;2;222;224;225m6.7\u001b[39m\u001b[38;2;157;165;169m/\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m\u001b[38;2;157;165;169m         ·  \u001b[39m\u001b[38;2;222;224;225m1.5\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m",
@@ -21535,9 +21753,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                        ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                                                                    \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                                                                    \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
         "",
         "\u001b[38;2;126;136;142m▾\u001b[39m \u001b[38;2;157;165;169m\u001b[1mThought for 1.5s\u001b[22m\u001b[39m\u001b[38;2;126;136;142m, \u001b[39m\u001b[38;2;157;165;169m\u001b[1mread 1 file\u001b[22m\u001b[39m                                      \u001b[38;2;126;136;142m · \u001b[39m\u001b[38;2;126;136;142m19 out / 60 in tokens\u001b[39m\u001b[38;2;126;136;142m · \u001b[39m\u001b[38;2;126;136;142m2.0s\u001b[39m",
         "  \u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m                      \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m10\u001b[39m\u001b[38;2;157;165;169m @ \u001b[39m\u001b[38;2;222;224;225m6.7\u001b[39m\u001b[38;2;157;165;169m/\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m\u001b[38;2;157;165;169m         ·  \u001b[39m\u001b[38;2;222;224;225m1.5\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m",
@@ -21551,9 +21767,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                        ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                                                                    \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                                                                    \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
         "",
         "\u001b[38;2;126;136;142mv\u001b[39m \u001b[38;2;157;165;169m\u001b[1mThought for 1.5s\u001b[22m\u001b[39m\u001b[38;2;126;136;142m, \u001b[39m\u001b[38;2;157;165;169m\u001b[1mread 1 file\u001b[22m\u001b[39m                                      \u001b[38;2;126;136;142m . \u001b[39m\u001b[38;2;126;136;142m19 out / 60 in tokens\u001b[39m\u001b[38;2;126;136;142m . \u001b[39m\u001b[38;2;126;136;142m2.0s\u001b[39m",
         "  \u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m                      \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m10\u001b[39m\u001b[38;2;157;165;169m @ \u001b[39m\u001b[38;2;222;224;225m6.7\u001b[39m\u001b[38;2;157;165;169m/\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m\u001b[38;2;157;165;169m         ·  \u001b[39m\u001b[38;2;222;224;225m1.5\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m",
@@ -21567,9 +21781,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                                            ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                                                                                        \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                                                                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
         "",
         "\u001b[38;2;126;136;142m▾\u001b[39m \u001b[38;2;157;165;169m\u001b[1mThought for 1.5s\u001b[22m\u001b[39m\u001b[38;2;126;136;142m, \u001b[39m\u001b[38;2;157;165;169m\u001b[1mread 1 file\u001b[22m\u001b[39m                                                          \u001b[38;2;126;136;142m · \u001b[39m\u001b[38;2;126;136;142m19 out / 60 in tokens\u001b[39m\u001b[38;2;126;136;142m · \u001b[39m\u001b[38;2;126;136;142m2.0s\u001b[39m",
         "  \u001b[38;2;167;152;215m✻\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m                                          \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m10\u001b[39m\u001b[38;2;157;165;169m @ \u001b[39m\u001b[38;2;222;224;225m6.7\u001b[39m\u001b[38;2;157;165;169m/\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m\u001b[38;2;157;165;169m         ·  \u001b[39m\u001b[38;2;222;224;225m1.5\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m",
@@ -21583,9 +21795,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                                            ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;33;59;73m                                                                                                                        \u001b[49m",
-        "\u001b[48;2;33;59;73m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;33;59;73m                                                                                                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;52;56;58m \u001b[38;2;222;224;225mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
         "",
         "\u001b[38;2;126;136;142mv\u001b[39m \u001b[38;2;157;165;169m\u001b[1mThought for 1.5s\u001b[22m\u001b[39m\u001b[38;2;126;136;142m, \u001b[39m\u001b[38;2;157;165;169m\u001b[1mread 1 file\u001b[22m\u001b[39m                                                          \u001b[38;2;126;136;142m . \u001b[39m\u001b[38;2;126;136;142m19 out / 60 in tokens\u001b[39m\u001b[38;2;126;136;142m . \u001b[39m\u001b[38;2;126;136;142m2.0s\u001b[39m",
         "  \u001b[38;2;167;152;215m~\u001b[39m \u001b[38;2;222;224;225m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;150;160;164mthe fixtures should call planFolds\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m                                          \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m10\u001b[39m\u001b[38;2;157;165;169m @ \u001b[39m\u001b[38;2;222;224;225m6.7\u001b[39m\u001b[38;2;157;165;169m/\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m\u001b[38;2;157;165;169m         ·  \u001b[39m\u001b[38;2;222;224;225m1.5\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m",
@@ -21600,9 +21810,7 @@
         " The planner tests pass at the default  ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 tail.                                  ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                        \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
         "",
         "\u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m         \u001b[38;2;135;144;149m10 tokens 6.7/s\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;135;144;149m1.5s\u001b[39m",
         "    \u001b[1m\u001b[3m\u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m\u001b[23m\u001b[22m",
@@ -21626,9 +21834,7 @@
         " The planner tests pass at the default  ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 tail.                                  ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                        \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
         "",
         "\u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m         \u001b[38;2;135;144;149m10 tokens 6.7/s\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;135;144;149m1.5s\u001b[39m",
         "    \u001b[1m\u001b[3m\u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m\u001b[23m\u001b[22m",
@@ -21651,9 +21857,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                            \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                            \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
         "",
         "\u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m                             \u001b[38;2;135;144;149m10 tokens 6.7/s\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;135;144;149m1.5s\u001b[39m",
         "    \u001b[1m\u001b[3m\u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m\u001b[23m\u001b[22m",
@@ -21676,9 +21880,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                            \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                            \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
         "",
         "\u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m                             \u001b[38;2;135;144;149m10 tokens 6.7/s\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;135;144;149m1.5s\u001b[39m",
         "    \u001b[1m\u001b[3m\u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m\u001b[23m\u001b[22m",
@@ -21701,9 +21903,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                    ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                                                \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                                                \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
         "",
         "\u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m            \u001b[38;2;135;144;149m10 tokens 6.7/s\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;135;144;149m1.5s\u001b[39m",
         "",
@@ -21725,9 +21925,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                    ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                                                \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                                                \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
         "",
         "\u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m            \u001b[38;2;135;144;149m10 tokens 6.7/s\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;135;144;149m1.5s\u001b[39m",
         "",
@@ -21749,9 +21947,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                        ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                                                                    \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                                                                    \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
         "",
         "\u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m                                \u001b[38;2;135;144;149m10 tokens 6.7/s\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;135;144;149m1.5s\u001b[39m",
         "",
@@ -21773,9 +21969,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                        ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                                                                    \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                                                                    \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
         "",
         "\u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m                                \u001b[38;2;135;144;149m10 tokens 6.7/s\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;135;144;149m1.5s\u001b[39m",
         "",
@@ -21797,9 +21991,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                                            ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                                                                                        \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                                                                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
         "",
         "\u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m                                                    \u001b[38;2;135;144;149m10 tokens 6.7/s\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;135;144;149m1.5s\u001b[39m",
         "",
@@ -21821,9 +22013,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                                            ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                                                                                        \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                                                                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
         "",
         "\u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m                                                    \u001b[38;2;135;144;149m10 tokens 6.7/s\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;135;144;149m1.5s\u001b[39m",
         "",
@@ -21852,9 +22042,7 @@
         " The planner tests pass at the default  ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 tail.                                  ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                        \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
         "",
         "\u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m         \u001b[38;2;135;144;149m10 tokens 6.7/s\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;135;144;149m1.5s\u001b[39m",
         "    \u001b[1m\u001b[3m\u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m\u001b[23m\u001b[22m",
@@ -21884,9 +22072,7 @@
         " The planner tests pass at the default  ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 tail.                                  ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                        \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
         "",
         "\u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m         \u001b[38;2;135;144;149m10 tokens 6.7/s\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;135;144;149m1.5s\u001b[39m",
         "    \u001b[1m\u001b[3m\u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m\u001b[23m\u001b[22m",
@@ -21915,9 +22101,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                            \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                            \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
         "",
         "\u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m                             \u001b[38;2;135;144;149m10 tokens 6.7/s\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;135;144;149m1.5s\u001b[39m",
         "    \u001b[1m\u001b[3m\u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m\u001b[23m\u001b[22m",
@@ -21946,9 +22130,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                            \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                            \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
         "",
         "\u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m                             \u001b[38;2;135;144;149m10 tokens 6.7/s\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;135;144;149m1.5s\u001b[39m",
         "    \u001b[1m\u001b[3m\u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m\u001b[23m\u001b[22m",
@@ -21977,9 +22159,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                    ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                                                \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                                                \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
         "",
         "\u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m            \u001b[38;2;135;144;149m10 tokens 6.7/s\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;135;144;149m1.5s\u001b[39m",
         "",
@@ -22007,9 +22187,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                    ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                                                \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                                                \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
         "",
         "\u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m            \u001b[38;2;135;144;149m10 tokens 6.7/s\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;135;144;149m1.5s\u001b[39m",
         "",
@@ -22037,9 +22215,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                        ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                                                                    \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                                                                    \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
         "",
         "\u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m                                \u001b[38;2;135;144;149m10 tokens 6.7/s\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;135;144;149m1.5s\u001b[39m",
         "",
@@ -22067,9 +22243,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                        ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                                                                    \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                                                                    \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
         "",
         "\u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m                                \u001b[38;2;135;144;149m10 tokens 6.7/s\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;135;144;149m1.5s\u001b[39m",
         "",
@@ -22097,9 +22271,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                                            ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                                                                                        \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                                                                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
         "",
         "\u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m                                                    \u001b[38;2;135;144;149m10 tokens 6.7/s\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;135;144;149m1.5s\u001b[39m",
         "",
@@ -22127,9 +22299,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                                            ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                                                                                        \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                                                                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
         "",
         "\u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m                                                    \u001b[38;2;135;144;149m10 tokens 6.7/s\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;135;144;149m1.5s\u001b[39m",
         "",
@@ -22152,9 +22322,7 @@
         " The planner tests pass at the default  ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 tail.                                  ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                        \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
         "",
         "\u001b[38;2;135;144;149m▾\u001b[39m \u001b[38;2;103;113;118m\u001b[1mThought for 1.5s\u001b[22m\u001b[39m\u001b[38;2;135;144;149m, \u001b[39m\u001b[38;2;103;113;118m\u001b[1mread 1 file\u001b[22m\u001b[39m  \u001b[38;2;135;144;149m · \u001b[39m\u001b[38;2;135;144;149m2.0s\u001b[39m",
         "  \u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;124;134;140mthe fixtures \u001b[39m\u001b[38;2;59;63;65m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;124;134;140mll planFolds\u001b[39m",
@@ -22169,9 +22337,7 @@
         " The planner tests pass at the default  ",
         "\u001b]133;B\u0007\u001b]133;C\u0007 tail.                                  ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                        \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m         \u001b[49m",
         "",
         "\u001b[38;2;135;144;149mv\u001b[39m \u001b[38;2;103;113;118m\u001b[1mThought for 1.5s\u001b[22m\u001b[39m\u001b[38;2;135;144;149m, \u001b[39m\u001b[38;2;103;113;118m\u001b[1mread 1 file\u001b[22m\u001b[39m  \u001b[38;2;135;144;149m . \u001b[39m\u001b[38;2;135;144;149m2.0s\u001b[39m",
         "  \u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;124;134;140mthe fixtures \u001b[39m\u001b[38;2;59;63;65m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;124;134;140mll planFolds\u001b[39m",
@@ -22185,9 +22351,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                            \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                            \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
         "",
         "\u001b[38;2;135;144;149m▾\u001b[39m \u001b[38;2;103;113;118m\u001b[1mThought for 1.5s\u001b[22m\u001b[39m\u001b[38;2;135;144;149m, \u001b[39m\u001b[38;2;103;113;118m\u001b[1mread 1 file\u001b[22m\u001b[39m     \u001b[38;2;135;144;149m · \u001b[39m\u001b[38;2;135;144;149m19 out / 60 in tokens\u001b[39m",
         "  \u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m",
@@ -22201,9 +22365,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                            \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                            \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                             \u001b[49m",
         "",
         "\u001b[38;2;135;144;149mv\u001b[39m \u001b[38;2;103;113;118m\u001b[1mThought for 1.5s\u001b[22m\u001b[39m\u001b[38;2;135;144;149m, \u001b[39m\u001b[38;2;103;113;118m\u001b[1mread 1 file\u001b[22m\u001b[39m     \u001b[38;2;135;144;149m . \u001b[39m\u001b[38;2;135;144;149m19 out / 60 in tokens\u001b[39m",
         "  \u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m",
@@ -22217,9 +22379,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                    ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                                                \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                                                \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
         "",
         "\u001b[38;2;135;144;149m▾\u001b[39m \u001b[38;2;103;113;118m\u001b[1mThought for 1.5s\u001b[22m\u001b[39m\u001b[38;2;135;144;149m, \u001b[39m\u001b[38;2;103;113;118m\u001b[1mread 1 file\u001b[22m\u001b[39m                  \u001b[38;2;135;144;149m · \u001b[39m\u001b[38;2;135;144;149m19 out / 60 in tokens\u001b[39m\u001b[38;2;135;144;149m · \u001b[39m\u001b[38;2;135;144;149m2.0s\u001b[39m",
         "  \u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m  \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m10\u001b[39m\u001b[38;2;103;113;118m @ \u001b[39m\u001b[38;2;59;63;65m6.7\u001b[39m\u001b[38;2;103;113;118m/\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m\u001b[38;2;103;113;118m         ·  \u001b[39m\u001b[38;2;59;63;65m1.5\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m",
@@ -22233,9 +22393,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                    ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                                                \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                                                \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                 \u001b[49m",
         "",
         "\u001b[38;2;135;144;149mv\u001b[39m \u001b[38;2;103;113;118m\u001b[1mThought for 1.5s\u001b[22m\u001b[39m\u001b[38;2;135;144;149m, \u001b[39m\u001b[38;2;103;113;118m\u001b[1mread 1 file\u001b[22m\u001b[39m                  \u001b[38;2;135;144;149m . \u001b[39m\u001b[38;2;135;144;149m19 out / 60 in tokens\u001b[39m\u001b[38;2;135;144;149m . \u001b[39m\u001b[38;2;135;144;149m2.0s\u001b[39m",
         "  \u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m  \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m10\u001b[39m\u001b[38;2;103;113;118m @ \u001b[39m\u001b[38;2;59;63;65m6.7\u001b[39m\u001b[38;2;103;113;118m/\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m\u001b[38;2;103;113;118m         ·  \u001b[39m\u001b[38;2;59;63;65m1.5\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m",
@@ -22249,9 +22407,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                        ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                                                                    \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                                                                    \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
         "",
         "\u001b[38;2;135;144;149m▾\u001b[39m \u001b[38;2;103;113;118m\u001b[1mThought for 1.5s\u001b[22m\u001b[39m\u001b[38;2;135;144;149m, \u001b[39m\u001b[38;2;103;113;118m\u001b[1mread 1 file\u001b[22m\u001b[39m                                      \u001b[38;2;135;144;149m · \u001b[39m\u001b[38;2;135;144;149m19 out / 60 in tokens\u001b[39m\u001b[38;2;135;144;149m · \u001b[39m\u001b[38;2;135;144;149m2.0s\u001b[39m",
         "  \u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m                      \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m10\u001b[39m\u001b[38;2;103;113;118m @ \u001b[39m\u001b[38;2;59;63;65m6.7\u001b[39m\u001b[38;2;103;113;118m/\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m\u001b[38;2;103;113;118m         ·  \u001b[39m\u001b[38;2;59;63;65m1.5\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m",
@@ -22265,9 +22421,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                        ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                                                                    \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                                                                    \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                     \u001b[49m",
         "",
         "\u001b[38;2;135;144;149mv\u001b[39m \u001b[38;2;103;113;118m\u001b[1mThought for 1.5s\u001b[22m\u001b[39m\u001b[38;2;135;144;149m, \u001b[39m\u001b[38;2;103;113;118m\u001b[1mread 1 file\u001b[22m\u001b[39m                                      \u001b[38;2;135;144;149m . \u001b[39m\u001b[38;2;135;144;149m19 out / 60 in tokens\u001b[39m\u001b[38;2;135;144;149m . \u001b[39m\u001b[38;2;135;144;149m2.0s\u001b[39m",
         "  \u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m                      \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m10\u001b[39m\u001b[38;2;103;113;118m @ \u001b[39m\u001b[38;2;59;63;65m6.7\u001b[39m\u001b[38;2;103;113;118m/\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m\u001b[38;2;103;113;118m         ·  \u001b[39m\u001b[38;2;59;63;65m1.5\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m",
@@ -22281,9 +22435,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                                            ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                                                                                        \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                                                                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
         "",
         "\u001b[38;2;135;144;149m▾\u001b[39m \u001b[38;2;103;113;118m\u001b[1mThought for 1.5s\u001b[22m\u001b[39m\u001b[38;2;135;144;149m, \u001b[39m\u001b[38;2;103;113;118m\u001b[1mread 1 file\u001b[22m\u001b[39m                                                          \u001b[38;2;135;144;149m · \u001b[39m\u001b[38;2;135;144;149m19 out / 60 in tokens\u001b[39m\u001b[38;2;135;144;149m · \u001b[39m\u001b[38;2;135;144;149m2.0s\u001b[39m",
         "  \u001b[38;2;116;89;180m✻\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m                                          \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m10\u001b[39m\u001b[38;2;103;113;118m @ \u001b[39m\u001b[38;2;59;63;65m6.7\u001b[39m\u001b[38;2;103;113;118m/\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m\u001b[38;2;103;113;118m         ·  \u001b[39m\u001b[38;2;59;63;65m1.5\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m",
@@ -22297,9 +22449,7 @@
         "\u001b]133;A\u0007",
         "\u001b]133;B\u0007\u001b]133;C\u0007 The planner tests pass at the default tail.                                                                            ",
         "",
-        "\u001b]133;A\u0007\u001b[48;2;223;231;236m                                                                                                                        \u001b[49m",
-        "\u001b[48;2;223;231;236m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
-        "\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;223;231;236m                                                                                                                        \u001b[49m",
+        "\u001b]133;A\u0007\u001b]133;B\u0007\u001b]133;C\u0007\u001b[48;2;228;229;230m \u001b[38;2;59;63;65mNow plan the fixtures with it.\u001b[39m                                                                                         \u001b[49m",
         "",
         "\u001b[38;2;135;144;149mv\u001b[39m \u001b[38;2;103;113;118m\u001b[1mThought for 1.5s\u001b[22m\u001b[39m\u001b[38;2;135;144;149m, \u001b[39m\u001b[38;2;103;113;118m\u001b[1mread 1 file\u001b[22m\u001b[39m                                                          \u001b[38;2;135;144;149m . \u001b[39m\u001b[38;2;135;144;149m19 out / 60 in tokens\u001b[39m\u001b[38;2;135;144;149m . \u001b[39m\u001b[38;2;135;144;149m2.0s\u001b[39m",
         "  \u001b[38;2;116;89;180m~\u001b[39m \u001b[38;2;59;63;65m\u001b[1mthink\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;124;134;140mthe fixtures should call planFolds\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m                                          \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m10\u001b[39m\u001b[38;2;103;113;118m @ \u001b[39m\u001b[38;2;59;63;65m6.7\u001b[39m\u001b[38;2;103;113;118m/\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m\u001b[38;2;103;113;118m         ·  \u001b[39m\u001b[38;2;59;63;65m1.5\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m",

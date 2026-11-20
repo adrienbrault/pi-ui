@@ -30,6 +30,7 @@ import {
   toolTokenLabel,
 } from "../packages/pi-ui/render/tools.ts";
 import { boundedPatch } from "../packages/pi-ui/extensions/changes.ts";
+import { restyleUserMessage } from "../packages/pi-ui/extensions/user-message.ts";
 import type { PiInstall } from "./lib/pi.ts";
 import { stack } from "./lib/surface.ts";
 import {
@@ -455,7 +456,36 @@ const levelState = (
   render: (ctx) => renderToolRow(ours(ctx), { ...build(ctx), level }).render(ctx.width),
 });
 
+const userMessage = (ctx: RenderCtx, text: string) => {
+  const component = new ctx.pi.modules.coding.UserMessageComponent(text, ctx.pi.modules.coding.getMarkdownTheme(), 1);
+  restyleUserMessage(component, ctx.theme);
+  return component;
+};
+
 const oursEntries: EntryDef[] = [
+  {
+    id: "ours.user",
+    title: "User message",
+    group: "transcript",
+    variant: "ours",
+    description: "A submitted prompt on a neutral band, without the padding rows above and below.",
+    states: [
+      {
+        id: "default",
+        label: "default",
+        render: (ctx) =>
+          userMessage(ctx, "Let's make long sessions readable: keep the live detail, fold the rest.").render(ctx.width),
+      },
+      {
+        id: "multiline",
+        label: "multiline",
+        render: (ctx) =>
+          userMessage(ctx, "Review the fold planner.\n\n- keep failures visible\n- one summary per run").render(
+            ctx.width,
+          ),
+      },
+    ],
+  },
   {
     id: "ours.thinking",
     title: "Thinking label",
@@ -923,9 +953,7 @@ function plannedStack(
   const components: Rendered[] = [];
   for (const block of blocks) {
     if (block.kind === "user") {
-      components.push(
-        new ctx.pi.modules.coding.UserMessageComponent(block.text, ctx.pi.modules.coding.getMarkdownTheme(), 1),
-      );
+      components.push(userMessage(ctx, block.text));
       continue;
     }
     if (block.kind === "prose") {
