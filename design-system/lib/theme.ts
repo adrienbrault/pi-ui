@@ -58,6 +58,8 @@ export function installTheme(pi: PiInstall, json: ThemeJson): InstalledTheme {
     if (BG_TOKEN.test(key)) bg[key] = concrete;
   }
 
+  // pi-tui sniffs the terminal for these; fixtures must not depend on where they are rendered.
+  pi.modules.tui.setCapabilityOverrides({ images: null, trueColor: true, hyperlinks: true });
   pi.modules.theme.initTheme(json.name ?? "dark");
   const theme = new pi.modules.theme.Theme(fg, bg, "truecolor");
   pi.modules.theme.setThemeInstance(theme);
