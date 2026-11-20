@@ -121,6 +121,18 @@ export interface TokenRates {
  */
 export const HEADER_MARGIN = 1;
 
+/**
+ * Output tokens a rate needs before a header shows it. A handful of tokens
+ * arrives in one burst, and their rate (`5 tokens at 985/s`) measures the
+ * burst, not the model.
+ */
+export const MIN_RATE_TOKENS = 20;
+
+/** The output rate a header shows for this many tokens: none from a sample too small to measure. */
+export function outputRateFor(tokens: number, rate: number | null | undefined): number | undefined {
+  return rate && tokens >= MIN_RATE_TOKENS ? rate : undefined;
+}
+
 export function formatRate(value: number): string {
   if (value >= 1000) return `${Number((value / 1000).toFixed(1))}k`;
   return value < 10 ? String(Number(value.toFixed(1))) : String(Math.round(value));
@@ -133,7 +145,7 @@ function rateSuffix(rate?: number, estimated = false): string {
 
 /** Every header's token numbers, one format: `out 9 @ 48/s · in 2.6k`, counts abbreviated past a thousand. */
 export function toolTokenLabel(outputTokens: number, inputTokens: number, rates?: TokenRates): string {
-  return `out ${formatRate(outputTokens)}${rateSuffix(rates?.outputRate)} · in ${formatRate(inputTokens)}${rateSuffix(rates?.inputRate, rates?.inputRateEstimated)}`;
+  return `out ${formatRate(outputTokens)}${rateSuffix(outputRateFor(outputTokens, rates?.outputRate))} · in ${formatRate(inputTokens)}${rateSuffix(rates?.inputRate, rates?.inputRateEstimated)}`;
 }
 
 /** Thinking folds with tool rows; its verb belongs to the same vocabulary. */

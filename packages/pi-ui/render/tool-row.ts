@@ -29,6 +29,7 @@ import {
   describeCall,
   formatRate,
   HEADER_MARGIN,
+  outputRateFor,
   toolTokenCounts,
   toolMeta,
   toolTokenLabel,
@@ -260,7 +261,7 @@ export function toolRowCells(input: ToolRowInput): MemberCells {
   return {
     label: toolLabel(input.name),
     outValue: formatRate(outputTokens),
-    ...(input.outputRate ? { outRate: formatRate(input.outputRate) } : {}),
+    ...(outputRateFor(outputTokens, input.outputRate) ? { outRate: formatRate(input.outputRate!) } : {}),
     inValue: formatRate(inputTokens),
     ...(input.inputRate ? { inRate: `${input.inputRateEstimated ? "~" : ""}${formatRate(input.inputRate)}` } : {}),
     ...(input.durationMs !== undefined ? { duration: formatDuration(input.durationMs) } : {}),

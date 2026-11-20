@@ -12,7 +12,7 @@ import { frameAt, type GlyphSet } from "./glyphs.ts";
 import { cellPadding, metricColumns, tableFits, type MemberCells, type MemberColumns } from "./columns.ts";
 import { blockBodyIndent, cutMark, omissionStyle, type RenderKit, type RenderTheme } from "./kit.ts";
 import { alignEnds, previewBar, styleMetric, truncateMiddle, type BarCell } from "./tool-row.ts";
-import { estimatedTokens, formatRate, HEADER_MARGIN } from "./tools.ts";
+import { estimatedTokens, formatRate, HEADER_MARGIN, outputRateFor } from "./tools.ts";
 import {
   cleanOutput,
   cleanThinking,
@@ -87,7 +87,7 @@ type ThoughtMetricsInput = Pick<
 /** A thought's token count, its rate and its duration as its header shows them. */
 function thoughtNumbers(input: ThoughtMetricsInput): { count: number; rate?: number | null; duration?: string } {
   const count = input.reasoningTokens ?? input.estimatedTokens ?? estimatedTokens(input.text.length);
-  const rate =
+  const measured =
     input.outputRate === undefined &&
     input.phase !== "thinking" &&
     !input.turnDuration &&
@@ -95,6 +95,7 @@ function thoughtNumbers(input: ThoughtMetricsInput): { count: number; rate?: num
     input.durationMs > 0
       ? (count * 1000) / input.durationMs
       : input.outputRate;
+  const rate = outputRateFor(count, measured);
   const duration =
     input.durationMs === undefined ? undefined : formatDuration(input.durationMs) + (input.turnDuration ? " turn" : "");
   return { count, rate, ...(duration ? { duration } : {}) };

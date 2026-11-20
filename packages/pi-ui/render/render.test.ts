@@ -9,7 +9,7 @@ import {
   maxRowsFor,
   settleLevel,
 } from "./detail.ts";
-import { groupVerb, HEADER_MARGIN, mcpLabel, toolMeta, groupNoun, toolTokenLabel } from "./tools.ts";
+import { groupVerb, HEADER_MARGIN, MIN_RATE_TOKENS, mcpLabel, toolMeta, groupNoun, toolTokenLabel } from "./tools.ts";
 import { formatDuration, headLines, nonEmptyLineCount, omittedCount, tailLines } from "./text.ts";
 import { groupSegments, renderGroupMember, renderGroupRow } from "./group-row.ts";
 import {
@@ -821,7 +821,7 @@ describe("thinking labels", () => {
         durationMs: 5200,
       });
       expect(layout.label.split("\n")).toHaveLength(1);
-      expect(layout.label).toMatch(/^✻ think · Scoping latest commit review {2,}out \d+ @ [^·]+ · 5.2s$/);
+      expect(layout.label).toMatch(/^✻ think · Scoping latest commit review {2,}out \d+ · 5.2s$/);
       expect(layout.canToggle).toBe(false);
       expect(layout.bar).toBeUndefined();
       expect(thinkingLeavingRow(api, { phase: "aged", level, text: "Scoping latest commit review", width: 100 })).toBe(
@@ -1490,6 +1490,19 @@ describe("header budget", () => {
         expect(line).not.toMatch(/[\u0000-\u0008\u000a-\u001f\u007f-\u009f]/);
       }
     }
+  });
+
+  test("an output rate needs enough tokens to mean something", () => {
+    expect(toolTokenLabel(5, 40, { outputRate: 985 })).toBe("out 5 · in 40");
+    expect(toolTokenLabel(MIN_RATE_TOKENS, 40, { outputRate: 60 })).toBe(`out ${MIN_RATE_TOKENS} @ 60/s · in 40`);
+    const burst = thinkingLabel(api, {
+      phase: "aged",
+      level: 7,
+      text: "I need composeFrame.",
+      width: 80,
+      durationMs: 5,
+    });
+    expect(burst).not.toContain("/s");
   });
 
   test("an estimated prefill rate is marked as approximate", () => {
