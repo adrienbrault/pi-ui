@@ -12,49 +12,21 @@ pi-ui (`@adrienbrault/pi-ui`) is an extension for the [pi coding agent](https://
 - **Diffs for files a shell command changed.** In a git work tree, pi-ui records which files a `bash` command created, changed or deleted, and shows their diffs under the command's output. The diffs are saved with the session.
 - **Tokens and rates.** Headers show output and input tokens with their rates, for example `out 9 @ 48/s · in 60 @ 2.4k/s`. A status item shows the prefill rate when the provider reports it. pi-ui asks llama.cpp providers for their timings; set `PI_UI_LLAMA_TIMINGS=<provider id>` when your llama.cpp provider has another id.
 
-## Samples
+## Demo
 
-A search across two files:
+These recordings are a real pi session (deepseek reviewing this repository) replayed in pi with pi-ui, at the session's recorded pace, sped up slightly. They were made with `bun run replay` (see Development).
 
-```text
-● bash · rg -n -A1 'toolRowLayou … ensions render/index.ts · 23 out / 105 in tokens · 1.2s
-    extensions/index.ts
-    326        const layout = toolRowLayout({ ...api, owner: record }, input, width);
-    327        let rows = layout.rows.slice(includeHeader ? 0 : 1);
-      ⋮
-    387        return renderToolRow({ ...api, owner: member }, input).render(innerWidth);
-    388      }) as Component,
-    render/index.ts
-     10  export { renderToolRow, toolRowLayout } from "./tool-row.ts";
-```
+A session as it streams. Thoughts show their newest lines, tool rows show their output, and older blocks lose lines as newer ones arrive.
 
-A shell command that changed one file and created another:
+![A pi session streaming with pi-ui](https://raw.githubusercontent.com/adrienbrault/pi-ui/main/docs/media/session.gif)
 
-```text
-● bash · printf 'Edits: 5\nLines: … s/pi-ui/render/detail.ts · 36 out / 3 in tokens · 40ms
-    (no output)
-    packages/pi-ui/render/detail.ts
-    3  -export const FOLD_DISTANCE = 10;
-    3  +export const FOLD_DISTANCE = 12;
-    tmp/one.txt
-    1  +Edits: 5
-    2  +Lines: 12
-    ⋮  3 more lines
-```
+A long thought streaming, then two shell commands with their output.
 
-A folded run, closed (`▸`) and opened (`▾`):
+![A thought streaming, then shell output](https://raw.githubusercontent.com/adrienbrault/pi-ui/main/docs/media/thinking.gif)
 
-```text
-▸ Thought for 6.3s, read 1 file, searched for 1 pattern, ran 1 shell command …  · 1 failed
+Older blocks folded into one summary. Clicking the summary lists its members in columns; clicking a member opens its full command and output.
 
-▾ Thought for 6.3s, read 1 file, searched for 1 pattern, ran 1 shell command …  · 1 failed
-  ✻ think · Start from the planne … here the fold starts · out 15 @ 3.6/s          ·  4.2s
-  ● read  · extensions/fold.ts ·                           out  9         · in  60 · 380ms
-  ● grep  · planFolds in packages ·                        out 12         · in  13 ·  60ms
-  ✗ bash  · bun test fold · exit code 1 ·                  out  9         · in  28 · 900ms
-  ✻ think · The test pinned the o … all, fix the literal · out 18 @ 8.6/s          ·  2.1s
-  ● edit  · extensions/fold.test.ts · +1 −1 ·              out 11         · in 392 · 210ms
-```
+![Opening a folded summary and one of its members](https://raw.githubusercontent.com/adrienbrault/pi-ui/main/docs/media/open.gif)
 
 ## Install
 
