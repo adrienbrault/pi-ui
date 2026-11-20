@@ -30,11 +30,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { FOLD_DISTANCE } from "../packages/pi-ui/render/detail.ts";
 import { SCRIPT_MODEL, SCRIPT_PROVIDER } from "./e2e-extension.ts";
+import { rowOf, tmuxSession } from "./tmux.ts";
 
 const ROOT = join(import.meta.dir, "..");
 const SOCKET = `pi-ui-e2e-${process.pid}`;
 const SESSION = "pi-ui-e2e";
 const WIDTH = 140;
+const { tmux, capture, watch, waitFor, mouse } = tmuxSession(SOCKET, SESSION);
 
 const NUMBER_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
 const numberWord = (count: number): string => NUMBER_WORDS[count] ?? String(count);
@@ -121,50 +123,6 @@ function fixture(path: string, callCount: number, overrides: { name?: string; er
   });
 
   writeSession(path, entries, history);
-}
-
-function tmux(...args: string[]): string {
-  const result = Bun.spawnSync(["tmux", "-L", SOCKET, ...args], { stdout: "pipe", stderr: "pipe" });
-  if (result.exitCode !== 0) throw new Error(`tmux ${args.join(" ")}: ${result.stderr.toString().trim()}`);
-  return result.stdout.toString();
-}
-
-function capture(): string {
-  return tmux("capture-pane", "-p", "-t", SESSION);
-}
-
-/** Every distinct pane from now until `text` shows, captured as fast as tmux answers: motion too quick for waitFor. */
-async function watch(text: string, timeoutMs = 15_000): Promise<string[]> {
-  const deadline = Date.now() + timeoutMs;
-  const panes: string[] = [];
-  for (;;) {
-    const pane = capture();
-    if (pane !== panes.at(-1)) panes.push(pane);
-    if (pane.includes(text)) return panes;
-    if (Date.now() > deadline) throw new Error(`timed out watching for ${JSON.stringify(text)}\n--- pane ---\n${pane}`);
-    await Bun.sleep(1);
-  }
-}
-
-async function waitFor(text: string, timeoutMs = 15_000, ready = (_pane: string) => true): Promise<string> {
-  const deadline = Date.now() + timeoutMs;
-  for (;;) {
-    const pane = capture();
-    if (pane.includes(text) && ready(pane)) return pane;
-    if (Date.now() > deadline) throw new Error(`timed out waiting for ${JSON.stringify(text)}\n--- pane ---\n${pane}`);
-    await Bun.sleep(200);
-  }
-}
-
-/** SGR: 35 is motion with no button; 0 press/release is left click. */
-function mouse(button: number, column: number, row: number, release = false): void {
-  tmux("send-keys", "-l", "-t", SESSION, `\x1b[<${button};${column};${row}${release ? "m" : "M"}`);
-}
-
-function rowOf(pane: string, needle: string): number {
-  const index = pane.split("\n").findIndex((line) => line.includes(needle));
-  if (index === -1) throw new Error(`row not found: ${needle}`);
-  return index + 1;
 }
 
 function lineWith(pane: string, needle: string): string {
