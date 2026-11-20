@@ -86,7 +86,7 @@ Hover and click need pi's fullscreen mode, which is the default. In regular mode
 
 - **pi internals.** Tool rows use pi's public `registerToolRenderer`. Per-message thinking, folding across rows and the scroll bar also read and wrap internal pi components. pi-ui checks for each method it uses before using it; when one is missing, that part keeps pi's default rendering. A new pi version can still change how these parts look.
 - **Tools pi-ui draws.** `read`, `ls`, `grep`, `find`, `ffgrep`, `fffind`, `multi_grep`, `write`, `edit`, `bash`, `powershell`, `web_fetch`, `web_search`, `fetch_content` and every `mcp__*` tool. Other tools keep their own renderers and end a folded run. Another extension that renders the same tools, or changes pi's thinking labels, will conflict with pi-ui; which one wins depends on load order.
-- **File diffs.** Before a shell command runs, pi-ui snapshots the work tree. It skips repositories with more than 20,000 files and stops after 1 second. Two shell commands running at the same time in one work tree can each show the other's changes.
+- **File diffs.** Before a shell command runs, pi-ui snapshots the work tree. It skips repositories with more than 20,000 files and stops after 1 second. pi runs a message's tool calls in parallel: a file that an `edit` or `write` call changes while a shell command runs is left out of the command's diffs, but two shell commands running at the same time in one work tree can each show the other's changes.
 
 ## Development
 

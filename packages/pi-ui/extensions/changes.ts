@@ -17,7 +17,7 @@
 
 import { spawn } from "node:child_process";
 import { lstat, readFile } from "node:fs/promises";
-import { join, posix } from "node:path";
+import { join, posix, relative, resolve as resolvePath, sep } from "node:path";
 import { createTwoFilesPatch, FILE_HEADERS_ONLY } from "diff";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { toolMeta } from "../render/tools.ts";
@@ -278,13 +278,16 @@ export async function collectChanges(
   git: Git = runGit,
   patch: Patch = boundedPatch,
   limits: Limits = LIMITS,
+  /** Files other tools wrote while the command ran, relative to its working directory: theirs, not its. */
+  skip: ReadonlySet<string> = new Set(),
 ): Promise<FileChanges | undefined> {
   const deadline = Date.now() + limits.deadlineMs;
   const { root } = snapshot;
+  const skipped = new Set([...skip].map((path) => posix.join(snapshot.prefix, path)));
   const listed = await git(["ls-files", "-z", "--cached", "--others", "--exclude-standard"], root, remaining(deadline));
   if (!listed) return undefined;
   // A file deleted while untracked leaves the listing: the snapshot still names it.
-  const candidates = [...new Set([...paths(listed), ...snapshot.stats.keys()])];
+  const candidates = [...new Set([...paths(listed), ...snapshot.stats.keys()])].filter((path) => !skipped.has(path));
   if (candidates.length > limits.maxFiles) return undefined;
   const changed: Array<{ path: string; kind: FileChange["kind"]; size: number }> = [];
   await each(candidates, async (path) => {
@@ -392,10 +395,22 @@ export function recordedChanges(details: unknown): FileChanges | undefined {
   return files.length || more ? { files, ...(more ? { more } : {}) } : undefined;
 }
 
+/** The file an `edit` or `write` call names, relative to `cwd` with `/` separators. */
+function writtenPath(input: unknown, cwd: string): string | undefined {
+  const args = input as { path?: unknown; file_path?: unknown } | undefined;
+  const path = typeof args?.path === "string" ? args.path : args?.file_path;
+  if (typeof path !== "string" || !path) return undefined;
+  return relative(cwd, resolvePath(cwd, path)).split(sep).join("/");
+}
+
 /**
  * Snapshot before each top-level shell call and record what it changed on its result. The
  * snapshot is awaited before the command runs, within its deadline; a call whose snapshot
  * fails or overruns records nothing.
+ *
+ * pi runs sibling tool calls in parallel, so an `edit` or `write` can change a file while a
+ * shell command runs. A file such a call names, if it was in flight when the command started
+ * or started while it ran, is left out of the command's changes.
  */
 export function installFileChanges(
   pi: ExtensionAPI,
@@ -404,24 +419,34 @@ export function installFileChanges(
   const git = options.git ?? runGit;
   const patch = options.patch ?? boundedPatch;
   const limits = options.limits ?? LIMITS;
-  const pending = new Map<string, Promise<Snapshot | undefined>>();
+  const pending = new Map<string, { snapshot: Promise<Snapshot | undefined>; skip: Set<string> }>();
+  /** Edit and write calls in flight, and the file each names. */
+  const writing = new Map<string, string>();
   pi.on("tool_call", async (event, ctx) => {
-    if (ctx.mode !== "tui" || event.parentToolCallId || toolMeta(event.toolName).cls !== "shell") return;
+    const cls = toolMeta(event.toolName).cls;
+    if (cls === "edit" || cls === "write") {
+      const path = writtenPath(event.input, ctx.cwd);
+      if (!path) return;
+      writing.set(event.toolCallId, path);
+      for (const shell of pending.values()) shell.skip.add(path);
+      return;
+    }
+    if (ctx.mode !== "tui" || event.parentToolCallId || cls !== "shell") return;
     const snapshot = Promise.race([
       takeSnapshot(ctx.cwd, git, limits).catch(() => undefined),
       new Promise<undefined>((resolve) => setTimeout(resolve, limits.deadlineMs + 50)),
     ]);
-    pending.set(event.toolCallId, snapshot);
+    pending.set(event.toolCallId, { snapshot, skip: new Set(writing.values()) });
     // The command must not start writing before the snapshot has read what it needs.
     await snapshot;
   });
   pi.on("tool_result", async (event) => {
-    const snapshot = pending.get(event.toolCallId);
-    if (!snapshot) return undefined;
+    const shell = pending.get(event.toolCallId);
+    if (!shell) return undefined;
     pending.delete(event.toolCallId);
     try {
-      const before = await snapshot;
-      const changes = before ? await collectChanges(before, git, patch, limits) : undefined;
+      const before = await shell.snapshot;
+      const changes = before ? await collectChanges(before, git, patch, limits, shell.skip) : undefined;
       if (!changes) return undefined;
       const details = event.details && typeof event.details === "object" ? event.details : {};
       return { details: { ...details, piUiChanges: changes } };
@@ -432,7 +457,12 @@ export function installFileChanges(
   // A call blocked before it ran has no result to record on.
   pi.on("tool_execution_end", (event) => {
     pending.delete(event.toolCallId);
+    writing.delete(event.toolCallId);
   });
-  pi.on("session_start", () => pending.clear());
-  pi.on("session_shutdown", () => pending.clear());
+  const clear = () => {
+    pending.clear();
+    writing.clear();
+  };
+  pi.on("session_start", clear);
+  pi.on("session_shutdown", clear);
 }

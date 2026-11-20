@@ -408,6 +408,40 @@ describe("the hooks", () => {
     expect(await fire("tool_result", { toolName: "bash", toolCallId: "3" })).toBeUndefined();
   });
 
+  test("a file a sibling edit or write changes while the command runs is not the command's", async () => {
+    const root = repository();
+    const fire = hooks();
+    const ctx = { mode: "tui", cwd: root };
+    // In flight before the command starts: an absolute path.
+    await fire("tool_call", { toolName: "write", toolCallId: "w", input: { path: join(root, "clean.txt") } }, ctx);
+    await fire("tool_call", { toolName: "bash", toolCallId: "1", input: {} }, ctx);
+    // Started while it runs: a path relative to the working directory, nested in another tool.
+    await fire(
+      "tool_call",
+      { toolName: "edit", toolCallId: "e", parentToolCallId: "c", input: { path: "src/gone.ts" } },
+      ctx,
+    );
+    await tick();
+    writeFileSync(join(root, "clean.txt"), "written by the sibling\n");
+    writeFileSync(join(root, "src", "gone.ts"), "edited by the sibling\n");
+    writeFileSync(join(root, "tmp", "one.txt"), "Edits: 5\n");
+    const result = (await fire("tool_result", { toolName: "bash", toolCallId: "1" }, ctx)) as { details: unknown };
+    expect(recordedChanges(result.details)?.files.map((file) => file.path)).toEqual(["tmp/one.txt"]);
+  });
+
+  test("an edit that ended before the command started is not left out", async () => {
+    const root = repository();
+    const fire = hooks();
+    const ctx = { mode: "tui", cwd: root };
+    await fire("tool_call", { toolName: "edit", toolCallId: "e", input: { path: "clean.txt" } }, ctx);
+    await fire("tool_execution_end", { toolName: "edit", toolCallId: "e" }, ctx);
+    await fire("tool_call", { toolName: "bash", toolCallId: "1", input: {} }, ctx);
+    await tick();
+    writeFileSync(join(root, "clean.txt"), "written by the command\n");
+    const result = (await fire("tool_result", { toolName: "bash", toolCallId: "1" }, ctx)) as { details: unknown };
+    expect(recordedChanges(result.details)?.files.map((file) => file.path)).toEqual(["clean.txt"]);
+  });
+
   test("a snapshot that overruns its deadline records nothing and lets the command run", async () => {
     const fire = hooks({ git: hung, limits: { ...LIMITS, deadlineMs: 20 } });
     const started = performance.now();
