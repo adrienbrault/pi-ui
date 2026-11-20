@@ -2,3 +2,5 @@ node_modules/
 *.log
 .DS_Store
 bun.lockb
+tmp/
+packages/pi-ui/README.md

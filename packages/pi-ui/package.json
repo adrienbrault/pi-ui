@@ -33,6 +33,10 @@
   "publishConfig": {
     "access": "public"
   },
+  "scripts": {
+    "prepack": "cp ../../README.md README.md",
+    "prepublishOnly": "cd ../.. && bun run check"
+  },
   "pi": {
     "extensions": [
       "./extensions/index.ts"
