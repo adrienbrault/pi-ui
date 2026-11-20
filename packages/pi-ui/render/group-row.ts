@@ -5,7 +5,7 @@
 
 import { cutMark, type ComponentLike, type RenderKit } from "./kit.ts";
 import { formatDuration } from "./text.ts";
-import type { RenderApi } from "./tool-row.ts";
+import { alignEnds, type RenderApi } from "./tool-row.ts";
 import { groupVerb, HEADER_MARGIN, toolTokenLabel, type TokenCounts, type GroupClass } from "./tools.ts";
 
 export interface GroupSegment {
@@ -51,8 +51,7 @@ export function renderGroupRow(api: RenderApi, input: GroupRowInput): ComponentL
           return withFailures && failures ? `${label} ${theme.fg("error", `(${failures} failed)`)}` : label;
         })
         .join(comma)}`;
-    const alignRight = (left: string, right: string) =>
-      left + " ".repeat(Math.max(0, width - kit.visibleWidth(left) - kit.visibleWidth(right))) + right;
+    const alignRight = (left: string, right: string) => alignEnds(kit, left, right, dot, width);
 
     const tokens = input.tokens && toolTokenLabel(input.tokens.outputTokens, input.tokens.inputTokens);
     const duration = input.durationMs === undefined ? undefined : formatDuration(input.durationMs);
@@ -60,9 +59,10 @@ export function renderGroupRow(api: RenderApi, input: GroupRowInput): ComponentL
     for (const metrics of [[tokens, duration], [tokens], [duration], []]) {
       const suffix = metrics
         .filter((part) => part !== undefined)
-        .map((part) => dot + theme.fg("dim", part))
-        .join("");
-      if (kit.visibleWidth(full + suffix) <= width) return [alignRight(full, suffix)];
+        .map((part) => theme.fg("dim", part))
+        .join(dot);
+      if (!suffix && kit.visibleWidth(full) <= width) return [full];
+      if (suffix && kit.visibleWidth(full + dot + suffix) <= width) return [alignRight(full, suffix)];
     }
 
     const failed = input.segments.reduce((sum, segment) => sum + (segment.failed ?? 0), 0);
@@ -70,7 +70,7 @@ export function renderGroupRow(api: RenderApi, input: GroupRowInput): ComponentL
     const total = theme.fg("error", `${failed} failed`);
     const room = width - kit.visibleWidth(dot + total);
     if (room < 4) return [kit.truncateToWidth(`${marker} ${total}`, width, mark)];
-    return [alignRight(kit.truncateToWidth(title(false), room, mark), dot + total)];
+    return [alignRight(kit.truncateToWidth(title(false), room, mark), total)];
   });
 }
 

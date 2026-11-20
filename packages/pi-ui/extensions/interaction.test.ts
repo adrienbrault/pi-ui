@@ -576,7 +576,7 @@ describe("tool renderers", () => {
     expect(body.render(40)).toEqual([]);
     header.handleMouse?.(click());
     // The header carries the command's first segment; the rest continues under its first column.
-    expect(header.render(40)[0]).toStartWith("● bash · echo ·");
+    expect(header.render(40)[0]).toMatch(/^● bash · echo {2,}/);
     const rows = body.render(40);
     expect(rows.every((row) => row.startsWith("         ") && row[9] !== " ")).toBe(true);
     expect(

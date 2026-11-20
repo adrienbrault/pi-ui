@@ -102,7 +102,7 @@ test("group members reserve two columns for indentation and keep wrapped content
         thinkingLabel(api, { phase: "aged", level: 0, text: thought, width: innerWidth, expanded: true }).split("\n"),
       "…",
     );
-    expect(rows[0]).toMatch(/^  ✻ think · +35 tokens$/);
+    expect(rows[0]).toMatch(/^  ✻ think +35 tokens$/);
     // The heading stops one column short of the edge, where pi draws its scroll bar.
     expect(rows[0]?.length).toBe(width - 1);
     expect(rows.slice(1).every((line) => line.startsWith("      "))).toBe(true);
@@ -797,7 +797,7 @@ describe("thinking labels", () => {
       durationMs: 3200,
       turnDuration: true,
     });
-    expect(label).toMatch(/^✻ think · done · +17 tokens · 3.2s turn$/);
+    expect(label).toMatch(/^✻ think · done {2,}17 tokens · 3.2s turn$/);
   });
 
   test("live label stays within the pool of rows", () => {
@@ -807,7 +807,7 @@ describe("thinking labels", () => {
 
   test("a one-row thought that fits whole shows all of it and cannot open", () => {
     const layout = thinkingLayout(api, { phase: "aged", level: 7, text: "first\nlast", width: 80 });
-    expect(layout.label).toMatch(/^✻ think · first last · +\d+ tokens$/);
+    expect(layout.label).toMatch(/^✻ think · first last {2,}\d+ tokens$/);
     expect(layout.canToggle).toBe(false);
   });
 
@@ -821,7 +821,7 @@ describe("thinking labels", () => {
         durationMs: 5200,
       });
       expect(layout.label.split("\n")).toHaveLength(1);
-      expect(layout.label).toMatch(/^✻ think · Scoping latest commit review · +\d+ tokens [^·]+ · 5.2s$/);
+      expect(layout.label).toMatch(/^✻ think · Scoping latest commit review {2,}\d+ tokens [^·]+ · 5.2s$/);
       expect(layout.canToggle).toBe(false);
       expect(layout.bar).toBeUndefined();
       expect(thinkingLeavingRow(api, { phase: "aged", level, text: "Scoping latest commit review", width: 100 })).toBe(
@@ -952,10 +952,12 @@ const openedCommand = (command: string, width: number, output = "done") =>
 describe("opened command", () => {
   // "● bash · ": the command text starts in this column.
   const column = 9;
-  const headOf = (header: string) => {
-    const end = header.indexOf(" · ", column);
-    return header.slice(column, end < 0 ? undefined : end).trimEnd();
-  };
+  // The command ends where the metrics' gap (or, when they meet, their separator) begins.
+  const headOf = (header: string) =>
+    header
+      .slice(column)
+      .split(/ · | {2,}/)[0]!
+      .trimEnd();
 
   test("the header carries the command's first segment and the rest continues under its first column", () => {
     const command = `echo ${Array.from({ length: 20 }, (_, index) => `word${index}`).join(" ")}`;
@@ -1010,7 +1012,7 @@ describe("opened titles", () => {
   test("an opened block shows the whole path, breaking after a `/`, aligned under its start", () => {
     const rows = read({ expanded: true, full: true });
     expect(rows[0]).not.toContain("…");
-    const header = rows[0]!.slice(titleColumn).split(" · ")[0]!;
+    const header = rows[0]!.slice(titleColumn).split(/ · | {2,}/)[0]!;
     expect(header.endsWith("/")).toBe(true);
     const continued = rows.slice(1).filter((line) => !/^\s+\d+ {2}/.test(line));
     expect(continued.every((line) => line.startsWith(" ".repeat(titleColumn)) && line[titleColumn] !== " ")).toBe(true);
@@ -1575,14 +1577,17 @@ describe("group summary width", () => {
 
   test("a wide summary keeps every segment, its failures and the metrics", () => {
     const line = renderGroupRow(api, input).render(120)[0]!;
-    expect(line).toMatch(/^▸ Read 4 files, ran 24 shell commands \(4 failed\), edited 2 files \(1 failed\) +· /);
+    expect(line).toMatch(
+      /^▸ Read 4 files, ran 24 shell commands \(4 failed\), edited 2 files \(1 failed\) {2,}1200 out/,
+    );
     expect(line).toEndWith("1m 33s");
   });
 
   test("metrics go before any segment is cut, duration first", () => {
     const title = "▸ Read 4 files, ran 24 shell commands (4 failed), edited 2 files (1 failed)";
     const tokens = renderGroupRow(api, { ...input, durationMs: undefined }).render(120)[0]!;
-    const tokensOnly = tokens.slice(tokens.lastIndexOf("·") - 1);
+    // The metrics as the row's end shows them, with the separator they need when they meet the title.
+    const tokensOnly = ` · ${tokens.trimEnd().split(/ {2,}/).at(-1)}`;
     const line = renderGroupRow(api, input).render(title.length + tokensOnly.length + HEADER_MARGIN)[0]!;
     expect(line).toStartWith(title);
     expect(line).toContain("tokens");

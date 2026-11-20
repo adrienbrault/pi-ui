@@ -232,6 +232,17 @@ function errorDetail(input: ToolRowInput, meta: ReturnType<typeof toolMeta>): st
 }
 
 /** Numbers in the text colour, `out` and `in` as keyword and type, units and separators muted. */
+/**
+ * A header row: `left` at the start, `right` against the edge. The separator
+ * stands between them only when they meet; with room between, spaces part them
+ * and no dot hangs at the end of the description.
+ */
+export function alignEnds(kit: RenderKit, left: string, right: string, sep: string, width: number): string {
+  const gap = width - kit.visibleWidth(left) - kit.visibleWidth(right);
+  if (gap <= kit.visibleWidth(sep)) return left + sep + right;
+  return left + " ".repeat(gap) + right;
+}
+
 export function styleMetric(theme: RenderTheme, label: string): string {
   return (label.match(/\d+(?:\.\d+)?k?|[a-z]+|[^a-z\d]+/gi) ?? [])
     .map((part) => {
@@ -361,13 +372,9 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, rowWidth: number
 
   const metrics = pieces.filter((part) => part.kind === "tokens" || part.kind === "duration");
   if (!metrics.length) return { line: kit.truncateToWidth(compose(pieces), width, mark), hiddenTitle, continuation };
-  const left = compose(pieces.filter((part) => !metrics.includes(part))) + sep;
+  const left = compose(pieces.filter((part) => !metrics.includes(part)));
   const right = metrics.map((part) => part.text).join(sep);
-  const line = kit.truncateToWidth(
-    left + " ".repeat(Math.max(0, width - kit.visibleWidth(left + right))) + right,
-    width,
-    mark,
-  );
+  const line = kit.truncateToWidth(alignEnds(kit, left, right, sep, width), width, mark);
   return { line, hiddenTitle, continuation };
 }
 
