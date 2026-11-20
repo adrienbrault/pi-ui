@@ -33,6 +33,8 @@ import {
   toolTokenCounts,
   toolMeta,
   toolTokenLabel,
+  sessionCommand,
+  type SessionPlace,
   type TokenRates,
 } from "./tools.ts";
 
@@ -45,7 +47,7 @@ export interface RenderApi {
 
 export type ToolStatus = "pending" | "running" | "success" | "error";
 
-export interface ToolRowInput extends TokenRates {
+export interface ToolRowInput extends TokenRates, SessionPlace {
   name: string;
   args?: Record<string, unknown>;
   status: ToolStatus;
@@ -275,7 +277,7 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, rowWidth: number
   const meta = toolMeta(input.name);
   // Names, titles, summaries and errors come from the model or the tool: never trust them.
   const label = toolLabel(input.name);
-  const title = oneLine(input.title ?? describeCall(input.name, input.args).title);
+  const title = oneLine(input.title ?? describeCall(input.name, input.args, input).title);
   const summary = input.summary === undefined ? undefined : oneLine(input.summary);
   const { outputTokens, inputTokens } = toolTokenCounts(input);
   const tokens = toolTokenLabel(outputTokens, inputTokens, input);
@@ -332,7 +334,7 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, rowWidth: number
   // Whether a closed header cuts the title; an opened one reports the same, so the row stays openable.
   const truncated = !!titlePiece && kit.visibleWidth(compose(pieces)) > width;
   const shell = meta.cls === "shell";
-  const command = shell ? cleanOutput(String(input.args?.command ?? title)) : "";
+  const command = shell ? cleanOutput(sessionCommand(String(input.args?.command ?? title), input)) : "";
   /**
    * What a closed header does not show of its title: a shell command it cut or folded onto one
    * line, or any other title too wide for the row (a path, a pattern, a query, an MCP argument).

@@ -9,7 +9,17 @@ import {
   maxRowsFor,
   settleLevel,
 } from "./detail.ts";
-import { groupVerb, HEADER_MARGIN, MIN_RATE_TOKENS, mcpLabel, toolMeta, groupNoun, toolTokenLabel } from "./tools.ts";
+import {
+  groupVerb,
+  HEADER_MARGIN,
+  MIN_RATE_TOKENS,
+  mcpLabel,
+  sessionCommand,
+  sessionPath,
+  toolMeta,
+  groupNoun,
+  toolTokenLabel,
+} from "./tools.ts";
 import { formatDuration, headLines, nonEmptyLineCount, omittedCount, tailLines } from "./text.ts";
 import { groupSegments, renderGroupMember, renderGroupRow } from "./group-row.ts";
 import {
@@ -1771,5 +1781,45 @@ describe("member columns", () => {
         memberColumns(cells, (text) => text.length),
       ),
     ).toBe("out 15 · 4.2s");
+  });
+});
+
+describe("session place", () => {
+  const place = { cwd: "/home/dev/pi-ui", home: "/home/dev" };
+
+  test("a path inside the working directory reads relative to it; others stay as written", () => {
+    expect(sessionPath("/home/dev/pi-ui/docs/PLAN.md", place)).toBe("docs/PLAN.md");
+    expect(sessionPath("~/pi-ui/docs/PLAN.md", place)).toBe("docs/PLAN.md");
+    expect(sessionPath("/home/dev/pi-ui", place)).toBe(".");
+    expect(sessionPath("/home/dev/pi-ui-old/a.ts", place)).toBe("/home/dev/pi-ui-old/a.ts");
+    expect(sessionPath("/tmp/review.md", place)).toBe("/tmp/review.md");
+    expect(sessionPath("~/other/a.ts", place)).toBe("~/other/a.ts");
+    expect(sessionPath("/home/dev/pi-ui/a.ts")).toBe("/home/dev/pi-ui/a.ts");
+  });
+
+  test("a command drops a leading cd into the working directory, and only that", () => {
+    expect(sessionCommand("cd ~/pi-ui && git status --short", place)).toBe("git status --short");
+    expect(sessionCommand("cd /home/dev/pi-ui; ls", place)).toBe("ls");
+    expect(sessionCommand('cd "/home/dev/pi-ui" && ls', place)).toBe("ls");
+    expect(sessionCommand("cd /tmp && ls", place)).toBe("cd /tmp && ls");
+    expect(sessionCommand("cd ~/pi-ui/docs && ls", place)).toBe("cd ~/pi-ui/docs && ls");
+    expect(sessionCommand("cd ~/pi-ui || exit 1", place)).toBe("cd ~/pi-ui || exit 1");
+    expect(sessionCommand("cd ~/pi-ui", place)).toBe("cd ~/pi-ui");
+  });
+
+  test("headers and opened commands read from the working directory", () => {
+    const bash = toolHeader(
+      api,
+      { name: "bash", status: "success", level: 0, args: { command: "cd ~/pi-ui && ls" }, ...place },
+      80,
+    );
+    expect(bash.line).toStartWith("● bash · ls ");
+    expect(bash.hiddenTitle).toBeUndefined();
+    const read = toolHeader(
+      api,
+      { name: "read", status: "success", level: 0, args: { path: "/home/dev/pi-ui/DESIGN.md" }, ...place },
+      80,
+    );
+    expect(read.line).toStartWith("● read · DESIGN.md ");
   });
 });

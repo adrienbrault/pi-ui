@@ -59,13 +59,56 @@ export function ownsTool(name: string): boolean {
 /** Keys that identify a call when we know nothing else about the tool. */
 const DETAIL_KEYS = ["command", "query", "sql", "pattern", "prompt", "task", "url", "path", "file_path"];
 
-export function describeCall(name: string, args: Record<string, unknown> = {}): { title: string; meta: ToolMeta } {
+/** Keys whose value is a file or directory path. */
+const PATH_KEYS = new Set(["path", "file_path"]);
+
+/** Where the session runs: titles read paths and commands relative to it. */
+export interface SessionPlace {
+  /** The session's working directory, absolute. */
+  cwd?: string;
+  /** The user's home directory, to read `~/…` paths. */
+  home?: string;
+}
+
+/** A path as the session sees it: relative when it is inside the working directory, as written otherwise. */
+export function sessionPath(path: string, place: SessionPlace = {}): string {
+  const cwd = place.cwd?.replace(/\/+$/, "");
+  if (!cwd) return path;
+  const expanded =
+    place.home && (path === "~" || path.startsWith("~/")) ? place.home.replace(/\/+$/, "") + path.slice(1) : path;
+  const absolute = expanded.replace(/\/+$/, "") || "/";
+  if (absolute === cwd) return ".";
+  return absolute.startsWith(`${cwd}/`) ? absolute.slice(cwd.length + 1) : path;
+}
+
+/**
+ * A shell command without a leading `cd` into the working directory: the
+ * command runs there anyway, and the prefix would take the header's room.
+ */
+export function sessionCommand(command: string, place: SessionPlace = {}): string {
+  const match = /^\s*cd\s+(?:"([^"]+)"|'([^']+)'|([^\s;&|]+))\s*(?:&&|;)\s*/.exec(command);
+  if (!match) return command;
+  const dir = match[1] ?? match[2] ?? match[3] ?? "";
+  return sessionPath(dir, place) === "." && match[0].length < command.length ? command.slice(match[0].length) : command;
+}
+
+export function describeCall(
+  name: string,
+  args: Record<string, unknown> = {},
+  place: SessionPlace = {},
+): { title: string; meta: ToolMeta } {
   const meta = toolMeta(name);
   const keys = meta.cls === "shell" ? ["command"] : DETAIL_KEYS;
   for (const key of keys) {
     const value = args[key];
     if (typeof value === "string" && value.trim()) {
-      return { title: value.replace(/\s+/g, " ").trim(), meta };
+      const placed =
+        meta.cls === "shell"
+          ? sessionCommand(value, place)
+          : PATH_KEYS.has(key)
+            ? sessionPath(value.trim(), place)
+            : value;
+      return { title: placed.replace(/\s+/g, " ").trim(), meta };
     }
   }
   return { title: "", meta };

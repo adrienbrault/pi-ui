@@ -19,7 +19,8 @@ import { renderGroupMember, renderGroupRow } from "../render/group-row.ts";
 import { installThroughput } from "./throughput.ts";
 import { KIT } from "./kit.ts";
 import { cutMark, type RenderTheme } from "../render/kit.ts";
-import { callTokens, ownsTool, toolMeta, toolTokenCounts } from "../render/tools.ts";
+import { homedir } from "node:os";
+import { callTokens, ownsTool, toolMeta, toolTokenCounts, type SessionPlace } from "../render/tools.ts";
 import { nonEmptyLineCount } from "../render/text.ts";
 import {
   previewLineCount,
@@ -112,6 +113,8 @@ interface BlockRecord {
 const records = new Map<string | object, BlockRecord>();
 let ratesFor: ReturnType<typeof installThroughput> | undefined;
 const runningBash = new Map<string, { startedAt: number; timer: ReturnType<typeof setInterval> }>();
+/** Where the session runs: titles read paths and commands relative to it. */
+let place: SessionPlace = { cwd: process.cwd(), home: homedir() };
 
 function stopBashClock(id: string): void {
   const clock = runningBash.get(id);
@@ -237,6 +240,7 @@ function inputFor(record: BlockRecord): ToolRowInput {
   return {
     name: record.name,
     args: record.args,
+    ...place,
     status: record.status,
     level: levelOf(record),
     expanded: record.expansion === 1,
@@ -571,7 +575,8 @@ export default function piUi(pi: ExtensionAPI): void {
   });
   pi.on("tool_execution_end", (event) => stopBashClock(event.toolCallId));
   pi.on("session_shutdown", clearBashClocks);
-  pi.on("session_start", () => {
+  pi.on("session_start", (_event, ctx) => {
+    place = { cwd: ctx.cwd, home: homedir() };
     clearBashClocks();
     records.clear();
     resetFolds();
