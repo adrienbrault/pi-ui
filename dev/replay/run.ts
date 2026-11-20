@@ -27,6 +27,10 @@
  *   holds only the final output, not when each line arrived.
  * - A prompt after a tool result is sent as a steer while the tools run, also when the recorded
  *   run was in fact interrupted there.
+ * - A turn whose every request failed (only empty error messages, left out) replays as an
+ *   empty answer, and the driver prints a warning.
+ * - Tool calls stream whole at high --speed, a few deltas per block; only the message a
+ *   `message:N@P%` stop names keeps fine deltas.
  *
  * Run with --help for the options.
  */
@@ -439,7 +443,15 @@ export async function replay(options: Options): Promise<{ outputs: string[]; eve
     await Bun.sleep(300);
     if (!options.from) recordingSince = performance.now();
     writeFileSync(join(control, "go"), "");
-    await until(() => events.some((event) => event.type === "paused"), formatStop(options.until));
+    // The pause can follow the finished event by a moment: give it half a second.
+    let finishedAt: number | undefined;
+    await until(() => {
+      if (events.some((event) => event.type === "paused")) return true;
+      if (finishedAt === undefined && events.some((event) => event.type === "finished")) finishedAt = performance.now();
+      if (finishedAt !== undefined && performance.now() - finishedAt > 500)
+        fail(`the replay ended without reaching --until ${formatStop(options.until)}`);
+      return false;
+    }, formatStop(options.until));
     await settle(options.settleMs);
     for (const action of options.actions) {
       const pane = capture();

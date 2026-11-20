@@ -199,7 +199,10 @@ export class Replay {
       yield { type: `${kind}_start`, contentIndex: index, partial: { ...partial } };
       const parser = block.kind === "toolCall" ? options.parser?.() : undefined;
       // A delta every 40 ms of replay time: each one repaints pi, so a fast replay needs fewer.
-      const pieces = deltas(block, 40 * this.config.speed);
+      // The message a mid-stream stop names keeps fine deltas, so the pause lands near its percentage.
+      const stop = this.stop;
+      const fine = stop?.kind === "message" && stop.message === step.index && stop.pct < 100;
+      const pieces = deltas(block, fine ? 40 : 40 * this.config.speed);
       if (!pieces.length) await this.wait(block.durationMs);
       for (const piece of pieces) {
         await this.wait(piece.delayMs);
