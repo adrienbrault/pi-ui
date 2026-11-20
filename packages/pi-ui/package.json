@@ -1,9 +1,38 @@
 {
   "name": "@adrienbrault/pi-ui",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.1.0",
+  "description": "A terminal UI for the pi coding agent: compact tool rows and thinking blocks that condense as the session moves on, with highlighted output, file diffs and click to expand.",
+  "keywords": [
+    "pi-package",
+    "pi",
+    "pi-coding-agent",
+    "tui",
+    "terminal",
+    "coding-agent",
+    "extension"
+  ],
+  "license": "MIT",
+  "author": "Adrien Brault",
+  "homepage": "https://github.com/adrienbrault/pi-ui#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adrienbrault/pi-ui.git",
+    "directory": "packages/pi-ui"
+  },
+  "bugs": {
+    "url": "https://github.com/adrienbrault/pi-ui/issues"
+  },
   "type": "module",
-  "description": "A recency-graded pi UI: streaming tails fold as turns recede, then group into one-line summaries.",
+  "files": [
+    "extensions/**/*.ts",
+    "render/**/*.ts",
+    "!**/*.test.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "pi": {
     "extensions": [
       "./extensions/index.ts"

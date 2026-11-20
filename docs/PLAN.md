@@ -147,7 +147,7 @@ Propose `pi.registerTranscriptRenderer` / per-message thinking renderer with an 
 ## Repo layout
 
 ```
-pi-extensions/
+pi-ui/
   docs/PLAN.md
   docs/adr/0001-transcript-control.md
   docs/rfc/transcript-api.md

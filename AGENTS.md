@@ -1,6 +1,6 @@
 # AGENTS.md
 
-`pi-extensions` builds **pi-ui**, a recency-graded replacement terminal UI for the pi coding agent, and the design system that keeps it honest. Everything here is Bun-first.
+This repository builds **pi-ui**, a recency-graded replacement terminal UI for the pi coding agent, and the design system that keeps it honest. Everything here is Bun-first.
 
 ## Fast loop
 
