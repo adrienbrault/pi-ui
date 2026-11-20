@@ -23,6 +23,8 @@ describe("parseOptions", () => {
       "Ran 6",
       "--hover",
       "bash",
+      "--scroll",
+      "-3",
       "--gif",
       "out.gif",
     ]);
@@ -32,6 +34,7 @@ describe("parseOptions", () => {
     expect(options.actions).toEqual([
       { kind: "click", text: "Ran 6" },
       { kind: "hover", text: "bash" },
+      { kind: "scroll", lines: -3 },
     ]);
     expect(options.gif).toEndWith("/out.gif");
   });

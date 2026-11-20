@@ -65,8 +65,10 @@ Replays a recorded pi session in pi, offline, and captures the screen.
   --width N --height N pane size (default 120x40)
   --theme dark|light   pi's theme and the render's palette (default dark)
   --cwd DIR            pi's working directory (default: an empty temporary one)
+  --show-thinking      start pi with thinking blocks shown (default: hidden, pi-ui's decaying tails)
   --hover TEXT         after the pause, move the mouse over the first row with TEXT
   --click TEXT         after the pause, click the first row with TEXT
+  --scroll N           after the pause, turn the mouse wheel N notches up (negative: down)
   --settle MS          wait before each capture and after each action (default 1000)
   --shot FILE.png      a PNG of the final screen
   --ansi FILE          the final screen as ANSI text
@@ -94,8 +96,9 @@ interface Options {
   height: number;
   theme: "dark" | "light";
   cwd: string | undefined;
-  actions: Array<{ kind: "hover" | "click"; text: string }>;
+  actions: Array<{ kind: "hover" | "click"; text: string } | { kind: "scroll"; lines: number }>;
   settleMs: number;
+  showThinking: boolean;
   shot: string | undefined;
   ansi: string | undefined;
   gif: string | undefined;
@@ -128,6 +131,7 @@ export function parseOptions(argv: string[]): Options {
     cwd: undefined,
     actions: [],
     settleMs: 1000,
+    showThinking: false,
     shot: undefined,
     ansi: undefined,
     gif: undefined,
@@ -192,6 +196,18 @@ export function parseOptions(argv: string[]): Options {
       case "--hover":
       case "--click":
         options.actions.push({ kind: flag.slice(2) as "hover" | "click", text: value() });
+        break;
+      case "--scroll":
+        {
+          const raw = value();
+          const lines = Number(raw);
+          if (!Number.isInteger(lines) || lines === 0)
+            throw new Error(`${flag} needs a whole number of notches, not 0`);
+          options.actions.push({ kind: "scroll", lines });
+        }
+        break;
+      case "--show-thinking":
+        options.showThinking = true;
         break;
       case "--settle":
         options.settleMs = number(value(), flag);
@@ -314,7 +330,11 @@ export async function replay(options: Options): Promise<{ outputs: string[]; eve
   mkdirSync(control);
   mkdirSync(agent);
   // The startup listing would name the replay's own extension files.
-  writeFileSync(join(agent, "settings.json"), JSON.stringify({ quietStartup: true }));
+  // pi-ui draws a thought as a decaying tail when pi hides thinking blocks, the setting it is designed for.
+  writeFileSync(
+    join(agent, "settings.json"),
+    JSON.stringify({ quietStartup: true, hideThinkingBlock: !options.showThinking }),
+  );
   const cwd = options.cwd ?? join(work, basename(script.cwd ?? "") || "project");
   mkdirSync(cwd, { recursive: true });
   const model = script.model ?? "replay";
@@ -454,6 +474,16 @@ export async function replay(options: Options): Promise<{ outputs: string[]; eve
     }, formatStop(options.until));
     await settle(options.settleMs);
     for (const action of options.actions) {
+      if (action.kind === "scroll") {
+        // SGR wheel buttons: 64 up, 65 down, over the middle of the transcript.
+        for (let notch = 0; notch < Math.abs(action.lines); notch++) {
+          mouse(action.lines > 0 ? 64 : 65, Math.ceil(options.width / 2), Math.ceil(options.height / 2));
+          // oxlint-disable-next-line no-await-in-loop -- one notch at a time, as a wheel turns
+          await settle(40);
+        }
+        await settle(options.settleMs);
+        continue;
+      }
       const pane = capture();
       if (!pane.includes(action.text)) fail(`--${action.kind}: no row on screen holds ${JSON.stringify(action.text)}`);
       const row = rowOf(pane, action.text);
