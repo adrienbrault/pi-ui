@@ -5,7 +5,14 @@
 
 import { bodyLinesFor, COMPACT_LEVEL, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
 import { frameAt, type GlyphSet } from "./glyphs.ts";
-import { cellPadding, metricColumns, tableFits, type MemberCells, type MemberColumns } from "./columns.ts";
+import {
+  cellPadding,
+  metricColumns,
+  MIN_DESCRIPTION,
+  tableFits,
+  type MemberCells,
+  type MemberColumns,
+} from "./columns.ts";
 import {
   blockBodyIndent,
   cutMark,
@@ -309,19 +316,29 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, rowWidth: number
 
   // Reserve space for the running shell clock if even a shortened command fits beside it.
   const keepClock = duration && kit.visibleWidth(prefix + sep + mark + sep + duration) <= width;
-  // Keep a readable portion of the command or path when fitting the metadata.
+  // The command or path keeps a readable share of the row, at least 20 columns or 40% of it,
+  // before any metric: the metrics shrink first, then leave.
+  // An open group's member keeps the table's own floor, so every member row agrees with `tableFits`.
+  const titleFloor = input.columns ? MIN_DESCRIPTION : Math.max(20, Math.floor(width * 0.4));
   const minimumWidth = (parts: HeaderPiece[]) =>
     kit.visibleWidth(
       compose(
         parts.map((piece) =>
-          piece.kind === "title"
-            ? { ...piece, text: kit.truncateToWidth(title, input.inputRate || input.outputRate ? 8 : 20, mark) }
-            : piece,
+          piece.kind === "title" ? { ...piece, text: kit.truncateToWidth(title, titleFloor, mark) } : piece,
         ),
       ),
     );
-  const required = pieces.filter((piece) => piece.kind !== "summary" && (piece.kind !== "duration" || keepClock));
-  if (minimumWidth(required) > width) pieces = pieces.filter((piece) => piece.kind !== "tokens");
+  const required = () => pieces.filter((piece) => piece.kind !== "summary" && (piece.kind !== "duration" || keepClock));
+  const tokenPiece = pieces.find((piece) => piece.kind === "tokens");
+  if (tokenPiece && !input.columns) {
+    // Narrower and narrower: without the rates, then the output count alone.
+    const variants = [tokens, toolTokenLabel(outputTokens, inputTokens), `out ${formatRate(outputTokens)}`];
+    const fitting = variants.find((variant) => {
+      tokenPiece.text = styleMetric(theme, variant);
+      return minimumWidth(required()) <= width;
+    });
+    if (!fitting) pieces = pieces.filter((piece) => piece !== tokenPiece);
+  } else if (minimumWidth(required()) > width) pieces = pieces.filter((piece) => piece.kind !== "tokens");
   const optional = keepClock ? ["summary"] : ["duration", "summary"];
   for (const kind of optional) {
     if (minimumWidth(pieces) <= width) break;

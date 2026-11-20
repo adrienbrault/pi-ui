@@ -1823,3 +1823,34 @@ describe("session place", () => {
     expect(read.line).toStartWith("● read · DESIGN.md ");
   });
 });
+
+/** A header's title: the text between the label's separator and the metrics. */
+const headerTitle = (line: string) => line.split(/ {2,}| · /)[1] ?? "";
+
+describe("narrow headers", () => {
+  const command = "head -30 /tmp/ds-inline.js /tmp/ds-inline2.js /tmp/headline-report.md 2>/dev/null";
+  const input = {
+    name: "bash",
+    status: "success",
+    level: 0,
+    args: { command },
+    outputTokens: 44,
+    inputTokens: 1700,
+    outputRate: 81,
+    inputRate: 2400,
+    durationMs: 32,
+  } as const;
+
+  test("metrics shrink before the command does: rates go, then the input count, then all of them", () => {
+    const wide = toolHeader(api, input, 140).line;
+    expect(wide).toContain("out 44 @ 81/s · in 1.7k @ 2.4k/s");
+    const rows = [100, 80, 70, 50].map((width) => toolHeader(api, input, width).line);
+    expect(rows.every((line, index) => line.length <= [100, 80, 70, 50][index]! - 1)).toBe(true);
+    // At every width the command keeps at least 40% of the row, or 20 columns.
+    for (const [index, width] of [100, 80, 70, 50].entries())
+      expect(headerTitle(rows[index]!).length).toBeGreaterThanOrEqual(
+        Math.min(command.length, Math.max(20, Math.floor((width - 1) * 0.4))) - 1,
+      );
+    expect(rows.some((line) => line.includes("out 44 · in 1.7k") && !line.includes("/s"))).toBe(true);
+  });
+});
