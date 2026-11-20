@@ -36,9 +36,9 @@ A failed command shows its exit code in the header, after a settled thought.
 
 ## Search output
 
-grep output under its command, after older blocks lost lines.
+grep over several files: a header per file, line numbers in a gutter, and highlighting.
 
-![Search output](grep-output.png)
+![Search output](search-output.png)
 
 ## Write
 
@@ -63,6 +63,12 @@ The final answer, after every block above it folded.
 The newest folded group lists its members under its summary while it has five or fewer.
 
 ![Group forming](group-forming.png)
+
+## Older blocks shorter
+
+Blocks lose lines as newer ones arrive, the oldest down to a notice and a few lines; one row is fading out.
+
+![Older blocks shorter](blocks-decaying.png)
 
 ## Folded summary
 
