@@ -825,6 +825,8 @@ interface BodyLayout {
   sources?: Array<number | undefined>;
   /** For a preview: the row of the notice whose lines opening the block shows, when there is one. */
   omission?: number;
+  /** What the header row does not show of its title, so opening the row shows it. */
+  hiddenTitle?: string;
 }
 
 /** Cut wrapped rows to `room`, ending the last kept row with the cut mark. */
@@ -1066,7 +1068,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
 
 /** The header, an opened command's continuation rows, and the body: one row budget for all. */
 export function toolRowLayout(api: RenderApi, input: ToolRowInput, width: number): BodyLayout {
-  const { line, continuation } = toolHeader(api, input, width);
+  const { line, continuation, hiddenTitle } = toolHeader(api, input, width);
   const rows = [line];
   // A "full" read is allowed to be long, just not unbounded.
   let budget = input.full ? MAX_FULL_LINES : bodyLinesFor(input.level, input.expanded ?? false);
@@ -1092,6 +1094,7 @@ export function toolRowLayout(api: RenderApi, input: ToolRowInput, width: number
     clipped,
     ...(bar ? { bar, sources } : {}),
     ...(omission === undefined ? {} : { omission: rows.length + omission }),
+    ...(hiddenTitle ? { hiddenTitle } : {}),
   };
 }
 

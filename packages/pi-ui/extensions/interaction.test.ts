@@ -459,6 +459,20 @@ describe("tool renderers", () => {
     ).toEqual(output.split("\n"));
   });
 
+  test("a write whose one-line body fits still opens to its clipped path", () => {
+    const tool = resolver()("write", () => undefined) as Renderers;
+    const path = `packages/${"deeply-nested-directory/".repeat(5)}sample.txt`;
+    const args = { path, content: "one line" };
+    const context = { ...ctx, args, state: {} };
+    const call = tool.renderCall(args, theme, context);
+    tool.renderResult({ content: [{ type: "text", text: "Successfully wrote" }] }, {}, theme, context);
+    const segments = () => call.render(60).join("").split("deeply-nested-directory").length - 1;
+    expect(segments()).toBeLessThan(5);
+    call.handleMouse?.({ ...click(), y: 0 });
+    // Opened, the whole path continues under the header.
+    expect(segments()).toBe(5);
+  });
+
   test("hovering a block that can open lights its notice's words, without a background", () => {
     const tokens = { ...barred, fg: (token: string, text: string) => `<${token}>${text}</${token}>` };
     const tool = resolver()("bash", () => undefined) as Renderers;

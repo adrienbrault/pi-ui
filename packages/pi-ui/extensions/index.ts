@@ -349,6 +349,8 @@ function bodyComponent(record: BlockRecord, theme: Theme, includeHeader = false)
       // The record owns the row's highlighted code, so the fade's look at the next level reuses it.
       const owned = { ...api, owner: record };
       let layout = toolRowLayout(owned, input, width);
+      // A row drawn with its header (write) has no header component to record a clipped title.
+      if (includeHeader) record.commandClipped = !!layout.hiddenTitle;
       const open = record.expansion === 1;
       // Hovering a block a click would open or close lights its notices: what the click reveals.
       if (record.hover && (open || canOpen(record, input, layout)))
