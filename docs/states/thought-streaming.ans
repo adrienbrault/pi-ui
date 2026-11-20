@@ -1,0 +1,40 @@
+    [3m[38;2;108;118;123m↑ 229 more lines[0m          
+    [38;2;157;165;169m        level: 0,[39m         
+    [38;2;157;165;169m      }).render(width);[39m   
+    [38;2;157;165;169m      expect(plain.join("\n")).not.toContain(keyword);[39m  
+    [38;2;157;165;169m    }[39m                     
+    [38;2;157;165;169m  }[39m                       
+    [38;2;157;165;169m});[39m                       
+
+[38;2;167;152;215m✻[39m [1m[38;2;222;224;225mthink[0m [38;2;126;136;142m·[39m                                                                                        [38;2;126;136;142m79 tokens 149/s[39m [38;2;126;136;142m·[39m [38;2;126;136;142m542ms
+[3m[38;2;150;160;164m    Let me check the existing /tmp .md/.js files to see what "update" might mean. They may be prior demos from other[0m    
+[3m[38;2;150;160;164m    tasks. The user says "write/update .md and .js files within /tmp for demo". Probably they want new files tailored to
+    this repo. Let me check existing ds-inline.js etc., maybe from a previous session in this repo.[0m                     
+
+[38;2;104;183;141m●[39m [1m[38;2;222;224;225mbash[0m [38;2;126;136;142m·[39m [38;2;167;152;215mhead -30 /tmp/ds-inline.js /tmp/ds-inli[1m[38;2;222;224;225m … [0m[38;2;167;152;215m-report.md /tmp/body963.md 2>/dev/null[39m [38;2;126;136;142m·[39m [38;2;222;224;225m44[38;2;157;165;169m [38;2;105;173;208mout[38;2;157;165;169m / [38;2;222;224;225m17[38;2;157;165;169m [38;2;167;152;215min[38;2;157;165;169m tokens[39m [38;2;126;136;142m·[39m [38;2;222;224;225m32[38;2;157;165;169mms
+[39m    [38;2;157;165;169m(output from other projects, removed from the public demo session)[39m                                                  
+
+[38;2;104;183;141m●[39m [1m[38;2;222;224;225mbash[0m [38;2;126;136;142m·[39m [38;2;167;152;215mcd ~/pi-ui && sed -n 120,460p packages/pi-ui/render/render.test.ts[39m [38;2;126;136;142m·[39m             [38;2;222;224;225m21[38;2;157;165;169m [38;2;105;173;208mout[38;2;157;165;169m / [38;2;222;224;225m3537[38;2;157;165;169m [38;2;167;152;215min[38;2;157;165;169m tokens[39m [38;2;126;136;142m·[39m [38;2;222;224;225m27[38;2;157;165;169mms
+[39m    [3m[38;2;108;118;123m  ↑  296 more lines[0m       
+    [38;2;126;136;142m454[39m  [38;2;157;165;169m        { [38;2;93;179;186mcls[39m: [38;2;222;141;90m"read"[39m, [38;2;93;179;186mcount[39m: [38;2;104;183;141m10[39m },                
+    [38;2;126;136;142m455[39m  [38;2;157;165;169m        { [38;2;93;179;186mcls[39m: [38;2;222;141;90m"edit"[39m, [38;2;93;179;186mcount[39m: [38;2;104;183;141m1[39m },                 
+    [38;2;126;136;142m456[39m  [38;2;157;165;169m      ],[39m             
+    [38;2;126;136;142m457[39m  [38;2;157;165;169m      [38;2;93;179;186mindices[39m: [[38;2;104;183;141m0[39m, [38;2;104;183;141m1[39m, [38;2;104;183;141m2[39m, [38;2;104;183;141m3[39m, [38;2;104;183;141m4[39m, [38;2;104;183;141m5[39m, [38;2;104;183;141m6[39m, [38;2;104;183;141m7[39m, [38;2;104;183;141m8[39m, [38;2;104;183;141m9[39m, [38;2;104;183;141m10[39m], 
+    [38;2;126;136;142m458[39m  [38;2;157;165;169m    });[39m              
+    [38;2;126;136;142m459[39m  [38;2;157;165;169m  });[39m                
+    [38;2;126;136;142m460[39m  [38;2;157;165;169m});[39m                  
+
+[38;2;167;152;215m⠹[39m [1m[38;2;222;224;225mthink[0m [38;2;126;136;142m·[39m                                                                                        [38;2;126;136;142m569 tokens 122/s[39m [38;2;126;136;142m·[39m [38;2;126;136;142m4.9s
+[39m    [3m[38;2;108;118;123m↑ 15 more lines[0m           
+[3m[38;2;150;160;164m    group is not flushed, and when a normal block flushes, the group include both before/after failure. Visual order is[0m 
+[3m[38;2;150;160;164m    summary, failure, then... Wait, items order: when the group item is pushed at first folded member, subsequent folded
+    members get added but no item pushed. Then a failure pushes block item, then later folded members add to groupItem[0m  
+[3m[38;2;150;160;164m    (which remains since not flushed), so the summary item appears earlier than failure. When flushed,[0m                  
+[3m[38;2;150;160;164m    groupItem.segments updated. So it is "one summary then failure row" while the group includes blocks after failure.[0m  
+[3m[38;2;150;160;164m    It's ambiguous but documented? DESIGN says "Errors and the live block keep[0m                                          
+
+[38;2;97;133;204m── ⠏[39m [38;2;97;133;204mWorking ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+[7m[39m [0m                             
+[38;2;97;133;204m────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+[38;2;126;136;142m~/pi-ui[39m                       
+[38;2;126;136;142m↑58k ↓2.5k R367k CH95.6% 0.1%/100M (auto)                                              deepseek-v4.1-flash-1017 • medium

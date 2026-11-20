@@ -1,0 +1,40 @@
+ [38;2;167;152;215m4. [1m[39mThinking rows keep a stale theme after a runtime theme switch[0m — the decorator captures the theme once in [38;2;167;152;215msetWidget[39m; 
+    tool rows get a fresh theme per render.                 
+ [38;2;167;152;215m5. [1m[39mPin/restore claim isn’t implemented[0m — [38;2;167;152;215mresetFolds()[39m clears [38;2;167;152;215mOPEN_TOOLS[39m, and [38;2;167;152;215mBlockRecord.expansion[39m is module-local, so 
+    restored sessions lose pins despite the plan wording.   
+ [38;2;167;152;215m6. [1m[39mGlyph contract is narrower than documented[0m — [38;2;167;152;215mGLYPH_MODES[39m is only [38;2;167;152;215municode/ascii[39m, and NERD’s empty collapsed marker   
+    plus [38;2;167;152;215mGROUP_VERB[39m missing [38;2;167;152;215mThought[39m would break click-to-open for thinking-first groups once NERD is enabled.           
+ [38;2;167;152;215m7. [1m[39mL6 read/diff previews can be notice-only[0m — [38;2;167;152;215mselectHead[39m/[38;2;167;152;215mselectDiff[39m reserve the only body row for [38;2;167;152;215m+ N lines[39m, so no     
+    file/diff evidence survives at the last rung. Worth an explicit design decision.                                    
+ [38;2;167;152;215m8. [1m[39mDocs say four variants; gallery has two[0m — [38;2;167;152;215mDESIGN.md[39m says pi-code/pi-open-tui snapshots exist; the registry/page     
+    says P1 pending.          
+
+ Lower-impact: global mutable tail budget, dead [38;2;167;152;215mpreview[39m reveal data and intermediate [38;2;167;152;215mopens[39m steps, BFS treated as visual 
+ order, non-shell error headline duplicated in the body, and record-map cleanup.                                        
+
+ [1m[38;2;205;154;34mDemo files written in [0m[38;2;167;152;215m/tmp[39m   
+
+ [38;2;167;152;215m- [1m/tmp/pi-ui-review.md[0m — full review with evidence, impact, and suggested fixes.                                       
+ [38;2;167;152;215m- [1m/tmp/pi-ui-demo.md[0m — demo guide, mapping each section to repo modules.                                               
+ [38;2;167;152;215m- [1m/tmp/pi-ui-demo.js[0m — runnable Bun demo using the real pi install and theme.                                          
+
+ Run:                         
+
+ [38;2;157;165;169m```bash[39m                      
+   bun /tmp/pi-ui-demo.js     
+   [38;2;157;165;169m# or[39m                       
+   PI_PI_UI_REPO=/path/to/pi-extensions PI_UI_DEMO_WIDTH=120 bun /tmp/pi-ui-demo.js                                     
+ [38;2;157;165;169m```[39m                          
+
+ The demo prints the decay ladder, tool rows at every rung, shell/diff evidence, thinking tails, group summaries,       
+ transcript planning, hysteresis, live folds, glyph sets, and the tool taxonomy. I also captured a rendered run at      
+ [38;2;167;152;215m/tmp/pi-ui-demo.out[39m.         
+
+ One caveat: the repo worktree was actively changing while I reviewed it (timestamps moved during the session), so use  
+ function names rather than exact line numbers in the review.                                                           
+
+[38;2;97;133;204m────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+[7m[39m [0m                             
+[38;2;97;133;204m────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+[38;2;126;136;142m~/pi-ui[39m                       
+[38;2;126;136;142m↑130k ↓64k R8.5M CH99.8% 0.2%/100M (auto)                                              deepseek-v4.1-flash-1017 • medium
