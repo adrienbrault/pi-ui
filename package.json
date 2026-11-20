@@ -25,6 +25,8 @@
     "e2e": "bun dev/tui-e2e.ts",
     "replay": "bun dev/replay/run.ts",
     "replay:smoke": "bun dev/replay/smoke.ts",
+    "states": "bun dev/replay/states.ts",
+    "states:check": "bun dev/replay/states.ts --check",
     "check": "bun run typecheck && bun run lint && bun run format:check && bun test && bun run ds:check"
   },
   "devDependencies": {
