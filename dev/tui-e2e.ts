@@ -76,7 +76,7 @@ function fixture(path: string, callCount: number, overrides: { name?: string; er
   };
 
   add({ type: "session", version: 3, id: crypto.randomUUID(), timestamp: new Date(now).toISOString(), cwd: ROOT });
-  add({ type: "model_change", id: "model", parentId: null, timestamp: new Date(now).toISOString(), provider: "flan", modelId: "deepseek-v4.1-flash-1017" });
+  add({ type: "model_change", id: "model", parentId: null, timestamp: new Date(now).toISOString(), provider: "offline", modelId: "offline-model-1" });
   add({ type: "thinking_level_change", id: "thinking", parentId, timestamp: new Date(now).toISOString(), thinkingLevel: "medium" });
   message("user", now, { role: "user", content: [{ type: "text", text: `Run ${numberWord(callCount)} commands.` }], timestamp: now });
 
@@ -89,8 +89,8 @@ function fixture(path: string, callCount: number, overrides: { name?: string; er
   message("assistant-calls", now + 1000, {
     role: "assistant",
     api: "openai-completions",
-    provider: "flan",
-    model: "deepseek-v4.1-flash-1017",
+    provider: "offline",
+    model: "offline-model-1",
     stopReason: "toolUse",
     timestamp: now + 1000,
     usage,
@@ -112,8 +112,8 @@ function fixture(path: string, callCount: number, overrides: { name?: string; er
   message("assistant-done", now + 3000, {
     role: "assistant",
     api: "openai-completions",
-    provider: "flan",
-    model: "deepseek-v4.1-flash-1017",
+    provider: "offline",
+    model: "offline-model-1",
     stopReason: "stop",
     timestamp: now + 3000,
     usage,
@@ -320,7 +320,7 @@ function thinkingFixture(path: string): void {
   };
 
   add({ type: "session", version: 3, id: crypto.randomUUID(), timestamp: new Date(now).toISOString(), cwd: ROOT });
-  add({ type: "model_change", id: "model", parentId: null, timestamp: new Date(now).toISOString(), provider: "flan", modelId: "deepseek-v4.1-flash-1017" });
+  add({ type: "model_change", id: "model", parentId: null, timestamp: new Date(now).toISOString(), provider: "offline", modelId: "offline-model-1" });
   add({ type: "thinking_level_change", id: "thinking", parentId, timestamp: new Date(now).toISOString(), thinkingLevel: "medium" });
   message("user", now, { role: "user", content: [{ type: "text", text: "Explain the sky." }], timestamp: now });
   const thoughts = [
@@ -332,8 +332,8 @@ function thinkingFixture(path: string): void {
   message("assistant-thinking", now + 1000, {
     role: "assistant",
     api: "openai-completions",
-    provider: "flan",
-    model: "deepseek-v4.1-flash-1017",
+    provider: "offline",
+    model: "offline-model-1",
     stopReason: "toolUse",
     timestamp: now + 1000,
     usage,
@@ -349,8 +349,8 @@ function thinkingFixture(path: string): void {
   message("assistant-calls", now + 1500, {
     role: "assistant",
     api: "openai-completions",
-    provider: "flan",
-    model: "deepseek-v4.1-flash-1017",
+    provider: "offline",
+    model: "offline-model-1",
     stopReason: "toolUse",
     timestamp: now + 1500,
     usage,
@@ -372,8 +372,8 @@ function thinkingFixture(path: string): void {
   message("assistant-done", now + 3000, {
     role: "assistant",
     api: "openai-completions",
-    provider: "flan",
-    model: "deepseek-v4.1-flash-1017",
+    provider: "offline",
+    model: "offline-model-1",
     stopReason: "stop",
     timestamp: now + 3000,
     usage,
@@ -408,7 +408,7 @@ function thinkingFoldFixture(path: string): void {
   };
 
   add({ type: "session", version: 3, id: crypto.randomUUID(), timestamp: new Date(now).toISOString(), cwd: ROOT });
-  add({ type: "model_change", id: "model", parentId: null, timestamp: new Date(now).toISOString(), provider: "flan", modelId: "deepseek-v4.1-flash-1017" });
+  add({ type: "model_change", id: "model", parentId: null, timestamp: new Date(now).toISOString(), provider: "offline", modelId: "offline-model-1" });
   add({ type: "thinking_level_change", id: "thinking", parentId, timestamp: new Date(now).toISOString(), thinkingLevel: "medium" });
   message("user", now, { role: "user", content: [{ type: "text", text: "Fold the old thoughts." }], timestamp: now });
 
@@ -416,8 +416,8 @@ function thinkingFoldFixture(path: string): void {
     message(`assistant-${index}`, now + 1000 + index, {
       role: "assistant",
       api: "openai-completions",
-      provider: "flan",
-      model: "deepseek-v4.1-flash-1017",
+      provider: "offline",
+      model: "offline-model-1",
       stopReason: "stop",
       timestamp: now + 1000 + index,
       usage,
@@ -428,8 +428,8 @@ function thinkingFoldFixture(path: string): void {
   message("assistant-done", now + 4000, {
     role: "assistant",
     api: "openai-completions",
-    provider: "flan",
-    model: "deepseek-v4.1-flash-1017",
+    provider: "offline",
+    model: "offline-model-1",
     stopReason: "stop",
     timestamp: now + 4000,
     usage,
@@ -480,7 +480,7 @@ function combinedFoldFixture(path: string, thoughtCount = 3, callCount = 11 + FO
   };
 
   add({ type: "session", version: 3, id: crypto.randomUUID(), timestamp: new Date(now).toISOString(), cwd: ROOT });
-  add({ type: "model_change", id: "model", parentId: null, timestamp: new Date(now).toISOString(), provider: "flan", modelId: "deepseek-v4.1-flash-1017" });
+  add({ type: "model_change", id: "model", parentId: null, timestamp: new Date(now).toISOString(), provider: "offline", modelId: "offline-model-1" });
   add({ type: "thinking_level_change", id: "thinking", parentId, timestamp: new Date(now).toISOString(), thinkingLevel: "medium" });
   message("user", now, { role: "user", content: [{ type: "text", text: "Run the long chain." }], timestamp: now });
 
@@ -488,8 +488,8 @@ function combinedFoldFixture(path: string, thoughtCount = 3, callCount = 11 + FO
     message(`thought-${index}`, now + 1000 + index, {
       role: "assistant",
       api: "openai-completions",
-      provider: "flan",
-      model: "deepseek-v4.1-flash-1017",
+      provider: "offline",
+      model: "offline-model-1",
       stopReason: "stop",
       timestamp: now + 1000 + index,
       durationMs: 1,
@@ -507,8 +507,8 @@ function combinedFoldFixture(path: string, thoughtCount = 3, callCount = 11 + FO
   message("assistant-calls", now + 1500, {
     role: "assistant",
     api: "openai-completions",
-    provider: "flan",
-    model: "deepseek-v4.1-flash-1017",
+    provider: "offline",
+    model: "offline-model-1",
     stopReason: "toolUse",
     timestamp: now + 1500,
     usage,
@@ -529,8 +529,8 @@ function combinedFoldFixture(path: string, thoughtCount = 3, callCount = 11 + FO
   message("assistant-done", now + 4000, {
     role: "assistant",
     api: "openai-completions",
-    provider: "flan",
-    model: "deepseek-v4.1-flash-1017",
+    provider: "offline",
+    model: "offline-model-1",
     stopReason: "stop",
     timestamp: now + 4000,
     usage,

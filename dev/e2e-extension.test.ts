@@ -8,11 +8,11 @@ test("the end-to-end providers can only reach a closed loopback port, or answer 
     { get: (target, key) => (key in target ? target[key as keyof typeof target] : () => {}) },
   );
   e2e(pi);
-  expect(providers.map(([name]) => name)).toEqual(["flan", SCRIPT_PROVIDER]);
+  expect(providers.map(([name]) => name)).toEqual(["offline", SCRIPT_PROVIDER]);
   for (const [, config] of providers) expect(config.baseUrl).toBe(OFFLINE_BASE_URL);
   expect(new URL(OFFLINE_BASE_URL).hostname).toBe("127.0.0.1");
-  const [flan, script] = providers.map(([, config]) => config);
-  expect((flan!.models as Array<{ id: string }>).map((model) => model.id)).toEqual([E2E_MODEL]);
+  const [offline, script] = providers.map(([, config]) => config);
+  expect((offline!.models as Array<{ id: string }>).map((model) => model.id)).toEqual([E2E_MODEL]);
   expect((script!.models as Array<{ id: string }>).map((model) => model.id)).toEqual([SCRIPT_MODEL]);
   expect(typeof script!.streamSimple).toBe("function");
 });

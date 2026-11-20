@@ -1,6 +1,6 @@
 /**
  * The extension the end-to-end harness loads into pi: pi-ui as it ships, plus
- * a stand-in for the `flan` provider the synthetic sessions name.
+ * a stand-in for the `offline` provider the synthetic sessions name.
  *
  * The stand-in is what keeps the run offline. pi catches an exception thrown
  * from `before_provider_request` and sends the request anyway, and
@@ -13,7 +13,7 @@ import piUi from "../packages/pi-ui/extensions/index.ts";
 
 /** Port 9 (discard) is closed on a normal machine, so connecting fails at once. */
 export const OFFLINE_BASE_URL = "http://127.0.0.1:9/v1";
-export const E2E_MODEL = "deepseek-v4.1-flash-1017";
+export const E2E_MODEL = "offline-model-1";
 
 /**
  * A second stand-in that answers from a script, in process, so a live turn can run a real tool
@@ -80,8 +80,8 @@ export default function e2e(pi: Pi): void {
     const dark = ctx.ui?.getTheme?.("dark");
     if (dark) ctx.ui?.setTheme?.(dark);
   });
-  pi.registerProvider("flan", {
-    name: "flan",
+  pi.registerProvider("offline", {
+    name: "offline",
     baseUrl: OFFLINE_BASE_URL,
     apiKey: "offline",
     api: "openai-completions",
