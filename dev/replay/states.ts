@@ -96,11 +96,11 @@ export const STATES: State[] = [
     until: "tool:27:end",
   },
   {
-    id: "grep-output",
+    id: "search-output",
     title: "Search output",
-    description: "grep output under its command, after older blocks lost lines.",
+    description: "grep over several files: a header per file, line numbers in a gutter, and highlighting.",
     run: main,
-    until: "tool:28:end",
+    until: "tool:57:end",
   },
   {
     id: "write-preview",
@@ -128,7 +128,17 @@ export const STATES: State[] = [
     title: "Group forming",
     description: "The newest folded group lists its members under its summary while it has five or fewer.",
     run: forming,
+    until: "tool:10:end",
+    actions: [{ kind: "scroll", lines: 60 }],
+  },
+  {
+    id: "blocks-decaying",
+    title: "Older blocks shorter",
+    description:
+      "Blocks lose lines as newer ones arrive, the oldest down to a notice and a few lines; one row is fading out.",
+    run: forming,
     until: "tool:12:end",
+    actions: [{ kind: "scroll", lines: 60 }],
   },
   {
     id: "summary-folded",
