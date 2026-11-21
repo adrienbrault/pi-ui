@@ -46,9 +46,14 @@ export interface State {
   actions?: Action[];
 }
 
+// pi's "Jump to latest message" banner covers the last transcript row while the view is scrolled
+// up: a state shows its transcript unscrolled when it fits, and otherwise keeps its subject above
+// that row.
 const main: Run = { id: "main", session: DEMO };
-const forming: Run = { id: "forming", session: DEMO, height: 50 };
-const groups: Run = { id: "groups", session: DEMO };
+const forming: Run = { id: "forming", session: DEMO, height: 41 };
+// Tall enough to show the whole transcript at tool 37 without scrolling.
+const groups: Run = { id: "groups", session: DEMO, height: 46 };
+const members: Run = { id: "members", session: DEMO };
 const opened: Run = { id: "opened", session: DEMO };
 const command: Run = { id: "command", session: DEMO };
 const changes: Run = { id: "changes", session: CHANGES, height: 36 };
@@ -138,39 +143,40 @@ export const STATES: State[] = [
       "Blocks lose lines as newer ones arrive, the oldest down to a notice and a few lines; one row is fading out.",
     run: forming,
     until: "tool:12:end",
-    actions: [{ kind: "scroll", lines: 60 }],
+    // Six rows down from the top, where group-forming left the view: the banner sits on a gap between blocks.
+    actions: [{ kind: "scroll", lines: -6 }],
   },
   {
     id: "summary-folded",
     title: "Folded summary",
-    description: "Older blocks folded into one summary line, scrolled to the top of the transcript.",
+    description:
+      "Older blocks folded into one summary line under the first reply; it counts the failed command in red.",
     run: groups,
-    until: "tool:41",
-    actions: [{ kind: "scroll", lines: 60 }],
+    until: "tool:37:end",
   },
   {
     id: "summary-hovered",
     title: "Summary under the mouse",
     description: "Hovering the summary lights its marker: a click opens it.",
     run: groups,
-    until: "tool:41",
-    actions: [hover("Ran 30 shell commands")],
+    until: "tool:37:end",
+    actions: [hover("Ran 25 shell commands")],
   },
   {
     id: "summary-opened",
     title: "Summary opened",
     description: "A click on the summary lists its members in aligned columns.",
-    run: groups,
-    until: "tool:41",
-    actions: [click("Ran 30 shell commands")],
+    run: members,
+    until: "tool:13:end",
+    actions: [{ kind: "scroll", lines: 60 }, click("Ran 4 shell commands")],
   },
   {
     id: "member-opened",
     title: "Member opened",
     description: "A click on one member opens its full command and output inside the group.",
-    run: groups,
-    until: "tool:41",
-    actions: [click("read  · DESIGN.md")],
+    run: members,
+    until: "tool:13:end",
+    actions: [click("find . -maxdepth 2")],
   },
   {
     id: "block-hovered",
