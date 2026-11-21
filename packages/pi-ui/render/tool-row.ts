@@ -308,9 +308,11 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, rowWidth: number
   // when the group's rows are too narrow for the table, leave the row to its description.
   if (!input.columns) pieces.push({ kind: "tokens", text: styleMetric(theme, tokens) });
   else if (tableFits(input.columns, width))
+    // Right-aligned, the cells keep their columns without the spaces a left-out word leaves at the
+    // start: trimmed, they stand apart from the description by spaces rather than meet it.
     pieces.push({
       kind: "tokens",
-      text: styleMetric(theme, metricColumns(toolRowCells(input), input.columns, input.columnLabels)),
+      text: styleMetric(theme, metricColumns(toolRowCells(input), input.columns, input.columnLabels).trimStart()),
     });
   const error = errorHeadline(input, meta);
   if (error) pieces.push({ kind: "error", text: theme.fg("error", error) });

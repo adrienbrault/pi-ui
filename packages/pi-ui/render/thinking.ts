@@ -154,7 +154,7 @@ function headerFor(api: ThinkingApi, input: ThinkingLabelInput): Header {
   const metrics = !input.columns
     ? styleMetric(theme, tokens) + timing
     : tableFits(input.columns, input.width - HEADER_MARGIN)
-      ? styleMetric(theme, metricColumns(thoughtCells(input), input.columns, input.columnLabels))
+      ? styleMetric(theme, metricColumns(thoughtCells(input), input.columns, input.columnLabels).trimStart())
       : "";
   const heading = (left: string) => {
     if (!metrics) return clampLine(api, left, input.width);
