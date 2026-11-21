@@ -1854,3 +1854,32 @@ describe("narrow headers", () => {
     expect(rows.some((line) => line.includes("out 44 · in 1.7k") && !line.includes("/s"))).toBe(true);
   });
 });
+
+describe("blank lines", () => {
+  const output = "line one\n\nline three\n\n\nline six";
+  const read = (full: boolean) =>
+    renderToolRow(api, {
+      name: "read",
+      status: "success",
+      level: 0,
+      args: { path: "a.txt" },
+      output,
+      expanded: full,
+      full,
+    })
+      .render(80)
+      .slice(1)
+      .map((line) => line.trimEnd());
+
+  test("a preview skips them and keeps the numbers; an opened read shows the file as it is", () => {
+    expect(read(false).map((line) => line.trim())).toEqual(["1  line one", "3  line three", "6  line six"]);
+    expect(read(true).map((line) => line.trim())).toEqual([
+      "1  line one",
+      "2",
+      "3  line three",
+      "4",
+      "5",
+      "6  line six",
+    ]);
+  });
+});

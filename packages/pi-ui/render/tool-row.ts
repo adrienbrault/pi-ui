@@ -582,9 +582,13 @@ function shellViewOf(
   });
 }
 
-/** Blank lines carry no evidence and take no row, but every line keeps its number in the file. */
-function takesRow(line: ShellLine): boolean {
+/**
+ * In a preview, blank lines carry no evidence and take no row, but every line keeps its number in
+ * the file. An opened block shows one file's numbered lines as they are, blank lines included.
+ */
+function takesRow(line: ShellLine, opened = false): boolean {
   if (line.kind === "divider") return true;
+  if (opened && line.kind === "code" && line.number !== undefined) return true;
   return (line.kind === "plain" ? line.text : line.code).trim() !== "";
 }
 
@@ -600,7 +604,7 @@ export function previewLineCount(input: ToolRowInput): number {
   // A diff's rows are its lines and the dividers between hunks; an edit's headers take none.
   if (isDiff(input, text)) return diffRows(logicalLines(text), input.name === "edit").length + files;
   const view = shellViewOf(input, text);
-  return (view ? view.lines.filter(takesRow).length : nonEmptyLineCount(raw)) + files;
+  return (view ? view.lines.filter((line) => takesRow(line)).length : nonEmptyLineCount(raw)) + files;
 }
 
 /** Whether a body reads as a diff: an edit's patch, or a shell command's output that is one. */
@@ -633,7 +637,7 @@ function shellRows(
       ? highlightShellLines(view.lines, (source, language) => highlight(source, language, theme, api.owner))
       : [];
   const lines = view.lines.flatMap((line, index): Selected[] => {
-    if (!takesRow(line)) return [];
+    if (!takesRow(line, !!input.full && view.contiguous)) return [];
     if (line.kind === "divider") return [{ line: "", rule: "divider" }];
     if (line.kind === "plain") return [{ line: line.text }];
     return [
@@ -895,12 +899,13 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
       ? outputLanguage(input, text, kit)
       : undefined;
   const styledSource = language && !diff ? kit.highlight?.(text, language, theme, api.owner) : undefined;
-  // Blank lines carry no evidence and take no row, but every line keeps its number in the file.
+  // In a preview, blank lines carry no evidence and take no row, but every line keeps its number
+  // in the file. An opened block shows the file as it is, blank lines included.
   const start = diff ? undefined : firstLine(input, text);
   const lines: Selected[] =
     shell?.lines ??
     source.flatMap((line, raw) =>
-      line.trim()
+      line.trim() || (input.full && start !== undefined)
         ? [{ line: styledSource?.[raw] ?? line, ...(start === undefined ? {} : { number: start + raw }) }]
         : [],
     );
