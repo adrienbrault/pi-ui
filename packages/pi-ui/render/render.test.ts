@@ -577,11 +577,11 @@ describe("files a shell command changed", () => {
   test("each changed file follows the output: a path row, then its diff numbered like an edit's", () => {
     expect(body()).toEqual([
       "    (no output)",
-      "    tmp/one.txt",
+      "    M tmp/one.txt  +1 -1",
       "    1  -Edits: 4",
       "    1  +Edits: 5",
       "    2   keep",
-      "    tmp/two.txt",
+      "    A tmp/two.txt  +2",
       "    1  +a",
       "    2  +b",
     ]);
@@ -610,7 +610,7 @@ describe("files a shell command changed", () => {
     // The output keeps its row; the files keep what they can of their evidence and count the rest.
     expect(body({ level: 4 })).toEqual([
       "    (no output)",
-      "    tmp/one.txt",
+      "    M tmp/one.txt  +1 -1",
       "    1  -Edits: 4",
       "    ↓  4 more lines",
     ]);
@@ -624,7 +624,7 @@ describe("files a shell command changed", () => {
     const rows = body({ level: 1, output: OUTPUT });
     expect(rows).toHaveLength(7);
     expect(rows.slice(0, 3)).toEqual(["    ↑  38 more lines", "    line 39", "    line 40"]);
-    expect(rows[3]).toBe("    tmp/one.txt");
+    expect(rows[3]).toBe("    M tmp/one.txt  +1 -1");
   });
 
   test("the files' syntax colours stay within the work bound a read's have", () => {
@@ -663,7 +663,7 @@ describe("files a shell command changed", () => {
     expect(highlighted.length).toBeGreaterThan(0);
   });
 
-  test("a deleted, a binary and an oversized file say so instead of a diff", () => {
+  test("a deleted file is its row; a binary and an oversized file say so instead of a diff", () => {
     const rows = body({
       expanded: true,
       full: true,
@@ -679,13 +679,12 @@ describe("files a shell command changed", () => {
     });
     expect(rows).toEqual([
       "    (no output)",
-      "    gone.txt",
-      "    deleted",
-      "    logo.png",
+      "    D gone.txt",
+      "    M logo.png",
       "    binary file changed",
-      "    dump.sql",
+      "    A dump.sql",
       "    new file, too large to diff",
-      "    empty.txt",
+      "    A empty.txt",
       "    new empty file",
       "    3 more files changed",
     ]);

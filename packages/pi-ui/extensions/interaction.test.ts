@@ -533,7 +533,7 @@ describe("tool renderers", () => {
         .renderResult(silent, {}, theme, context)
         .render(60)
         .map((row) => row.trimEnd());
-      expect(rows).toEqual(["    (no output)", "    tmp/one.txt", "    1  +Edits: 5"]);
+      expect(rows).toEqual(["    (no output)", "    A tmp/one.txt  +1", "    1  +Edits: 5"]);
     }
   });
 

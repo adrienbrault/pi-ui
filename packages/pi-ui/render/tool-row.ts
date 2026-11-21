@@ -409,6 +409,8 @@ interface Selected {
   number?: number;
   /** The file a grep line came from: a path row heads each run of its lines. */
   path?: string;
+  /** On a changed file's path row: what the command did to it, and the lines its diff adds and removes. */
+  change?: { kind: FileChange["kind"]; added: number; removed: number };
   /**
    * A row that is neither output nor a notice: grep's or a diff's divider, a path row, or a note
    * on a changed file that has no diff to show (its words are in `line`).
@@ -801,7 +803,8 @@ function diffRows(lines: string[], edit: boolean, highlight?: (source: string) =
 
 /** What a changed file without a diff shows instead. */
 function changeNote(file: FileChange): string | undefined {
-  if (file.kind === "deleted") return "deleted";
+  // The path row's `D` already says it.
+  if (file.kind === "deleted") return undefined;
   if (file.note === "binary") return file.kind === "created" ? "new binary file" : "binary file changed";
   if (file.note === "too large") return file.kind === "created" ? "new file, too large to diff" : "too large to diff";
   if (!file.patch?.trim()) return file.kind === "created" ? "new empty file" : "changed, same content";
@@ -819,10 +822,14 @@ function changeRows(
 ): Selected[] {
   if (!changes) return [];
   const rows = changes.files.flatMap((file): Selected[] => {
-    const path: Selected = { line: "", rule: "path", path: file.path };
+    const patch = logicalLines(cleanOutput(file.patch ?? ""));
+    const added = patch.filter((line) => line.startsWith("+") && !line.startsWith("+++")).length;
+    const removed = patch.filter((line) => line.startsWith("-") && !line.startsWith("---")).length;
+    const path: Selected = { line: "", rule: "path", path: file.path, change: { kind: file.kind, added, removed } };
     const note = changeNote(file);
     if (note !== undefined) return [path, { line: note, rule: "note" }];
-    return [path, ...diffRows(logicalLines(cleanOutput(file.patch ?? "")), true, highlight?.(file))];
+    if (file.kind === "deleted") return [path];
+    return [path, ...diffRows(patch, true, highlight?.(file))];
   });
   const more = changes.more ?? 0;
   if (more > 0) rows.push({ line: `${more} more file${more === 1 ? "" : "s"} changed`, rule: "note" });
@@ -1001,7 +1008,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
   };
   /** `digits` is the gutter's number width; 0 when the block has no gutter. */
   const paint = (
-    { line, styled, notice: hidden, number, rule, path, tone, bg }: Selected,
+    { line, styled, notice: hidden, number, rule, path, change, tone, bg }: Selected,
     digits: number,
   ): string[] => {
     if (hidden) return [noticeRow(omittedLinesLabel(hidden.count, hidden.side, api.glyphs), digits)];
@@ -1010,6 +1017,21 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
       const glyph = api.glyphs.between;
       const aligned = " ".repeat(Math.max(0, digits - kit.visibleWidth(glyph))) + glyph;
       return [indent + kit.truncateToWidth(omissionStyle(theme, aligned), inner, mark)];
+    }
+    // A changed file's row reads like `git status --short` with the diff's size: `M src/a.ts  +3 -1`.
+    if (rule === "path" && change) {
+      const status = { created: ["A", "success"], modified: ["M", "warning"], deleted: ["D", "error"] } as const;
+      const [letter, letterTone] = status[change.kind];
+      const counts = [
+        change.added ? theme.fg("success", `+${change.added}`) : "",
+        change.removed ? theme.fg("error", `-${change.removed}`) : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+      const head = `${theme.style(letter, { fg: letterTone, bold: true })} `;
+      const tail = counts ? `  ${counts}` : "";
+      const room = Math.max(1, inner - kit.visibleWidth(head) - kit.visibleWidth(tail));
+      return [indent + head + truncateLeft(kit, path ?? "", room, mark, (part) => theme.fg("text", part)).text + tail];
     }
     if (rule === "path")
       return [indent + truncateLeft(kit, path ?? "", inner, mark, (part) => theme.fg("dim", part)).text];
