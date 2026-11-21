@@ -1,5 +1,5 @@
 [38;2;104;183;141m●[39m [1m[38;2;222;224;225mbash[0m [38;2;126;136;142m·[39m [38;2;167;152;215mfind . -type f -not -path './node_module[1m[38;2;222;224;225m … [0m[38;2;167;152;215mkage.json && echo "---" && cat README.md[39m [38;2;126;136;142m·[39m [38;2;105;173;208mout[38;2;157;165;169m [38;2;222;224;225m53[38;2;157;165;169m · [38;2;167;152;215min[38;2;157;165;169m [38;2;222;224;225m1.1k[39m [38;2;126;136;142m·[39m [38;2;222;224;225m271[38;2;157;165;169mms[39m 
-    [3m[38;2;108;118;123m↑ 108 more lines[0m          
+    [3m[38;2;126;136;142m↑ 108 more lines[0m          
     [38;2;157;165;169m  lib/                      pi resolution, theme init, ANSI → HTML[39m                                                  
     [38;2;157;165;169m  registry.ts               every card and scenario[39m     
     [38;2;157;165;169m  build.ts                  render cells, write gallery, --check drift[39m                                              
@@ -9,7 +9,7 @@
     [38;2;157;165;169m```[39m                       
 
 [38;2;104;183;141m●[39m [1m[38;2;222;224;225mbash[0m [38;2;126;136;142m·[39m [38;2;167;152;215mwc -l $(find . -type f -name '*.ts' -not [1m[38;2;222;224;225m … [0m[38;2;167;152;215m-path './design-system/web/*') | sort -n[39m [38;2;126;136;142m·[39m [38;2;105;173;208mout[38;2;157;165;169m [38;2;222;224;225m36[38;2;157;165;169m · [38;2;167;152;215min[38;2;157;165;169m [38;2;222;224;225m415[39m [38;2;126;136;142m·[39m [38;2;222;224;225m270[38;2;157;165;169mms[39m 
-    [3m[38;2;108;118;123m↑ 32 more lines[0m           
+    [3m[38;2;126;136;142m↑ 32 more lines[0m           
     [38;2;157;165;169m     460 ./packages/pi-ui/render/render.test.ts[39m         
     [38;2;157;165;169m     499 ./packages/pi-ui/extensions/index.ts[39m           
     [38;2;157;165;169m     608 ./packages/pi-ui/extensions/thinking.ts[39m        
@@ -26,7 +26,7 @@
     [38;2;126;136;142m  3[39m  [38;2;157;165;169mStatus: agreed direction. Working package name `pi-ui` (rename later; nothing depends on it).[39m                  
     [38;2;126;136;142m  5[39m  [38;2;157;165;169m## Locked decisions[39m  
     [38;2;126;136;142m  7[39m  [38;2;157;165;169m| Decision | Choice |
-[39m    [3m[38;2;108;118;123m  ⋮  172 more lines[0m       
+[39m    [3m[38;2;126;136;142m  ⋮  172 more lines[0m       
     [38;2;126;136;142m180[39m  [38;2;157;165;169m- Package name and branding.[39m                       
     [38;2;126;136;142m181[39m  [38;2;157;165;169m- Whether "ours" absorbs pi-code's todo/subagent/tool renderers by import or reimplementation in P4.[39m           
     [38;2;126;136;142m182[39m  [38;2;157;165;169m- Whether to expose the decay curve as a setting (`/pi-ui decay 7,5,3,1`) or keep it fixed for v1.[39m             

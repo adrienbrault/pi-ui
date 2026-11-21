@@ -28,6 +28,12 @@ A long thought as it streams: its token count, rate and time, and its newest wor
 
 ![Thought streaming](thought-streaming.png)
 
+## Thought under the mouse
+
+Hovering a thought that can open lights its notice and shows its scroll bar in the left margin.
+
+![Thought under the mouse](thought-hovered.png)
+
 ## Failed shell command
 
 A failed command shows its exit code in the header, after a settled thought.
@@ -70,9 +76,15 @@ Blocks lose lines as newer ones arrive, the oldest down to a notice and a few li
 
 ![Older blocks shorter](blocks-decaying.png)
 
+## Thought on one row
+
+An old thought folded into the forming group keeps one row: the start and the end of its reasoning, cut in the middle.
+
+![Thought on one row](thought-one-row.png)
+
 ## Folded summary
 
-Older blocks folded into one summary line, scrolled to the top of the transcript.
+Older blocks folded into one summary line under the first reply; it counts the failed command in red.
 
 ![Folded summary](summary-folded.png)
 
@@ -93,6 +105,24 @@ A click on the summary lists its members in aligned columns.
 A click on one member opens its full command and output inside the group.
 
 ![Member opened](member-opened.png)
+
+## Failed call in a group
+
+The summary opened and scrolled to its failed member: ✗ and the exit code, among the calls around it.
+
+![Failed call in a group](member-failed.png)
+
+## New prompt
+
+A new prompt ends the run before it: its blocks fold into one summary, a row at a time, oldest first, as the reply starts.
+
+![New prompt](prompt-folding.png)
+
+## Previous run folded
+
+A moment later every tool and thought of the previous run is in the summary; its answer stays.
+
+![Previous run folded](prompt-folded.png)
 
 ## Block under the mouse
 
