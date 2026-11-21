@@ -184,15 +184,6 @@ export const STATES: State[] = [
     actions: [hover("Ran 25 shell commands")],
   },
   {
-    id: "member-failed",
-    title: "Failed call in a group",
-    description:
-      "The summary opened and scrolled to its failed member: ✗ and the exit code, among the calls around it.",
-    run: groups,
-    until: "tool:37:end",
-    actions: [click("Ran 25 shell commands"), { kind: "scroll", lines: 8 }],
-  },
-  {
     id: "summary-opened",
     title: "Summary opened",
     description: "A click on the summary lists its members in aligned columns.",
@@ -207,6 +198,15 @@ export const STATES: State[] = [
     run: members,
     until: "tool:13:end",
     actions: [click("find . -maxdepth 2")],
+  },
+  {
+    id: "member-failed",
+    title: "Failed call in a group",
+    description:
+      "The summary opened and scrolled to its failed member: ✗ and the exit code, among the calls around it.",
+    run: groups,
+    until: "tool:37:end",
+    actions: [click("Ran 25 shell commands"), { kind: "scroll", lines: 8 }],
   },
   {
     id: "prompt-folding",
