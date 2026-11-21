@@ -26,6 +26,7 @@ const ROOT = join(import.meta.dir, "..", "..");
 export const OUT = join(ROOT, "docs", "states");
 const DEMO = join(import.meta.dir, "sessions", "deepseek-review.jsonl");
 const CHANGES = join(import.meta.dir, "fixtures", "file-changes.jsonl");
+const PROMPTS = join(import.meta.dir, "fixtures", "two-prompts.jsonl");
 
 export interface Run {
   id: string;
@@ -50,10 +51,13 @@ export interface State {
 // up: a state shows its transcript unscrolled when it fits, and otherwise keeps its subject above
 // that row.
 const main: Run = { id: "main", session: DEMO };
+const thought: Run = { id: "thought", session: DEMO };
 const forming: Run = { id: "forming", session: DEMO, height: 41 };
+const aged: Run = { id: "aged", session: PROMPTS };
 // Tall enough to show the whole transcript at tool 37 without scrolling.
 const groups: Run = { id: "groups", session: DEMO, height: 46 };
 const members: Run = { id: "members", session: DEMO };
+const prompt: Run = { id: "prompt", session: PROMPTS, height: 44 };
 const opened: Run = { id: "opened", session: DEMO };
 const command: Run = { id: "command", session: DEMO };
 const changes: Run = { id: "changes", session: CHANGES, height: 36 };
@@ -92,6 +96,14 @@ export const STATES: State[] = [
     description: "A long thought as it streams: its token count, rate and time, and its newest words at the bottom.",
     run: main,
     until: "message:14@39.5%",
+  },
+  {
+    id: "thought-hovered",
+    title: "Thought under the mouse",
+    description: "Hovering a thought that can open lights its notice and shows its scroll bar in the left margin.",
+    run: thought,
+    until: "tool:27:end",
+    actions: [hover("50 more lines")],
   },
   {
     id: "bash-failed",
@@ -147,6 +159,15 @@ export const STATES: State[] = [
     actions: [{ kind: "scroll", lines: -6 }],
   },
   {
+    id: "thought-one-row",
+    title: "Thought on one row",
+    description:
+      "An old thought folded into the forming group keeps one row: the start and the end of its reasoning, cut in the middle.",
+    run: aged,
+    until: "tool:9:end",
+    actions: [{ kind: "scroll", lines: 60 }],
+  },
+  {
     id: "summary-folded",
     title: "Folded summary",
     description:
@@ -163,6 +184,15 @@ export const STATES: State[] = [
     actions: [hover("Ran 25 shell commands")],
   },
   {
+    id: "member-failed",
+    title: "Failed call in a group",
+    description:
+      "The summary opened and scrolled to its failed member: ✗ and the exit code, among the calls around it.",
+    run: groups,
+    until: "tool:37:end",
+    actions: [click("Ran 25 shell commands"), { kind: "scroll", lines: 8 }],
+  },
+  {
     id: "summary-opened",
     title: "Summary opened",
     description: "A click on the summary lists its members in aligned columns.",
@@ -177,6 +207,21 @@ export const STATES: State[] = [
     run: members,
     until: "tool:13:end",
     actions: [click("find . -maxdepth 2")],
+  },
+  {
+    id: "prompt-folding",
+    title: "New prompt",
+    description:
+      "A new prompt ends the run before it: its blocks fold into one summary, a row at a time, oldest first, as the reply starts.",
+    run: prompt,
+    until: "message:12@0%",
+  },
+  {
+    id: "prompt-folded",
+    title: "Previous run folded",
+    description: "A moment later every tool and thought of the previous run is in the summary; its answer stays.",
+    run: prompt,
+    until: "message:12@35%",
   },
   {
     id: "block-hovered",
