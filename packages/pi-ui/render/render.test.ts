@@ -1502,8 +1502,8 @@ describe("header budget", () => {
   });
 
   test("an output rate needs enough tokens to mean something", () => {
-    expect(toolTokenLabel(5, 40, { outputRate: 985 })).toBe("out 5 · in 40");
-    expect(toolTokenLabel(MIN_RATE_TOKENS, 40, { outputRate: 60 })).toBe(`out ${MIN_RATE_TOKENS} @ 60/s · in 40`);
+    expect(toolTokenLabel(5, 40, { outputRate: 985 })).toBe("in 40 · out 5");
+    expect(toolTokenLabel(MIN_RATE_TOKENS, 40, { outputRate: 60 })).toBe(`in 40 · out ${MIN_RATE_TOKENS} @ 60/s`);
     const burst = thinkingLabel(api, {
       phase: "aged",
       level: 7,
@@ -1515,9 +1515,9 @@ describe("header budget", () => {
   });
 
   test("an estimated prefill rate is marked as approximate", () => {
-    expect(toolTokenLabel(26, 5500, { outputRate: 73, inputRate: 2500 })).toBe("out 26 @ 73/s · in 5.5k @ 2.5k/s");
+    expect(toolTokenLabel(26, 5500, { outputRate: 73, inputRate: 2500 })).toBe("in 5.5k @ 2.5k/s · out 26 @ 73/s");
     expect(toolTokenLabel(26, 5500, { outputRate: 73, inputRate: 2500, inputRateEstimated: true })).toBe(
-      "out 26 @ 73/s · in 5.5k @ ~2.5k/s",
+      "in 5.5k @ ~2.5k/s · out 26 @ 73/s",
     );
     const head = row(
       { name: "read", status: "success", level: 0, title: "a.ts", inputRate: 2500, inputRateEstimated: true },
@@ -1600,7 +1600,7 @@ describe("group summary width", () => {
   test("a wide summary keeps every segment, its failures and the metrics", () => {
     const line = renderGroupRow(api, input).render(120)[0]!;
     expect(line).toMatch(
-      /^▸ Read 4 files, ran 24 shell commands \(4 failed\), edited 2 files \(1 failed\) {2,}out 1.2k · in 48k/,
+      /^▸ Read 4 files, ran 24 shell commands \(4 failed\), edited 2 files \(1 failed\) {2,}in 48k · out 1.2k/,
     );
     expect(line).toEndWith("1m 33s");
   });
@@ -1767,8 +1767,8 @@ describe("member columns", () => {
     const columns = memberColumns(cells, (text) => text.length);
     expect(columns).toEqual({ label: 5, outValue: 2, outRate: 3, inValue: 4, inRate: 4, duration: 5 });
     expect(cells.map((cell) => metricColumns(cell, columns))).toEqual([
-      "out 15 @ 3.6/s                    ·  4.2s",
-      "out  9         · in 1.2k @ ~840/s · 900ms",
+      "                   out 15 @ 3.6/s ·  4.2s",
+      "in 1.2k @ ~840/s · out  9         · 900ms",
     ]);
   });
 
@@ -1842,7 +1842,7 @@ describe("narrow headers", () => {
 
   test("metrics shrink before the command does: rates go, then the input count, then all of them", () => {
     const wide = toolHeader(api, input, 140).line;
-    expect(wide).toContain("out 44 @ 81/s · in 1.7k @ 2.4k/s");
+    expect(wide).toContain("in 1.7k @ 2.4k/s · out 44 @ 81/s");
     const rows = [100, 80, 70, 50].map((width) => toolHeader(api, input, width).line);
     expect(rows.every((line, index) => line.length <= [100, 80, 70, 50][index]! - 1)).toBe(true);
     // At every width the command keeps at least 40% of the row, or 20 columns.
@@ -1850,7 +1850,7 @@ describe("narrow headers", () => {
       expect(headerTitle(rows[index]!).length).toBeGreaterThanOrEqual(
         Math.min(command.length, Math.max(20, Math.floor((width - 1) * 0.4))) - 1,
       );
-    expect(rows.some((line) => line.includes("out 44 · in 1.7k") && !line.includes("/s"))).toBe(true);
+    expect(rows.some((line) => line.includes("in 1.7k · out 44") && !line.includes("/s"))).toBe(true);
   });
 });
 
@@ -1897,9 +1897,9 @@ describe("member table words", () => {
     ]);
     const columns = { label: 5, outValue: 2, outRate: 0, inValue: 2, inRate: 0, duration: 5 };
     expect(columnLabelRows(rows).map((labels, index) => metricColumns(rows[index]!, columns, labels))).toEqual([
-      "out 15         ·  4.2s",
-      "     9 · in 60 · 380ms",
-      "    12      13    60ms",
+      "        out 15 ·  4.2s",
+      "in 60        9   380ms",
+      "   13       12    60ms",
     ]);
   });
 });

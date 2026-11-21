@@ -27,6 +27,9 @@ function render(entry: string, state: string, width = 80): string[] {
   return def.render(ctx, 0).map((row) => cleanOutput(row).trimEnd());
 }
 
+/** Where each number on a row ends: right-aligned numbers of one column end together. */
+const numbers = (row: string) => [...row.matchAll(/(?<= )[\d.]+k?(?:ms|s)?(?= |$)/g)].map((m) => m.index + m[0].length);
+
 test("an opened mixed group lists every member under its summary, thoughts in place, two columns in", () => {
   const rows = render("scenario.fold", "opened");
   const summary = rows.findIndex((row) => row.includes("Thought"));
@@ -38,12 +41,20 @@ test("an opened mixed group lists every member under its summary, thoughts in pl
   // A table: think, read, grep, bash and edit fill one label column, so every description starts together.
   expect(new Set(members.map((row) => row.indexOf(" · ")))).toEqual(new Set([members[0]!.indexOf(" · ")]));
   expect(members[1]).toMatch(/^ {2}. read  · /);
-  // Its numbers are columns too: out, in and duration each line up, and thoughts leave the in column blank.
-  const column = (text: string) => new Set(members.filter((row) => row.includes(text)).map((row) => row.indexOf(text)));
-  expect(column("out ").size).toBe(1);
-  expect(column("· in ").size).toBe(1);
+  // Its numbers are columns too: in, out and duration each end in the same place. Each column's word sits
+  // on the first row that fills it: `out` on the first thought, `in` on the read; thoughts leave in blank.
   expect(new Set(members.map((row) => row.length)).size).toBe(1);
-  expect(members.filter((row) => row.includes("think ·")).every((row) => !row.includes(" in "))).toBe(true);
+  const thought = numbers(members[0]!);
+  const tool = numbers(members[1]!);
+  expect(members[0]).toMatch(/ out 15 · +4\.2s$/);
+  expect(members[1]).toMatch(/ in +60 +9 +380ms$/);
+  expect(thought.slice(-2)).toEqual(tool.slice(-2));
+  expect(
+    members
+      .slice(2)
+      .filter((row) => row.includes("●") || row.includes("✗"))
+      .every((row) => numbers(row).slice(-3).join() === tool.slice(-3).join()),
+  ).toBe(true);
   // The member list ends at the next block's blank separator.
   expect(rows[summary + 7]).toBe("");
 });

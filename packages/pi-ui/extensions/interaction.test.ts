@@ -708,15 +708,15 @@ describe("tool renderers", () => {
     const tool = resolver()("edit", () => undefined) as Renderers;
     const context = { ...ctx, args: { path: "test" }, state: {}, isPartial: true };
     const header = tool.renderCall(context.args, theme, context);
-    expect(header.render(120)[0]).toContain("out 5 · in 0");
+    expect(header.render(120)[0]).toContain("in 0 · out 5");
     tool.renderCall({ path: "test-long" }, theme, context);
-    expect(header.render(120)[0]).toContain("out 6 · in 0");
+    expect(header.render(120)[0]).toContain("in 0 · out 6");
     const content = [
       { type: "text", text: "abcde" },
       { type: "image", mimeType: "image/png", data: "abcd" },
     ];
     tool.renderResult({ content, details: { diff: "+ display only" } }, {}, theme, context);
-    expect(header.render(120)[0]).toContain("out 5 · in 1.2k");
+    expect(header.render(120)[0]).toContain("in 1.2k · out 5");
   });
 
   test("edits show the structured diff, with text as a fallback", () => {
@@ -1237,12 +1237,12 @@ describe("tool renderers", () => {
       expect(rows[0]).toContain("out ");
       expect(rows[0]).not.toContain(" in ");
       expect(rows[1]).not.toContain("out ");
-      expect(rows[1]).toContain("· in ");
-      expect(rows[2]).not.toMatch(/out | in /);
+      expect(rows[1]).toMatch(/ in \d/);
+      expect(rows[2]).not.toMatch(/out | in \d/);
       // Numbers are right-aligned: each column's numbers end in the same place.
       const outNumber = wordEnd(rows[0]!, "out ");
       expect(new Set(rows.map((row) => numberEnd(row, outNumber))).size).toBe(1);
-      const inNumber = wordEnd(rows[1]!, "· in ");
+      const inNumber = wordEnd(rows[1]!, " in ");
       expect(numberEnd(rows[2]!, inNumber)).toBe(numberEnd(rows[1]!, inNumber));
       // Every row stops one column short of the edge, where pi draws its scroll bar.
       expect(new Set(rows.map((row) => row.length))).toEqual(new Set([79]));
