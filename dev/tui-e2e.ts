@@ -744,8 +744,9 @@ async function bashChangesScenario(dir: string): Promise<void> {
   await Bun.sleep(300);
   tmux("send-keys", "-t", SESSION, "Enter");
   const pane = await waitFor("Script done.", 15_000, (screen) => screen.includes("+new file"));
-  for (const row of ["tmp/one.txt", "tracked.txt", "-Edits: 4", "+Edits: 5", "+new file"]) {
-    assert(pane.split("\n").some((line) => line.trim() === row || line.trim().endsWith(` ${row}`)), `expected a row reading ${row}\n${pane}`);
+  // A changed file's row reads like git status --short with the diff's size: `M tracked.txt  +1 -1`.
+  for (const row of ["A tmp/one.txt", "M tracked.txt", "-Edits: 4", "+Edits: 5", "+new file"]) {
+    assert(pane.split("\n").some((line) => line.trim() === row || line.trim().endsWith(` ${row}`) || line.trim().startsWith(`${row}  `)), `expected a row reading ${row}\n${pane}`);
   }
   assert(!pane.includes("@@") && !pane.includes("+++"), `the diffs should carry no headers\n${pane}`);
   const saved = await Bun.file(session).text();
