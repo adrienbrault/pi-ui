@@ -170,7 +170,7 @@ export const STATES: State[] = [
     description: "A click on one member opens its full command and output inside the group.",
     run: groups,
     until: "tool:41",
-    actions: [click("read  · ~/pi-ui/DESIGN.md")],
+    actions: [click("read  · DESIGN.md")],
   },
   {
     id: "block-hovered",
@@ -178,7 +178,7 @@ export const STATES: State[] = [
     description: "Hovering a block that can open lights its notice and shows its scroll bar in the left margin.",
     run: opened,
     until: "tool:5:end",
-    actions: [hover("read · ~/pi-ui/docs/PLAN.md")],
+    actions: [hover("read · docs/PLAN.md")],
   },
   {
     id: "block-opened",
@@ -186,7 +186,7 @@ export const STATES: State[] = [
     description: "A click opens the block's full output; the scroll bar's thumb shows how much is on screen.",
     run: opened,
     until: "tool:5:end",
-    actions: [click("read · ~/pi-ui/docs/PLAN.md")],
+    actions: [click("read · docs/PLAN.md")],
   },
   {
     id: "command-opened",
