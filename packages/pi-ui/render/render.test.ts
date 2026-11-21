@@ -112,7 +112,7 @@ test("group members reserve two columns for indentation and keep wrapped content
         thinkingLabel(api, { phase: "aged", level: 0, text: thought, width: innerWidth, expanded: true }).split("\n"),
       "…",
     );
-    expect(rows[0]).toMatch(/^  ✻ think +out 35$/);
+    expect(rows[0]).toMatch(/^  ✻ think +↓35$/);
     // The heading stops one column short of the edge, where pi draws its scroll bar.
     expect(rows[0]?.length).toBe(width - 1);
     expect(rows.slice(1).every((line) => line.startsWith("      "))).toBe(true);
@@ -806,7 +806,7 @@ describe("thinking labels", () => {
       durationMs: 3200,
       turnDuration: true,
     });
-    expect(label).toMatch(/^✻ think · done {2,}out 17 · 3.2s turn$/);
+    expect(label).toMatch(/^✻ think · done {2,}↓17 · 3.2s turn$/);
   });
 
   test("live label stays within the pool of rows", () => {
@@ -816,7 +816,7 @@ describe("thinking labels", () => {
 
   test("a one-row thought that fits whole shows all of it and cannot open", () => {
     const layout = thinkingLayout(api, { phase: "aged", level: 7, text: "first\nlast", width: 80 });
-    expect(layout.label).toMatch(/^✻ think · first last {2,}out \d+$/);
+    expect(layout.label).toMatch(/^✻ think · first last {2,}↓\d+$/);
     expect(layout.canToggle).toBe(false);
   });
 
@@ -830,7 +830,7 @@ describe("thinking labels", () => {
         durationMs: 5200,
       });
       expect(layout.label.split("\n")).toHaveLength(1);
-      expect(layout.label).toMatch(/^✻ think · Scoping latest commit review {2,}out \d+ · 5.2s$/);
+      expect(layout.label).toMatch(/^✻ think · Scoping latest commit review {2,}↓\d+ · 5.2s$/);
       expect(layout.canToggle).toBe(false);
       expect(layout.bar).toBeUndefined();
       expect(thinkingLeavingRow(api, { phase: "aged", level, text: "Scoping latest commit review", width: 100 })).toBe(
@@ -849,12 +849,12 @@ describe("thinking labels", () => {
   test("a one-row thought too long for the row keeps its start and its end", () => {
     for (const width of [80, 120]) {
       const layout = thinkingLayout(api, { phase: "aged", level: 7, text: OUTPUT, width, durationMs: 12400 });
-      expect(layout.label).toMatch(/^✻ think · line 1 .* … .*line 40 · +out \d+/);
+      expect(layout.label).toMatch(/^✻ think · line 1 .* … .*line 40 · +↓\d+/);
       expect(layout.label.length).toBe(width - 1);
       expect(layout.canToggle).toBe(true);
     }
     const narrow = thinkingLayout(api, { phase: "aged", level: 7, text: OUTPUT, width: 41, durationMs: 12400 });
-    expect(narrow.label).toMatch(/^✻ think · li.* … .*0 · out 78/);
+    expect(narrow.label).toMatch(/^✻ think · li.* … .*0 · ↓78/);
     expect(narrow.label.length).toBe(40);
   });
 
@@ -862,7 +862,7 @@ describe("thinking labels", () => {
     const label = thinkingLabel(api, { phase: "aged", level: 7, text: OUTPUT, width: 80, durationMs: 12400 });
     expect(label.split("\n")).toHaveLength(1);
     expect(label).toContain("line 40");
-    expect(label).toContain("out 78 @ 6.3/s · 12s");
+    expect(label).toContain("↓78 @ 6.3/s · 12s");
   });
 
   test("expanded label shows more rows than collapsed", () => {
@@ -945,7 +945,7 @@ const LONG = "src/modes/interactive/components/assistant-message.js";
 const row = (overrides: Parameters<typeof renderToolRow>[1], width: number) =>
   renderToolRow(api, overrides).render(width)[0] ?? "";
 
-const many = (n: number) => Array.from({ length: n }, (_, index) => `out ${index + 1}`).join("\n");
+const many = (n: number) => Array.from({ length: n }, (_, index) => `↓${index + 1}`).join("\n");
 
 const openedCommand = (command: string, width: number, output = "done") =>
   renderToolRow(api, {
@@ -1062,7 +1062,7 @@ describe("opened titles", () => {
     expect(rows.length).toBeLessThanOrEqual(1 + MAX_FULL_LINES);
     const notice = rows.findIndex((line) => line.trim().endsWith("more lines"));
     expect(notice).toBe(Math.ceil(MAX_FULL_LINES / 2));
-    expect(rows.join("\n")).toContain("out 1");
+    expect(rows.join("\n")).toContain("↓1");
   });
 
   test("a lit opened title lights every line it takes", () => {
@@ -1100,7 +1100,7 @@ describe("full body budget", () => {
       }).render(80);
       expect(rows.length).toBeLessThanOrEqual(1 + MAX_FULL_LINES);
       expect(rows.join("\n")).toContain("echo step 1");
-      expect(rows.join("\n")).toContain(output === "done" ? "done" : `out ${output.split("\n").length}`);
+      expect(rows.join("\n")).toContain(output === "done" ? "done" : `↓${output.split("\n").length}`);
     }
   });
 
@@ -1116,7 +1116,7 @@ describe("full body budget", () => {
       output: many(900),
     }).render(80);
     expect(rows.length).toBe(1 + MAX_FULL_LINES);
-    expect(rows.join("\n")).toContain("out 900");
+    expect(rows.join("\n")).toContain("↓900");
     expect(rows.some((line) => /^ +↓ \d+ more lines$/.test(line))).toBe(true);
   });
 
@@ -1502,8 +1502,8 @@ describe("header budget", () => {
   });
 
   test("an output rate needs enough tokens to mean something", () => {
-    expect(toolTokenLabel(5, 40, { outputRate: 985 })).toBe("in 40 · out 5");
-    expect(toolTokenLabel(MIN_RATE_TOKENS, 40, { outputRate: 60 })).toBe(`in 40 · out ${MIN_RATE_TOKENS} @ 60/s`);
+    expect(toolTokenLabel(5, 40, { outputRate: 985 })).toBe("↑40 · ↓5");
+    expect(toolTokenLabel(MIN_RATE_TOKENS, 40, { outputRate: 60 })).toBe(`↑40 · ↓${MIN_RATE_TOKENS} @ 60/s`);
     const burst = thinkingLabel(api, {
       phase: "aged",
       level: 7,
@@ -1515,9 +1515,9 @@ describe("header budget", () => {
   });
 
   test("an estimated prefill rate is marked as approximate", () => {
-    expect(toolTokenLabel(26, 5500, { outputRate: 73, inputRate: 2500 })).toBe("in 5.5k @ 2.5k/s · out 26 @ 73/s");
+    expect(toolTokenLabel(26, 5500, { outputRate: 73, inputRate: 2500 })).toBe("↑5.5k @ 2.5k/s · ↓26 @ 73/s");
     expect(toolTokenLabel(26, 5500, { outputRate: 73, inputRate: 2500, inputRateEstimated: true })).toBe(
-      "in 5.5k @ ~2.5k/s · out 26 @ 73/s",
+      "↑5.5k @ ~2.5k/s · ↓26 @ 73/s",
     );
     const head = row(
       { name: "read", status: "success", level: 0, title: "a.ts", inputRate: 2500, inputRateEstimated: true },
@@ -1587,11 +1587,11 @@ describe("group summary width", () => {
       const perSegment = line.includes("(4 failed)") && line.includes("(1 failed)");
       if (!perSegment) {
         expect(line).toContain("5 failed");
-        expect(line).not.toContain(" in 48k");
+        expect(line).not.toContain("↑48k");
         expect(line).not.toContain("1m 33s");
       }
-      if (line.includes(" in 48k") || line.includes("1m 33s")) expect(perSegment).toBe(true);
-      if (line.includes(" in 48k") && !line.includes("1m 33s")) {
+      if (line.includes("↑48k") || line.includes("1m 33s")) expect(perSegment).toBe(true);
+      if (line.includes("↑48k") && !line.includes("1m 33s")) {
         expect(renderGroupRow(api, { ...input, tokens: undefined }).render(width)[0]).toContain("1m 33s");
       }
     }
@@ -1600,7 +1600,7 @@ describe("group summary width", () => {
   test("a wide summary keeps every segment, its failures and the metrics", () => {
     const line = renderGroupRow(api, input).render(120)[0]!;
     expect(line).toMatch(
-      /^▸ Read 4 files, ran 24 shell commands \(4 failed\), edited 2 files \(1 failed\) {2,}in 48k · out 1.2k/,
+      /^▸ Read 4 files, ran 24 shell commands \(4 failed\), edited 2 files \(1 failed\) {2,}↑48k · ↓1.2k/,
     );
     expect(line).toEndWith("1m 33s");
   });
@@ -1612,7 +1612,7 @@ describe("group summary width", () => {
     const tokensOnly = ` · ${tokens.trimEnd().split(/ {2,}/).at(-1)}`;
     const line = renderGroupRow(api, input).render(title.length + tokensOnly.length + HEADER_MARGIN)[0]!;
     expect(line).toStartWith(title);
-    expect(line).toContain(" in 48k");
+    expect(line).toContain("↑48k");
     expect(line).not.toContain("1m 33s");
     expect(renderGroupRow(api, input).render(title.length + " · 1m 33s".length + HEADER_MARGIN)[0]).toBe(
       `${title} · 1m 33s`,
@@ -1767,8 +1767,8 @@ describe("member columns", () => {
     const columns = memberColumns(cells, (text) => text.length);
     expect(columns).toEqual({ label: 5, outValue: 2, outRate: 3, inValue: 4, inRate: 4, duration: 5 });
     expect(cells.map((cell) => metricColumns(cell, columns))).toEqual([
-      "                   out 15 @ 3.6/s ·  4.2s",
-      "in 1.2k @ ~840/s · out  9         · 900ms",
+      "                 ↓15 @ 3.6/s ·  4.2s",
+      "↑1.2k @ ~840/s ·  ↓9         · 900ms",
     ]);
   });
 
@@ -1779,7 +1779,7 @@ describe("member columns", () => {
         cells[0]!,
         memberColumns(cells, (text) => text.length),
       ),
-    ).toBe("out 15 · 4.2s");
+    ).toBe("↓15 · 4.2s");
   });
 });
 
@@ -1823,8 +1823,8 @@ describe("session place", () => {
   });
 });
 
-/** A header's title: the text between the label's separator and the metrics. */
-const headerTitle = (line: string) => line.split(/ {2,}| · /)[1] ?? "";
+/** A header's title: the text between the label's separator and the metrics (a cut can leave two spaces). */
+const headerTitle = (line: string) => line.split(/ {3,}| · /)[1] ?? "";
 
 describe("narrow headers", () => {
   const command = "head -30 /tmp/ds-inline.js /tmp/ds-inline2.js /tmp/headline-report.md 2>/dev/null";
@@ -1842,7 +1842,7 @@ describe("narrow headers", () => {
 
   test("metrics shrink before the command does: rates go, then the input count, then all of them", () => {
     const wide = toolHeader(api, input, 140).line;
-    expect(wide).toContain("in 1.7k @ 2.4k/s · out 44 @ 81/s");
+    expect(wide).toContain("↑1.7k @ 2.4k/s · ↓44 @ 81/s");
     const rows = [100, 80, 70, 50].map((width) => toolHeader(api, input, width).line);
     expect(rows.every((line, index) => line.length <= [100, 80, 70, 50][index]! - 1)).toBe(true);
     // At every width the command keeps at least 40% of the row, or 20 columns.
@@ -1850,7 +1850,7 @@ describe("narrow headers", () => {
       expect(headerTitle(rows[index]!).length).toBeGreaterThanOrEqual(
         Math.min(command.length, Math.max(20, Math.floor((width - 1) * 0.4))) - 1,
       );
-    expect(rows.some((line) => line.includes("in 1.7k · out 44") && !line.includes("/s"))).toBe(true);
+    expect(rows.some((line) => line.includes("↑1.7k · ↓44") && !line.includes("/s"))).toBe(true);
   });
 });
 
@@ -1897,9 +1897,9 @@ describe("member table words", () => {
     ]);
     const columns = { label: 5, outValue: 2, outRate: 0, inValue: 2, inRate: 0, duration: 5 };
     expect(columnLabelRows(rows).map((labels, index) => metricColumns(rows[index]!, columns, labels))).toEqual([
-      "        out 15 ·  4.2s",
-      "in 60        9   380ms",
-      "   13       12    60ms",
+      "      ↓15 ·  4.2s",
+      "↑60     9   380ms",
+      " 13    12    60ms",
     ]);
   });
 });

@@ -10,7 +10,7 @@ pi-ui (`@adrienbrault/pi-ui`) is an extension for the [pi coding agent](https://
 - **Thinking blocks per message.** Each thought shows its elapsed time, token count and rate, and the end of its text while it streams. pi's own thinking label is global; pi-ui sets it per message.
 - **Line numbers and highlighting.** `read` output and `edit` diffs are numbered and syntax-highlighted. Shell commands that print one file (`cat`, `head`, `tail`, `sed -n`, `bat`, `nl`, …) or search results (`rg`, `grep`, `git grep`, `ag`) get line numbers in a gutter, file headers and highlighting.
 - **Diffs for files a shell command changed.** In a git work tree, pi-ui records which files a `bash` command created, changed or deleted, and shows their diffs under the command's output. The diffs are saved with the session.
-- **Tokens and rates.** Headers show input and output tokens with their rates, for example `in 60 @ 2.4k/s · out 26 @ 48/s`. A status item shows the prefill rate when the provider reports it. pi-ui asks llama.cpp providers for their timings; set `PI_UI_LLAMA_TIMINGS=<provider id>` when your llama.cpp provider has another id.
+- **Tokens and rates.** Headers show input and output tokens with their rates, marked as pi's footer marks them (`↑` sent, `↓` received), for example `↑60 @ 2.4k/s · ↓26 @ 48/s`. A status item shows the prefill rate when the provider reports it. pi-ui asks llama.cpp providers for their timings; set `PI_UI_LLAMA_TIMINGS=<provider id>` when your llama.cpp provider has another id.
 
 ## Demo
 

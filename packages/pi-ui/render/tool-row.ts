@@ -4,7 +4,7 @@
  */
 
 import { bodyLinesFor, COMPACT_LEVEL, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
-import { frameAt, type GlyphSet } from "./glyphs.ts";
+import { frameAt, UNICODE_GLYPHS, type GlyphSet, type TokenMarks } from "./glyphs.ts";
 import {
   cellPadding,
   metricColumns,
@@ -256,12 +256,25 @@ export function alignEnds(kit: RenderKit, left: string, right: string, sep: stri
   return left + " ".repeat(gap) + right;
 }
 
-export function styleMetric(theme: RenderTheme, label: string): string {
-  return (label.match(/\d+(?:\.\d+)?k?|[a-z]+|[^a-z\d]+/gi) ?? [])
+/** Text matched literally inside a regular expression. */
+function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&");
+}
+
+/** Metrics in colour: numbers in text, the output mark in the keyword colour, the input mark in the type colour. */
+export function styleMetric(theme: RenderTheme, label: string, marks: TokenMarks = UNICODE_GLYPHS): string {
+  const output = marks.output.trim();
+  const input = marks.input.trim();
+  const symbols = [output, input].filter((mark) => !/^[a-z]+$/i.test(mark)).map(escapeRegExp);
+  const parts = new RegExp(
+    `\\d+(?:\\.\\d+)?k?|[a-z]+${symbols.length ? `|${symbols.join("|")}` : ""}|[^a-z\\d${symbols.join("")}]+`,
+    "giu",
+  );
+  return (label.match(parts) ?? [])
     .map((part) => {
       if (/^\d/.test(part)) return theme.fg("text", part);
-      if (part === "out") return theme.fg("syntaxKeyword", part);
-      if (part === "in") return theme.fg("syntaxType", part);
+      if (part === output) return theme.fg("syntaxKeyword", part);
+      if (part === input) return theme.fg("syntaxType", part);
       return theme.fg("muted", part);
     })
     .join("");
@@ -290,7 +303,7 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, rowWidth: number
   const title = oneLine(input.title ?? describeCall(input.name, input.args, input).title);
   const summary = input.summary === undefined ? undefined : oneLine(input.summary);
   const { outputTokens, inputTokens } = toolTokenCounts(input);
-  const tokens = toolTokenLabel(outputTokens, inputTokens, input);
+  const tokens = toolTokenLabel(outputTokens, inputTokens, input, glyphs);
 
   const sep = ` ${theme.fg("dim", glyphs.dot)} `;
   const mark = cutMark(theme);
@@ -306,13 +319,17 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, rowWidth: number
   if (summary) pieces.push({ kind: "summary", text: theme.fg("dim", summary) });
   // As a group member, tokens, rates and duration fill the group's columns as one piece, or,
   // when the group's rows are too narrow for the table, leave the row to its description.
-  if (!input.columns) pieces.push({ kind: "tokens", text: styleMetric(theme, tokens) });
-  else if (tableFits(input.columns, width))
+  if (!input.columns) pieces.push({ kind: "tokens", text: styleMetric(theme, tokens, glyphs) });
+  else if (tableFits(input.columns, width, glyphs))
     // Right-aligned, the cells keep their columns without the spaces a left-out word leaves at the
     // start: trimmed, they stand apart from the description by spaces rather than meet it.
     pieces.push({
       kind: "tokens",
-      text: styleMetric(theme, metricColumns(toolRowCells(input), input.columns, input.columnLabels).trimStart()),
+      text: styleMetric(
+        theme,
+        metricColumns(toolRowCells(input), input.columns, input.columnLabels, glyphs).trimStart(),
+        glyphs,
+      ),
     });
   const error = errorHeadline(input, meta);
   if (error) pieces.push({ kind: "error", text: theme.fg("error", error) });
@@ -340,9 +357,13 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, rowWidth: number
   const tokenPiece = pieces.find((piece) => piece.kind === "tokens");
   if (tokenPiece && !input.columns) {
     // Narrower and narrower: without the rates, then the output count alone.
-    const variants = [tokens, toolTokenLabel(outputTokens, inputTokens), `out ${formatRate(outputTokens)}`];
+    const variants = [
+      tokens,
+      toolTokenLabel(outputTokens, inputTokens, undefined, glyphs),
+      `${glyphs.output}${formatRate(outputTokens)}`,
+    ];
     const fitting = variants.find((variant) => {
-      tokenPiece.text = styleMetric(theme, variant);
+      tokenPiece.text = styleMetric(theme, variant, glyphs);
       return minimumWidth(required()) <= width;
     });
     if (!fitting) pieces = pieces.filter((piece) => piece !== tokenPiece);

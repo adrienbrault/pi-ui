@@ -146,15 +146,19 @@ function headerFor(api: ThinkingApi, input: ThinkingLabelInput): Header {
   const marker = `${theme.fg("accent", glyph)} ${theme.style(THINKING_LABEL, { fg: "toolTitle", bold: true })}${labelPad}`;
   const dot = theme.fg("dim", glyphs.dot);
   const { count, rate, duration } = thoughtNumbers(input);
-  // A thought is model output: its tokens read like a tool call's, `out 79 @ 149/s`.
-  const tokens = `out ${formatRate(count)}${rate ? ` @ ${formatRate(rate)}/s` : ""}`;
-  const timing = duration ? ` ${dot} ${styleMetric(theme, duration)}` : "";
+  // A thought is model output: its tokens read like a tool call's, `↓79 @ 149/s`.
+  const tokens = `${glyphs.output}${formatRate(count)}${rate ? ` @ ${formatRate(rate)}/s` : ""}`;
+  const timing = duration ? ` ${dot} ${styleMetric(theme, duration, glyphs)}` : "";
   // As a group member, the thought's tokens (model output), rate and time fill the group's columns.
   // Too narrow for the group's table, every member row leaves it out.
   const metrics = !input.columns
-    ? styleMetric(theme, tokens) + timing
-    : tableFits(input.columns, input.width - HEADER_MARGIN)
-      ? styleMetric(theme, metricColumns(thoughtCells(input), input.columns, input.columnLabels).trimStart())
+    ? styleMetric(theme, tokens, glyphs) + timing
+    : tableFits(input.columns, input.width - HEADER_MARGIN, glyphs)
+      ? styleMetric(
+          theme,
+          metricColumns(thoughtCells(input), input.columns, input.columnLabels, glyphs).trimStart(),
+          glyphs,
+        )
       : "";
   const heading = (left: string) => {
     if (!metrics) return clampLine(api, left, input.width);

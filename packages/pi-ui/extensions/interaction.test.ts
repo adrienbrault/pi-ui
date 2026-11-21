@@ -708,15 +708,15 @@ describe("tool renderers", () => {
     const tool = resolver()("edit", () => undefined) as Renderers;
     const context = { ...ctx, args: { path: "test" }, state: {}, isPartial: true };
     const header = tool.renderCall(context.args, theme, context);
-    expect(header.render(120)[0]).toContain("in 0 · out 5");
+    expect(header.render(120)[0]).toContain("↑0 · ↓5");
     tool.renderCall({ path: "test-long" }, theme, context);
-    expect(header.render(120)[0]).toContain("in 0 · out 6");
+    expect(header.render(120)[0]).toContain("↑0 · ↓6");
     const content = [
       { type: "text", text: "abcde" },
       { type: "image", mimeType: "image/png", data: "abcd" },
     ];
     tool.renderResult({ content, details: { diff: "+ display only" } }, {}, theme, context);
-    expect(header.render(120)[0]).toContain("in 1.2k · out 5");
+    expect(header.render(120)[0]).toContain("↑1.2k · ↓5");
   });
 
   test("edits show the structured diff, with text as a fallback", () => {
@@ -1234,15 +1234,15 @@ describe("tool renderers", () => {
       expect(new Set(rows.map((row) => row.indexOf(" · ")))).toEqual(new Set([rows[0]!.indexOf(" · ")]));
       // The numbers line up too; the thought's tokens are model output, its input column stays blank.
       // Each column's word sits on the first row that fills it: `out` on the thought, `in` on the first command.
-      expect(rows[0]).toContain("out ");
-      expect(rows[0]).not.toContain(" in ");
-      expect(rows[1]).not.toContain("out ");
-      expect(rows[1]).toMatch(/ in \d/);
-      expect(rows[2]).not.toMatch(/out | in \d/);
+      expect(rows[0]).toContain("↓");
+      expect(rows[0]).not.toContain("↑");
+      expect(rows[1]).not.toContain("↓");
+      expect(rows[1]).toMatch(/↑\d/);
+      expect(rows[2]).not.toMatch(/[↑↓]/);
       // Numbers are right-aligned: each column's numbers end in the same place.
-      const outNumber = wordEnd(rows[0]!, "out ");
+      const outNumber = wordEnd(rows[0]!, "↓");
       expect(new Set(rows.map((row) => numberEnd(row, outNumber))).size).toBe(1);
-      const inNumber = wordEnd(rows[1]!, " in ");
+      const inNumber = wordEnd(rows[1]!, "↑");
       expect(numberEnd(rows[2]!, inNumber)).toBe(numberEnd(rows[1]!, inNumber));
       // Every row stops one column short of the edge, where pi draws its scroll bar.
       expect(new Set(rows.map((row) => row.length))).toEqual(new Set([79]));

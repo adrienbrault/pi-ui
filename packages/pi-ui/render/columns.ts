@@ -8,6 +8,8 @@
  * other's output.
  */
 
+import { UNICODE_GLYPHS, type TokenMarks } from "./glyphs.ts";
+
 /** What one member row puts in the table's columns. A missing cell is blank. */
 export interface MemberCells {
   label: string;
@@ -66,43 +68,59 @@ function word(text: string, shown: boolean): string {
 }
 
 /**
- * The words before the output column: ` · out ` after a written input, `out ` where the table has
- * no input columns, and spaces of the same width on a row that names neither.
+ * What stands before the output column: ` · ↓` after a marked input, `↓` where the table has no
+ * input columns, and spaces of the same width on a row that marks neither.
  */
-function outWords(cells: MemberCells, columns: MemberColumns, labels: ColumnLabels): string {
-  const separator = columns.inValue || columns.inRate ? (labels.in && cells.inValue !== undefined ? " · " : "   ") : "";
-  return labels.out ? `${separator}out ` : " ".repeat(separator.length + 4);
+function outWords(cells: MemberCells, columns: MemberColumns, labels: ColumnLabels, marks: TokenMarks): string {
+  const separator =
+    columns.inValue || columns.inRate ? (labels.in && cells.inValue !== undefined ? ` ${marks.dot} ` : "   ") : "";
+  return labels.out ? `${separator}${marks.output}` : " ".repeat(separator.length + marks.output.length);
 }
 
-/** One padded cell with its words around it; blank, it keeps the width. */
-function paddedCell(text: string | undefined, width: number, before: string, after = ""): string {
+/**
+ * One padded cell with its words around it; blank, it keeps the width. A count's mark stays against
+ * its number (`  ↑60`): its padding goes before the mark. A rate's `@` keeps its column instead.
+ */
+function paddedCell(text: string | undefined, width: number, before: string, after = "", markLeads = false): string {
   if (width === 0) return "";
   if (text === undefined) return " ".repeat(before.length + width + after.length);
-  return before + " ".repeat(Math.max(0, width - text.length)) + text + after;
+  const padding = " ".repeat(Math.max(0, width - text.length));
+  if (markLeads) {
+    // The separator (` · `) keeps its place; the mark (`↓`, or ASCII's `out `) moves to the number.
+    const mark = /\S+ ?$/.exec(before)?.[0] ?? "";
+    const lead = before.slice(0, before.length - mark.length);
+    return lead + padding + mark + text + after;
+  }
+  return before + padding + text + after;
 }
 
 /**
  * The right-hand metrics of a table row, every cell padded to its column:
- * `in 5.5k @ 2.5k/s · out 26 @ 73/s · 1.2s`. A blank cell keeps its width,
+ * `↑5.5k @ 2.5k/s · ↓26 @ 73/s · 1.2s`. A blank cell keeps its width,
  * words and separators included, so the next column still lines up.
  * A column word a row leaves out is spaces of the same width, and so is the
  * separator before the duration on a row that writes no word: the first row
  * filling a column names it (`columnLabelRows`), the rows under it carry only
  * numbers.
  */
-export function metricColumns(cells: MemberCells, columns: MemberColumns, labels: ColumnLabels = ALL_LABELS): string {
-  return [
+export function metricColumns(
+  cells: MemberCells,
+  columns: MemberColumns,
+  labels: ColumnLabels = ALL_LABELS,
+  marks: TokenMarks = UNICODE_GLYPHS,
+): string {
+  const row = [
     // Input first: a thought leaves it blank, and every row's output then lines up on the right.
-    paddedCell(cells.inValue, columns.inValue, word("in ", labels.in)),
+    paddedCell(cells.inValue, columns.inValue, word(marks.input, labels.in), "", true),
     paddedCell(cells.inRate, columns.inRate, " @ ", "/s"),
     // The dot parts the two words when the row writes both; a thought's `out` stands alone.
-    paddedCell(cells.outValue, columns.outValue, outWords(cells, columns, labels)),
+    paddedCell(cells.outValue, columns.outValue, outWords(cells, columns, labels, marks), "", true),
     paddedCell(cells.outRate, columns.outRate, " @ ", "/s"),
     // A dot follows a named output, as in a standalone header; under it, numbers stand apart by spaces.
-    paddedCell(cells.duration, columns.duration, word(" · ", labels.out)),
-  ]
-    .join("")
-    .replace(/^ \u00b7 /, "");
+    paddedCell(cells.duration, columns.duration, word(` ${marks.dot} `, labels.out)),
+  ].join("");
+  // A table without counts starts at its duration: no separator before it.
+  return row.startsWith(` ${marks.dot} `) ? row.slice(marks.dot.length + 2) : row;
 }
 
 /** Columns a member row's description keeps before the group's table gives way. */
@@ -114,7 +132,7 @@ export const MIN_DESCRIPTION = 16;
  * none does. A row is a glyph, the label column, ` · `, the description,
  * ` · ` and the table.
  */
-export function tableFits(columns: MemberColumns, width: number): boolean {
-  const table = metricColumns({ label: "" }, columns).length;
+export function tableFits(columns: MemberColumns, width: number, marks: TokenMarks = UNICODE_GLYPHS): boolean {
+  const table = metricColumns({ label: "" }, columns, ALL_LABELS, marks).length;
   return width - (2 + columns.label + 3) - MIN_DESCRIPTION - 3 - table >= 0;
 }

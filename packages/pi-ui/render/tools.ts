@@ -1,5 +1,6 @@
 /** Tool taxonomy: which class a tool belongs to, how it trends, how it reads. */
 
+import { UNICODE_GLYPHS, type TokenMarks } from "./glyphs.ts";
 import { formatDuration } from "./text.ts";
 
 export type ToolClass = "read" | "list" | "search" | "write" | "edit" | "shell" | "web" | "mcp" | "code" | "generic";
@@ -187,11 +188,17 @@ function rateSuffix(rate?: number, estimated = false): string {
 }
 
 /**
- * Every header's token numbers, one format: `in 2.6k · out 9 @ 48/s`, counts abbreviated past a
- * thousand. Input comes first: output always has a count, so it keeps the right-hand edge.
+ * Every header's token numbers, one format: `↑2.6k · ↓9 @ 48/s`, input (sent) then output
+ * (returned) as pi's footer marks them, counts abbreviated past a thousand. Input comes first:
+ * output always has a count, so it keeps the right-hand edge.
  */
-export function toolTokenLabel(outputTokens: number, inputTokens: number, rates?: TokenRates): string {
-  return `in ${formatRate(inputTokens)}${rateSuffix(rates?.inputRate, rates?.inputRateEstimated)} · out ${formatRate(outputTokens)}${rateSuffix(outputRateFor(outputTokens, rates?.outputRate))}`;
+export function toolTokenLabel(
+  outputTokens: number,
+  inputTokens: number,
+  rates?: TokenRates,
+  marks: TokenMarks = UNICODE_GLYPHS,
+): string {
+  return `${marks.input}${formatRate(inputTokens)}${rateSuffix(rates?.inputRate, rates?.inputRateEstimated)} ${marks.dot} ${marks.output}${formatRate(outputTokens)}${rateSuffix(outputRateFor(outputTokens, rates?.outputRate))}`;
 }
 
 /** Thinking folds with tool rows; its verb belongs to the same vocabulary. */

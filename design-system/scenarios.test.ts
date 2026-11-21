@@ -28,7 +28,8 @@ function render(entry: string, state: string, width = 80): string[] {
 }
 
 /** Where each number on a row ends: right-aligned numbers of one column end together. */
-const numbers = (row: string) => [...row.matchAll(/(?<= )[\d.]+k?(?:ms|s)?(?= |$)/g)].map((m) => m.index + m[0].length);
+const numbers = (row: string) =>
+  [...row.matchAll(/(?<=[ ↑↓])[\d.]+k?(?:ms|s)?(?= |$)/g)].map((m) => m.index + m[0].length);
 
 test("an opened mixed group lists every member under its summary, thoughts in place, two columns in", () => {
   const rows = render("scenario.fold", "opened");
@@ -46,8 +47,8 @@ test("an opened mixed group lists every member under its summary, thoughts in pl
   expect(new Set(members.map((row) => row.length)).size).toBe(1);
   const thought = numbers(members[0]!);
   const tool = numbers(members[1]!);
-  expect(members[0]).toMatch(/ out 15 · +4\.2s$/);
-  expect(members[1]).toMatch(/ in +60 +9 +380ms$/);
+  expect(members[0]).toMatch(/ ↓15 · +4\.2s$/);
+  expect(members[1]).toMatch(/ ↑60 +9 +380ms$/);
   expect(thought.slice(-2)).toEqual(tool.slice(-2));
   expect(
     members
@@ -67,10 +68,10 @@ test("a collapsed mixed group is one summary row with the failure counted", () =
 });
 
 test("an opened group too narrow for its table leaves every member to its description", () => {
-  const rows = render("scenario.fold", "opened", 50);
+  const rows = render("scenario.fold", "opened", 46);
   const summary = rows.findIndex((row) => row.includes("Thought"));
   const members = rows.slice(summary + 1, summary + 7);
-  expect(members.some((row) => row.includes("out "))).toBe(false);
-  expect(members[0]).toMatch(/^ {2}✻ think · Start from the pla/);
+  expect(members.some((row) => /[↑↓]/.test(row))).toBe(false);
+  expect(members[0]).toMatch(/^ {2}✻ think · Start from the p/);
   expect(members[1]).toBe("  ● read  · extensions/fold.ts");
 });

@@ -12,8 +12,17 @@ export interface GlyphSet {
   above: string;
   below: string;
   between: string;
+  /**
+   * Before a token count: what the model was sent (input) and what it returned (output), as pi's
+   * footer writes them (`↑3.5k ↓467`). ASCII keeps the words, since `^` and `v` mark notices.
+   */
+  input: string;
+  output: string;
   spinner: readonly string[];
 }
+
+/** What token numbers are written with: the two marks and the separator dot. */
+export type TokenMarks = Pick<GlyphSet, "input" | "output" | "dot">;
 
 export const UNICODE_GLYPHS: GlyphSet = {
   pending: "○",
@@ -26,6 +35,8 @@ export const UNICODE_GLYPHS: GlyphSet = {
   above: "↑",
   below: "↓",
   between: "⋮",
+  input: "↑",
+  output: "↓",
   spinner: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"],
 };
 
@@ -40,6 +51,8 @@ export const ASCII_GLYPHS: GlyphSet = {
   above: "^",
   below: "v",
   between: ":",
+  input: "in ",
+  output: "out ",
   spinner: ["-", "\\", "|", "/"],
 };
 
@@ -54,6 +67,8 @@ export const NERD_GLYPHS: GlyphSet = {
   above: "↑",
   below: "↓",
   between: "⋮",
+  input: "↑",
+  output: "↓",
   spinner: ["󰪚", "󰪛", "󰪜", "󰪝"],
 };
 

@@ -53,7 +53,8 @@ export function renderGroupRow(api: RenderApi, input: GroupRowInput): ComponentL
         .join(comma)}`;
     const alignRight = (left: string, right: string) => alignEnds(kit, left, right, dot, width);
 
-    const tokens = input.tokens && toolTokenLabel(input.tokens.outputTokens, input.tokens.inputTokens);
+    const tokens =
+      input.tokens && toolTokenLabel(input.tokens.outputTokens, input.tokens.inputTokens, undefined, glyphs);
     const duration = input.durationMs === undefined ? undefined : formatDuration(input.durationMs);
     const full = title(true);
     for (const metrics of [[tokens, duration], [tokens], [duration], []]) {

@@ -508,7 +508,7 @@ async function combinedFoldScenario(sessionPath: string): Promise<void> {
   pane = capture();
   assert(lineWith(pane, "Thought 3 times").includes("ran 11 shell commands"), `thoughts and commands should share one summary\n${pane}`);
   assert(lineWith(pane, "Thought 3 times").includes("1.0s"), "mixed group should span the first thought through the last folded result");
-  assert(lineWith(pane, "Thought 3 times").includes("in 44 · out 139"), "fold should total three thoughts, eleven invocations and eleven results");
+  assert(lineWith(pane, "Thought 3 times").includes("↑44 · ↓139"), "fold should total three thoughts, eleven invocations and eleven results");
   assert(!pane.includes("echo combo-0  "), `the oldest command leaked\n${pane}`);
   assert(pane.includes("echo combo-11  "), `the oldest surviving command should stay\n${pane}`);
 
