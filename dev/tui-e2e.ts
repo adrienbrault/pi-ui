@@ -509,8 +509,8 @@ async function combinedFoldScenario(sessionPath: string): Promise<void> {
   assert(lineWith(pane, "Thought 3 times").includes("ran 11 shell commands"), `thoughts and commands should share one summary\n${pane}`);
   assert(lineWith(pane, "Thought 3 times").includes("1.0s"), "mixed group should span the first thought through the last folded result");
   assert(lineWith(pane, "Thought 3 times").includes("out 139 · in 44"), "fold should total three thoughts, eleven invocations and eleven results");
-  assert(!pane.includes("echo combo-0 ·"), `the oldest command leaked\n${pane}`);
-  assert(pane.includes("echo combo-11 ·"), `the oldest surviving command should stay\n${pane}`);
+  assert(!pane.includes("echo combo-0  "), `the oldest command leaked\n${pane}`);
+  assert(pane.includes("echo combo-11  "), `the oldest surviving command should stay\n${pane}`);
 
   pane = capture();
   let summaryRow = rowOf(pane, "Thought 3 times");
@@ -528,7 +528,7 @@ async function combinedFoldScenario(sessionPath: string): Promise<void> {
   mouse(0, 5, summaryRow + 1);
   mouse(0, 5, summaryRow + 1, true);
   await Bun.sleep(150);
-  assert(!capture().includes("echo combo-0 ·"), "clicking the gap must leave the group closed");
+  assert(!capture().includes("echo combo-0  "), "clicking the gap must leave the group closed");
 
   pane = capture();
   mouse(0, 5, summaryRow);
@@ -539,14 +539,14 @@ async function combinedFoldScenario(sessionPath: string): Promise<void> {
   const summaryColumn = lineWith(pane, "Thought 3 times").search(/\S/);
   const members = [
     ...Array.from({ length: 3 }, (_, i) => `thought combo-${i}`),
-    ...Array.from({ length: 11 }, (_, i) => `echo combo-${i} ·`),
+    ...Array.from({ length: 11 }, (_, i) => `echo combo-${i}  `),
   ];
   for (const [index, member] of members.entries()) {
     const line = pane.split("\n")[openedRow + index] ?? "";
     assert(line.includes(member) && line.search(/\S/) === summaryColumn + 2, `expected consecutive indented member ${member}\n${pane}`);
   }
   assert(!pane.includes("**thought combo-"), "revealed thoughts should render Markdown emphasis");
-  assert(lineWith(pane, "echo combo-11 ·").search(/\S/) === summaryColumn, `a surviving tool should align with the summary\n${pane}`);
+  assert(lineWith(pane, "echo combo-11  ").search(/\S/) === summaryColumn, `a surviving tool should align with the summary\n${pane}`);
 
   mouse(35, 5, rowOf(pane, "thought combo-0"));
   await Bun.sleep(200);
@@ -593,8 +593,8 @@ async function foldScenario(sessionPath: string): Promise<void> {
   await Bun.sleep(600);
   pane = capture();
 
-  const folded = Array.from({ length: 7 }, (_, index) => `echo command-${index} ·`);
-  const survivors = Array.from({ length: FOLD_DISTANCE }, (_, index) => `echo command-${index + 7} ·`);
+  const folded = Array.from({ length: 7 }, (_, index) => `echo command-${index}  `);
+  const survivors = Array.from({ length: FOLD_DISTANCE }, (_, index) => `echo command-${index + 7}  `);
   assert(pane.includes("Ran 7 shell commands"), `folded rows should become one summary\n${pane}`);
   for (const header of folded) assert(count(pane, header) === 0, `folded member leaked: ${header}\n${pane}`);
   for (const header of survivors) assert(count(pane, header) === 1, `surviving row missing: ${header}\n${pane}`);
@@ -767,7 +767,7 @@ async function main(): Promise<void> {
     assert(visible.includes("Ran 1 shell command") && !visible.includes("output 0 line A") && visible.includes(`output ${liveCalls - 1} line B`), `visible history should age while the newest preview stays open
 ${visible}`);
     // The run's only group is forming: its member row sits under the summary.
-    assert(lineWith(visible, "Ran 1 shell command").includes("▾") && visible.split("\n")[rowOf(visible, "Ran 1 shell command")]?.includes("echo command-0 ·"), `a one-member forming group should list its member\n${visible}`);
+    assert(lineWith(visible, "Ran 1 shell command").includes("▾") && visible.split("\n")[rowOf(visible, "Ran 1 shell command")]?.includes("echo command-0  "), `a one-member forming group should list its member\n${visible}`);
     tmux("send-keys", "-t", SESSION, "new run for animation", "Enter");
     // The new prompt ends the run: its blocks leave one row at a time, oldest first, without fades,
     // each folding into the run's group in turn rather than all at once.
@@ -834,7 +834,7 @@ ${visible}`);
     tmux("kill-server");
     const forming = join(dir, "forming.jsonl");
     combinedFoldFixture(forming, 1, FOLD_DISTANCE + 2);
-    await formingScenario(forming, ["thought combo-0", "echo combo-0 ·", "echo combo-1 ·"], "echo combo-2 ·");
+    await formingScenario(forming, ["thought combo-0", "echo combo-0  ", "echo combo-1  "], "echo combo-2  ");
     console.log("forming ok: the newest small group lists its thought and tool members under its summary");
 
     tmux("kill-server");
@@ -853,8 +853,8 @@ ${visible}`);
     const summary = rowOf(mixedPane, "Ran 6 shell commands");
     mouse(0, 5, summary);
     mouse(0, 5, summary, true);
-    mixedPane = await waitFor("echo command-1 ·");
-    assert(mixedPane.includes("echo command-3 ·"), "the summary should reveal both successful calls");
+    mixedPane = await waitFor("echo command-1  ");
+    assert(mixedPane.includes("echo command-3  "), "the summary should reveal both successful calls");
     assert(mixedPane.includes("exit code 2"), "opening the group should reveal the failed call");
     console.log("grouped failure count and expanded error verified");
 
