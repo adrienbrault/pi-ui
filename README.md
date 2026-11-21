@@ -28,6 +28,10 @@ Older blocks folded into one summary. Clicking the summary lists its members in 
 
 ![Opening a folded summary and one of its members](https://raw.githubusercontent.com/adrienbrault/pi-ui/main/docs/media/open.gif)
 
+A long block opened and scrolled. Hovering a block that can open shows a scroll bar in its left margin, filled where the preview hides lines. Clicking opens the whole file, and while you scroll, the bar's thumb shows which part of the block is on screen.
+
+![Opening a long read and scrolling through it](https://raw.githubusercontent.com/adrienbrault/pi-ui/main/docs/media/scroll.gif)
+
 ## Install
 
 ```bash
