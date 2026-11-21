@@ -16,13 +16,13 @@ pi-ui (`@adrienbrault/pi-ui`) is an extension for the [pi coding agent](https://
 
 These recordings are a real pi session (deepseek reviewing this repository) replayed in pi with pi-ui, at the session's recorded pace, sped up slightly. They were made with `bun run replay` (see Development).
 
-A session as it streams. Thoughts show their newest lines, tool rows show their output, and older blocks lose lines as newer ones arrive.
-
-![A pi session streaming with pi-ui](https://raw.githubusercontent.com/adrienbrault/pi-ui/main/docs/media/session.gif)
-
-A long thought streaming, then two shell commands with their output.
+A long thought as it streams. The newest lines stay at the bottom, the header counts its tokens, rate and time, and the shell commands it decides to run follow.
 
 ![A thought streaming, then shell output](https://raw.githubusercontent.com/adrienbrault/pi-ui/main/docs/media/thinking.gif)
+
+The start of a session. Tool rows show their output, and older blocks lose lines as newer ones arrive.
+
+![A pi session streaming with pi-ui](https://raw.githubusercontent.com/adrienbrault/pi-ui/main/docs/media/session.gif)
 
 Older blocks folded into one summary. Clicking the summary lists its members in columns; clicking a member opens its full command and output.
 
