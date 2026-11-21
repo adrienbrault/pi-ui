@@ -485,10 +485,10 @@ describe("tool renderers", () => {
     tool.renderCall(ctx.args, tokens, context);
     const body = tool.renderResult(result, {}, tokens, context);
     const notice = () => body.render(80).find((line) => line.includes("more lines")) ?? "";
-    expect(notice()).toContain("<thinkingOff>");
+    expect(notice()).toContain("<dim>");
     body.handleMouse?.(move());
     expect(notice()).toContain("<text>");
-    expect(notice()).not.toContain("<thinkingOff>");
+    expect(notice()).not.toContain("<dim>");
     expect(backgrounds(notice()).filter((cell, column) => column !== 1 && cell !== undefined)).toEqual([]);
     // Opened, the whole output shows: there is no notice left to light.
     body.handleMouse?.(click());
