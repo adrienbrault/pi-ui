@@ -36,7 +36,7 @@ import {
   type ToolStatus,
 } from "../render/tool-row.ts";
 import type { MemberCells } from "../render/columns.ts";
-import { groupColumns, registerMemberCells } from "./columns.ts";
+import { groupColumnLabels, groupColumns, registerMemberCells } from "./columns.ts";
 import {
   type FoldMember,
   type FoldMode,
@@ -413,7 +413,9 @@ function memberLines(member: BlockRecord, theme: Theme, width: number): string[]
       const input: ToolRowInput = {
         ...inputFor(member),
         level: COMPACT_LEVEL,
-        ...(member.group ? { columns: groupColumns(member.group) } : {}),
+        ...(member.group
+          ? { columns: groupColumns(member.group), columnLabels: groupColumnLabels(member.group, member.key) }
+          : {}),
       };
       if (member.expansion === 0) {
         const header = toolHeader(api, input, innerWidth);

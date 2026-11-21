@@ -10,6 +10,7 @@ import {
   metricColumns,
   MIN_DESCRIPTION,
   tableFits,
+  type ColumnLabels,
   type MemberCells,
   type MemberColumns,
 } from "./columns.ts";
@@ -76,6 +77,8 @@ export interface ToolRowInput extends TokenRates, SessionPlace {
   frame?: number;
   /** As an open group's member: the group's column widths, so its rows line up. */
   columns?: MemberColumns;
+  /** The column words this member row writes (`columnLabelRows`); every word when absent. */
+  columnLabels?: ColumnLabels;
   /** Files a shell command created, changed or deleted in its git work tree, shown after its output. */
   changes?: FileChanges;
 }
@@ -305,7 +308,10 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, rowWidth: number
   // when the group's rows are too narrow for the table, leave the row to its description.
   if (!input.columns) pieces.push({ kind: "tokens", text: styleMetric(theme, tokens) });
   else if (tableFits(input.columns, width))
-    pieces.push({ kind: "tokens", text: styleMetric(theme, metricColumns(toolRowCells(input), input.columns)) });
+    pieces.push({
+      kind: "tokens",
+      text: styleMetric(theme, metricColumns(toolRowCells(input), input.columns, input.columnLabels)),
+    });
   const error = errorHeadline(input, meta);
   if (error) pieces.push({ kind: "error", text: theme.fg("error", error) });
   const duration =

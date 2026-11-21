@@ -88,6 +88,11 @@ function historyViewport(children: object[], onVisit?: () => void) {
   };
 }
 
+/** Where a word ends in a row. */
+const wordEnd = (row: string, word: string) => row.indexOf(word) + word.length;
+/** Where the number starting at or after `from` ends: right-aligned numbers of one column end together. */
+const numberEnd = (row: string, from: number) => from + (/^\s*\S+/.exec(row.slice(from))?.[0].length ?? 0);
+
 describe("expansion cycle", () => {
   test("nothing to reveal means no step", () => {
     expect(actionFor(0, 4)).toBeNull();
@@ -1228,9 +1233,17 @@ describe("tool renderers", () => {
       expect(rows[1]).toMatch(/^ {2}● bash {2}· bun test/);
       expect(new Set(rows.map((row) => row.indexOf(" · ")))).toEqual(new Set([rows[0]!.indexOf(" · ")]));
       // The numbers line up too; the thought's tokens are model output, its input column stays blank.
-      expect(new Set(rows.map((row) => row.indexOf("out ")))).toEqual(new Set([rows[0]!.indexOf("out ")]));
-      expect(rows[1]!.indexOf("· in ")).toBe(rows[2]!.indexOf("· in "));
+      // Each column's word sits on the first row that fills it: `out` on the thought, `in` on the first command.
+      expect(rows[0]).toContain("out ");
       expect(rows[0]).not.toContain(" in ");
+      expect(rows[1]).not.toContain("out ");
+      expect(rows[1]).toContain("· in ");
+      expect(rows[2]).not.toMatch(/out | in /);
+      // Numbers are right-aligned: each column's numbers end in the same place.
+      const outNumber = wordEnd(rows[0]!, "out ");
+      expect(new Set(rows.map((row) => numberEnd(row, outNumber))).size).toBe(1);
+      const inNumber = wordEnd(rows[1]!, "· in ");
+      expect(numberEnd(rows[2]!, inNumber)).toBe(numberEnd(rows[1]!, inNumber));
       // Every row stops one column short of the edge, where pi draws its scroll bar.
       expect(new Set(rows.map((row) => row.length))).toEqual(new Set([79]));
     } finally {

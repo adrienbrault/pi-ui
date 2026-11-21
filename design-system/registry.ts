@@ -20,7 +20,13 @@ import {
   toolPlan,
 } from "../packages/pi-ui/extensions/fold.ts";
 import { thinkingLabel, thoughtCells } from "../packages/pi-ui/render/thinking.ts";
-import { memberColumns, type MemberCells, type MemberColumns } from "../packages/pi-ui/render/columns.ts";
+import {
+  columnLabelRows,
+  memberColumns,
+  type ColumnLabels,
+  type MemberCells,
+  type MemberColumns,
+} from "../packages/pi-ui/render/columns.ts";
 import { renderToolRow, toolHeader, toolRowCells, type ToolRowInput } from "../packages/pi-ui/render/tool-row.ts";
 import {
   callTokens,
@@ -926,10 +932,17 @@ function plannedStack(
     level: DetailLevel,
     width: number,
     columns?: MemberColumns,
+    columnLabels?: ColumnLabels,
   ) =>
-    thinkingLabel(api, { phase: "aged", level, text: block.text, width, durationMs: block.durationMs, columns }).split(
-      "\n",
-    );
+    thinkingLabel(api, {
+      phase: "aged",
+      level,
+      text: block.text,
+      width,
+      durationMs: block.durationMs,
+      columns,
+      ...(columnLabels === undefined ? {} : { columnLabels }),
+    }).split("\n");
   // An open group lines its members up in columns, from every member's cells.
   const cellsOf = (block: ScenarioBlock): MemberCells[] =>
     block.kind === "tool"
@@ -937,15 +950,16 @@ function plannedStack(
       : block.kind === "thinking"
         ? [thoughtCells({ phase: "aged", text: block.text, durationMs: block.durationMs })]
         : [];
-  const member = (block: ScenarioBlock, width: number, columns: MemberColumns): string[] =>
+  // Each column's word sits on the first member row that fills it; the rows under it carry only numbers, as live.
+  const member = (block: ScenarioBlock, width: number, columns: MemberColumns, columnLabels: ColumnLabels): string[] =>
     renderGroupMember(
       ctx.kit,
       width,
       (inner) =>
         block.kind === "tool"
-          ? [toolHeader(api, { ...block.row, level: COMPACT_LEVEL, columns }, inner).line]
+          ? [toolHeader(api, { ...block.row, level: COMPACT_LEVEL, columns, columnLabels }, inner).line]
           : block.kind === "thinking"
-            ? thought(block, COMPACT_LEVEL, inner, columns)
+            ? thought(block, COMPACT_LEVEL, inner, columns, columnLabels)
             : [],
       cutMark(api.theme),
     );
@@ -970,6 +984,7 @@ function plannedStack(
         return candidateUnit && group.members.some((item) => item.component === candidateUnit.component);
       });
       const columns = memberColumns(members.flatMap(cellsOf), ctx.kit.visibleWidth);
+      const labels = columnLabelRows(members.map((item) => cellsOf(item)[0] ?? { label: "" }));
       components.push(
         ctx.kit.component((width) => [
           ...renderGroupRow(api, {
@@ -980,7 +995,7 @@ function plannedStack(
             durationMs: group.durationMs ?? group.members.reduce((sum, item) => sum + (item.activeMs ?? 0), 0),
           }).render(width),
           // Members stack under the summary with no blank rows, as they do live.
-          ...(group.open ? members.flatMap((item) => member(item, width, columns)) : []),
+          ...(group.open ? members.flatMap((item, index) => member(item, width, columns, labels[index]!)) : []),
         ]),
       );
       continue;

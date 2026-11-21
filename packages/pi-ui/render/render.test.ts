@@ -45,7 +45,7 @@ import { glyphsFor } from "./glyphs.ts";
 import { blockDistances, type PlanBlock } from "./layout.ts";
 import { advanceTailWindow, isDropping, planTailWindow } from "./window.ts";
 import { cutMark, type RenderKit, type RenderTheme } from "./kit.ts";
-import { memberColumns, metricColumns } from "./columns.ts";
+import { columnLabelRows, memberColumns, metricColumns } from "./columns.ts";
 
 function wrapPlain(text: string, width: number): string[] {
   const rows: string[] = [];
@@ -1879,6 +1879,27 @@ describe("blank lines", () => {
       "4",
       "5",
       "6  line six",
+    ]);
+  });
+});
+
+describe("member table words", () => {
+  test("each column's word sits on the first row that fills it", () => {
+    const rows = [
+      { label: "think", outValue: "15", duration: "4.2s" },
+      { label: "read", outValue: "9", inValue: "60", duration: "380ms" },
+      { label: "grep", outValue: "12", inValue: "13", duration: "60ms" },
+    ];
+    expect(columnLabelRows(rows)).toEqual([
+      { out: true, in: false },
+      { out: false, in: true },
+      { out: false, in: false },
+    ]);
+    const columns = { label: 5, outValue: 2, outRate: 0, inValue: 2, inRate: 0, duration: 5 };
+    expect(columnLabelRows(rows).map((labels, index) => metricColumns(rows[index]!, columns, labels))).toEqual([
+      "out 15         ·  4.2s",
+      "     9 · in 60 · 380ms",
+      "    12      13    60ms",
     ]);
   });
 });

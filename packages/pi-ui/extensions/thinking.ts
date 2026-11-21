@@ -32,7 +32,7 @@ import {
 import { advanceTailWindow, isDropping, planTailWindow, type TailWindow } from "../render/window.ts";
 import { blockDistances, type PlanBlock } from "../render/layout.ts";
 import type { MemberCells } from "../render/columns.ts";
-import { groupColumns, registerMemberCells } from "./columns.ts";
+import { groupColumnLabels, groupColumns, registerMemberCells } from "./columns.ts";
 import {
   type FoldMember,
   type FoldPlan,
@@ -310,7 +310,7 @@ function labelComponent(
         const timing = thinkingTime(message, run.first, streaming);
         const level: DetailLevel = group ? COMPACT_LEVEL : streaming ? 0 : levelOf();
         const input: ThinkingLabelInput = {
-          ...(group ? { columns: groupColumns(group) } : {}),
+          ...(group ? { columns: groupColumns(group), columnLabels: groupColumnLabels(group, owner, ordinal) } : {}),
           ...timing,
           estimatedTokens: estimatedTokens(run.chars),
           reasoningTokens,

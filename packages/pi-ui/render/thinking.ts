@@ -9,7 +9,14 @@
 
 import { bodyLinesFor, COMPACT_LEVEL, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
 import { frameAt, type GlyphSet } from "./glyphs.ts";
-import { cellPadding, metricColumns, tableFits, type MemberCells, type MemberColumns } from "./columns.ts";
+import {
+  cellPadding,
+  metricColumns,
+  tableFits,
+  type ColumnLabels,
+  type MemberCells,
+  type MemberColumns,
+} from "./columns.ts";
 import { blockBodyIndent, cutMark, omissionStyle, type RenderKit, type RenderTheme } from "./kit.ts";
 import { alignEnds, previewBar, styleMetric, truncateMiddle, type BarCell } from "./tool-row.ts";
 import { estimatedTokens, formatRate, HEADER_MARGIN, outputRateFor } from "./tools.ts";
@@ -56,6 +63,8 @@ export interface ThinkingLabelInput {
   truncate?: boolean;
   /** As an open group's member: the group's column widths, so its rows line up. */
   columns?: MemberColumns;
+  /** The column words this member row writes (`columnLabelRows`); every word when absent. */
+  columnLabels?: ColumnLabels;
 }
 
 /** The label a thought leads with, as a tool row leads with its verb. */
@@ -145,7 +154,7 @@ function headerFor(api: ThinkingApi, input: ThinkingLabelInput): Header {
   const metrics = !input.columns
     ? styleMetric(theme, tokens) + timing
     : tableFits(input.columns, input.width - HEADER_MARGIN)
-      ? styleMetric(theme, metricColumns(thoughtCells(input), input.columns))
+      ? styleMetric(theme, metricColumns(thoughtCells(input), input.columns, input.columnLabels))
       : "";
   const heading = (left: string) => {
     if (!metrics) return clampLine(api, left, input.width);

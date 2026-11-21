@@ -37,6 +37,34 @@ export function cellPadding(text: string, width: number, measure: (text: string)
   return " ".repeat(Math.max(0, width - measure(text)));
 }
 
+/** Which column words a table row writes: `out` before the output column, `in` before the input column. */
+export interface ColumnLabels {
+  out: boolean;
+  in: boolean;
+}
+
+export const ALL_LABELS: ColumnLabels = { out: true, in: true };
+
+/**
+ * Each column's word sits on the first row that fills that column; the rows under it carry only
+ * numbers. A thought fills no input column, so `in` waits for the first tool row.
+ */
+export function columnLabelRows(rows: MemberCells[]): ColumnLabels[] {
+  let out = false;
+  let input = false;
+  return rows.map((cells) => {
+    const labels = { out: !out && cells.outValue !== undefined, in: !input && cells.inValue !== undefined };
+    out ||= labels.out;
+    input ||= labels.in;
+    return labels;
+  });
+}
+
+/** A column word, or spaces of its width on a row that leaves it out. */
+function word(text: string, shown: boolean): string {
+  return shown ? text : " ".repeat(text.length);
+}
+
 /** One padded cell with its words around it; blank, it keeps the width. */
 function paddedCell(text: string | undefined, width: number, before: string, after = ""): string {
   if (width === 0) return "";
@@ -45,17 +73,21 @@ function paddedCell(text: string | undefined, width: number, before: string, aft
 }
 
 /**
- * The right-hand metrics of a member row, every cell padded to its column:
+ * The right-hand metrics of a table row, every cell padded to its column:
  * `out 26 @ 73/s · in 5.5k @ 2.5k/s · 1.2s`. A blank cell keeps its width,
  * words and separators included, so the next column still lines up.
+ * A column word a row leaves out is spaces of the same width, and so is the
+ * separator before the duration on a row that writes no word: the first row
+ * filling a column names it (`columnLabelRows`), the rows under it carry only
+ * numbers.
  */
-export function metricColumns(cells: MemberCells, columns: MemberColumns): string {
+export function metricColumns(cells: MemberCells, columns: MemberColumns, labels: ColumnLabels = ALL_LABELS): string {
   return [
-    paddedCell(cells.outValue, columns.outValue, "out "),
+    paddedCell(cells.outValue, columns.outValue, word("out ", labels.out)),
     paddedCell(cells.outRate, columns.outRate, " @ ", "/s"),
-    paddedCell(cells.inValue, columns.inValue, " · in "),
+    paddedCell(cells.inValue, columns.inValue, word(" · in ", labels.in)),
     paddedCell(cells.inRate, columns.inRate, " @ ", "/s"),
-    paddedCell(cells.duration, columns.duration, " · "),
+    paddedCell(cells.duration, columns.duration, word(" · ", labels.out || labels.in)),
   ]
     .join("")
     .replace(/^ \u00b7 /, "");
