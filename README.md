@@ -75,11 +75,15 @@ bun run e2e          # drive a real pi in tmux through scripted, offline session
 bun run replay -- ~/.pi/agent/sessions/<project>/<session>.jsonl --list                         # numbered turns, messages and tool calls
 bun run replay -- <session.jsonl> --until message:7@50% --shot thinking.png                      # pause mid-stream, save a PNG
 bun run replay -- <session.jsonl> --speed 2 --from message:5@0% --until tool:12:end --gif run.gif # record a GIF between two points
+bun run states       # render the key UI states into docs/states/ (PNG and ANSI per state, a mosaic, an index)
+bun run states:check # render them again into a scratch directory and list every file that differs
 ```
 
 The design system renders real pi components and pi-ui's renderers to ANSI fixtures, which are committed. `ds:check`, part of `check`, fails when a renderer change is not reflected in the fixtures. Cards render against the pi version installed in `packages/pi-ui`; set `PI_CODING_AGENT_ROOT` to render against another pi install.
 
 `bun run replay` plays a recorded pi session again in a real pi with pi-ui, offline, in its own tmux pane: the recorded messages stream at about their recorded pace, tools return their recorded results after their recorded time, and nothing runs or touches files. It pauses at a stop point (`turn:N`, `message:N[@P%]`, `tool:N|ID[:start|:end]` or `end`, each reached once it has happened: `turn:2` when pi settles after turn 2), can hover or click a row by its text, and saves the screen as a PNG, ANSI text or a GIF (needs tmux, `agg` and `ffmpeg`). `bun run replay -- --help` lists the options; `bun run replay:smoke` checks the loop on a synthetic session.
+
+pi runs on a virtual clock during a replay, so a capture is the same bytes on every run. `bun run states` uses that to render 26 key UI states from recorded and synthetic sessions into [docs/states/](https://github.com/adrienbrault/pi-ui/blob/main/docs/states/README.md), which is committed: a UI change shows up there as an image diff. It takes about a minute and needs tmux, `agg`, `ffmpeg` and ImageMagick.
 
 [AGENTS.md](https://github.com/adrienbrault/pi-ui/blob/main/AGENTS.md) describes the workflow and the rules the code must keep. [DESIGN.md](https://github.com/adrienbrault/pi-ui/blob/main/DESIGN.md) is the component contract, and [docs/PLAN.md](https://github.com/adrienbrault/pi-ui/blob/main/docs/PLAN.md) records the decisions and the roadmap.
 
@@ -90,7 +94,8 @@ packages/pi-ui/render/      pure renderers: tool rows, thinking blocks, group su
 packages/pi-ui/extensions/  the pi extension: folding, fades, hover, scroll bar, throughput, file diffs
 design-system/              card registry, fixture builder, terminal card viewer, golden fixtures
 dev/                        tmux end-to-end harness and its offline provider
-dev/replay/                 replay of recorded sessions in pi, with PNG and GIF capture
+dev/replay/                 replay of recorded sessions in pi, with PNG and GIF capture, and the key states
+docs/states/                the key states, rendered: a PNG and ANSI text each, a mosaic and an index
 ```
 
 ## License
