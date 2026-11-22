@@ -1708,7 +1708,7 @@ describe("tool renderers", () => {
 });
 
 /** A stand-in for pi's assistant message: one thinking run behind a MouseRegion whose click flips its visibility. */
-function thoughtSession(text: string) {
+function thoughtSession(text: string, streaming = false) {
   const handlers = new Map<string, Array<(...args: any[]) => void>>();
   piUi({
     registerToolRenderer: () => {},
@@ -1719,7 +1719,7 @@ function thoughtSession(text: string) {
     role: "assistant",
     content: [{ type: "thinking", thinking: text }],
     timestamp: 1000,
-    durationMs: 4000,
+    ...(streaming ? {} : { durationMs: 4000 }),
   };
   const overrides = new Map<number, boolean>();
   interface Region {
@@ -1741,7 +1741,7 @@ function thoughtSession(text: string) {
     thinkingVisibilityOverrides: overrides,
     hideThinkingBlock: true,
     hiddenThinkingLabel: "Thinking...",
-    isStreaming: false,
+    isStreaming: streaming,
     lastMessage: message,
     updateContent(next: typeof message) {
       this.lastMessage = next;
@@ -1800,6 +1800,24 @@ describe("thought interaction", () => {
     expect(thought.rows()).toHaveLength(8);
     thought.mouse("click", 0);
     expect(thought.rows()).toHaveLength(41);
+  });
+
+  test("a streaming thought opens on a click, like a running tool, and closes again", async () => {
+    const thought = thoughtSession(long, true);
+    await Bun.sleep(10);
+    const preview = thought.rows();
+    expect(preview.length).toBeLessThan(41);
+    thought.mouse("move", 3);
+    expect(
+      thought
+        .rows()
+        .map(barCell)
+        .some((cell) => cell === "fill"),
+    ).toBe(true);
+    thought.mouse("click", 3);
+    expect(thought.rows()).toHaveLength(41);
+    thought.mouse("click", 3);
+    expect(thought.rows()).toHaveLength(preview.length);
   });
 
   test("a thought shown whole stays inert: no bar, and a click changes nothing", async () => {

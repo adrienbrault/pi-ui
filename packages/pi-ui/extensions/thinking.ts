@@ -342,7 +342,8 @@ function labelComponent(
             : undefined,
         );
         const layout = composeThinkingLabel(api, input, frame);
-        hover.canToggle = layout.canToggle && (!streaming || expanded);
+        // A streaming thought opens like a running tool: its whole text so far, growing as it streams.
+        hover.canToggle = layout.canToggle;
         hover.expanded = expanded;
         const lines = layout.label.split("\n");
         // Hover marks a thought that can open with its preview bar; a one-row thought gets one filled cell.
