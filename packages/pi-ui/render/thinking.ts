@@ -124,7 +124,9 @@ export function thoughtCells(input: ThoughtMetricsInput): MemberCells {
 function headerFor(api: ThinkingApi, input: ThinkingLabelInput): Header {
   const { kit, theme, glyphs } = api;
   const indent = blockBodyIndent(input.width);
-  const bodyWidth = Math.max(1, input.width - indent.length);
+  // Every row stops one column short of the edge, clear of pi's scroll bar.
+  const edge = Math.max(1, input.width - HEADER_MARGIN);
+  const bodyWidth = Math.max(1, edge - indent.length);
   // Streaming truncation is a preview-only rule; opening the block wraps.
   const truncate = !input.expanded && (input.truncate ?? input.phase === "thinking");
   // Plain thoughts keep their inexpensive logical-line tail. Parse Markdown before selecting
@@ -153,7 +155,7 @@ function headerFor(api: ThinkingApi, input: ThinkingLabelInput): Header {
   // Too narrow for the group's table, every member row leaves it out.
   const metrics = !input.columns
     ? styleMetric(theme, tokens, glyphs) + timing
-    : tableFits(input.columns, input.width - HEADER_MARGIN, glyphs)
+    : tableFits(input.columns, edge, glyphs)
       ? styleMetric(
           theme,
           metricColumns(thoughtCells(input), input.columns, input.columnLabels, glyphs).trimStart(),
@@ -161,8 +163,7 @@ function headerFor(api: ThinkingApi, input: ThinkingLabelInput): Header {
         )
       : "";
   const heading = (left: string) => {
-    if (!metrics) return clampLine(api, left, input.width);
-    const edge = input.width - HEADER_MARGIN;
+    if (!metrics) return clampLine(api, left, edge);
     return clampLine(api, alignEnds(kit, left, metrics, ` ${dot} `, edge), edge);
   };
   return { indent, bodyWidth, source, formatted, last, flat, marker, dot, metrics, heading };
@@ -279,7 +280,7 @@ function oneRow(
   const { kit, theme } = api;
   const prefix = `${frame.marker} ${frame.dot} `;
   const room =
-    input.width - (frame.metrics ? kit.visibleWidth(frame.metrics) + 3 + HEADER_MARGIN : 0) - kit.visibleWidth(prefix);
+    input.width - HEADER_MARGIN - (frame.metrics ? kit.visibleWidth(frame.metrics) + 3 : 0) - kit.visibleWidth(prefix);
   // Hovering a thought that can open lights its excerpt when it is cut, foreground only.
   const tone = input.lit && kit.visibleWidth(frame.flat) > room ? "text" : "thinkingText";
   const excerpt = frame.flat
@@ -321,7 +322,7 @@ export function composeThinkingLabel(
           frame.rows[frame.rows.length - 1]!,
         ];
     return {
-      label: [frame.head, ...rows].map((row) => clampLine(api, row, input.width)).join("\n"),
+      label: [frame.head, ...rows].map((row) => clampLine(api, row, input.width - HEADER_MARGIN)).join("\n"),
       canToggle: thinkingLayout(api, { ...input, expanded: false }).canToggle,
       ...(cut ? { noticeRow: MAX_FULL_LINES - 1 } : {}),
     };
@@ -337,7 +338,7 @@ export function composeThinkingLabel(
   const noticed = collapsedBudget(input.level) > 1 && frame.canToggle && omitted > 0;
   if (noticed) rows.unshift(notice(omitted, "above"));
   return {
-    label: [frame.head, ...rows].map((row) => clampLine(api, row, input.width)).join("\n"),
+    label: [frame.head, ...rows].map((row) => clampLine(api, row, input.width - HEADER_MARGIN)).join("\n"),
     canToggle: frame.canToggle,
     bar: previewBar(frame.sourceCount, visibleSources, rows.length),
     ...(noticed ? { noticeRow: 1 } : {}),

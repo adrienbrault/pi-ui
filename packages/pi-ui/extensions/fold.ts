@@ -354,7 +354,9 @@ export function planFolds(
       assign(block, "normal");
       continue;
     }
-    const forming = block === newest && block.at(-1)!.currentRun !== false && memberRows(block) <= FORMING_ROWS;
+    // A group of one row lists nothing under its summary: the list would only repeat it. It forms from two.
+    const rows = memberRows(block);
+    const forming = block === newest && block.at(-1)!.currentRun !== false && rows > 1 && rows <= FORMING_ROWS;
     // Members that a forming group listed, whichever group they belonged to: merging
     // a closed group with a forming one must still let the forming rows leave.
     const shown = new Set<object>();

@@ -41,8 +41,9 @@ export function renderGroupRow(api: RenderApi, input: GroupRowInput): ComponentL
     const dot = theme.fg("dim", ` ${glyphs.dot} `);
     const comma = theme.fg("dim", ", ");
     // One sentence: `Thought for 3m 40s, listed 3 directories, ran 2 shell commands for 9.1s (1 failed)`.
-    const title = (withFailures: boolean) =>
+    const title = (withFailures: boolean, count = input.segments.length) =>
       `${marker} ${input.segments
+        .slice(0, count)
         .map((segment, index) => {
           const phrase = groupVerb(segment.cls, segment.count, segment.durationMs);
           const text = index === 0 ? phrase.charAt(0).toUpperCase() + phrase.slice(1) : phrase;
@@ -66,12 +67,21 @@ export function renderGroupRow(api: RenderApi, input: GroupRowInput): ComponentL
       if (suffix && kit.visibleWidth(full + dot + suffix) <= width) return [alignRight(full, suffix)];
     }
 
+    // A cut keeps whole segments, so a count or a duration is never cut in half (`900m`).
+    // Only a first segment too long on its own is cut inside.
+    const cutTitle = (withFailures: boolean, room: number) => {
+      for (let count = input.segments.length - 1; count >= 1; count--) {
+        const text = title(withFailures, count) + mark;
+        if (kit.visibleWidth(text) <= room) return text;
+      }
+      return kit.truncateToWidth(title(withFailures), room, mark);
+    };
     const failed = input.segments.reduce((sum, segment) => sum + (segment.failed ?? 0), 0);
-    if (!failed) return [kit.truncateToWidth(full, width, mark)];
+    if (!failed) return [cutTitle(true, width)];
     const total = theme.fg("error", `${failed} failed`);
     const room = width - kit.visibleWidth(dot + total);
     if (room < 4) return [kit.truncateToWidth(`${marker} ${total}`, width, mark)];
-    return [alignRight(kit.truncateToWidth(title(false), room, mark), total)];
+    return [alignRight(cutTitle(false, room), total)];
   });
 }
 

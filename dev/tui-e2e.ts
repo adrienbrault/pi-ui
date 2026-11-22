@@ -767,8 +767,8 @@ async function main(): Promise<void> {
     const visible = capture();
     assert(visible.includes("Ran 1 shell command") && !visible.includes("output 0 line A") && visible.includes(`output ${liveCalls - 1} line B`), `visible history should age while the newest preview stays open
 ${visible}`);
-    // The run's only group is forming: its member row sits under the summary.
-    assert(lineWith(visible, "Ran 1 shell command").includes("▾") && visible.split("\n")[rowOf(visible, "Ran 1 shell command")]?.includes("echo command-0  "), `a one-member forming group should list its member\n${visible}`);
+    // The run's only group has one member: it shows its summary alone, closed, with no member row under it.
+    assert(lineWith(visible, "Ran 1 shell command").includes("▸") && !visible.split("\n")[rowOf(visible, "Ran 1 shell command") + 1]?.includes("echo command-0"), `a one-member group should show only its summary\n${visible}`);
     tmux("send-keys", "-t", SESSION, "new run for animation", "Enter");
     // The new prompt ends the run: its blocks leave one row at a time, oldest first, without fades,
     // each folding into the run's group in turn rather than all at once.

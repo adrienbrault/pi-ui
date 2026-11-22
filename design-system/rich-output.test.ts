@@ -47,7 +47,8 @@ test("reads, shell file previews and Markdown thoughts use pi's active syntax pa
         ] as const) {
           expect(row).toContain(keyword);
           expect(row).toContain(theme.style("probe", { bg }).split("probe")[0]!);
-          expect(kit.visibleWidth(row)).toBe(width);
+          // Backgrounds run to the column before pi's scroll bar.
+          expect(kit.visibleWidth(row)).toBe(width - 1);
         }
       }
       const thought = {
@@ -107,7 +108,7 @@ test("expanded rows wrap highlighted lines and edit backgrounds within the width
       expanded: true,
       full: true,
     }).render(width);
-    expect(edit.slice(2).every((row) => kit.visibleWidth(row) === width)).toBe(true);
+    expect(edit.slice(2).every((row) => kit.visibleWidth(row) === width - 1)).toBe(true);
   }
 });
 
@@ -146,4 +147,32 @@ test("grep output is highlighted per file group with pi's grammar, one row per l
   expect(rows[2]).toContain(theme.fg("syntaxKeyword", "const"));
   expect(rows[5]).toContain(theme.fg("syntaxComment", "   continued */"));
   expect(rows[7]).toContain(theme.fg("syntaxKeyword", "def"));
+});
+
+test("a cut diff line keeps its background across the cut mark to the row's end", async () => {
+  const pi = await resolvePi();
+  const kit = createKit(pi);
+  const { theme } = installTheme(pi, loadThemeJson(pi, "dark"));
+  const api = { kit, theme, glyphs: glyphsFor("unicode"), owner: {} };
+  const long = "const value = computeSomethingLong(alpha, beta, gamma, delta, epsilon);";
+  const rows = renderToolRow(api, {
+    name: "edit",
+    args: { path: "example.ts" },
+    output: `@@ -1 +1 @@\n-${long}\n+${long.replace("value", "total")}`,
+    level: 0,
+    status: "success",
+  }).render(40);
+  for (const [row, bg] of [
+    [rows.find((line) => cleanOutput(line).includes("-const"))!, "toolErrorBg"],
+    [rows.find((line) => cleanOutput(line).includes("+const"))!, "toolSuccessBg"],
+  ] as const) {
+    const open = theme.style("probe", { bg }).split("probe")[0]!;
+    const mark = row.lastIndexOf("…");
+    expect(mark).toBeGreaterThan(0);
+    // The cut resets the style; the stripe opens again before the mark.
+    const before = row.slice(0, mark);
+    const reset = Math.max(before.lastIndexOf("\x1b[0m"), before.lastIndexOf("\x1b[49m"));
+    expect(reset).toBeGreaterThan(0);
+    expect(before.lastIndexOf(open)).toBeGreaterThan(reset);
+  }
 });

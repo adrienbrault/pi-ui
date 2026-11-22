@@ -708,9 +708,11 @@ describe("tool renderers", () => {
     const tool = resolver()("edit", () => undefined) as Renderers;
     const context = { ...ctx, args: { path: "test" }, state: {}, isPartial: true };
     const header = tool.renderCall(context.args, theme, context);
-    expect(header.render(120)[0]).toContain("↑0 · ↓5");
+    // No result yet: only the call's output count.
+    expect(header.render(120)[0]).toMatch(/ ↓5 · /);
+    expect(header.render(120)[0]).not.toContain("↑");
     tool.renderCall({ path: "test-long" }, theme, context);
-    expect(header.render(120)[0]).toContain("↑0 · ↓6");
+    expect(header.render(120)[0]).toMatch(/ ↓6 · /);
     const content = [
       { type: "text", text: "abcde" },
       { type: "image", mimeType: "image/png", data: "abcd" },
@@ -761,7 +763,7 @@ describe("tool renderers", () => {
         expect(second.join("")).toContain("38;2;140;140;140");
         if (i === 5) {
           jest.advanceTimersByTime(360);
-          // It starts a new, forming group: the body folds and the heading stays as the member row.
+          // It starts a new group: the body folds to the heading, and a group of one shows only its summary.
           for (let height = first.length - 1; height > 1; height--) {
             expect(oldest.render(80).map(stripTerminalSequences)).toEqual(
               first.slice(0, height).map(stripTerminalSequences),
@@ -769,8 +771,8 @@ describe("tool renderers", () => {
             jest.advanceTimersByTime(480);
           }
           const grouped = oldest.render(80).map(stripTerminalSequences);
-          expect(grouped[0]).toStartWith("▾ Ran 1 shell command");
-          expect(grouped[1]).toStartWith("  ● bash · bun test");
+          expect(grouped[0]).toStartWith("▸ Ran 1 shell command");
+          expect(grouped).toHaveLength(1);
         }
         jest.advanceTimersByTime(10000);
         expect(oldest.render(80).length).toBeLessThan(first.length);
@@ -1160,7 +1162,7 @@ describe("tool renderers", () => {
       expect(toolPlan("pair-0")?.mode).toBe("normal");
       frames(10 * SLOW_ROW_MS);
       expect(toolPlan("pair-0")?.mode).toBe("anchor");
-      expect(oldest.render(80).map(stripTerminalSequences)[1]).toStartWith("  ● bash · bun test");
+      expect(oldest.render(80).map(stripTerminalSequences)).toEqual([expect.stringMatching(/^▸ Ran 1 shell command/)]);
     } finally {
       session.close();
     }

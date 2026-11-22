@@ -234,7 +234,9 @@ function errorLines(input: ToolRowInput): string[] {
 function errorHeadline(input: ToolRowInput, meta: ReturnType<typeof toolMeta>): string | undefined {
   if (input.status !== "error" || !input.error) return undefined;
   const line = meta.cls === "shell" ? errorLines(input).at(-1) : errorLines(input)[0];
-  return line === undefined ? undefined : oneLine(line);
+  if (line === undefined) return undefined;
+  // pi's bash ends a failure with `Command exited with code 1`: the ✗ already says it failed.
+  return oneLine(line).replace(/^Command exited with code (\d+)$/, "exit code $1");
 }
 
 function errorDetail(input: ToolRowInput, meta: ReturnType<typeof toolMeta>): string {
@@ -244,7 +246,6 @@ function errorDetail(input: ToolRowInput, meta: ReturnType<typeof toolMeta>): st
   return lines.slice(0, -1).join("\n");
 }
 
-/** Numbers in the text colour, `out` and `in` as keyword and type, units and separators muted. */
 /**
  * A header row: `left` at the start, `right` against the edge. The separator
  * stands between them only when they meet; with room between, spaces part them
@@ -254,6 +255,20 @@ export function alignEnds(kit: RenderKit, left: string, right: string, sep: stri
   const gap = width - kit.visibleWidth(left) - kit.visibleWidth(right);
   if (gap <= kit.visibleWidth(sep)) return left + sep + right;
   return left + " ".repeat(gap) + right;
+}
+
+/** Resets that end a background: SGR 0, the bare reset, and 49. */
+// oxlint-disable-next-line no-control-regex -- escape sequences are the input domain
+const BACKGROUND_RESET = /\x1b\[(?:0|49)?m/g;
+
+/**
+ * A row on a background that holds through the styles inside it: a cut mark or
+ * a highlighted token may reset the background, so it is opened again after
+ * each reset, and the stripe runs unbroken to the row's end.
+ */
+function withBackground(theme: RenderTheme, text: string, token: string): string {
+  const open = theme.style("\u0000", { bg: token }).split("\u0000")[0] ?? "";
+  return theme.style(open ? text.replace(BACKGROUND_RESET, (reset) => reset + open) : text, { bg: token });
 }
 
 /** Text matched literally inside a regular expression. */
@@ -287,7 +302,8 @@ export function toolRowCells(input: ToolRowInput): MemberCells {
     label: toolLabel(input.name),
     outValue: formatRate(outputTokens),
     ...(outputRateFor(outputTokens, input.outputRate) ? { outRate: formatRate(input.outputRate!) } : {}),
-    inValue: formatRate(inputTokens),
+    // A call with no result yet leaves its input cell blank, as a thought does.
+    ...(inputTokens || input.inputRate ? { inValue: formatRate(inputTokens) } : {}),
     ...(input.inputRate ? { inRate: `${input.inputRateEstimated ? "~" : ""}${formatRate(input.inputRate)}` } : {}),
     ...(input.durationMs !== undefined ? { duration: formatDuration(input.durationMs) } : {}),
   };
@@ -1092,7 +1108,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
       if (bg && (tone === "success" || tone === "error")) {
         const padding = " ".repeat(Math.max(0, room - kit.visibleWidth(part)));
         return (
-          indent + theme.style(lead + part + padding, { bg: tone === "success" ? "toolSuccessBg" : "toolErrorBg" })
+          indent + withBackground(theme, lead + part + padding, tone === "success" ? "toolSuccessBg" : "toolErrorBg")
         );
       }
       return indent + lead + (tone ? theme.fg(tone, part) : theme.fg("toolOutput", part));
@@ -1181,7 +1197,14 @@ export function toolRowLayout(api: RenderApi, input: ToolRowInput, width: number
     rows.push(...command);
     budget -= command.length;
   }
-  const { rows: bodyRows, clipped, bar, sources, omission } = body(api, input, width, budget);
+  // The body stops where the header does, clear of pi's scroll bar.
+  const {
+    rows: bodyRows,
+    clipped,
+    bar,
+    sources,
+    omission,
+  } = body(api, input, Math.max(1, width - HEADER_MARGIN), budget);
   return {
     rows: rows.concat(bodyRows),
     clipped,

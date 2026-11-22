@@ -72,6 +72,6 @@ test("an opened group too narrow for its table leaves every member to its descri
   const summary = rows.findIndex((row) => row.includes("Thought"));
   const members = rows.slice(summary + 1, summary + 7);
   expect(members.some((row) => /[↑↓]/.test(row))).toBe(false);
-  expect(members[0]).toMatch(/^ {2}✻ think · Start from the p/);
+  expect(members[0]).toMatch(/^ {2}✻ think · Start from the /);
   expect(members[1]).toBe("  ● read  · extensions/fold.ts");
 });

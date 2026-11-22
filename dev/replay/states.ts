@@ -244,8 +244,9 @@ export const STATES: State[] = [
     title: "Long command opened",
     description: "A command clipped in its header shows in full, wrapped, once its block is open.",
     run: command,
-    until: "tool:1:end",
-    actions: [click("find . -maxdepth 2")],
+    until: "tool:4:end",
+    // The open block fills the screen: scroll back up to its header.
+    actions: [click("wc -l $(find"), { kind: "scroll", lines: 12 }],
   },
   {
     id: "bash-file-changes",

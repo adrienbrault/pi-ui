@@ -287,10 +287,10 @@ describe("tool row heights", () => {
   test("a failed shell puts the exit status in the header and stderr in the body", () => {
     const error = "1: ls: node_modules/@earendil-works/: No such file or directory\nCommand exited with code 1";
     const rows = renderToolRow(api, { name: "bash", status: "error", level: 0, error }).render(120);
-    expect(rows[0]).toContain("Command exited with code 1");
+    expect(rows[0]).toContain("exit code 1");
     expect(rows[0]).not.toContain("No such file or directory");
     expect(rows.slice(1).join("\n")).toContain("No such file or directory");
-    expect(rows.slice(1).join("\n")).not.toContain("Command exited with code 1");
+    expect(rows.slice(1).join("\n")).not.toContain("exited with code");
   });
 
   test("every row fits the requested width", () => {
@@ -353,15 +353,16 @@ describe("line numbers", () => {
 
   test("a preview cuts its code at the width left beside the gutter", () => {
     const rows = readRow("x".repeat(60)).render(40).slice(1);
-    expect(rows[0]).toBe(`    1  ${"x".repeat(30)} … `);
-    expect(rows[0]).toHaveLength(40);
+    // The last column stays free for pi's scroll bar.
+    expect(rows[0]).toBe(`    1  ${"x".repeat(29)} … `);
+    expect(rows[0]).toHaveLength(39);
   });
 
   test("a narrow row drops the gutter for the whole block", () => {
-    // Inner width 23 leaves 20 columns of code beside a three-column gutter: kept.
-    expect(readRow("alpha\nbeta").render(27).slice(1)).toEqual(["    1  alpha", "    2  beta"]);
+    // Inner width 23 (28 less the scroll bar's column and the indent) leaves 20 columns of code beside a three-column gutter: kept.
+    expect(readRow("alpha\nbeta").render(28).slice(1)).toEqual(["    1  alpha", "    2  beta"]);
     // Inner width 22 would leave 19: the block shows code only.
-    expect(readRow("alpha\nbeta").render(26).slice(1)).toEqual(["    alpha", "    beta"]);
+    expect(readRow("alpha\nbeta").render(27).slice(1)).toEqual(["    alpha", "    beta"]);
   });
 
   test("the gutter is dim, the code keeps its own colour", () => {
@@ -1656,6 +1657,20 @@ describe("group summary width", () => {
       ],
     }).render(17)[0];
     expect(line).toBe("▸ Read 4 file … ");
+  });
+
+  test("a cut summary keeps whole segments, never half a duration", () => {
+    const summary = {
+      segments: [
+        { cls: "read" as const, count: 1 },
+        { cls: "search" as const, count: 1 },
+        { cls: "shell" as const, count: 1, durationMs: 900 },
+      ],
+    };
+    const full = renderGroupRow(api, summary).render(200)[0]!;
+    expect(full).toBe("▸ Read 1 file, searched for 1 pattern, ran 1 shell command for 900ms");
+    // Too narrow for the whole sentence: the last segment leaves entirely.
+    expect(renderGroupRow(api, summary).render(full.length - 1)[0]).toBe("▸ Read 1 file, searched for 1 pattern … ");
   });
 });
 

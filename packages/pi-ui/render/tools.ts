@@ -159,9 +159,10 @@ export interface TokenRates {
 }
 
 /**
- * Columns a header row leaves empty at its right edge. pi draws its scroll bar
- * over the last column while the transcript is scrolled, and right-aligned
- * metrics end there: a duration would lose its unit (`28ms` reads `28m`).
+ * Columns every row leaves empty at its right edge. pi draws its scroll bar
+ * over the last column while the transcript is scrolled: a right-aligned
+ * duration would lose its unit (`28ms` reads `28m`), and a wrapped body row
+ * its last letter.
  */
 export const HEADER_MARGIN = 1;
 
@@ -190,7 +191,8 @@ function rateSuffix(rate?: number, estimated = false): string {
 /**
  * Every header's token numbers, one format: `↑2.6k · ↓9 @ 48/s`, input (sent) then output
  * (returned) as pi's footer marks them, counts abbreviated past a thousand. Input comes first:
- * output always has a count, so it keeps the right-hand edge.
+ * output always has a count, so it keeps the right-hand edge. No input yet (a running call,
+ * a group of thoughts) leaves `↑` out rather than writing `↑0`.
  */
 export function toolTokenLabel(
   outputTokens: number,
@@ -198,7 +200,9 @@ export function toolTokenLabel(
   rates?: TokenRates,
   marks: TokenMarks = UNICODE_GLYPHS,
 ): string {
-  return `${marks.input}${formatRate(inputTokens)}${rateSuffix(rates?.inputRate, rates?.inputRateEstimated)} ${marks.dot} ${marks.output}${formatRate(outputTokens)}${rateSuffix(outputRateFor(outputTokens, rates?.outputRate))}`;
+  const output = `${marks.output}${formatRate(outputTokens)}${rateSuffix(outputRateFor(outputTokens, rates?.outputRate))}`;
+  if (!inputTokens && !rates?.inputRate) return output;
+  return `${marks.input}${formatRate(inputTokens)}${rateSuffix(rates?.inputRate, rates?.inputRateEstimated)} ${marks.dot} ${output}`;
 }
 
 /** Thinking folds with tool rows; its verb belongs to the same vocabulary. */
