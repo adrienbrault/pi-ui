@@ -8,8 +8,8 @@
 
 [38;2;167;152;215m✻[39m [1m[38;2;222;224;225mthink[0m                                                                                             [38;2;105;173;208m↓[38;2;222;224;225m79[38;2;157;165;169m @ [38;2;222;224;225m149[38;2;157;165;169m/s[39m [38;2;126;136;142m·[39m [38;2;222;224;225m542[38;2;157;165;169mms[39m 
 [3m[38;2;150;160;164m    Let me check the existing /tmp .md/.js files to see what "update" might mean. They may be prior demos from other[0m    
-[3m[38;2;150;160;164m    tasks. The user says "write/update .md and .js files within /tmp for demo". Probably they want new files tailored to
-    this repo. Let me check existing ds-inline.js etc., maybe from a previous session in this repo.[0m                     
+[3m[38;2;150;160;164m    tasks. The user says "write/update .md and .js files within /tmp for demo". Probably they want new files tailored[0m   
+[3m[38;2;150;160;164m    to this repo. Let me check existing ds-inline.js etc., maybe from a previous session in this repo.[0m                  
 
 [38;2;104;183;141m●[39m [1m[38;2;222;224;225mbash[0m [38;2;126;136;142m·[39m [38;2;167;152;215mhead -30 /tmp/ds-inline.js /tmp/ds-inline2.j[1m[38;2;222;224;225m … [0m[38;2;167;152;215midated-report.md /tmp/body963.md 2>/dev/null[39m [38;2;126;136;142m·[39m [38;2;167;152;215m↑[38;2;222;224;225m17[38;2;157;165;169m · [38;2;105;173;208m↓[38;2;222;224;225m44[39m [38;2;126;136;142m·[39m [38;2;222;224;225m32[38;2;157;165;169mms[39m 
     [38;2;157;165;169m(output from other projects, removed from the public demo session)[39m                                                  
@@ -26,10 +26,10 @@
 
 [38;2;167;152;215m⠹[39m [1m[38;2;222;224;225mthink[0m                                                                                             [38;2;105;173;208m↓[38;2;222;224;225m569[38;2;157;165;169m @ [38;2;222;224;225m122[38;2;157;165;169m/s[39m [38;2;126;136;142m·[39m [38;2;222;224;225m4.9[38;2;157;165;169ms[39m 
     [3m[38;2;126;136;142m↑ 15 more lines[0m           
-[3m[38;2;150;160;164m    group is not flushed, and when a normal block flushes, the group include both before/after failure. Visual order is[0m 
-[3m[38;2;150;160;164m    summary, failure, then... Wait, items order: when the group item is pushed at first folded member, subsequent folded
-    members get added but no item pushed. Then a failure pushes block item, then later folded members add to groupItem[0m  
-[3m[38;2;150;160;164m    (which remains since not flushed), so the summary item appears earlier than failure. When flushed,[0m                  
+[3m[38;2;150;160;164m    failure the group is not flushed, and when a normal block flushes, the group include both before/after failure.[0m     
+[3m[38;2;150;160;164m    Visual order is summary, failure, then... Wait, items order: when the group item is pushed at first folded member,[0m  
+[3m[38;2;150;160;164m    subsequent folded members get added but no item pushed. Then a failure pushes block item, then later folded members[0m 
+[3m[38;2;150;160;164m    add to groupItem (which remains since not flushed), so the summary item appears earlier than failure. When flushed,[0m 
 [3m[38;2;150;160;164m    groupItem.segments updated. So it is "one summary then failure row" while the group includes blocks after failure.[0m  
 [3m[38;2;150;160;164m    It's ambiguous but documented? DESIGN says "Errors and the live block keep[0m                                          
 

@@ -1,7 +1,7 @@
  [48;2;33;59;73m [49m  [38;2;126;136;142m161[39m  [38;2;157;165;169m| P0 | Repo skeleton, render-truth harness, first gallery (thinking + read/bash/edit rows + decay demo) | `bun[39m 
  [48;2;33;59;73m [49m       [38;2;157;165;169mrun ds` emits a working `index.html`; base-pi rows match the terminal |[39m                                        
- [48;2;33;59;73m [49m  [38;2;126;136;142m162[39m  [38;2;157;165;169m| P1 | Full component coverage + 4 variants + scenarios + fixtures + `spec.json` | Every block we intend to own
-[39m [48;2;33;59;73m [49m       [38;2;157;165;169mis in the gallery; agents have DESIGN.md + spec |[39m  
+ [48;2;33;59;73m [49m  [38;2;126;136;142m162[39m  [38;2;157;165;169m| P1 | Full component coverage + 4 variants + scenarios + fixtures + `spec.json` | Every block we intend to[39m    
+ [48;2;33;59;73m [49m       [38;2;157;165;169mown is in the gallery; agents have DESIGN.md + spec |[39m                                                          
  [48;2;33;59;73m [49m  [38;2;126;136;142m163[39m  [38;2;157;165;169m| P2 | Decay engine + tool renderers + thinking tails (extension, decorator for per-message only) | A real[39m     
  [48;2;33;59;73m [49m       [38;2;157;165;169msession folds rows by age; widths/themes/restore behave |[39m                                                      
  [48;2;33;59;73m [49m  [38;2;126;136;142m164[39m  [38;2;157;165;169m| P3 | Grouping + click-to-expand + pins | `Read 4 files · Ran 2 commands` collapses and expands in a live[39m     
@@ -20,8 +20,8 @@
  [48;2;33;59;73m [49m       [38;2;157;165;169m`MouseRegion`; fullscreen test matrix |[39m            
  [48;2;33;59;73m [49m  [38;2;126;136;142m174[39m  [38;2;157;165;169m| Two copies of pi-tui (identity mismatch) | resolve everything from one install; never `instanceof`, probe[39m    
  [48;2;33;59;73m [49m       [38;2;157;165;169mshape |[39m              
- [48;2;33;59;73m [49m  [38;2;126;136;142m175[39m  [38;2;157;165;169m| Flicker/hysteresis bugs in decay | recompute only on structural events; snapshot tests across event sequences
-[39m [48;2;33;59;73m [49m       [38;2;157;165;169m|[39m                    
+ [48;2;33;59;73m [49m  [38;2;126;136;142m175[39m  [38;2;157;165;169m| Flicker/hysteresis bugs in decay | recompute only on structural events; snapshot tests across event[39m          
+ [48;2;33;59;73m [49m       [38;2;157;165;169msequences |[39m          
  [48;2;33;59;73m [49m  [38;2;126;136;142m176[39m  [38;2;157;165;169m| Render cost on long transcripts | cache by (component, width, level); only invalidate affected rows |[39m        
  [48;2;33;59;73m [49m  [38;2;126;136;142m177[39m                       
  [48;2;33;59;73m [49m  [38;2;126;136;142m178[39m  [38;2;157;165;169m## Open questions[39m    
@@ -31,7 +31,7 @@
  [48;2;167;152;215m [49m  [38;2;126;136;142m182[39m  [38;2;157;165;169m- Whether to expose the decay curve as a setting (`/pi-ui decay 7,5,3,1`) or keep it fixed for v1.[39m             
  [48;2;167;152;215m [49m  [38;2;126;136;142m183[39m                       
 
-[38;2;167;152;215m⠇[39m [1m[38;2;222;224;225mread[0m [38;2;126;136;142m·[39m [38;2;167;152;215mDESIGN.md[39m                                                                                              [38;2;167;152;215m↑[38;2;222;224;225m0[38;2;157;165;169m · [38;2;105;173;208m↓[38;2;222;224;225m8[39m 
+[38;2;167;152;215m⠇[39m [1m[38;2;222;224;225mread[0m [38;2;126;136;142m·[39m [38;2;167;152;215mDESIGN.md[39m                                                                                                   [38;2;105;173;208m↓[38;2;222;224;225m8[39m 
 
 [38;2;97;133;204m── ⠸[39m [38;2;97;133;204mWorking ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 [7m[39m [0m                             
