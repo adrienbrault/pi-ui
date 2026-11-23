@@ -1918,3 +1918,100 @@ describe("member table words", () => {
     ]);
   });
 });
+
+/** A call still being written: its arguments so far, no result. */
+const trimmed = (rows: string[]) => rows.slice(1).map((line) => line.trimEnd());
+const pendingRow = (name: string, args: Record<string, unknown>, extra: Partial<ToolRowInput> = {}) =>
+  renderToolRow(api, { name, status: "pending", level: 0, args, ...extra });
+
+describe("a call being written", () => {
+  test("an edit streams its replacements: removed lines, then added ones, a divider between edits", () => {
+    const rows = pendingRow("edit", {
+      path: "src/cache.ts",
+      edits: [
+        { oldText: "const a = 1;\nconst b = 2;", newText: "const a = 10;" },
+        { oldText: "return a;", newText: "return a +" },
+      ],
+    }).render(80);
+    // A replacement's rows are stripes that run to the row's end.
+    expect(rows.slice(1).map((line) => line.trimEnd())).toEqual([
+      "    -const a = 1;",
+      "    -const b = 2;",
+      "    +const a = 10;",
+      "    ⋮",
+      "    -return a;",
+      "    +return a +",
+    ]);
+  });
+
+  test("an edit whose new text has not started shows its old text, and a bare path shows nothing", () => {
+    expect(trimmed(pendingRow("edit", { path: "a.ts", edits: [{ oldText: "old line" }] }).render(80))).toEqual([
+      "    -old line",
+    ]);
+    expect(pendingRow("edit", { path: "a.ts" }).render(80)).toHaveLength(1);
+    expect(pendingRow("edit", { path: "a.ts", edits: [{}] }).render(80)).toHaveLength(1);
+  });
+
+  test("pi's other edit shapes stream too: one object, a JSON string, the legacy fields", () => {
+    const expected = ["    -x", "    +y"];
+    for (const args of [
+      { path: "a.ts", edits: { oldText: "x", newText: "y" } },
+      { path: "a.ts", edits: JSON.stringify([{ oldText: "x", newText: "y" }]) },
+      { path: "a.ts", oldText: "x", newText: "y" },
+    ])
+      expect(trimmed(pendingRow("edit", args).render(80))).toEqual(expected);
+  });
+
+  test("an edit in a shape it does not know shows its arguments as fields", () => {
+    const rows = pendingRow("edit", { path: "a.ts", hashline: "12:ab|const x = 1;" }).render(80);
+    expect(rows.slice(1)).toEqual(["    hashline  12:ab|const x = 1;"]);
+    // pi-hashline-edit's own edits: anchored line ranges, not oldText/newText.
+    const anchored = pendingRow("edit", { path: "a.ts", edits: [{ pos: "12#ab", lines: ["const x = 2;"] }] });
+    expect(anchored.render(80).slice(1).join("\n")).toContain('"pos": "12#ab"');
+  });
+
+  test("a long edit keeps its newest lines, with the hidden ones counted above", () => {
+    const newText = Array.from({ length: 30 }, (_, index) => `line ${index + 1}`).join("\n");
+    const rows = pendingRow("edit", { path: "a.ts", edits: [{ oldText: "x", newText }] }).render(80);
+    expect(rows[1]).toContain("more lines");
+    expect(rows.at(-1)?.trimEnd()).toBe("    +line 30");
+  });
+
+  test("other calls show every argument their title does not, one field after another", () => {
+    const rows = pendingRow("read", { path: "src/a.ts", offset: 120, limit: 80 }).render(80);
+    expect(rows[0]).toContain("src/a.ts");
+    expect(rows.slice(1)).toEqual(["    offset  120", "    limit   80"]);
+    const mcp = pendingRow("mcp__docs__search", { query: "fold", filters: { lang: "ts" } }).render(80);
+    expect(mcp.slice(1)).toEqual(["    filters  {", '               "lang": "ts"', "             }"]);
+  });
+
+  test("a shell command too long for its header streams under it; an opened one does not repeat it", () => {
+    const command = "python3 - <<'PY'\nimport json\nprint(json.dumps({'a': 1}))\nPY";
+    expect(pendingRow("bash", { command }).render(80).slice(1)).toEqual([
+      "    python3 - <<'PY'",
+      "    import json",
+      "    print(json.dumps({'a': 1}))",
+      "    PY",
+    ]);
+    expect(pendingRow("bash", { command: "ls -la" }).render(80)).toHaveLength(1);
+    const opened = pendingRow("bash", { command }, { expanded: true }).render(80);
+    expect(opened.filter((line) => line.includes("import json"))).toHaveLength(1);
+  });
+
+  test("a line being written wraps instead of being cut, so its newest characters show", () => {
+    const command = `grep -rn ${"pattern ".repeat(12)}packages --include '*.ts' END`;
+    const rows = pendingRow("bash", { command }).render(60);
+    expect(rows.at(-1)?.trimEnd()).toEndWith("END");
+    expect(rows.slice(1).join("")).not.toContain("…");
+    const newText = `const total = ${"value + ".repeat(12)}LAST;`;
+    const edit = pendingRow("edit", { path: "a.ts", edits: [{ oldText: "x", newText }] }).render(60);
+    expect(edit.at(-1)?.trimEnd()).toEndWith("LAST;");
+  });
+
+  test("the first output replaces the arguments", () => {
+    const rows = pendingRow("bash", { command: "a\nb" }, { status: "running", output: "hello" }).render(80);
+    expect(rows.slice(1)).toEqual(["    hello"]);
+    const read = pendingRow("read", { path: "a.ts", offset: 3 }, { status: "success", output: "x" }).render(80);
+    expect(read.join("\n")).not.toContain("offset");
+  });
+});

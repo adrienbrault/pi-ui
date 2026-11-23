@@ -108,6 +108,8 @@ interface BlockRecord {
   hoverTimer?: ReturnType<typeof setTimeout>;
   /** Files a shell command changed, recorded on its result. */
   changes?: FileChanges;
+  /** pi has drawn the call's result: from then on the result's component carries the body. */
+  resultShown?: boolean;
 }
 
 const records = new Map<string | object, BlockRecord>();
@@ -305,7 +307,8 @@ function region(inner: Component, record: BlockRecord, part: "header" | "body" |
     return onMouse(record, event);
   });
   if (part !== "header") {
-    expandedRegions.set(surface, () => record.expansion === 1);
+    // A row drawn with its header carries the open block's bar below the header, as a body does.
+    expandedRegions.set(surface, (row) => record.expansion === 1 && (part === "body" || row > 0));
     hoveredRegions.set(surface, () => record.hover);
   }
   return surface;
@@ -315,23 +318,37 @@ function emptyComponent(): Component {
   return KIT.component(() => []) as Component;
 }
 
-function headerComponent(record: BlockRecord, theme: Theme): Component {
+function headerRows(record: BlockRecord, theme: Theme): Component {
   const api = { kit: KIT, theme: theme as unknown as RenderTheme, glyphs: GLYPHS };
+  return KIT.component((width) => {
+    const input = inputFor(record);
+    let header = toolHeader(api, input, width);
+    record.commandClipped = !!header.hiddenTitle;
+    // Hovering a block a click would open or close lights its clipped title.
+    if (record.hover && (record.expansion === 1 || record.commandClipped || record.expandRow !== undefined))
+      header = toolHeader(api, { ...input, lit: true }, width);
+    // A clipped command with no output has no body rows to carry the bar: its header takes one filled cell.
+    const silent = nonEmptyLineCount(previewText(record)) === 0 && !record.changes;
+    if (record.hover && !record.expansion && record.commandClipped && silent)
+      return [paintMarker(header.line, api.theme, width)];
+    return [header.line];
+  }) as Component;
+}
+
+/**
+ * A call's row before pi draws its result: the header and, below it, what the model is writing
+ * into the call's arguments, as it streams. Once the result is drawn, its component takes the
+ * body and this row keeps only the header. A write draws its content here throughout.
+ */
+function callComponent(record: BlockRecord, theme: Theme): Component {
+  const header = headerRows(record, theme);
+  const combined = bodyRows(record, theme, true);
   return region(
-    KIT.component((width) => {
-      const input = inputFor(record);
-      let header = toolHeader(api, input, width);
-      record.commandClipped = !!header.hiddenTitle;
-      // Hovering a block a click would open or close lights its clipped title.
-      if (record.hover && (record.expansion === 1 || record.commandClipped || record.expandRow !== undefined))
-        header = toolHeader(api, { ...input, lit: true }, width);
-      // A clipped command with no output has no body rows to carry the bar: its header takes one filled cell.
-      const silent = nonEmptyLineCount(previewText(record)) === 0 && !record.changes;
-      if (record.hover && !record.expansion && record.commandClipped && silent)
-        return [paintMarker(header.line, api.theme, width)];
-      return [header.line];
-    }) as Component,
+    KIT.component((width) =>
+      record.resultShown && record.name !== "write" ? header.render(width) : combined.render(width),
+    ) as Component,
     record,
+    "combined",
   );
 }
 
@@ -345,52 +362,47 @@ function canOpen(record: BlockRecord, input: ToolRowInput, layout: ReturnType<ty
   );
 }
 
-function bodyComponent(record: BlockRecord, theme: Theme, includeHeader = false): Component {
+function bodyComponent(record: BlockRecord, theme: Theme): Component {
+  return region(bodyRows(record, theme, false), record, "body");
+}
+
+function bodyRows(record: BlockRecord, theme: Theme, includeHeader: boolean): Component {
   const api = { kit: KIT, theme: theme as unknown as RenderTheme, glyphs: GLYPHS };
-  return region(
-    KIT.component((width) => {
-      const input = inputFor(record);
-      // The record owns the row's highlighted code, so the fade's look at the next level reuses it.
-      const owned = { ...api, owner: record };
-      let layout = toolRowLayout(owned, input, width);
-      // A row drawn with its header (write) has no header component to record a clipped title.
-      if (includeHeader) record.commandClipped = !!layout.hiddenTitle;
-      const open = record.expansion === 1;
-      // Hovering a block a click would open or close lights its notices: what the click reveals.
-      if (record.hover && (open || canOpen(record, input, layout)))
-        layout = toolRowLayout(owned, { ...input, lit: true }, width);
-      let rows = layout.rows.slice(includeHeader ? 0 : 1);
-      if (open) return rows;
-      // A step down fades the row the next level drops, found by the renderer.
-      const fade = typeof record.key === "string" ? toolFade(record.key) : undefined;
-      if (fade) {
-        const leaving = leavingRow(owned, input, width);
-        rows = paintLeaving(
-          rows,
-          leaving === undefined ? undefined : leaving - (includeHeader ? 0 : 1),
-          fade,
-          api.theme,
-        );
-      }
-      // The omission notice: above a tail, at the cut of a head-and-tail read, below a diff's evidence.
-      // The renderer names its row, so output that reads like one is not, nor pi's note on a partial read.
-      const omission = layout.omission === undefined ? -1 : layout.omission - (includeHeader ? 0 : 1);
-      const expandable = canOpen(record, input, layout);
-      record.expandRow = expandable && rows.length ? (omission === -1 ? rows.length - 1 : omission) : undefined;
-      // Hover shows only the scroll bar: where the preview sits in the whole output.
-      if (expandable && record.hover && layout.bar?.length)
-        paintBar(
-          rows,
-          rows.length - layout.bar.length,
-          layout.bar,
-          (cell, lit) => styleBarCell(api.theme, cell, lit),
-          width,
-        );
-      return rows;
-    }) as Component,
-    record,
-    includeHeader ? "combined" : "body",
-  );
+  return KIT.component((width) => {
+    const input = inputFor(record);
+    // The record owns the row's highlighted code, so the fade's look at the next level reuses it.
+    const owned = { ...api, owner: record };
+    let layout = toolRowLayout(owned, input, width);
+    // A row drawn with its header (write) has no header component to record a clipped title.
+    if (includeHeader) record.commandClipped = !!layout.hiddenTitle;
+    const open = record.expansion === 1;
+    // Hovering a block a click would open or close lights its notices: what the click reveals.
+    if (record.hover && (open || canOpen(record, input, layout)))
+      layout = toolRowLayout(owned, { ...input, lit: true }, width);
+    let rows = layout.rows.slice(includeHeader ? 0 : 1);
+    if (open) return rows;
+    // A step down fades the row the next level drops, found by the renderer.
+    const fade = typeof record.key === "string" ? toolFade(record.key) : undefined;
+    if (fade) {
+      const leaving = leavingRow(owned, input, width);
+      rows = paintLeaving(rows, leaving === undefined ? undefined : leaving - (includeHeader ? 0 : 1), fade, api.theme);
+    }
+    // The omission notice: above a tail, at the cut of a head-and-tail read, below a diff's evidence.
+    // The renderer names its row, so output that reads like one is not, nor pi's note on a partial read.
+    const omission = layout.omission === undefined ? -1 : layout.omission - (includeHeader ? 0 : 1);
+    const expandable = canOpen(record, input, layout);
+    record.expandRow = expandable && rows.length ? (omission === -1 ? rows.length - 1 : omission) : undefined;
+    // Hover shows only the scroll bar: where the preview sits in the whole output.
+    if (expandable && record.hover && layout.bar?.length)
+      paintBar(
+        rows,
+        rows.length - layout.bar.length,
+        layout.bar,
+        (cell, lit) => styleBarCell(api.theme, cell, lit),
+        width,
+      );
+    return rows;
+  }) as Component;
 }
 
 /** A member opens only when it has a body or a clipped command to show. */
@@ -528,7 +540,7 @@ const resolver: ToolRendererResolver = (toolName, next) => {
       const record = syncRecord(ctx, toolName, args);
       if (record.mode === "hidden" && !record.group?.open) return emptyComponent();
       if (record.group) return groupComponent(record, theme);
-      return toolName === "write" ? bodyComponent(record, theme, true) : headerComponent(record, theme);
+      return callComponent(record, theme);
     },
     renderResult: (result, _options: ToolRenderResultOptions, theme, ctx) => {
       const inputTokens = estimateTokens({
@@ -541,6 +553,7 @@ const resolver: ToolRendererResolver = (toolName, next) => {
       });
       const record = syncRecord(ctx, toolName, ctx.args, outputText(toolName, ctx.isError, result), inputTokens);
       record.changes = recordedChanges(result.details);
+      record.resultShown = true;
       if (record.group || toolName === "write") return emptyComponent();
       return bodyComponent(record, theme);
     },

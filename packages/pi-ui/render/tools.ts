@@ -93,16 +93,25 @@ export function sessionCommand(command: string, place: SessionPlace = {}): strin
   return sessionPath(dir, place) === "." && match[0].length < command.length ? command.slice(match[0].length) : command;
 }
 
+/** The argument a call's one-line title shows: the first of the detail keys that holds text. */
+export function titleKey(name: string, args: Record<string, unknown> = {}): string | undefined {
+  const keys = toolMeta(name).cls === "shell" ? ["command"] : DETAIL_KEYS;
+  return keys.find((key) => {
+    const value = args[key];
+    return typeof value === "string" && !!value.trim();
+  });
+}
+
 export function describeCall(
   name: string,
   args: Record<string, unknown> = {},
   place: SessionPlace = {},
 ): { title: string; meta: ToolMeta } {
   const meta = toolMeta(name);
-  const keys = meta.cls === "shell" ? ["command"] : DETAIL_KEYS;
-  for (const key of keys) {
+  const key = titleKey(name, args);
+  if (key !== undefined) {
     const value = args[key];
-    if (typeof value === "string" && value.trim()) {
+    if (typeof value === "string") {
       const placed =
         meta.cls === "shell"
           ? sessionCommand(value, place)

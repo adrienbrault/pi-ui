@@ -63,6 +63,8 @@ const command: Run = { id: "command", session: DEMO };
 const changes: Run = { id: "changes", session: CHANGES, height: 36 };
 const light: Run = { id: "light", session: DEMO, theme: "light" };
 const narrow: Run = { id: "narrow", session: DEMO, width: 70 };
+// Its own run: a pause in the middle of a message would shift the rates of that message's later states.
+const writing: Run = { id: "writing", session: DEMO };
 
 const hover = (text: string): Action => ({ kind: "hover", text });
 const click = (text: string): Action => ({ kind: "click", text });
@@ -125,6 +127,14 @@ export const STATES: State[] = [
     description: "A write shows the start and the end of the new file, numbered.",
     run: main,
     until: "tool:85:end",
+  },
+  {
+    id: "edit-writing",
+    title: "Edit being written",
+    description:
+      "An edit streams as the model writes it: each replacement's old text as removed lines, then its new text as added ones.",
+    run: writing,
+    until: "message:69@90%",
   },
   {
     id: "edit-diff",

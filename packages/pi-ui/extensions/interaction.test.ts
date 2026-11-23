@@ -721,6 +721,30 @@ describe("tool renderers", () => {
     expect(header.render(120)[0]).toContain("↑1.2k · ↓5");
   });
 
+  test("a call shows its arguments as they stream, until its result takes the body", () => {
+    const tool = resolver()("edit", () => undefined) as Renderers;
+    const context = { ...ctx, toolCallId: "streaming-edit", args: { path: "a.ts" }, state: {}, isPartial: true };
+    const call = tool.renderCall(context.args, theme, context);
+    expect(call.render(120)).toHaveLength(1);
+    const args = { path: "a.ts", edits: [{ oldText: "const a = 1;", newText: "const a" }] };
+    tool.renderCall(args, theme, { ...context, args });
+    expect(plainRows(call.render(120)).map((row) => row.trim())).toEqual([
+      expect.stringContaining("edit"),
+      "-const a = 1;",
+      "+const a",
+    ]);
+    const done = { ...context, args, isPartial: false };
+    const body = tool.renderResult(
+      { content: [{ type: "text", text: "ok" }], details: { diff: "-1 const a = 1;\n+1 const a = 2;" } },
+      {},
+      theme,
+      done,
+    );
+    // The result's component carries the body now; the call's row keeps its header alone.
+    expect(call.render(120)).toHaveLength(1);
+    expect(plainRows(body.render(120)).join("\n")).toContain("const a = 2;");
+  });
+
   test("edits show the structured diff, with text as a fallback", () => {
     const tool = resolver()("edit", () => undefined) as Renderers;
     const context = { ...ctx, args: { path: "a.ts" }, state: {} };

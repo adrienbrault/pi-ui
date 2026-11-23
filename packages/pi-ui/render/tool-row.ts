@@ -4,6 +4,7 @@
  */
 
 import { bodyLinesFor, COMPACT_LEVEL, MAX_FULL_LINES, type DetailLevel } from "./detail.ts";
+import { callView } from "./call-args.ts";
 import { frameAt, UNICODE_GLYPHS, type GlyphSet, type TokenMarks } from "./glyphs.ts";
 import {
   cellPadding,
@@ -269,6 +270,57 @@ const BACKGROUND_RESET = /\x1b\[(?:0|49)?m/g;
 function withBackground(theme: RenderTheme, text: string, token: string): string {
   const open = theme.style("\u0000", { bg: token }).split("\u0000")[0] ?? "";
   return theme.style(open ? text.replace(BACKGROUND_RESET, (reset) => reset + open) : text, { bg: token });
+}
+
+/** Whether a call is still being written or run and has shown no output: its arguments are what there is. */
+function awaitingOutput(input: ToolRowInput): boolean {
+  return (
+    !input.error &&
+    !input.output?.trim() &&
+    (input.status === "pending" || input.status === "running") &&
+    // A write streams its content as its body already.
+    input.name !== "write"
+  );
+}
+
+/**
+ * The rows of a call's arguments as the model writes them (see `call-args.ts`): an edit's
+ * replacements on the diff's red and green stripes, each side in the file's syntax colours, a
+ * divider between two replacements; a shell command line by line; other arguments as fields.
+ * No line numbers: they come with the result.
+ */
+function streamingCallRows(api: RenderApi, input: ToolRowInput, hiddenTitle?: string): Selected[] | undefined {
+  if (!awaitingOutput(input)) return undefined;
+  const view = callView(input.name, input.args, hiddenTitle);
+  if (!view) return undefined;
+  const { kit, theme } = api;
+  if (view.kind === "command") return view.command.split("\n").map((line) => ({ line, tone: "accent" as const }));
+  if (view.kind === "fields") {
+    const keyWidth = Math.max(...view.fields.map((field) => field.key.length));
+    return view.fields.flatMap(({ key, value }) =>
+      value.split("\n").map((line, index) => {
+        const lead = index ? " ".repeat(keyWidth + 2) : `${key.padEnd(keyWidth)}  `;
+        return { line: lead + line, styled: theme.fg("dim", lead) + line };
+      }),
+    );
+  }
+  const language = kit.highlight && view.path ? kit.languageFromPath?.(view.path) : undefined;
+  const side = (text: string | undefined, sign: "-" | "+", tone: "error" | "success"): Selected[] => {
+    if (!text) return [];
+    const styled =
+      language && text.length <= MAX_FORMAT_CHARS ? kit.highlight?.(text, language, theme, api.owner) : undefined;
+    return text.split("\n").map((line, index) => ({
+      line: sign + line,
+      styled: sign + (styled?.[index] ?? line),
+      tone,
+      bg: true,
+    }));
+  };
+  return view.edits.flatMap((edit, index): Selected[] => [
+    ...(index ? [{ line: "", rule: "divider" as const }] : []),
+    ...side(edit.oldText, "-", "error"),
+    ...side(edit.newText, "+", "success"),
+  ]);
 }
 
 /** Text matched literally inside a regular expression. */
@@ -935,16 +987,18 @@ function clipRows(kit: RenderKit, rows: string[], room: number, width: number, m
  * one row, cut at the width. An expanded row wraps long lines, and wrapped rows
  * count against the same budget as everything else.
  */
-function body(api: RenderApi, input: ToolRowInput, width: number, total: number): BodyLayout {
+function body(api: RenderApi, input: ToolRowInput, width: number, total: number, hiddenTitle?: string): BodyLayout {
   const { theme, kit } = api;
   const empty: BodyLayout = { rows: [], clipped: false };
   if (total <= 0) return empty;
 
   const meta = toolMeta(input.name);
-  const text = cleanOutput(input.error ? errorDetail(input, meta) : previewText(input));
+  // Before its first output, a call shows what the model is writing into its arguments.
+  const call = streamingCallRows(api, input, hiddenTitle);
+  const text = call ? "" : cleanOutput(input.error ? errorDetail(input, meta) : previewText(input));
   const source = logicalLines(text);
-  const diff = isDiff(input, text);
-  const shell = !input.error && !diff ? shellRows(api, input, text) : undefined;
+  const diff = !call && isDiff(input, text);
+  const shell = !call && !input.error && !diff ? shellRows(api, input, text) : undefined;
   // Bound grammar work on oversized tool results. pi reads normally stop at 50 KiB.
   const language =
     !shell && !input.error && (!diff || input.name === "edit") && text.length <= MAX_FORMAT_CHARS && kit.highlight
@@ -955,6 +1009,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
   // in the file. An opened block shows the file as it is, blank lines included.
   const start = diff ? undefined : firstLine(input, text);
   const lines: Selected[] =
+    call ??
     shell?.lines ??
     source.flatMap((line, raw) =>
       line.trim() || (input.full && start !== undefined)
@@ -974,7 +1029,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
     formatted += size;
     return (code: string) => highlight(code, fileLanguage, theme);
   };
-  const changed = changeRows(input.changes, fileHighlight);
+  const changed = call ? [] : changeRows(input.changes, fileHighlight);
   if (lines.length === 0 && changed.length === 0) return empty;
   // The lines pi's read left in the file: a notice on the last row, which the code may not take.
   // It gives way when the rows left would hold a notice and no line of code.
@@ -982,8 +1037,9 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
   const fileNote = remaining && total - 1 >= Math.min(2, lines.length) ? remaining : undefined;
   const budget = fileNote ? total - 1 : total;
 
+  // What is being written keeps its newest lines in view, as a log does.
   const streamingWrite = input.name === "write" && input.status === "pending" && !input.expanded;
-  const trend = streamingWrite || meta.trend === "tail" ? selectTail : selectHead;
+  const trend = call || streamingWrite || meta.trend === "tail" ? selectTail : selectHead;
   const patchRows = diff
     ? indexLines(
         diffRows(
@@ -1031,6 +1087,8 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
   const indent = blockBodyIndent(width);
   const inner = Math.max(1, width - indent.length);
   const wrap = !!(input.expanded || input.full);
+  // What the model is writing wraps even in a preview: a cut would hide the newest characters.
+  const wrapLines = wrap || !!call;
   const mark = cutMark(theme);
   let clipped = false;
   // Wrapping is the costly step and a selection can repeat lines: do each once per width.
@@ -1089,7 +1147,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
     const room = inner - gutter;
     const content = styled ?? line;
     let parts: string[];
-    if (wrap) {
+    if (wrapLines) {
       const key = `${room}:${content}`;
       parts = wrapped.get(key) ?? [];
       if (!wrapped.has(key)) {
@@ -1131,7 +1189,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
   const show = Math.min(budget, outputRows + files.length);
   let selected = select(show);
   let items = layout(selected);
-  if (wrap && rowCount(items) > budget) {
+  if (wrapLines && rowCount(items) > budget) {
     // Wrapping overflowed: keep the most lines that still fit, chosen by the same trend.
     let low = 1;
     let high = show - 1;
@@ -1153,10 +1211,12 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
   }
   // Still over: a single line alone outgrows the budget. Notices, dividers and path rows keep their row.
   let room = budget - selected.filter((item) => item.notice || item.rule).length;
+  /** The source line behind each row: a wrapped line's rows share it. */
+  const rowSources: Array<number | undefined> = [];
   const rows = items.flatMap((item, index) => {
-    if (selected[index]?.notice || selected[index]?.rule) return item;
-    const kept = clipRows(kit, item, room, width, mark);
-    room -= kept.length;
+    const kept = selected[index]?.notice || selected[index]?.rule ? item : clipRows(kit, item, room, width, mark);
+    if (!selected[index]?.notice && !selected[index]?.rule) room -= kept.length;
+    for (let row = 0; row < kept.length; row++) rowSources.push(selected[index]?.index);
     return kept;
   });
   if (fileNote)
@@ -1169,8 +1229,8 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number)
     rows,
     clipped,
     bar: previewBar(outputLines + lineCount(files), shown, rows.length),
-    // One row per selected line, then the file note: a preview never wraps.
-    sources: [...selected.map((item) => item.index), ...(fileNote ? [undefined] : [])],
+    // One entry per row, then the file note. Only a call being written wraps in a preview.
+    sources: [...rowSources, ...(fileNote ? [undefined] : [])],
     ...(omission === -1 ? {} : { omission }),
   };
 }
@@ -1197,14 +1257,15 @@ export function toolRowLayout(api: RenderApi, input: ToolRowInput, width: number
     rows.push(...command);
     budget -= command.length;
   }
-  // The body stops where the header does, clear of pi's scroll bar.
+  // The body stops where the header does, clear of pi's scroll bar. An opened command shows in
+  // full above; only a closed one streams its text in the body.
   const {
     rows: bodyRows,
     clipped,
     bar,
     sources,
     omission,
-  } = body(api, input, Math.max(1, width - HEADER_MARGIN), budget);
+  } = body(api, input, Math.max(1, width - HEADER_MARGIN), budget, continuation ? undefined : hiddenTitle);
   return {
     rows: rows.concat(bodyRows),
     clipped,

@@ -8496,6 +8496,114 @@
         "    \u001b[38;2;157;165;169mtsconfig.json\u001b[39m"
       ]
     },
+    "writing/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mpython3 - <\u001b[39m\u001b[38;2;222;224;225m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;167;152;215ment=2)) PY\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m56\u001b[39m",
+        "    \u001b[3m\u001b[38;2;126;136;142m↑ 3 more lines\u001b[39m\u001b[23m",
+        "    \u001b[38;2;167;152;215mprint(json.dumps(sorted(sizes.items\u001b[39m",
+        "    \u001b[38;2;167;152;215m(), key=lambda item: -item[1])[:5],\u001b[39m",
+        "    \u001b[38;2;167;152;215mindent=2))\u001b[39m",
+        "    \u001b[38;2;167;152;215mPY\u001b[39m"
+      ]
+    },
+    "writing/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mpython3 -\u001b[39m\u001b[38;2;222;224;225m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;167;152;215mnt=2)) PY\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m56\u001b[39m",
+        "    \u001b[3m\u001b[38;2;126;136;142m^ 3 more lines\u001b[39m\u001b[23m",
+        "    \u001b[38;2;167;152;215mprint(json.dumps(sorted(sizes.items\u001b[39m",
+        "    \u001b[38;2;167;152;215m(), key=lambda item: -item[1])[:5],\u001b[39m",
+        "    \u001b[38;2;167;152;215mindent=2))\u001b[39m",
+        "    \u001b[38;2;167;152;215mPY\u001b[39m"
+      ]
+    },
+    "writing/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mpython3 - <<'PY' impo\u001b[39m\u001b[38;2;222;224;225m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;167;152;215m)[:5], indent=2)) PY\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m56\u001b[39m",
+        "    \u001b[38;2;167;152;215mpython3 - <<'PY'\u001b[39m",
+        "    \u001b[38;2;167;152;215mimport json, pathlib\u001b[39m",
+        "    \u001b[38;2;167;152;215msizes = {p.name: p.stat().st_size for p in\u001b[39m",
+        "    \u001b[38;2;167;152;215mpathlib.Path('render').glob('*.ts')}\u001b[39m",
+        "    \u001b[38;2;167;152;215mprint(json.dumps(sorted(sizes.items(), key=lambda item:\u001b[39m",
+        "    \u001b[38;2;167;152;215m-item[1])[:5], indent=2))\u001b[39m",
+        "    \u001b[38;2;167;152;215mPY\u001b[39m"
+      ]
+    },
+    "writing/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mpython3 - <<'PY' im\u001b[39m\u001b[38;2;222;224;225m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;167;152;215m[:5], indent=2)) PY\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m56\u001b[39m",
+        "    \u001b[38;2;167;152;215mpython3 - <<'PY'\u001b[39m",
+        "    \u001b[38;2;167;152;215mimport json, pathlib\u001b[39m",
+        "    \u001b[38;2;167;152;215msizes = {p.name: p.stat().st_size for p in\u001b[39m",
+        "    \u001b[38;2;167;152;215mpathlib.Path('render').glob('*.ts')}\u001b[39m",
+        "    \u001b[38;2;167;152;215mprint(json.dumps(sorted(sizes.items(), key=lambda item:\u001b[39m",
+        "    \u001b[38;2;167;152;215m-item[1])[:5], indent=2))\u001b[39m",
+        "    \u001b[38;2;167;152;215mPY\u001b[39m"
+      ]
+    },
+    "writing/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mpython3 - <<'PY' import json, p\u001b[39m\u001b[38;2;222;224;225m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;167;152;215m: -item[1])[:5], indent=2)) PY\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m56\u001b[39m",
+        "    \u001b[38;2;167;152;215mpython3 - <<'PY'\u001b[39m",
+        "    \u001b[38;2;167;152;215mimport json, pathlib\u001b[39m",
+        "    \u001b[38;2;167;152;215msizes = {p.name: p.stat().st_size for p in\u001b[39m",
+        "    \u001b[38;2;167;152;215mpathlib.Path('render').glob('*.ts')}\u001b[39m",
+        "    \u001b[38;2;167;152;215mprint(json.dumps(sorted(sizes.items(), key=lambda item: -item[1])[:5],\u001b[39m",
+        "    \u001b[38;2;167;152;215mindent=2))\u001b[39m",
+        "    \u001b[38;2;167;152;215mPY\u001b[39m"
+      ]
+    },
+    "writing/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mpython3 - <<'PY' import json,\u001b[39m\u001b[38;2;222;224;225m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;167;152;215m -item[1])[:5], indent=2)) PY\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m56\u001b[39m",
+        "    \u001b[38;2;167;152;215mpython3 - <<'PY'\u001b[39m",
+        "    \u001b[38;2;167;152;215mimport json, pathlib\u001b[39m",
+        "    \u001b[38;2;167;152;215msizes = {p.name: p.stat().st_size for p in\u001b[39m",
+        "    \u001b[38;2;167;152;215mpathlib.Path('render').glob('*.ts')}\u001b[39m",
+        "    \u001b[38;2;167;152;215mprint(json.dumps(sorted(sizes.items(), key=lambda item: -item[1])[:5],\u001b[39m",
+        "    \u001b[38;2;167;152;215mindent=2))\u001b[39m",
+        "    \u001b[38;2;167;152;215mPY\u001b[39m"
+      ]
+    },
+    "writing/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mpython3 - <<'PY' import json, pathlib siz\u001b[39m\u001b[38;2;222;224;225m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;167;152;215mambda item: -item[1])[:5], indent=2)) PY\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m56\u001b[39m",
+        "    \u001b[38;2;167;152;215mpython3 - <<'PY'\u001b[39m",
+        "    \u001b[38;2;167;152;215mimport json, pathlib\u001b[39m",
+        "    \u001b[38;2;167;152;215msizes = {p.name: p.stat().st_size for p in pathlib.Path('render').glob('*.ts')}\u001b[39m",
+        "    \u001b[38;2;167;152;215mprint(json.dumps(sorted(sizes.items(), key=lambda item: -item[1])[:5], indent=2))\u001b[39m",
+        "    \u001b[38;2;167;152;215mPY\u001b[39m"
+      ]
+    },
+    "writing/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mpython3 - <<'PY' import json, pathlib s\u001b[39m\u001b[38;2;222;224;225m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;167;152;215mmbda item: -item[1])[:5], indent=2)) PY\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m56\u001b[39m",
+        "    \u001b[38;2;167;152;215mpython3 - <<'PY'\u001b[39m",
+        "    \u001b[38;2;167;152;215mimport json, pathlib\u001b[39m",
+        "    \u001b[38;2;167;152;215msizes = {p.name: p.stat().st_size for p in pathlib.Path('render').glob('*.ts')}\u001b[39m",
+        "    \u001b[38;2;167;152;215mprint(json.dumps(sorted(sizes.items(), key=lambda item: -item[1])[:5], indent=2))\u001b[39m",
+        "    \u001b[38;2;167;152;215mPY\u001b[39m"
+      ]
+    },
+    "writing/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mpython3 - <<'PY' import json, pathlib sizes = {p.na\u001b[39m\u001b[38;2;222;224;225m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;167;152;215ms(), key=lambda item: -item[1])[:5], indent=2)) PY\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m56\u001b[39m",
+        "    \u001b[38;2;167;152;215mpython3 - <<'PY'\u001b[39m",
+        "    \u001b[38;2;167;152;215mimport json, pathlib\u001b[39m",
+        "    \u001b[38;2;167;152;215msizes = {p.name: p.stat().st_size for p in pathlib.Path('render').glob('*.ts')}\u001b[39m",
+        "    \u001b[38;2;167;152;215mprint(json.dumps(sorted(sizes.items(), key=lambda item: -item[1])[:5], indent=2))\u001b[39m",
+        "    \u001b[38;2;167;152;215mPY\u001b[39m"
+      ]
+    },
+    "writing/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mpython3 - <<'PY' import json, pathlib sizes = {p.\u001b[39m\u001b[38;2;222;224;225m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;167;152;215m(), key=lambda item: -item[1])[:5], indent=2)) PY\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m56\u001b[39m",
+        "    \u001b[38;2;167;152;215mpython3 - <<'PY'\u001b[39m",
+        "    \u001b[38;2;167;152;215mimport json, pathlib\u001b[39m",
+        "    \u001b[38;2;167;152;215msizes = {p.name: p.stat().st_size for p in pathlib.Path('render').glob('*.ts')}\u001b[39m",
+        "    \u001b[38;2;167;152;215mprint(json.dumps(sorted(sizes.items(), key=lambda item: -item[1])[:5], indent=2))\u001b[39m",
+        "    \u001b[38;2;167;152;215mPY\u001b[39m"
+      ]
+    },
     "rg/dark/40/unicode": {
       "lines": [
         "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mrg -n -A1 \u001b[39m\u001b[38;2;222;224;225m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;167;152;215mr/index.ts\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;222;224;225m1.2\u001b[39m\u001b[38;2;157;165;169ms\u001b[39m",
@@ -9577,6 +9685,114 @@
         "    \u001b[38;2;103;113;118mtsconfig.json\u001b[39m"
       ]
     },
+    "writing/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mpython3 - <\u001b[39m\u001b[38;2;59;63;65m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;116;89;180ment=2)) PY\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m56\u001b[39m",
+        "    \u001b[3m\u001b[38;2;135;144;149m↑ 3 more lines\u001b[39m\u001b[23m",
+        "    \u001b[38;2;116;89;180mprint(json.dumps(sorted(sizes.items\u001b[39m",
+        "    \u001b[38;2;116;89;180m(), key=lambda item: -item[1])[:5],\u001b[39m",
+        "    \u001b[38;2;116;89;180mindent=2))\u001b[39m",
+        "    \u001b[38;2;116;89;180mPY\u001b[39m"
+      ]
+    },
+    "writing/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mpython3 -\u001b[39m\u001b[38;2;59;63;65m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;116;89;180mnt=2)) PY\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m56\u001b[39m",
+        "    \u001b[3m\u001b[38;2;135;144;149m^ 3 more lines\u001b[39m\u001b[23m",
+        "    \u001b[38;2;116;89;180mprint(json.dumps(sorted(sizes.items\u001b[39m",
+        "    \u001b[38;2;116;89;180m(), key=lambda item: -item[1])[:5],\u001b[39m",
+        "    \u001b[38;2;116;89;180mindent=2))\u001b[39m",
+        "    \u001b[38;2;116;89;180mPY\u001b[39m"
+      ]
+    },
+    "writing/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mpython3 - <<'PY' impo\u001b[39m\u001b[38;2;59;63;65m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;116;89;180m)[:5], indent=2)) PY\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m56\u001b[39m",
+        "    \u001b[38;2;116;89;180mpython3 - <<'PY'\u001b[39m",
+        "    \u001b[38;2;116;89;180mimport json, pathlib\u001b[39m",
+        "    \u001b[38;2;116;89;180msizes = {p.name: p.stat().st_size for p in\u001b[39m",
+        "    \u001b[38;2;116;89;180mpathlib.Path('render').glob('*.ts')}\u001b[39m",
+        "    \u001b[38;2;116;89;180mprint(json.dumps(sorted(sizes.items(), key=lambda item:\u001b[39m",
+        "    \u001b[38;2;116;89;180m-item[1])[:5], indent=2))\u001b[39m",
+        "    \u001b[38;2;116;89;180mPY\u001b[39m"
+      ]
+    },
+    "writing/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mpython3 - <<'PY' im\u001b[39m\u001b[38;2;59;63;65m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;116;89;180m[:5], indent=2)) PY\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m56\u001b[39m",
+        "    \u001b[38;2;116;89;180mpython3 - <<'PY'\u001b[39m",
+        "    \u001b[38;2;116;89;180mimport json, pathlib\u001b[39m",
+        "    \u001b[38;2;116;89;180msizes = {p.name: p.stat().st_size for p in\u001b[39m",
+        "    \u001b[38;2;116;89;180mpathlib.Path('render').glob('*.ts')}\u001b[39m",
+        "    \u001b[38;2;116;89;180mprint(json.dumps(sorted(sizes.items(), key=lambda item:\u001b[39m",
+        "    \u001b[38;2;116;89;180m-item[1])[:5], indent=2))\u001b[39m",
+        "    \u001b[38;2;116;89;180mPY\u001b[39m"
+      ]
+    },
+    "writing/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mpython3 - <<'PY' import json, p\u001b[39m\u001b[38;2;59;63;65m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;116;89;180m: -item[1])[:5], indent=2)) PY\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m56\u001b[39m",
+        "    \u001b[38;2;116;89;180mpython3 - <<'PY'\u001b[39m",
+        "    \u001b[38;2;116;89;180mimport json, pathlib\u001b[39m",
+        "    \u001b[38;2;116;89;180msizes = {p.name: p.stat().st_size for p in\u001b[39m",
+        "    \u001b[38;2;116;89;180mpathlib.Path('render').glob('*.ts')}\u001b[39m",
+        "    \u001b[38;2;116;89;180mprint(json.dumps(sorted(sizes.items(), key=lambda item: -item[1])[:5],\u001b[39m",
+        "    \u001b[38;2;116;89;180mindent=2))\u001b[39m",
+        "    \u001b[38;2;116;89;180mPY\u001b[39m"
+      ]
+    },
+    "writing/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mpython3 - <<'PY' import json,\u001b[39m\u001b[38;2;59;63;65m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;116;89;180m -item[1])[:5], indent=2)) PY\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m56\u001b[39m",
+        "    \u001b[38;2;116;89;180mpython3 - <<'PY'\u001b[39m",
+        "    \u001b[38;2;116;89;180mimport json, pathlib\u001b[39m",
+        "    \u001b[38;2;116;89;180msizes = {p.name: p.stat().st_size for p in\u001b[39m",
+        "    \u001b[38;2;116;89;180mpathlib.Path('render').glob('*.ts')}\u001b[39m",
+        "    \u001b[38;2;116;89;180mprint(json.dumps(sorted(sizes.items(), key=lambda item: -item[1])[:5],\u001b[39m",
+        "    \u001b[38;2;116;89;180mindent=2))\u001b[39m",
+        "    \u001b[38;2;116;89;180mPY\u001b[39m"
+      ]
+    },
+    "writing/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mpython3 - <<'PY' import json, pathlib siz\u001b[39m\u001b[38;2;59;63;65m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;116;89;180mambda item: -item[1])[:5], indent=2)) PY\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m56\u001b[39m",
+        "    \u001b[38;2;116;89;180mpython3 - <<'PY'\u001b[39m",
+        "    \u001b[38;2;116;89;180mimport json, pathlib\u001b[39m",
+        "    \u001b[38;2;116;89;180msizes = {p.name: p.stat().st_size for p in pathlib.Path('render').glob('*.ts')}\u001b[39m",
+        "    \u001b[38;2;116;89;180mprint(json.dumps(sorted(sizes.items(), key=lambda item: -item[1])[:5], indent=2))\u001b[39m",
+        "    \u001b[38;2;116;89;180mPY\u001b[39m"
+      ]
+    },
+    "writing/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mpython3 - <<'PY' import json, pathlib s\u001b[39m\u001b[38;2;59;63;65m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;116;89;180mmbda item: -item[1])[:5], indent=2)) PY\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m56\u001b[39m",
+        "    \u001b[38;2;116;89;180mpython3 - <<'PY'\u001b[39m",
+        "    \u001b[38;2;116;89;180mimport json, pathlib\u001b[39m",
+        "    \u001b[38;2;116;89;180msizes = {p.name: p.stat().st_size for p in pathlib.Path('render').glob('*.ts')}\u001b[39m",
+        "    \u001b[38;2;116;89;180mprint(json.dumps(sorted(sizes.items(), key=lambda item: -item[1])[:5], indent=2))\u001b[39m",
+        "    \u001b[38;2;116;89;180mPY\u001b[39m"
+      ]
+    },
+    "writing/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mpython3 - <<'PY' import json, pathlib sizes = {p.na\u001b[39m\u001b[38;2;59;63;65m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;116;89;180ms(), key=lambda item: -item[1])[:5], indent=2)) PY\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m56\u001b[39m",
+        "    \u001b[38;2;116;89;180mpython3 - <<'PY'\u001b[39m",
+        "    \u001b[38;2;116;89;180mimport json, pathlib\u001b[39m",
+        "    \u001b[38;2;116;89;180msizes = {p.name: p.stat().st_size for p in pathlib.Path('render').glob('*.ts')}\u001b[39m",
+        "    \u001b[38;2;116;89;180mprint(json.dumps(sorted(sizes.items(), key=lambda item: -item[1])[:5], indent=2))\u001b[39m",
+        "    \u001b[38;2;116;89;180mPY\u001b[39m"
+      ]
+    },
+    "writing/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mpython3 - <<'PY' import json, pathlib sizes = {p.\u001b[39m\u001b[38;2;59;63;65m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;116;89;180m(), key=lambda item: -item[1])[:5], indent=2)) PY\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m56\u001b[39m",
+        "    \u001b[38;2;116;89;180mpython3 - <<'PY'\u001b[39m",
+        "    \u001b[38;2;116;89;180mimport json, pathlib\u001b[39m",
+        "    \u001b[38;2;116;89;180msizes = {p.name: p.stat().st_size for p in pathlib.Path('render').glob('*.ts')}\u001b[39m",
+        "    \u001b[38;2;116;89;180mprint(json.dumps(sorted(sizes.items(), key=lambda item: -item[1])[:5], indent=2))\u001b[39m",
+        "    \u001b[38;2;116;89;180mPY\u001b[39m"
+      ]
+    },
     "rg/light/40/unicode": {
       "lines": [
         "\u001b[38;2;51;126;88m●\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbash\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mrg -n -A1 \u001b[39m\u001b[38;2;59;63;65m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;116;89;180mr/index.ts\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;59;63;65m1.2\u001b[39m\u001b[38;2;103;113;118ms\u001b[39m",
@@ -10190,6 +10406,66 @@
     }
   },
   "ours.edit": {
+    "writing/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;222;224;225m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;222;224;225m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;167;152;215mns/pi-ui/decorator.ts\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m22\u001b[39m",
+        "    \u001b[48;2;91;40;42m-\u001b[38;2;105;173;208mexport\u001b[39m \u001b[38;2;105;173;208mconst\u001b[39m FOLD_                \u001b[49m"
+      ]
+    },
+    "writing/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;222;224;225m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;222;224;225m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;167;152;215mpi-ui/decorator.ts\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m22\u001b[39m",
+        "    \u001b[48;2;91;40;42m-\u001b[38;2;105;173;208mexport\u001b[39m \u001b[38;2;105;173;208mconst\u001b[39m FOLD_                \u001b[49m"
+      ]
+    },
+    "writing/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;222;224;225m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mextensions/pi-ui/decorator.ts\u001b[39m                  \u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m22\u001b[39m",
+        "    \u001b[48;2;91;40;42m-\u001b[38;2;105;173;208mexport\u001b[39m \u001b[38;2;105;173;208mconst\u001b[39m FOLD_                                    \u001b[49m"
+      ]
+    },
+    "writing/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;222;224;225m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mextensions/pi-ui/decorator.ts\u001b[39m               \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m22\u001b[39m",
+        "    \u001b[48;2;91;40;42m-\u001b[38;2;105;173;208mexport\u001b[39m \u001b[38;2;105;173;208mconst\u001b[39m FOLD_                                    \u001b[49m"
+      ]
+    },
+    "writing/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;222;224;225m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mextensions/pi-ui/decorator.ts\u001b[39m                                      \u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m22\u001b[39m",
+        "    \u001b[48;2;91;40;42m-\u001b[38;2;105;173;208mexport\u001b[39m \u001b[38;2;105;173;208mconst\u001b[39m FOLD_                                                        \u001b[49m"
+      ]
+    },
+    "writing/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;222;224;225m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mextensions/pi-ui/decorator.ts\u001b[39m                                   \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m22\u001b[39m",
+        "    \u001b[48;2;91;40;42m-\u001b[38;2;105;173;208mexport\u001b[39m \u001b[38;2;105;173;208mconst\u001b[39m FOLD_                                                        \u001b[49m"
+      ]
+    },
+    "writing/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;222;224;225m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mextensions/pi-ui/decorator.ts\u001b[39m                                                          \u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m22\u001b[39m",
+        "    \u001b[48;2;91;40;42m-\u001b[38;2;105;173;208mexport\u001b[39m \u001b[38;2;105;173;208mconst\u001b[39m FOLD_                                                                            \u001b[49m"
+      ]
+    },
+    "writing/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;222;224;225m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mextensions/pi-ui/decorator.ts\u001b[39m                                                       \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m22\u001b[39m",
+        "    \u001b[48;2;91;40;42m-\u001b[38;2;105;173;208mexport\u001b[39m \u001b[38;2;105;173;208mconst\u001b[39m FOLD_                                                                            \u001b[49m"
+      ]
+    },
+    "writing/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;222;224;225m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mextensions/pi-ui/decorator.ts\u001b[39m                                                                              \u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m22\u001b[39m",
+        "    \u001b[48;2;91;40;42m-\u001b[38;2;105;173;208mexport\u001b[39m \u001b[38;2;105;173;208mconst\u001b[39m FOLD_                                                                                                \u001b[49m"
+      ]
+    },
+    "writing/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;222;224;225m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mextensions/pi-ui/decorator.ts\u001b[39m                                                                           \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m22\u001b[39m",
+        "    \u001b[48;2;91;40;42m-\u001b[38;2;105;173;208mexport\u001b[39m \u001b[38;2;105;173;208mconst\u001b[39m FOLD_                                                                                                \u001b[49m"
+      ]
+    },
     "l0/dark/40/unicode": {
       "lines": [
         "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;222;224;225m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;167;152;215m/pi-ui/decorator.ts\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;222;224;225m210\u001b[39m\u001b[38;2;157;165;169mms\u001b[39m",
@@ -10598,6 +10874,66 @@
       "lines": [
         "\u001b[38;2;234;127;129mx\u001b[39m \u001b[38;2;222;224;225m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mextensions/pi-ui/decorator.ts\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;234;127;129mold_string not found\u001b[39m                                            \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m11\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;222;224;225m210\u001b[39m\u001b[38;2;157;165;169mms\u001b[39m",
         "    \u001b[38;2;157;165;169mold_string not found\u001b[39m"
+      ]
+    },
+    "writing/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;59;63;65m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;59;63;65m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;116;89;180mns/pi-ui/decorator.ts\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m22\u001b[39m",
+        "    \u001b[48;2;238;226;225m-\u001b[38;2;47;120;153mexport\u001b[39m \u001b[38;2;47;120;153mconst\u001b[39m FOLD_                \u001b[49m"
+      ]
+    },
+    "writing/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;59;63;65m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;59;63;65m\u001b[1m … \u001b[22m\u001b[39m\u001b[38;2;116;89;180mpi-ui/decorator.ts\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m22\u001b[39m",
+        "    \u001b[48;2;238;226;225m-\u001b[38;2;47;120;153mexport\u001b[39m \u001b[38;2;47;120;153mconst\u001b[39m FOLD_                \u001b[49m"
+      ]
+    },
+    "writing/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;59;63;65m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mextensions/pi-ui/decorator.ts\u001b[39m                  \u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m22\u001b[39m",
+        "    \u001b[48;2;238;226;225m-\u001b[38;2;47;120;153mexport\u001b[39m \u001b[38;2;47;120;153mconst\u001b[39m FOLD_                                    \u001b[49m"
+      ]
+    },
+    "writing/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;59;63;65m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mextensions/pi-ui/decorator.ts\u001b[39m               \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m22\u001b[39m",
+        "    \u001b[48;2;238;226;225m-\u001b[38;2;47;120;153mexport\u001b[39m \u001b[38;2;47;120;153mconst\u001b[39m FOLD_                                    \u001b[49m"
+      ]
+    },
+    "writing/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;59;63;65m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mextensions/pi-ui/decorator.ts\u001b[39m                                      \u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m22\u001b[39m",
+        "    \u001b[48;2;238;226;225m-\u001b[38;2;47;120;153mexport\u001b[39m \u001b[38;2;47;120;153mconst\u001b[39m FOLD_                                                        \u001b[49m"
+      ]
+    },
+    "writing/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;59;63;65m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mextensions/pi-ui/decorator.ts\u001b[39m                                   \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m22\u001b[39m",
+        "    \u001b[48;2;238;226;225m-\u001b[38;2;47;120;153mexport\u001b[39m \u001b[38;2;47;120;153mconst\u001b[39m FOLD_                                                        \u001b[49m"
+      ]
+    },
+    "writing/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;59;63;65m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mextensions/pi-ui/decorator.ts\u001b[39m                                                          \u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m22\u001b[39m",
+        "    \u001b[48;2;238;226;225m-\u001b[38;2;47;120;153mexport\u001b[39m \u001b[38;2;47;120;153mconst\u001b[39m FOLD_                                                                            \u001b[49m"
+      ]
+    },
+    "writing/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;59;63;65m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mextensions/pi-ui/decorator.ts\u001b[39m                                                       \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m22\u001b[39m",
+        "    \u001b[48;2;238;226;225m-\u001b[38;2;47;120;153mexport\u001b[39m \u001b[38;2;47;120;153mconst\u001b[39m FOLD_                                                                            \u001b[49m"
+      ]
+    },
+    "writing/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;59;63;65m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mextensions/pi-ui/decorator.ts\u001b[39m                                                                              \u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m22\u001b[39m",
+        "    \u001b[48;2;238;226;225m-\u001b[38;2;47;120;153mexport\u001b[39m \u001b[38;2;47;120;153mconst\u001b[39m FOLD_                                                                                                \u001b[49m"
+      ]
+    },
+    "writing/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;59;63;65m\u001b[1medit\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mextensions/pi-ui/decorator.ts\u001b[39m                                                                           \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m22\u001b[39m",
+        "    \u001b[48;2;238;226;225m-\u001b[38;2;47;120;153mexport\u001b[39m \u001b[38;2;47;120;153mconst\u001b[39m FOLD_                                                                                                \u001b[49m"
       ]
     },
     "l0/light/40/unicode": {
@@ -11012,6 +11348,136 @@
     }
   },
   "ours.mcp": {
+    "writing/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;222;224;225m\u001b[1mmemory/search\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mrecency grading\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m28\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142mlimit  \u001b[39m5\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142mscope  \u001b[39m{\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  \"project\": \"pi-ui\",\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  \"kinds\": [\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m    \"decision\",\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m    \"risk\"\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  ]\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m}\u001b[39m"
+      ]
+    },
+    "writing/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;222;224;225m\u001b[1mmemory/search\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mrecency grading\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142mlimit  \u001b[39m5\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142mscope  \u001b[39m{\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  \"project\": \"pi-ui\",\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  \"kinds\": [\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m    \"decision\",\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m    \"risk\"\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  ]\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m}\u001b[39m"
+      ]
+    },
+    "writing/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;222;224;225m\u001b[1mmemory/search\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mrecency grading\u001b[39m                       \u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m28\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142mlimit  \u001b[39m5\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142mscope  \u001b[39m{\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  \"project\": \"pi-ui\",\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  \"kinds\": [\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m    \"decision\",\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m    \"risk\"\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  ]\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m}\u001b[39m"
+      ]
+    },
+    "writing/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;222;224;225m\u001b[1mmemory/search\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mrecency grading\u001b[39m                    \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m28\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142mlimit  \u001b[39m5\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142mscope  \u001b[39m{\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  \"project\": \"pi-ui\",\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  \"kinds\": [\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m    \"decision\",\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m    \"risk\"\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  ]\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m}\u001b[39m"
+      ]
+    },
+    "writing/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;222;224;225m\u001b[1mmemory/search\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mrecency grading\u001b[39m                                           \u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m28\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142mlimit  \u001b[39m5\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142mscope  \u001b[39m{\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  \"project\": \"pi-ui\",\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  \"kinds\": [\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m    \"decision\",\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m    \"risk\"\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  ]\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m}\u001b[39m"
+      ]
+    },
+    "writing/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;222;224;225m\u001b[1mmemory/search\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mrecency grading\u001b[39m                                        \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m28\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142mlimit  \u001b[39m5\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142mscope  \u001b[39m{\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  \"project\": \"pi-ui\",\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  \"kinds\": [\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m    \"decision\",\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m    \"risk\"\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  ]\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m}\u001b[39m"
+      ]
+    },
+    "writing/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;222;224;225m\u001b[1mmemory/search\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mrecency grading\u001b[39m                                                               \u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m28\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142mlimit  \u001b[39m5\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142mscope  \u001b[39m{\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  \"project\": \"pi-ui\",\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  \"kinds\": [\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m    \"decision\",\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m    \"risk\"\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  ]\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m}\u001b[39m"
+      ]
+    },
+    "writing/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;222;224;225m\u001b[1mmemory/search\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mrecency grading\u001b[39m                                                            \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m28\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142mlimit  \u001b[39m5\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142mscope  \u001b[39m{\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  \"project\": \"pi-ui\",\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  \"kinds\": [\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m    \"decision\",\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m    \"risk\"\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  ]\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m}\u001b[39m"
+      ]
+    },
+    "writing/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;222;224;225m\u001b[1mmemory/search\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mrecency grading\u001b[39m                                                                                   \u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m28\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142mlimit  \u001b[39m5\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142mscope  \u001b[39m{\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  \"project\": \"pi-ui\",\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  \"kinds\": [\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m    \"decision\",\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m    \"risk\"\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  ]\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m}\u001b[39m"
+      ]
+    },
+    "writing/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;222;224;225m\u001b[1mmemory/search\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mrecency grading\u001b[39m                                                                                \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m28\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142mlimit  \u001b[39m5\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142mscope  \u001b[39m{\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  \"project\": \"pi-ui\",\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  \"kinds\": [\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m    \"decision\",\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m    \"risk\"\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m  ]\u001b[39m",
+        "    \u001b[38;2;157;165;169m\u001b[38;2;126;136;142m       \u001b[39m}\u001b[39m"
+      ]
+    },
     "l0/dark/40/unicode": {
       "lines": [
         "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mmemory/search\u001b[22m\u001b[39m        \u001b[38;2;167;152;215m↑\u001b[39m\u001b[38;2;222;224;225m17\u001b[39m\u001b[38;2;157;165;169m · \u001b[39m\u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m12\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;222;224;225m95\u001b[39m\u001b[38;2;157;165;169mms\u001b[39m",
@@ -11150,6 +11616,136 @@
         "\u001b[38;2;104;183;141m*\u001b[39m \u001b[38;2;222;224;225m\u001b[1mmemory/search\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;126;136;142m3 facts\u001b[39m                                                                         \u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m17\u001b[39m\u001b[38;2;157;165;169m . \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m12\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;222;224;225m95\u001b[39m\u001b[38;2;157;165;169mms\u001b[39m",
         "    \u001b[38;2;157;165;169mmemory: 3 facts stored\u001b[39m",
         "    \u001b[38;2;157;165;169mkeys: onboarding, deploy, incident-2026-11\u001b[39m"
+      ]
+    },
+    "writing/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;59;63;65m\u001b[1mmemory/search\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mrecency grading\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m28\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149mlimit  \u001b[39m5\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149mscope  \u001b[39m{\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  \"project\": \"pi-ui\",\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  \"kinds\": [\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m    \"decision\",\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m    \"risk\"\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  ]\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m}\u001b[39m"
+      ]
+    },
+    "writing/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;59;63;65m\u001b[1mmemory/search\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mrecency grading\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149mlimit  \u001b[39m5\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149mscope  \u001b[39m{\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  \"project\": \"pi-ui\",\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  \"kinds\": [\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m    \"decision\",\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m    \"risk\"\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  ]\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m}\u001b[39m"
+      ]
+    },
+    "writing/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;59;63;65m\u001b[1mmemory/search\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mrecency grading\u001b[39m                       \u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m28\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149mlimit  \u001b[39m5\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149mscope  \u001b[39m{\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  \"project\": \"pi-ui\",\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  \"kinds\": [\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m    \"decision\",\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m    \"risk\"\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  ]\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m}\u001b[39m"
+      ]
+    },
+    "writing/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;59;63;65m\u001b[1mmemory/search\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mrecency grading\u001b[39m                    \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m28\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149mlimit  \u001b[39m5\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149mscope  \u001b[39m{\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  \"project\": \"pi-ui\",\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  \"kinds\": [\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m    \"decision\",\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m    \"risk\"\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  ]\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m}\u001b[39m"
+      ]
+    },
+    "writing/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;59;63;65m\u001b[1mmemory/search\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mrecency grading\u001b[39m                                           \u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m28\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149mlimit  \u001b[39m5\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149mscope  \u001b[39m{\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  \"project\": \"pi-ui\",\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  \"kinds\": [\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m    \"decision\",\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m    \"risk\"\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  ]\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m}\u001b[39m"
+      ]
+    },
+    "writing/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;59;63;65m\u001b[1mmemory/search\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mrecency grading\u001b[39m                                        \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m28\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149mlimit  \u001b[39m5\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149mscope  \u001b[39m{\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  \"project\": \"pi-ui\",\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  \"kinds\": [\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m    \"decision\",\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m    \"risk\"\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  ]\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m}\u001b[39m"
+      ]
+    },
+    "writing/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;59;63;65m\u001b[1mmemory/search\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mrecency grading\u001b[39m                                                               \u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m28\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149mlimit  \u001b[39m5\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149mscope  \u001b[39m{\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  \"project\": \"pi-ui\",\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  \"kinds\": [\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m    \"decision\",\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m    \"risk\"\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  ]\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m}\u001b[39m"
+      ]
+    },
+    "writing/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;59;63;65m\u001b[1mmemory/search\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mrecency grading\u001b[39m                                                            \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m28\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149mlimit  \u001b[39m5\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149mscope  \u001b[39m{\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  \"project\": \"pi-ui\",\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  \"kinds\": [\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m    \"decision\",\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m    \"risk\"\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  ]\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m}\u001b[39m"
+      ]
+    },
+    "writing/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;59;63;65m\u001b[1mmemory/search\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mrecency grading\u001b[39m                                                                                   \u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m28\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149mlimit  \u001b[39m5\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149mscope  \u001b[39m{\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  \"project\": \"pi-ui\",\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  \"kinds\": [\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m    \"decision\",\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m    \"risk\"\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  ]\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m}\u001b[39m"
+      ]
+    },
+    "writing/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;59;63;65m\u001b[1mmemory/search\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mrecency grading\u001b[39m                                                                                \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m28\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149mlimit  \u001b[39m5\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149mscope  \u001b[39m{\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  \"project\": \"pi-ui\",\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  \"kinds\": [\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m    \"decision\",\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m    \"risk\"\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m  ]\u001b[39m",
+        "    \u001b[38;2;103;113;118m\u001b[38;2;135;144;149m       \u001b[39m}\u001b[39m"
       ]
     },
     "l0/light/40/unicode": {

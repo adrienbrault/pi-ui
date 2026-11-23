@@ -190,6 +190,15 @@ const readRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
 /** A path too long for a header at most widths. */
 const LONG_READ_PATH = "packages/pi-ui/extensions/interaction/fixtures/sessions/thinking-and-tools.ts";
 
+/** A script an agent writes as a heredoc: too tall for any header. */
+const WRITTEN_SCRIPT = [
+  "python3 - <<'PY'",
+  "import json, pathlib",
+  "sizes = {p.name: p.stat().st_size for p in pathlib.Path('render').glob('*.ts')}",
+  "print(json.dumps(sorted(sizes.items(), key=lambda item: -item[1])[:5], indent=2))",
+  "PY",
+].join("\n");
+
 /** A command long enough to wrap, over two lines, as an agent writes it. */
 const OPENED_COMMAND =
   "cd packages/pi-ui && bun test render/render.test.ts extensions/interaction.test.ts --timeout 20000 --bail\nbun run typecheck";
@@ -245,6 +254,19 @@ const editRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
   durationMs: 210,
   ...overrides,
 });
+
+/** An edit as the model writes it: the replacement's old text, then its new text, `chars` of it so far. */
+const WRITTEN_EDIT = {
+  oldText: "export const FOLD_DISTANCE = 10;\nexport const FORMING_ROWS = 5;",
+  newText:
+    "// Blocks this far back fold into one summary row.\nexport const FOLD_DISTANCE = 12;\nexport const FORMING_ROWS = 5;",
+};
+const writtenEdit = (chars: number) => {
+  const old = WRITTEN_EDIT.oldText.slice(0, chars);
+  const rest = Math.max(0, chars - WRITTEN_EDIT.oldText.length);
+  return rest ? { oldText: old, newText: WRITTEN_EDIT.newText.slice(0, rest) } : { oldText: old };
+};
+const WRITTEN_TOTAL = WRITTEN_EDIT.oldText.length + WRITTEN_EDIT.newText.length;
 
 const mcpRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
   name: "mcp__memory__search",
@@ -697,6 +719,20 @@ const oursEntries: EntryDef[] = [
         "the newest lines stay; the notice above them counts the lines hidden above",
       ),
       levelState(
+        "writing",
+        "being written",
+        0,
+        () =>
+          bashRow({
+            status: "pending",
+            args: { command: WRITTEN_SCRIPT },
+            title: undefined,
+            output: "",
+            durationMs: undefined,
+          }),
+        "a command its header cannot show whole streams under it, newest lines last, until its output starts",
+      ),
+      levelState(
         "rg",
         "rg across files",
         0,
@@ -759,6 +795,23 @@ const oursEntries: EntryDef[] = [
     variant: "ours",
     description: "Diff stat in the header; diff rows trend on the head.",
     states: [
+      {
+        id: "writing",
+        label: "being written",
+        note: "the replacement streams as the model writes it: old text as removed lines, then new text as added ones",
+        frames: 10,
+        render: (ctx, frame) =>
+          renderToolRow(
+            ours(ctx),
+            editRow({
+              status: "pending",
+              output: "",
+              summary: "",
+              durationMs: undefined,
+              args: { path: editPath, edits: [writtenEdit(Math.round(((frame + 1) / 10) * WRITTEN_TOTAL))] },
+            }),
+          ).render(ctx.width),
+      },
       levelState("l0", "success L0", 0, () => editRow()),
       levelState("l1", "aged L1", 1, () => editRow()),
       levelState("l3", "aged L3", 3, () => editRow()),
@@ -773,7 +826,25 @@ const oursEntries: EntryDef[] = [
     group: "tools",
     variant: "ours",
     description: "mcp__server__tool becomes server/tool, with a generic or tool-specific summary.",
-    states: [levelState("l0", "success L0", 0, () => mcpRow()), levelState("l3", "aged L3", 3, () => mcpRow())],
+    states: [
+      levelState(
+        "writing",
+        "being written",
+        0,
+        () =>
+          mcpRow({
+            status: "pending",
+            output: "",
+            summary: "",
+            durationMs: undefined,
+            title: undefined,
+            args: { query: "recency grading", limit: 5, scope: { project: "pi-ui", kinds: ["decision", "risk"] } },
+          }),
+        "the arguments the title does not show stream as fields until the result arrives",
+      ),
+      levelState("l0", "success L0", 0, () => mcpRow()),
+      levelState("l3", "aged L3", 3, () => mcpRow()),
+    ],
   },
   {
     id: "ours.group",
