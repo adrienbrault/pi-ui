@@ -488,11 +488,12 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, rowWidth: number
   }
 
   const metrics = pieces.filter((part) => part.kind === "tokens" || part.kind === "duration");
-  if (!metrics.length) return { line: kit.truncateToWidth(compose(pieces), width, mark), hiddenTitle, continuation };
+  if (!metrics.length)
+    return { line: kit.truncateToWidth(compose(pieces), width, mark), hiddenTitle, continuation, cut: truncated };
   const left = compose(pieces.filter((part) => !metrics.includes(part)));
   const right = metrics.map((part) => part.text).join(sep);
   const line = kit.truncateToWidth(alignEnds(kit, left, right, sep, width), width, mark);
-  return { line, hiddenTitle, continuation };
+  return { line, hiddenTitle, continuation, cut: truncated };
 }
 
 interface Selected {
@@ -975,6 +976,13 @@ interface BodyLayout {
 }
 
 /** Cut wrapped rows to `room`, ending the last kept row with the cut mark. */
+/** A line being written that outgrows the rows left keeps its end, where the newest characters are, under a `…` row. */
+function clipTail(rows: string[], room: number, cut: string): string[] {
+  if (rows.length <= room) return rows;
+  if (room <= 1) return rows.slice(-Math.max(0, room));
+  return [cut, ...rows.slice(-(room - 1))];
+}
+
 function clipRows(kit: RenderKit, rows: string[], room: number, width: number, mark: string): string[] {
   if (rows.length <= room) return rows;
   const kept = rows.slice(0, Math.max(0, room));
@@ -1088,7 +1096,9 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number,
   const inner = Math.max(1, width - indent.length);
   const wrap = !!(input.expanded || input.full);
   // What the model is writing wraps even in a preview: a cut would hide the newest characters.
-  const wrapLines = wrap || !!call;
+  // A write's content streams too.
+  const writing = !!call || streamingWrite;
+  const wrapLines = wrap || writing;
   const mark = cutMark(theme);
   let clipped = false;
   // Wrapping is the costly step and a selection can repeat lines: do each once per width.
@@ -1151,8 +1161,14 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number,
       const key = `${room}:${content}`;
       parts = wrapped.get(key) ?? [];
       if (!wrapped.has(key)) {
-        // No line can need more than the whole budget: bound the wrap work.
-        parts = kit.wrap(kit.truncateToWidth(content, room * (budget + 1), ""), room);
+        // No line can need more than the whole budget: bound the wrap work. A line being written
+        // keeps its end, where the newest characters are; past the bound it goes plain.
+        const bound = room * (budget + 1);
+        const fits = kit.visibleWidth(content) <= bound;
+        parts = kit.wrap(
+          fits ? content : writing && !wrap ? line.slice(-bound) : kit.truncateToWidth(content, bound, ""),
+          room,
+        );
         wrapped.set(key, parts);
       }
     } else {
@@ -1214,7 +1230,12 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number,
   /** The source line behind each row: a wrapped line's rows share it. */
   const rowSources: Array<number | undefined> = [];
   const rows = items.flatMap((item, index) => {
-    const kept = selected[index]?.notice || selected[index]?.rule ? item : clipRows(kit, item, room, width, mark);
+    const kept =
+      selected[index]?.notice || selected[index]?.rule
+        ? item
+        : writing && !wrap
+          ? clipTail(item, room, indent + theme.fg("dim", "…"))
+          : clipRows(kit, item, room, width, mark);
     if (!selected[index]?.notice && !selected[index]?.rule) room -= kept.length;
     for (let row = 0; row < kept.length; row++) rowSources.push(selected[index]?.index);
     return kept;
@@ -1237,8 +1258,12 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number,
 
 /** The header, an opened command's continuation rows, and the body: one row budget for all. */
 export function toolRowLayout(api: RenderApi, input: ToolRowInput, width: number): BodyLayout {
-  const { line, continuation, hiddenTitle } = toolHeader(api, input, width);
+  const { line, continuation, hiddenTitle, cut } = toolHeader(api, input, width);
   const rows = [line];
+  // A command the header cuts or folds onto one line streams in the body; one it only tidies
+  // (a doubled space, a trailing one) does not, and an opened one already shows in full above.
+  const streamedTitle =
+    !continuation && hiddenTitle && (cut || hiddenTitle.trim().includes("\n")) ? hiddenTitle : undefined;
   // A "full" read is allowed to be long, just not unbounded.
   let budget = input.full ? MAX_FULL_LINES : bodyLinesFor(input.level, input.expanded ?? false);
   if (continuation?.rows.length) {
@@ -1265,7 +1290,7 @@ export function toolRowLayout(api: RenderApi, input: ToolRowInput, width: number
     bar,
     sources,
     omission,
-  } = body(api, input, Math.max(1, width - HEADER_MARGIN), budget, continuation ? undefined : hiddenTitle);
+  } = body(api, input, Math.max(1, width - HEADER_MARGIN), budget, streamedTitle);
   return {
     rows: rows.concat(bodyRows),
     clipped,

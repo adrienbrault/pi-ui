@@ -2008,6 +2008,23 @@ describe("a call being written", () => {
     expect(edit.at(-1)?.trimEnd()).toEndWith("LAST;");
   });
 
+  test("a short command the header only tidies streams no body row while it is typed", () => {
+    for (const command of ["git ", "ls  -la", "bun\ttest"])
+      expect(pendingRow("bash", { command }).render(80)).toHaveLength(1);
+  });
+
+  test("a line taller than the rows left keeps its end, under a cut row", () => {
+    const rows = pendingRow("bash", { command: `${"x".repeat(1990)}NEWEST` }).render(60);
+    expect(rows[1]?.trim()).toBe("…");
+    expect(rows.at(-1)?.trimEnd()).toEndWith("NEWEST");
+  });
+
+  test("a write's long line wraps while it streams, so its newest characters show", () => {
+    const rows = pendingRow("write", { path: "a.ts", content: `short\n${"y".repeat(150)}NEWEST` }).render(60);
+    expect(rows.at(-1)?.trimEnd()).toEndWith("NEWEST");
+    expect(rows.join("\n")).not.toContain("…");
+  });
+
   test("the first output replaces the arguments", () => {
     const rows = pendingRow("bash", { command: "a\nb" }, { status: "running", output: "hello" }).render(80);
     expect(rows.slice(1)).toEqual(["    hello"]);
