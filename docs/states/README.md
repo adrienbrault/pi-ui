@@ -52,6 +52,12 @@ A write shows the start and the end of the new file, numbered.
 
 ![Write](write-preview.png)
 
+## Edit being written
+
+An edit streams as the model writes it: each replacement's old text as removed lines, then its new text as added ones.
+
+![Edit being written](edit-writing.png)
+
 ## Edit
 
 An edit shows its diff with the old and new line numbers.

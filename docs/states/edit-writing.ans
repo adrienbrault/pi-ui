@@ -1,0 +1,40 @@
+    [38;2;157;165;169m--- powershell 1694213[39m    
+    [38;2;157;165;169mrShellConfig(),suffix=win32.basename(shellConfig.shell).toLowerCase()==="powershell.exe"&&!command.endsWith("`")[1m[38;2;222;224;225m … [0m 
+
+[38;2;167;152;215m✻[39m [1m[38;2;222;224;225mthink[0m                                                                                              [38;2;105;173;208m↓[38;2;222;224;225m39[38;2;157;165;169m @ [38;2;222;224;225m72[38;2;157;165;169m/s[39m [38;2;126;136;142m·[39m [38;2;222;224;225m525[38;2;157;165;169mms[39m 
+    [3m[38;2;150;160;164mCodemode is a builtin extension, not builtin tool. The tool name may be provided by codemode extension. Let's[0m       
+    [3m[38;2;150;160;164msearch [0m[38;2;167;152;215mcodemodeTool[3m[38;2;150;160;164m or tool definition.[0m                 
+
+[38;2;104;183;141m●[39m [1m[38;2;222;224;225mbash[0m [38;2;126;136;142m·[39m [38;2;167;152;215mpython3 - <<'PY' import re p='packages/p[1m[38;2;222;224;225m … [0m[38;2;167;152;215m200):i+200].replace('\n',' ')[:400]) PY[39m [38;2;126;136;142m·[39m [38;2;167;152;215m↑[38;2;222;224;225m859[38;2;157;165;169m · [38;2;105;173;208m↓[38;2;222;224;225m108[38;2;157;165;169m @ [38;2;222;224;225m81[38;2;157;165;169m/s[39m [38;2;126;136;142m·[39m [38;2;222;224;225m30[38;2;157;165;169mms[39m 
+    [3m[38;2;126;136;142m↑ 10 more lines[0m           
+    [38;2;157;165;169m--- tool_search 1929627[39m   
+    [38;2;157;165;169mSectionIntro(reaches){let intro="MCP servers whose tools are not declared to you.";return reaches.has("codemode"[1m[38;2;222;224;225m … [0m 
+    [38;2;157;165;169m--- tool_search 1929671[39m   
+    [38;2;157;165;169m whose tools are not declared to you.";return reaches.has("codemode")&&(intro+=" Call the tools of `codemode` se[1m[38;2;222;224;225m … [0m 
+    [38;2;157;165;169m--- tool_search 1929698[39m   
+    [38;2;157;165;169med to you.";return reaches.has("codemode")&&(intro+=" Call the tools of `codemode` servers from codemode scripts[1m[38;2;222;224;225m … [0m 
+
+[38;2;167;152;215m✻[39m [1m[38;2;222;224;225mthink[0m                                                                                               [38;2;105;173;208m↓[38;2;222;224;225m737[38;2;157;165;169m @ [38;2;222;224;225m26[38;2;157;165;169m/s[39m [38;2;126;136;142m·[39m [38;2;222;224;225m29[38;2;157;165;169ms[39m 
+    [3m[38;2;126;136;142m↑ 47 more lines[0m           
+    [3m[38;2;150;160;164mReview "doc ladder says L0 live 7 rows, tool row 8" yes.
+
+[0m    [3m[38;2;150;160;164mMaybe check [0m[38;2;167;152;215mvariant[3m[38;2;150;160;164m base only + ours; yes.[0m              
+
+    [3m[38;2;150;160;164mNow adjust review minor wording and dead code list. Also maybe mention demo file in review? Not necessary. Let's[0m    
+    [3m[38;2;150;160;164medit.[0m                     
+
+[38;2;126;136;142m○[39m [1m[38;2;222;224;225medit[0m [38;2;126;136;142m·[39m [38;2;167;152;215m/tmp/pi-ui-review.md[39m                                                                              [38;2;105;173;208m↓[38;2;222;224;225m200[38;2;157;165;169m @ [38;2;222;224;225m106[38;2;157;165;169m/s[39m 
+    [3m[38;2;126;136;142m↑ 6 more lines[0m            
+    [48;2;37;65;49m+- `codemode` — the plan explicitly says "builtin + MCP + codemode" and the taxonomy maps it to the `code` class.  [49m 
+    [48;2;37;65;49m+- `powershell` — the taxonomy maps it to `shell`.                                                                 [49m 
+    [3m[38;2;126;136;142m⋮[0m                         
+    [48;2;91;40;42m-- `EXPANDED_BODY_LINES`, `plural()`, `padBetween()`, `indented()`, `squeeze()` and `renderToolLine()`'s           [49m 
+    [48;2;91;40;42mnon-gallery uses are very lightly used or unused.                                                                  [49m 
+    [48;2;91;40;42m-                                                                                                                  [49m 
+    [48;2;91;40;42m-Either make the progressive reveal real or delete the fields; the current                                         [49m 
+
+[38;2;97;133;204m── ⠼[39m [38;2;97;133;204mWorking ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+[7m[39m [0m                             
+[38;2;97;133;204m────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+[38;2;126;136;142m~/pi-ui[39m                       
+[38;2;126;136;142m↑128k ↓61k R7.7M CH99.7% 0.2%/100M (auto)                                              deepseek-v4.1-flash-1017 • medium
