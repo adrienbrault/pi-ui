@@ -446,7 +446,8 @@ function decorate(
       if (region.piUiHover !== hover) {
         region.piUiHover = hover;
         bindHover(region, component, hover, foldOf);
-        expandedRegions.set(region, (row) => !!hover.expanded && (foldOf().mode !== "anchor" || row > 0));
+        // The open bar starts under the thought's heading: row 0, or row 1 under its group's summary.
+        expandedRegions.set(region, (row) => !!hover.expanded && row > (foldOf().mode === "anchor" ? 1 : 0));
         hoveredRegions.set(region, () => hover.target === "thought");
       }
       // Keep our marker and body in both states; expanding must not hand the

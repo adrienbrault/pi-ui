@@ -527,7 +527,8 @@ function groupComponent(record: BlockRecord, theme: Theme): Component {
     invalidate: () => {},
   };
   const surface = new MouseRegion(inner, (event) => onGroupMouse(record, event));
-  expandedRegions.set(surface, (row) => record.expansion === 1 && (record.mode === "hidden" || row > 0));
+  // The open bar starts under the member's heading: row 0, or row 1 under the group's summary.
+  expandedRegions.set(surface, (row) => record.expansion === 1 && row > (record.mode === "hidden" ? 0 : 1));
   hoveredRegions.set(surface, () => record.hover);
   return surface;
 }

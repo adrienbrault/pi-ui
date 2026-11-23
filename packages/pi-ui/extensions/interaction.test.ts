@@ -11,6 +11,7 @@ import { BLOCKS_PER_STEP, detailFor, FOLD_DISTANCE, FORMING_ROWS } from "../rend
 import { keepGroupOpen, setGroupOpen, toolPlan } from "./fold.ts";
 import { BACKLOG_MIN_MS, backlogIntervalMs, fadeDurationMs, toolFade } from "./fade.ts";
 import piUi, { actionFor } from "./index.ts";
+import { expandedRegions } from "./viewport.ts";
 
 // Syntax highlighting reads pi's global theme; do not depend on another test file installing it.
 beforeAll(() => initTheme("dark"));
@@ -1787,6 +1788,8 @@ function thoughtSession(text: string, streaming = false) {
   return {
     rows: (width = 80) => current().child.render(width),
     mouse: (type: "move" | "click", y: number) => current().onMouse({ type, y }),
+    /** Whether the open block's bar covers row `row` of the thought's region. */
+    barred: (row: number) => !!expandedRegions.get(current())?.(row),
   };
 }
 
@@ -1818,6 +1821,9 @@ describe("thought interaction", () => {
     thought.mouse("click", 3);
     const open = thought.rows();
     expect(open).toHaveLength(41);
+    // The open bar runs beside the body, under the heading, never over it.
+    expect(thought.barred(0)).toBe(false);
+    expect(thought.barred(1)).toBe(true);
     expect(open.join("\n")).not.toContain("[ click");
     expect(open.map(barCell).every((cell) => cell === "none")).toBe(true);
     thought.mouse("click", 25);
