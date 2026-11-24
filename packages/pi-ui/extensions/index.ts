@@ -46,6 +46,7 @@ import {
   registerToolInfo,
   resetFolds,
   setGroupOpen,
+  setToolExpanded,
   toolInfo,
   toolPlan,
 } from "./fold.ts";
@@ -203,6 +204,7 @@ function levelOf(record: BlockRecord): DetailLevel {
 
 function setExpansion(record: BlockRecord, expansion: Expansion): void {
   record.expansion = expansion;
+  if (typeof record.key === "string") setToolExpanded(record.key, expansion === 1);
   record.pinnedVisible = expansion === 1 && !record.group;
   publishToolInfo(record);
 }

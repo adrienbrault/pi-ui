@@ -7,10 +7,11 @@ import {
   type TextStyle,
   type TuiMouseEvent,
 } from "@earendil-works/pi-tui";
-import { BLOCKS_PER_STEP, detailFor, FOLD_DISTANCE, FORMING_ROWS } from "../render/detail.ts";
+import { BLOCKS_PER_STEP, detailFor, FOLD_DISTANCE, FORMING_ROWS, type DetailLevel } from "../render/detail.ts";
 import { keepGroupOpen, setGroupOpen, toolPlan } from "./fold.ts";
 import { BACKLOG_MIN_MS, backlogIntervalMs, fadeDurationMs, toolFade } from "./fade.ts";
 import piUi, { actionFor } from "./index.ts";
+import { sizeImages } from "./thinking.ts";
 import { expandedRegions } from "./viewport.ts";
 
 // Syntax highlighting reads pi's global theme; do not depend on another test file installing it.
@@ -1858,5 +1859,48 @@ describe("thought interaction", () => {
     expect(thought.rows()).toEqual(idle);
     thought.mouse("click", 1);
     expect(thought.rows()).toEqual(idle);
+  });
+});
+
+/** A stand-in for pi-tui's Image: as many rows as its height option allows, 27 when it has none. */
+function fakeImage() {
+  const image = {
+    options: { maxWidthCells: 60 } as { maxWidthCells: number; maxHeightCells?: number },
+    renders: 0,
+    invalidate() {},
+    render(_width: number): string[] {
+      image.renders += 1;
+      return Array.from({ length: image.options.maxHeightCells ?? 27 }, () => "");
+    },
+  };
+  return image;
+}
+
+describe("tool row images", () => {
+  test("an image draws at its level's height, whole when opened, and folds away with its spacer", () => {
+    const image = fakeImage();
+    const spacer = { render: () => [""] };
+    const state = { level: 0 as DetailLevel, open: false, folded: false };
+    sizeImages({ imageComponents: [image], imageSpacers: [spacer] }, () => state);
+    expect(image.render(100)).toHaveLength(27);
+    state.level = 5;
+    expect(image.render(100)).toHaveLength(10);
+    state.open = true;
+    expect(image.render(100)).toHaveLength(27);
+    state.open = false;
+    state.folded = true;
+    expect(image.render(100)).toHaveLength(0);
+    expect(spacer.render()).toHaveLength(0);
+    state.open = true;
+    expect(image.render(100)).toHaveLength(27);
+    expect(spacer.render()).toHaveLength(1);
+  });
+
+  test("an image is sized once, however often its row renders", () => {
+    const image = fakeImage();
+    const component = { imageComponents: [image] };
+    sizeImages(component, () => ({ level: 5 as DetailLevel, open: false, folded: false }));
+    sizeImages(component, () => ({ level: 0 as DetailLevel, open: false, folded: false }));
+    expect(image.render(100)).toHaveLength(10);
   });
 });

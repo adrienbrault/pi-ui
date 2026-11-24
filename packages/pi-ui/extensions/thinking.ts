@@ -15,7 +15,14 @@
 
 import type { Component } from "@earendil-works/pi-tui";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { BLOCKS_PER_STEP, COMPACT_LEVEL, detailFor, FOLD_DISTANCE, type DetailLevel } from "../render/detail.ts";
+import {
+  BLOCKS_PER_STEP,
+  COMPACT_LEVEL,
+  detailFor,
+  FOLD_DISTANCE,
+  imageRowsFor,
+  type DetailLevel,
+} from "../render/detail.ts";
 import { glyphsFor } from "../render/glyphs.ts";
 import { renderGroupMember, renderGroupRow } from "../render/group-row.ts";
 import { KIT } from "./kit.ts";
@@ -46,6 +53,7 @@ import {
   setGroupOpen,
   stepPlanLevel,
   thinkingPlan,
+  toolExpanded,
   toolInfo,
   toolPlan,
 } from "./fold.ts";
@@ -94,7 +102,17 @@ interface ContentEntry {
   text?: string;
 }
 
+/** pi-tui's Image, as far as pi-ui uses it: its options carry the height it may take. */
+interface ImageLike {
+  render(width: number): string[];
+  invalidate?: () => void;
+  options?: { maxHeightCells?: number };
+}
+
 interface ToolComponentLike extends Partial<Component> {
+  /** The images of the result, drawn by pi after the renderer's rows, each after a spacer row. */
+  imageComponents?: unknown[];
+  imageSpacers?: unknown[];
   selfRenderHeight?: number;
   selfRenderContainer?: Parameters<typeof insideExpanded>[0];
   toolCallId?: string;
@@ -532,6 +550,61 @@ function isToolComponent(component: unknown): component is ToolComponentLike {
 }
 
 const compactToolShells = new WeakSet<ToolComponentLike>();
+const sizedImages = new WeakSet<object>();
+
+function isImageLike(value: unknown): value is ImageLike {
+  const candidate = value as Partial<ImageLike> | undefined;
+  return typeof candidate?.render === "function" && typeof candidate.options === "object";
+}
+
+/**
+ * A tool row's images follow its detail level like its text (see `imageRowsFor`): whole while
+ * the block is newest or open, smaller as it ages, gone while it is folded. Each image measures
+ * its full height once per width, then draws at the height its level allows; its spacer row goes
+ * with it when it is folded. pi-tui deletes a terminal image whose rows leave the screen.
+ */
+export function sizeImages(
+  component: ToolComponentLike,
+  state: () => { level: DetailLevel; open: boolean; folded: boolean },
+): void {
+  const folded = () => state().folded && !state().open;
+  const rowsFor = (full: number) => {
+    const { level, open, folded: inGroup } = state();
+    return imageRowsFor(full, level, open, inGroup);
+  };
+  for (const image of component.imageComponents ?? []) {
+    if (!isImageLike(image) || sizedImages.has(image)) continue;
+    sizedImages.add(image);
+    const render = image.render;
+    let full: { width: number; rows: number } | undefined;
+    let applied: number | undefined;
+    const apply = (height: number | undefined) => {
+      if (height === applied) return;
+      image.options = { ...image.options, maxHeightCells: height };
+      image.invalidate?.();
+      applied = height;
+    };
+    image.render = function (width) {
+      if (full?.width !== width) {
+        apply(undefined);
+        full = { width, rows: render.call(this, width).length };
+      }
+      const rows = rowsFor(full.rows);
+      if (rows === 0) return [];
+      apply(rows < full.rows ? rows : undefined);
+      return render.call(this, width);
+    };
+  }
+  for (const spacer of component.imageSpacers ?? []) {
+    const candidate = spacer as Partial<ImageLike> | undefined;
+    if (typeof candidate?.render !== "function" || sizedImages.has(candidate)) continue;
+    sizedImages.add(candidate);
+    const render = candidate.render;
+    candidate.render = function (width) {
+      return folded() ? [] : render.call(this, width);
+    };
+  }
+}
 
 /** Pi's self-render shell inserts a blank before its content and subtracts it during mouse dispatch. */
 function compactToolMember(component: ToolComponentLike, key: string, theme: RenderTheme): void {
@@ -553,6 +626,10 @@ function compactToolMember(component: ToolComponentLike, key: string, theme: Ren
   hoveredRegions.set(component, () => !!component.selfRenderContainer && insideHovered(component.selfRenderContainer));
   component.render = function (width) {
     WIDTHS.set(component, width);
+    sizeImages(component, () => {
+      const plan = toolPlan(key);
+      return { level: plan?.level ?? 0, open: toolExpanded(key), folded: !!plan?.group || plan?.mode === "hidden" };
+    });
     const lines = render.call(this, width);
     const plan = toolPlan(key);
     skippedSpacer = plan?.mode === "hidden" && plan.group?.open === true && lines[0] === "";

@@ -5,6 +5,7 @@ pi-ui (`@adrienbrault/pi-ui`) is an extension for the [pi coding agent](https://
 ## What it changes
 
 - **Older blocks get shorter.** The newest tool call or thought shows up to 8 lines of output. Every two newer blocks, an older block loses one line, down to 3 lines and a `⋮ N more lines` notice. Lines leave one at a time instead of all at once.
+- **Images shrink too.** An image in a tool result shows whole in the newest block, gets smaller as the block ages, and disappears when the block folds; opening the block shows it whole again.
 - **Old runs fold into one line.** About ten blocks back, or when you send a new prompt, consecutive thoughts and tool calls fold into a summary such as `Thought for 6.3s, read 1 file, ran 1 shell command · 1 failed`. Failed calls fold with the others, and the summary keeps their count.
 - **Click to open, hover to see what a click does.** Clicking a block opens its full output (up to 400 lines) and its full command or path. Clicking a summary lists its members in aligned columns, and each member opens on its own. Hovering a block that can open highlights its notices and shows a scroll bar in the left margin.
 - **Thinking blocks per message.** Each thought shows its elapsed time, token count and rate, and the end of its text while it streams. pi's own thinking label is global; pi-ui sets it per message.

@@ -50,6 +50,22 @@ export function bodyLinesFor(level: DetailLevel, expanded = false): number {
   return Math.max(1, TAIL_LINES - level);
 }
 
+/** The smallest an older block's image gets: a thumbnail, still recognisable. */
+export const MIN_IMAGE_ROWS = 3;
+
+/**
+ * Terminal rows a tool row's image keeps. The whole image while its block is the newest or open;
+ * none while the block is folded into a group, whose row stands for it. In between, a share of its
+ * full height that follows the body's line budget, so an image shrinks step by step as the text
+ * around it does, never under `MIN_IMAGE_ROWS`. pi scales the image to fit: it keeps its aspect.
+ */
+export function imageRowsFor(fullRows: number, level: DetailLevel, open: boolean, folded: boolean): number {
+  if (open) return fullRows;
+  if (folded) return 0;
+  const share = Math.round((fullRows * bodyLinesFor(level)) / TAIL_LINES);
+  return Math.min(fullRows, Math.max(MIN_IMAGE_ROWS, share));
+}
+
 /** Total rows a block may occupy, header included. */
 export function maxRowsFor(level: DetailLevel, expanded = false): number {
   return 1 + bodyLinesFor(level, expanded);

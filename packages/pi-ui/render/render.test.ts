@@ -6,6 +6,8 @@ import {
   MAX_FULL_LINES,
   bodyLinesFor,
   detailFor,
+  imageRowsFor,
+  MIN_IMAGE_ROWS,
   maxRowsFor,
   settleLevel,
 } from "./detail.ts";
@@ -2030,5 +2032,24 @@ describe("a call being written", () => {
     expect(rows.slice(1)).toEqual(["    hello"]);
     const read = pendingRow("read", { path: "a.ts", offset: 3 }, { status: "success", output: "x" }).render(80);
     expect(read.join("\n")).not.toContain("offset");
+  });
+});
+
+describe("image rows by detail level", () => {
+  test("an image is whole while newest or open, shrinks with the body's budget, and is gone while folded", () => {
+    expect(imageRowsFor(27, 0, false, false)).toBe(27);
+    // Level 5 keeps 3 of the newest block's 8 body lines: 3/8 of the image's height.
+    expect(imageRowsFor(27, 5, false, false)).toBe(10);
+    expect(imageRowsFor(27, 7, false, false)).toBe(MIN_IMAGE_ROWS);
+    expect(imageRowsFor(27, 7, true, false)).toBe(27);
+    expect(imageRowsFor(27, 3, false, true)).toBe(0);
+    expect(imageRowsFor(27, 3, true, true)).toBe(27);
+    // A short image (a text fallback, a wide banner) never grows to the thumbnail floor.
+    expect(imageRowsFor(1, 7, false, false)).toBe(1);
+  });
+
+  test("every older level keeps the image at least as small as the one before", () => {
+    const rows = [0, 1, 2, 3, 4, 5, 6, 7].map((level) => imageRowsFor(27, level as 0, false, false));
+    expect(rows.every((value, index) => index === 0 || value <= rows[index - 1]!)).toBe(true);
   });
 });

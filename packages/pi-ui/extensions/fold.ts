@@ -85,6 +85,7 @@ export function resetFolds(): void {
   TOOL_INFO.clear();
   toolPlans.clear();
   OPEN_TOOLS.clear();
+  EXPANDED_TOOLS.clear();
 }
 
 /** Only structural changes can affect the plan. Partial output stays local to the row. */
@@ -101,6 +102,18 @@ export function registerToolInfo(key: string, info: ToolInfo): boolean {
     return false;
   TOOL_INFO.set(key, info);
   return true;
+}
+
+/** Tool rows a click opened, standalone or as a group member: their images show whole. */
+const EXPANDED_TOOLS = new Set<string>();
+
+export function setToolExpanded(key: string, open: boolean): void {
+  if (open) EXPANDED_TOOLS.add(key);
+  else EXPANDED_TOOLS.delete(key);
+}
+
+export function toolExpanded(key: string): boolean {
+  return EXPANDED_TOOLS.has(key);
 }
 
 export function toolInfo(key: string): ToolInfo | undefined {
