@@ -77,6 +77,8 @@ describe("image viewer", () => {
     expect(closed).toBe(true);
     await Bun.sleep(0);
     expect(openImageViewer(images, 0)).toBe(true);
+    (globalThis as { closeViewer?: () => void }).closeViewer?.();
+    await Bun.sleep(0);
   });
 
   test("a row's image spans sit after their spacers at the end of its rows", () => {
@@ -99,5 +101,33 @@ describe("image viewer", () => {
       { start: 4, end: 7, image: first },
       { start: 8, end: 11, image: second },
     ]);
+  });
+});
+
+describe("image viewer registration", () => {
+  test("the extension's entry point gives the viewer the session's UI", async () => {
+    const { default: piUi } = await import("./index.ts");
+    const starts: Array<(event: unknown, ctx: unknown) => void> = [];
+    piUi({
+      registerToolRenderer: () => {},
+      on: (event: string, handler: (event: unknown, ctx: unknown) => void) => {
+        if (event === "session_start") starts.push(handler);
+      },
+    } as never);
+    let opened = 0;
+    const ctx = {
+      hasUI: true,
+      mode: "tui",
+      ui: {
+        setWidget: () => {},
+        custom: () => {
+          opened += 1;
+          return new Promise<void>(() => {});
+        },
+      },
+    };
+    for (const start of starts) start({}, ctx);
+    expect(openImageViewer([{ source: new FakeImage("x", "image/png"), label: "read" }], 0)).toBe(true);
+    expect(opened).toBe(1);
   });
 });
