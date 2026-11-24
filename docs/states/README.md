@@ -201,3 +201,15 @@ Opening the row lists every option it offered, the chosen one checked, each trad
 A delegated child's row: its last message as the body, the tokens it spent in the header, and its tool and turn counts under it.
 
 ![Subagent, done](subagent-done.png)
+
+## Script, done
+
+A codemode row: the script's first statement names it, the calls it made lead its output, and a failed call keeps its own mark.
+
+![Script, done](codemode-done.png)
+
+## Tool search, nothing found
+
+A tool_search row whose lookup found nothing: its header keeps its label, and the words it searched for stay its body.
+
+![Tool search, nothing found](tool-search-done.png)

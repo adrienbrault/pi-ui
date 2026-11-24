@@ -12,16 +12,22 @@ import {
   settleLevel,
 } from "./detail.ts";
 import {
+  codemodeCalls,
+  codemodeCost,
+  firstCodeLine,
   groupVerb,
   HEADER_MARGIN,
+  loadedTools,
   MIN_RATE_TOKENS,
   mcpLabel,
   describeCall,
+  scriptOutput,
   sessionCommand,
   sessionPath,
   toolMeta,
   groupNoun,
   toolTokenLabel,
+  type CodemodeCall,
 } from "./tools.ts";
 import { formatDuration, headLines, nonEmptyLineCount, omittedCount, tailLines } from "./text.ts";
 import { groupSegments, renderGroupMember, renderGroupRow } from "./group-row.ts";
@@ -478,7 +484,7 @@ describe("diff line numbers", () => {
     const rows = renderToolRow(tokens, { name: "edit", status: "success", level: 4, output: patch })
       .render(80)
       .slice(1)
-      .map((row) => row.trimEnd());
+      .map((line) => line.trimEnd());
     expect(rows).toEqual([
       "    <toolErrorBg>4  --- old comment",
       "    <toolSuccessBg>4  +++ new counter",
@@ -2372,5 +2378,139 @@ describe("todo rows", () => {
     }).render(80);
     expect(rows[0]).toStartWith("● todo · start #2");
     expect(rows[1]).toBe("    Started #2: Committing the replay harness");
+  });
+});
+
+/** A nested call a script made, with its mark, arguments and time. */
+const scriptCall = (id: string, status: CodemodeCall["status"], durationMs = 279, cost?: number): CodemodeCall => ({
+  name: "mcp__linear__get_issue",
+  args: `{"id":"${id}"}`,
+  status,
+  durationMs,
+  ...(cost === undefined ? {} : { cost }),
+});
+
+describe("script rows", () => {
+  const SCRIPT = [
+    "// @options: {}",
+    "",
+    "const ids = ['LOC-348', 'LOC-349'];",
+    "const res = await Promise.allSettled(ids.map((id) => tools.mcp__linear__get_issue({ id })));",
+  ].join("\n");
+  const output = "Script completed\nWall time 3.7 seconds\nOutput:\n### LOC-348 [Backlog] - atts:\nBlocked on product.";
+  const script = (extra: Partial<ToolRowInput> = {}) =>
+    renderToolRow(api, {
+      name: "codemode",
+      status: "success",
+      level: 0,
+      args: { code: SCRIPT },
+      output,
+      ...extra,
+    });
+  const body = (extra: Partial<ToolRowInput> = {}, width = 80) =>
+    script(extra)
+      .render(width)
+      .slice(1)
+      .map((line) => line.trimEnd());
+
+  test("the header reads the script's first statement, past its options and comments", () => {
+    expect(firstCodeLine(SCRIPT)).toBe("const ids = ['LOC-348', 'LOC-349'];");
+    expect(describeCall("codemode", { code: SCRIPT })).toMatchObject({
+      title: "const ids = ['LOC-348', 'LOC-349'];",
+    });
+    expect(script().render(80)[0]).toContain("● codemode · const ids = ['LOC-348', 'LOC-349'];");
+  });
+
+  test("its calls lead its output, each with its mark, its arguments and its time", () => {
+    const rows = body({ codemode: [scriptCall("LOC-346", "ok"), scriptCall("LOC-347", "error", 271)] });
+    expect(rows[0]).toContain('✓ linear/get_issue {"id":"LOC-346"} 279ms');
+    expect(rows[1]).toContain('✗ linear/get_issue {"id":"LOC-347"} 271ms');
+    // The script's own header is dropped: the row already says the run and its time.
+    expect(rows[2]).toBe("    ### LOC-348 [Backlog] - atts:");
+    expect(rows.join("\n")).not.toContain("Script completed");
+    expect(rows.join("\n")).not.toContain("Wall time");
+  });
+
+  test("calls past the budget fold below, and the notice names their failures", () => {
+    const calls = ["A", "B", "C", "D", "E", "F", "G", "H"].map((id) => scriptCall(id, id === "H" ? "error" : "ok"));
+    const rows = body({ codemode: calls });
+    expect(rows.join("\n")).toContain("⋮ 3 more calls · 1 failed");
+    expect(rows.join("\n")).toContain('{"id":"A"}');
+    expect(rows.join("\n")).toContain("### LOC-348");
+  });
+
+  test("a script still running keeps its newest calls in view", () => {
+    const calls = ["A", "B", "C", "D", "E", "F", "G", "H", "I"].map((id) =>
+      scriptCall(id, id === "I" ? "running" : "ok"),
+    );
+    const rows = body({ codemode: calls, status: "running", output: undefined });
+    expect(rows.join("\n")).toContain("⋮ 3 more calls");
+    expect(rows.join("\n")).toContain('{"id":"I"}');
+    expect(rows.join("\n")).toContain('{"id":"H"}');
+  });
+
+  test("opened, every call shows and the output keeps its room", () => {
+    const calls = Array.from({ length: 9 }, (_, index) => scriptCall(`LOC-${index}`, "ok"));
+    const rows = body({ codemode: calls, expanded: true, full: true });
+    expect(rows.filter((line) => line.includes("linear/get_issue"))).toHaveLength(9);
+    expect(rows.join("\n")).not.toContain("more call");
+    expect(rows.join("\n")).toContain("### LOC-348");
+  });
+
+  test("a script's model calls share one price line, and a lone price stays on its call", () => {
+    expect(codemodeCost([scriptCall("A", "ok", 10, 0.01), scriptCall("B", "ok", 10, 0.02)])).toBeCloseTo(0.03);
+    expect(codemodeCost([scriptCall("A", "ok", 10, 0.01)])).toBeUndefined();
+    const rows = body({ codemode: [scriptCall("A", "ok", 10, 0.01), scriptCall("B", "ok", 10, 0.02)] });
+    expect(rows.join("\n")).toContain("$0.01");
+    expect(rows.join("\n")).toContain("model calls $0.03");
+  });
+
+  test("a result's details carry the calls a script made, in the order it made them", () => {
+    expect(
+      codemodeCalls({
+        calls: [
+          { name: "bash", args: "ls", status: "ok", durationMs: 12 },
+          { name: "models.classify", args: "a/b", status: "running", cost: 0.002 },
+          { args: "no name" },
+        ],
+      }),
+    ).toEqual([
+      { name: "bash", args: "ls", status: "ok", durationMs: 12 },
+      { name: "models.classify", args: "a/b", status: "running", cost: 0.002 },
+    ]);
+    expect(codemodeCalls({})).toBeUndefined();
+  });
+
+  test("a script's output drops the header pi writes around it, and keeps anything else", () => {
+    expect(scriptOutput(output)).toBe("### LOC-348 [Backlog] - atts:\nBlocked on product.");
+    expect(scriptOutput("Script error:\nboom")).toBe("Script error:\nboom");
+    expect(previewText({ name: "codemode", output })).toBe("### LOC-348 [Backlog] - atts:\nBlocked on product.");
+  });
+});
+
+describe("tool search rows", () => {
+  test("the tools it loaded name its header, and a lookup that found nothing keeps its label", () => {
+    expect(loadedTools({ loaded: ["linear/create_issue", "linear/list_issues"] })).toEqual([
+      "linear/create_issue",
+      "linear/list_issues",
+    ]);
+    expect(loadedTools({ loaded: [] })).toBeUndefined();
+    expect(describeCall("tool_search", { query: "linear create" })).toMatchObject({ title: "linear create" });
+    expect(toolMeta("tool_search").cls).toBe("toolbox");
+    expect(groupNoun("toolbox")).toBe("tool");
+    expect(groupVerb("toolbox", 2)).toBe("looked up 2 tools");
+  });
+
+  test("a loaded row reads as a lookup: the tools it found, and its answer under it", () => {
+    const rows = renderToolRow(api, {
+      name: "tool_search",
+      status: "success",
+      level: 0,
+      args: { query: "linear create" },
+      title: "linear/create_issue, linear/list_issues",
+      output: 'Loaded 2 tools for "linear create"',
+    }).render(80);
+    expect(rows[0]).toContain("● tool_search · linear/create_issue, linear/list_issues");
+    expect(rows[1]?.trim()).toBe('Loaded 2 tools for "linear create"');
   });
 });

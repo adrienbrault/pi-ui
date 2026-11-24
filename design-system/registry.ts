@@ -34,6 +34,7 @@ import {
   toolTokenCounts,
   toolMeta,
   toolTokenLabel,
+  type CodemodeCall,
 } from "../packages/pi-ui/render/tools.ts";
 import { boundedPatch } from "../packages/pi-ui/extensions/changes.ts";
 import { renderTodosPanel, type TodoItem } from "../packages/pi-ui/render/todos.ts";
@@ -371,6 +372,49 @@ const subagentRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
   level: 0,
   output: SUBAGENT_ANSWER,
   subagent: { inputTokens: 4400, outputTokens: 41, toolCount: 3, turns: 2, durationMs: 24_000 },
+  ...overrides,
+});
+
+/** A codemode script: what the model wrote, and the calls it made while it ran. */
+const SCRIPT_CODE = [
+  "// @options: {}",
+  "const ids = ['LOC-348', 'LOC-349', 'LOC-350'];",
+  "const res = await Promise.allSettled(ids.map((id) => tools.mcp__linear__get_issue({ id })));",
+  "let out = '';",
+].join("\n");
+
+const SCRIPT_CALLS: CodemodeCall[] = [
+  { name: "mcp__linear__get_issue", args: '{"id":"LOC-346"}', status: "ok", durationMs: 279 },
+  { name: "mcp__linear__get_issue", args: '{"id":"LOC-347"}', status: "error", durationMs: 271 },
+  { name: "mcp__linear__get_issue", args: '{"id":"LOC-348"}', status: "ok", durationMs: 284 },
+];
+
+/** What the script printed, once pi's own header is dropped from it. */
+const SCRIPT_OUTPUT = [
+  "### LOC-348 [Backlog] - atts:",
+  "**Blocked on product:** Robert has not yet confirmed the two items John listed.",
+].join("\n");
+
+/** A codemode row: the script's first statement as its title, its calls, then its output. */
+const codemodeRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
+  name: "codemode",
+  args: { code: SCRIPT_CODE },
+  status: "success",
+  level: 0,
+  output: `Script completed\nWall time 3.7 seconds\nOutput:\n${SCRIPT_OUTPUT}`,
+  codemode: SCRIPT_CALLS,
+  durationMs: 3700,
+  ...overrides,
+});
+
+/** A tool lookup's row: the tools it loaded name its header, its answer is its body. */
+const toolSearchRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
+  name: "tool_search",
+  args: { query: "linear create" },
+  status: "success",
+  level: 0,
+  title: "linear/create_issue, linear/list_issues",
+  output: 'Loaded 2 tools for "linear create"',
   ...overrides,
 });
 
@@ -1182,6 +1226,79 @@ const oursEntries: EntryDef[] = [
         label: "completion notice",
         render: (ctx) => noticeLines(ctx.kit, ctx.theme, SUBAGENT_NOTICE, ctx.width, true),
       },
+    ],
+  },
+  {
+    id: "ours.codemode",
+    title: "codemode row",
+    group: "tools",
+    variant: "ours",
+    description:
+      "A script's row: its first statement names it, the calls it made lead its output, and opening it shows every call.",
+    states: [
+      levelState("l0", "done L0", 0, () => codemodeRow()),
+      levelState("aged", "aged L3", 3, () => codemodeRow()),
+      levelState(
+        "streaming",
+        "script streaming",
+        0,
+        () =>
+          codemodeRow({
+            status: "pending",
+            output: "",
+            codemode: undefined,
+            args: { code: SCRIPT_CODE.split("\n").slice(0, 3).join("\n") },
+          }),
+        "the script as the model writes it",
+      ),
+      levelState(
+        "running",
+        "script running",
+        0,
+        () => codemodeRow({ status: "running", output: "", codemode: SCRIPT_CALLS.slice(0, 2) }),
+        "its calls while they run",
+      ),
+      levelState("folded", "calls folded", 0, () =>
+        codemodeRow({
+          output: "Script completed\nWall time 6.1 seconds\nOutput:\n### LOC-348 [Backlog]\nBlocked.",
+          codemode: Array.from({ length: 9 }, (_, index) => ({
+            name: "mcp__linear__get_issue",
+            args: `{"id":"LOC-${index}"}`,
+            status: index === 8 ? "error" : "ok",
+            durationMs: 280,
+          })) satisfies CodemodeCall[],
+        }),
+      ),
+      levelState("opened", "opened L0", 0, () => codemodeRow({ expanded: true, full: true })),
+      levelState("failed", "script failed", 0, () =>
+        codemodeRow({
+          status: "error",
+          output: "Script error:\nReferenceError: ids is not defined",
+          codemode: SCRIPT_CALLS.slice(0, 1),
+        }),
+      ),
+    ],
+  },
+  {
+    id: "ours.tool_search",
+    title: "tool_search row",
+    group: "tools",
+    variant: "ours",
+    description:
+      "A tool lookup: the tools it loaded name its header, and its answer names the words it searched for. A lookup that found nothing keeps its label.",
+    states: [
+      levelState("l0", "loaded L0", 0, () => toolSearchRow()),
+      levelState("aged", "aged L3", 3, () => toolSearchRow()),
+      levelState(
+        "none",
+        "nothing found",
+        0,
+        () => toolSearchRow({ title: "", output: "No matching tools found." }),
+        "its header falls back to its label",
+      ),
+      levelState("streaming", "lookup written", 0, () =>
+        toolSearchRow({ status: "pending", output: "", title: undefined }),
+      ),
     ],
   },
 ];

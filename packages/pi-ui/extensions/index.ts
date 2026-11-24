@@ -23,11 +23,14 @@ import { homedir } from "node:os";
 import {
   askedAnswers,
   callTokens,
+  codemodeCalls,
+  loadedTools,
   ownsTool,
   toolMeta,
   subagentRun,
   toolTokenCounts,
   type AskedAnswer,
+  type CodemodeCall,
   type SubagentRun,
   type SessionPlace,
 } from "../render/tools.ts";
@@ -130,6 +133,10 @@ interface BlockRecord {
   cancelled?: boolean;
   /** The child a `subagent` call ran, recorded on its result. */
   subagent?: SubagentRun;
+  /** The calls a `codemode` script made, updated while it runs. */
+  codemode?: CodemodeCall[];
+  /** The tools a `tool_search` call loaded: its header names them, not the words it searched for. */
+  loaded?: string[];
 }
 
 const records = new Map<string | object, BlockRecord>();
@@ -278,6 +285,8 @@ function inputFor(record: BlockRecord): ToolRowInput {
     ...(record.answers ? { answers: record.answers } : {}),
     ...(record.cancelled ? { cancelled: true } : {}),
     ...(record.subagent ? { subagent: record.subagent } : {}),
+    ...(record.codemode ? { codemode: record.codemode } : {}),
+    ...(record.loaded ? { title: record.loaded.map(toolLabel).join(", ") } : {}),
     durationMs: clock ? performance.now() - clock.startedAt : (record.subagent?.durationMs ?? record.durationMs),
     frame: frame(),
   };
@@ -580,6 +589,12 @@ const resolver: ToolRendererResolver = (toolName, next) => {
       const record = syncRecord(ctx, toolName, ctx.args, output, inputTokens);
       if (run) record.subagent = run;
       record.changes = recordedChanges(result.details);
+      // A script's nested calls come from the details, and grow while it runs.
+      const script = codemodeCalls(result.details);
+      if (script) record.codemode = script;
+      // A tool search's header names what it loaded; the words it searched for stay its body.
+      // An empty list is a lookup that found nothing: its header falls back to its label.
+      if (toolMeta(toolName).cls === "toolbox") record.loaded = loadedTools(result.details) ?? [];
       // An ask's rows read the answers from the details; its content text is pi's summary of them.
       if (toolMeta(toolName).cls === "ask") {
         const asked = askedAnswers(result.details);

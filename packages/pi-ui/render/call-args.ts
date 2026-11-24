@@ -26,6 +26,8 @@ export type CallView =
   /** One argument's text as written, with no field name: a brief, not a command. */
   | { kind: "text"; text: string }
   | { kind: "command"; command: string }
+  /** A script, as the model writes it: one row per script line. */
+  | { kind: "script"; text: string }
   | { kind: "fields"; fields: Array<{ key: string; value: string }> };
 
 /** One of pi's replacements: `oldText` and `newText` and nothing else (another tool's edit has other keys). */
@@ -73,6 +75,11 @@ function fieldText(value: unknown): string {
  */
 export function callView(name: string, args: Record<string, unknown> = {}, hiddenTitle?: string): CallView | undefined {
   if (toolMeta(name).cls === "shell") return hiddenTitle ? { kind: "command", command: hiddenTitle } : undefined;
+  // A codemode script is the call's body while it is written: its title cannot hold the script.
+  if (toolMeta(name).cls === "code") {
+    const code = args.code;
+    if (typeof code === "string" && code.trim()) return { kind: "script", text: code.replace(/\r/g, "").trimEnd() };
+  }
   // A subagent's brief is the row's evidence; the rest of its arguments are the header's business.
   if (toolMeta(name).cls === "subagent") {
     const brief = args.task ?? args.prompt;

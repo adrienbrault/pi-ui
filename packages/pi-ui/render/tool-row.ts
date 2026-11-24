@@ -36,15 +36,18 @@ import {
 import { highlightShellLines, shellView, type ShellLine, type ShellView } from "./shell-output.ts";
 import {
   askedQuestions,
+  codemodeCost,
   describeCall,
   formatRate,
   HEADER_MARGIN,
   outputRateFor,
+  scriptOutput,
   toolTokenCounts,
   toolMeta,
   toolTokenLabel,
   sessionCommand,
   type AskedAnswer,
+  type CodemodeCall,
   type SessionPlace,
   type SubagentRun,
   type TokenRates,
@@ -91,6 +94,8 @@ export interface ToolRowInput extends TokenRates, SessionPlace {
   cancelled?: boolean;
   /** The child a `subagent` call ran, as its result's details reported it. */
   subagent?: SubagentRun;
+  /** The calls a `codemode` script made, from its result's details: they lead its output. */
+  codemode?: CodemodeCall[];
 }
 
 /** A file a shell command changed, as the extension recorded it on the tool result. */
@@ -300,12 +305,24 @@ function awaitingOutput(input: ToolRowInput): boolean {
  */
 function streamingCallRows(api: RenderApi, input: ToolRowInput, hiddenTitle?: string): Selected[] | undefined {
   if (!awaitingOutput(input)) return undefined;
+  // A script that has started running shows the calls it made, not the script the model finished writing.
+  if (toolMeta(input.name).cls === "code" && input.status === "running" && input.codemode?.length) return undefined;
   const view = callView(input.name, input.args, hiddenTitle);
   if (!view) return undefined;
   const { kit, theme } = api;
   if (view.kind === "command") return view.command.split("\n").map((line) => ({ line, tone: "accent" as const }));
   if (view.kind === "text")
     return view.text.split("\n").map((line) => ({ line, styled: line ? theme.fg("muted", line) : line }));
+  // A script being written keeps its syntax colours: it is code, not prose.
+  if (view.kind === "script") {
+    const highlighted =
+      kit.highlight && view.text.length <= MAX_FORMAT_CHARS
+        ? kit.highlight(view.text, "javascript", theme, api.owner)
+        : undefined;
+    return view.text
+      .split("\n")
+      .map((line, index) => ({ line, ...(highlighted?.[index] ? { styled: highlighted[index] } : {}) }));
+  }
   if (view.kind === "fields") {
     const keyWidth = Math.max(...view.fields.map((field) => field.key.length));
     return view.fields.flatMap(({ key, value }) =>
@@ -538,6 +555,8 @@ interface Selected {
    * on a changed file that has no diff to show (its words are in `line`).
    */
   rule?: "divider" | "path" | "note";
+  /** A script's own row: its nested calls and their price lead its body, without a number. */
+  script?: true;
   /** A diff row's colour, read from its place in the patch: additions green, removals red. */
   tone?: "success" | "error" | "accent" | "dim";
   /** An edit-style change row: its tone is a background, the full width of the code column. */
@@ -774,6 +793,92 @@ function subagentFooterRows(input: ToolRowInput, api?: RenderApi): Selected[] {
   return rows;
 }
 
+/** `$0.02`, or `$0.0012` where a classifier call costs a fraction of a cent. */
+function formatCost(cost: number): string {
+  return `$${cost >= 0.01 ? cost.toFixed(2) : cost.toPrecision(2)}`;
+}
+
+/** A nested call's mark: the script reports whether it reached its end, failed, was cut short, or runs. */
+function callMark(api: RenderApi, input: ToolRowInput, call: CodemodeCall): { plain: string; styled: string } {
+  const { theme, glyphs } = api;
+  switch (call.status) {
+    case "ok":
+      // A check, as pi marks a call that finished: the block's own ● heads the header, not the rows.
+      return { plain: glyphs.done, styled: theme.fg("success", glyphs.done) };
+    case "error":
+      return { plain: glyphs.error, styled: theme.fg("error", glyphs.error) };
+    case "cancelled":
+      return { plain: glyphs.cancelled, styled: theme.fg("dim", glyphs.cancelled) };
+    case "running": {
+      const glyph = frameAt(glyphs, input.frame ?? 0) || glyphs.pending;
+      return { plain: glyph, styled: theme.fg("accent", glyph) };
+    }
+  }
+}
+
+/**
+ * The rows a `codemode` script's nested calls take, before its output: the tool it called, pi's
+ * preview of the arguments, and how long that took. They are not tool rows of their own — a
+ * script's calls never reach the model as tool calls — so they read as plain rows under the script.
+ */
+function codemodeRows(input: ToolRowInput, api: RenderApi): Selected[] {
+  const calls = input.codemode;
+  if (!calls?.length || input.error) return [];
+  const { theme } = api;
+  return calls.map((call): Selected => {
+    const mark = callMark(api, input, call);
+    const name = toolLabel(call.name);
+    const args = call.args.trim();
+    const tail = [
+      call.durationMs === undefined ? "" : formatDuration(call.durationMs),
+      call.cost ? formatCost(call.cost) : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+    return {
+      line: [mark.plain, name, args, tail].filter(Boolean).join(" "),
+      styled: [
+        mark.styled,
+        theme.fg("toolTitle", name),
+        args ? theme.fg("muted", args) : "",
+        tail ? theme.fg("dim", tail) : "",
+      ]
+        .filter(Boolean)
+        .join(" "),
+      script: true,
+    };
+  });
+}
+
+/**
+ * `⋮ 8 more calls`, and how many of them failed: a script's calls fold like tool rows do, so the
+ * notice carries their failures as well as their count.
+ */
+function callsNotice(api: RenderApi, hidden: readonly CodemodeCall[]): Selected {
+  const failed = hidden.filter((call) => call.status === "error").length;
+  const label = `${api.glyphs.between} ${hidden.length} more ${hidden.length === 1 ? "call" : "calls"}${failed ? ` · ${failed} failed` : ""}`;
+  return { line: label, rule: "note", script: true };
+}
+
+/** What a script's model calls cost together, when it made more than one: a lone price is its call's own. */
+function codemodeCostRow(input: ToolRowInput, api: RenderApi): Selected[] {
+  const total = input.error ? undefined : codemodeCost(input.codemode ?? []);
+  if (total === undefined) return [];
+  const line = `model calls ${formatCost(total)}`;
+  return [{ line, styled: api.theme.fg("dim", line), script: true }];
+}
+
+/** The body rows the script's own rows took: its calls, their notice and their price. */
+function scriptRowsShown(selected: Selected[], items: string[][]): number {
+  return items.reduce((sum, item, index) => sum + (selected[index]?.script ? item.length : 0), 0);
+}
+
+/** Rows a script's calls take in a row's whole body, price included. */
+function codemodeLineCount(input: ToolRowInput): number {
+  if (input.error || !input.codemode?.length) return 0;
+  return input.codemode.length + (codemodeCost(input.codemode) === undefined ? 0 : 1);
+}
+
 export function previewLineCount(input: ToolRowInput): number {
   const raw = previewText(input);
   const text = cleanOutput(raw);
@@ -783,12 +888,14 @@ export function previewLineCount(input: ToolRowInput): number {
   // An ask's rows are the answers it carries, or the options it offered; its output text is pi's
   // summary of them, which the rows replace.
   const ask = askRows(input);
+  // A script's calls lead its body: each takes a row, and their price takes one more.
+  const script = codemodeLineCount(input);
   // An ask opens onto its question and every option with its trade-off: that is what a click reveals.
-  if (ask) return (askRows({ ...input, expanded: true, full: true })?.length ?? ask.length) + files + footer;
+  if (ask) return (askRows({ ...input, expanded: true, full: true })?.length ?? ask.length) + files + footer + script;
   // A diff's rows are its lines and the dividers between hunks; an edit's headers take none.
-  if (isDiff(input, text)) return diffRows(logicalLines(text), input.name === "edit").length + files;
+  if (isDiff(input, text)) return diffRows(logicalLines(text), input.name === "edit").length + files + script;
   const view = shellViewOf(input, text);
-  return (view ? view.lines.filter((line) => takesRow(line)).length : nonEmptyLineCount(raw)) + files + footer;
+  return (view ? view.lines.filter((line) => takesRow(line)).length : nonEmptyLineCount(raw)) + files + footer + script;
 }
 
 /** Whether an answer names this option: the whole answer, or one label of a multi-select. */
@@ -1142,6 +1249,8 @@ export function previewText(input: Pick<ToolRowInput, "name" | "args" | "output"
     return input.args.content;
   }
   const output = input.output ?? "";
+  // A script's header says what its header already says: the run, its wall time and that the rest is output.
+  if (input.name === "codemode" && !input.error) return scriptOutput(output);
   return input.name === "read" && !input.error ? splitReadTrailer(output).content : output;
 }
 
@@ -1245,7 +1354,12 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number,
   const changed = call ? [] : changeRows(input.changes, fileHighlight);
   // A subagent's own line: what its child spent, or that it is still going without the call.
   const footer = input.error ? [] : subagentFooterRows(input, api);
-  if (lines.length === 0 && changed.length === 0 && footer.length === 0) return empty;
+  // A script's nested calls lead its output, with their price after them. They are not tool rows:
+  // a script's calls never reach the model as tool calls, so they stay inside its own row.
+  const scriptCalls = call || input.error ? [] : (input.codemode ?? []);
+  const calls = call ? [] : codemodeRows(input, api);
+  const cost = call || input.error ? [] : codemodeCostRow(input, api);
+  if (lines.length === 0 && changed.length === 0 && footer.length === 0 && calls.length === 0) return empty;
   // The lines pi's read left in the file: a notice on the last row, which the code may not take.
   // It gives way when the rows left would hold a notice and no line of code.
   const remaining = input.name === "read" && !input.error ? splitReadTrailer(input.output ?? "").remaining : undefined;
@@ -1254,6 +1368,8 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number,
 
   // What is being written keeps its newest lines in view, as a log does.
   const streamingWrite = input.name === "write" && input.status === "pending" && !input.expanded;
+  // A script still running keeps the calls it made last in view.
+  const scriptTail = input.status !== "success";
   const trend = call || streamingWrite || meta.trend === "tail" ? selectTail : selectHead;
   const patchRows = diff
     ? indexLines(
@@ -1292,7 +1408,37 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number,
   // The footer is one or two rows and always last: it says what the output cannot.
   const select = (show: number): Selected[] => {
     const room = Math.max(0, show - footer.length);
-    return [...selectFiles(room), ...footer];
+    return [...selectScript(room), ...footer];
+  };
+  /**
+   * A script's calls, their price, then its output. When they cannot all fit, the calls take the
+   * larger half and the output at least one row; a script still running keeps its newest calls in
+   * view, and a settled one its first, the way its own output trends.
+   */
+  const selectScript = (show: number): Selected[] => {
+    if (!calls.length) return selectFiles(show);
+    const room = Math.max(0, show - cost.length);
+    if (calls.length + outputRows + files.length <= room)
+      return [...calls, ...cost, ...selectFiles(outputRows + files.length)];
+    // The output takes what it needs, and the calls what is left; when the output is long the calls
+    // keep the larger half, so neither section crowds the other out.
+    const need = Math.min(outputRows + files.length, Math.max(0, room - 1));
+    const share = Math.min(calls.length, Math.max(1, Math.min(room - 1, Math.max(Math.floor(room / 2), room - need))));
+    const kept = calls.length <= share ? calls : scriptTail ? callsTail(share) : callsHead(share);
+    const rest = room - kept.length;
+    return [...kept, ...cost, ...(rest > 0 ? selectFiles(rest) : [])];
+  };
+  /** The first calls the room holds, then how many it does not. */
+  const callsHead = (show: number): Selected[] => {
+    if (show <= 1) return calls.slice(0, Math.max(0, show));
+    const kept = calls.slice(0, show - 1);
+    return [...kept, callsNotice(api, scriptCalls.slice(kept.length))];
+  };
+  /** The newest calls, under a notice naming the ones they leave out. */
+  const callsTail = (show: number): Selected[] => {
+    if (show <= 1) return calls.slice(-1);
+    const kept = calls.slice(-(show - 1));
+    return [callsNotice(api, scriptCalls.slice(0, scriptCalls.length - kept.length)), ...kept];
   };
   const selectFiles = (show: number): Selected[] => {
     if (!files.length) return show > 0 ? selectOutput(show) : [];
@@ -1414,7 +1560,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number,
   };
 
   // A notice counts against the budget: total body rows never exceed it.
-  const show = Math.min(budget, outputRows + files.length + footer.length);
+  const show = Math.min(budget, outputRows + files.length + footer.length + calls.length + cost.length);
   let selected = select(show);
   let items = layout(selected);
   if (wrapLines && rowCount(items) > budget) {
@@ -1461,7 +1607,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number,
   return {
     rows,
     clipped,
-    bar: previewBar(outputLines + lineCount(files), shown, rows.length),
+    bar: previewBar(outputLines + lineCount(files), shown, rows.length - scriptRowsShown(selected, items)),
     // One entry per row, then the file note. Only a call being written wraps in a preview.
     sources: [...rowSources, ...(fileNote ? [undefined] : [])],
     ...(omission === -1 ? {} : { omission }),

@@ -16,6 +16,7 @@ export type ToolClass =
   | "subagent"
   | "mcp"
   | "code"
+  | "toolbox"
   | "generic";
 
 export type Trend = "head" | "tail";
@@ -42,7 +43,7 @@ const META: Record<string, ToolMeta> = {
   web_search: { cls: "web", label: "search", trend: "head" },
   fetch_content: { cls: "web", label: "fetch", trend: "head" },
   codemode: { cls: "code", label: "codemode", trend: "tail" },
-  tool_search: { cls: "code", label: "tool_search", trend: "head" },
+  tool_search: { cls: "toolbox", label: "tool_search", trend: "head" },
   todo: { cls: "todo", label: "todo", trend: "head" },
   ask_user_question: { cls: "ask", label: "ask", trend: "head" },
   subagent: { cls: "subagent", label: "subagent", trend: "head" },
@@ -63,14 +64,11 @@ export function toolMeta(name: string): ToolMeta {
 }
 
 /**
- * Whether pi-ui renders this tool's rows. Every classified tool and every MCP
- * tool is owned, so it can fold with its peers. The `code` class is not: its
- * nested-call rollup does not exist yet, so those tools keep their own renderer.
- * Unknown tools (pi-code's subagent, …) are always left alone.
- */
+/** Whether pi-ui renders this tool's rows: every tool the taxonomy names, and MCP's. A tool
+ * the taxonomy does not name keeps its own renderer. */
 export function ownsTool(name: string): boolean {
   if (name.startsWith("mcp__")) return true;
-  return Object.hasOwn(META, name) && META[name]!.cls !== "code";
+  return Object.hasOwn(META, name);
 }
 
 /** One option of a question: the label a user picks, and the trade-off the model wrote under it. */
@@ -201,7 +199,77 @@ export function subagentRun(details: unknown): SubagentRun | undefined {
   };
 }
 
+/** One tool call a `codemode` script made, as the script's `details.calls` report it. */
+export interface CodemodeCall {
+  /** The tool the script called, as pi names it: `bash`, `mcp__linear__get_issue`, `models.classify`. */
+  name: string;
+  /** pi's preview of the arguments: one line, already cut. */
+  args: string;
+  status: "running" | "ok" | "error" | "cancelled";
+  durationMs?: number;
+  /** What a model call cost, when the script asked a model to do something. */
+  cost?: number;
+  error?: string;
+}
+
+const CALL_STATUSES = new Set(["running", "ok", "error", "cancelled"]);
+
 /**
+ * The calls a `codemode` result's `details` list, in the order the script made them: the script's
+ * own tool calls, which never reach the model as tool calls, and its model calls.
+ */
+export function codemodeCalls(details: unknown): CodemodeCall[] | undefined {
+  const held = asRecord(details);
+  if (!Array.isArray(held.calls)) return undefined;
+  const calls = held.calls.flatMap((entry): CodemodeCall[] => {
+    const call = asRecord(entry);
+    const name = typeof call.name === "string" ? call.name : "";
+    if (!name) return [];
+    const status = typeof call.status === "string" && CALL_STATUSES.has(call.status) ? call.status : "running";
+    return [
+      {
+        name,
+        args: typeof call.args === "string" ? call.args : "",
+        status: status as CodemodeCall["status"],
+        ...(asNumber(call.durationMs) === undefined ? {} : { durationMs: asNumber(call.durationMs) }),
+        ...(asNumber(call.cost) === undefined ? {} : { cost: asNumber(call.cost) }),
+        ...(typeof call.error === "string" ? { error: call.error } : {}),
+      },
+    ];
+  });
+  return calls.length ? calls : undefined;
+}
+
+/** What a script's model calls cost together, when it made more than one: a single price is the call's own. */
+export function codemodeCost(calls: readonly CodemodeCall[]): number | undefined {
+  const priced = calls.filter((call) => call.cost);
+  return priced.length > 1 ? priced.reduce((sum, call) => sum + (call.cost ?? 0), 0) : undefined;
+}
+
+const SCRIPT_HEADER = /^Script (?:completed|failed)\nWall time [\d.]+ seconds\nOutput:\n/;
+
+/** A script's output without the header pi writes around it, which its run already says. */
+export function scriptOutput(text: string): string {
+  return text.replace(SCRIPT_HEADER, "");
+}
+
+/** The tools a `tool_search` result loaded, as its details name them: what its header shows. */
+export function loadedTools(details: unknown): string[] | undefined {
+  const names = asRecord(details).loaded;
+  if (!Array.isArray(names)) return undefined;
+  const tools = names.filter((name): name is string => typeof name === "string" && !!name.trim());
+  return tools.length ? tools : undefined;
+}
+
+/** A script's first statement: the first line that is neither blank nor a comment. */
+export function firstCodeLine(code: string): string {
+  const line = code
+    .split("\n")
+    .map((row) => row.trim())
+    .find((row) => row && !row.startsWith("//"));
+  return (line ?? "").replace(/\s+/g, " ").trim();
+}
+
 /** Keys that identify a call when we know nothing else about the tool. */
 const DETAIL_KEYS = ["command", "query", "sql", "pattern", "prompt", "task", "url", "path", "file_path"];
 
@@ -253,6 +321,12 @@ export function describeCall(
   place: SessionPlace = {},
 ): { title: string; meta: ToolMeta } {
   const meta = toolMeta(name);
+  // A codemode script's title reads its first statement: its options line and its comments say
+  // nothing about what the script does.
+  if (meta.cls === "code") {
+    const code = typeof args.code === "string" ? args.code : "";
+    return { title: firstCodeLine(code), meta };
+  }
   // An ask's title names the question: its header, the question itself, or how many there are.
   if (meta.cls === "ask") {
     const questions = askedQuestions(args);
@@ -408,6 +482,8 @@ export function groupNoun(cls: GroupClass): string {
       return "MCP tool";
     case "code":
       return "script";
+    case "toolbox":
+      return "tool";
     case "generic":
       return "tool";
     case "todo":
@@ -462,6 +538,8 @@ export function groupVerb(cls: GroupClass, count: number, durationMs?: number): 
       return `ran ${things}`;
     case "code":
       return `ran ${things}`;
+    case "toolbox":
+      return `looked up ${things}`;
     case "thinking":
       return durationMs === undefined ? `thought ${count} time${count === 1 ? "" : "s"}` : `thought${time}`;
   }

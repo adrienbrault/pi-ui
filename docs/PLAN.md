@@ -118,7 +118,8 @@ The four-row preview fits three content lines and one omission notice.
 | shell | bash, powershell | last tail line + exit | `ran 2 shell commands for 9.3s` |
 | web | web_fetch, web_search, fetch_content | `Fetched example.com` | `Fetched 2 URLs` |
 | mcp | `mcp__*` | `mcp · server/tool` | `Called 2 MCP tools` |
-| code | codemode, tool_search | nested-call rollup (not built; not owned yet) | `Ran 1 script` |
+| code | codemode | first statement + nested-call rollup | `Ran 1 script` |
+| toolbox | tool_search | `● tool_search · server/tool, …` | `looked up 2 tools` |
 | think | thinking runs | tail lines + duration | `thought for 12s` (`thought 3 times` when untimed) |
 
 Segments join into one sentence in encounter order, the first capitalised. A segment's time is the sum of its members' thinking or running time and appears only when every member was timed; thinking without time falls back to a count. Failed calls fold with their peers. Each affected summary segment includes its failure count, and opening the group reveals the failed calls in order.
@@ -128,7 +129,7 @@ Segments join into one sentence in encounter order, the first capitalised. A seg
 The standalone build owns chrome, so v1 must not double-install with pi-open-tui. Detection rules:
 
 - If pi-open-tui's footer/editor is detected, warn and leave it alone until its features are disabled (or offer a `/pi-ui takeover` command).
-- pi-code's renderers (todo, question, subagent) are left untouched; the decorator only touches tool rows it owns — though pi-ui now owns those three tools' rows as well (see the non-goals note). It owns every tool in the taxonomy above except the code class, plus every `mcp__*` tool (`ownsTool` in `render/tools.ts`, the single source). Any other tool keeps its own renderer and ends a fold group.
+- pi-code's renderers (todo, question, subagent) are left untouched; the decorator only touches tool rows it owns — though pi-ui now owns those three tools' rows as well (see the non-goals note). It owns every tool in the taxonomy above, plus every `mcp__*` tool (`ownsTool` in `render/tools.ts`, the single source). Any other tool keeps its own renderer and ends a fold group.
 - Two copies of `pi-coding-agent` would break `instanceof`; the decorator duck-types (as pi-open-tui does) and probes methods before wrapping.
 
 #### Edge cases to handle explicitly

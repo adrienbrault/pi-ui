@@ -32,6 +32,8 @@ const TODOS = join(import.meta.dir, "fixtures", "todos.jsonl");
 const ASK = join(import.meta.dir, "fixtures", "ask.jsonl");
 /** One delegated child: its brief, its answer, and what it spent. */
 const SUBAGENT = join(import.meta.dir, "fixtures", "subagent.jsonl");
+/** A script and a tool lookup: the two tools the taxonomy used to leave alone. */
+const SCRIPT = join(import.meta.dir, "fixtures", "script.jsonl");
 
 export interface Run {
   id: string;
@@ -73,6 +75,7 @@ const writing: Run = { id: "writing", session: DEMO };
 const todos: Run = { id: "todos", session: TODOS, height: 34 };
 const ask: Run = { id: "ask", session: ASK, height: 34 };
 const subagent: Run = { id: "subagent", session: SUBAGENT, height: 30 };
+const script: Run = { id: "script", session: SCRIPT, height: 30 };
 
 const hover = (text: string): Action => ({ kind: "hover", text });
 const click = (text: string): Action => ({ kind: "click", text });
@@ -336,6 +339,22 @@ export const STATES: State[] = [
       "A delegated child's row: its last message as the body, the tokens it spent in the header, and its tool and turn counts under it.",
     run: subagent,
     until: "tool:1:end",
+  },
+  {
+    id: "codemode-done",
+    title: "Script, done",
+    description:
+      "A codemode row: the script's first statement names it, the calls it made lead its output, and a failed call keeps its own mark.",
+    run: script,
+    until: "tool:1:end",
+  },
+  {
+    id: "tool-search-done",
+    title: "Tool search, nothing found",
+    description:
+      "A tool_search row whose lookup found nothing: its header keeps its label, and the words it searched for stay its body.",
+    run: script,
+    until: "tool:2:end",
   },
 ];
 

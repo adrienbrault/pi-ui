@@ -4,6 +4,8 @@ export interface GlyphSet {
   pending: string;
   success: string;
   error: string;
+  /** A call a script cancelled: cut short, it never reached its end. */
+  cancelled: string;
   collapsed: string;
   expanded: string;
   thinking: string;
@@ -33,6 +35,7 @@ export const UNICODE_GLYPHS: GlyphSet = {
   pending: "○",
   success: "●",
   error: "✗",
+  cancelled: "⊘",
   collapsed: "▸",
   expanded: "▾",
   thinking: "✻",
@@ -52,6 +55,7 @@ export const ASCII_GLYPHS: GlyphSet = {
   pending: "o",
   success: "*",
   error: "x",
+  cancelled: "-",
   collapsed: ">",
   expanded: "v",
   thinking: "~",
@@ -71,6 +75,7 @@ export const NERD_GLYPHS: GlyphSet = {
   pending: "○",
   success: "●",
   error: "✗",
+  cancelled: "⊘",
   collapsed: "",
   expanded: "",
   thinking: "",
