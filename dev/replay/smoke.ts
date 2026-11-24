@@ -8,9 +8,11 @@
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseOptions, replay } from "./run.ts";
+import { capturesOf, parseOptions, replay } from "./run.ts";
 
 const FIXTURE = join(import.meta.dir, "fixtures", "synthetic.jsonl");
+/** Two `read` calls on PNGs: the image viewer's session. */
+const IMAGES = join(import.meta.dir, "fixtures", "images.jsonl");
 const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47];
 
 function assert(condition: unknown, message: string): asserts condition {
@@ -52,6 +54,47 @@ export async function replaySmoke(): Promise<void> {
     const turns = end.events.filter((event) => event.type === "settled").length;
     assert(turns === 3, `all three turns should settle, saw ${turns}`);
     console.log("replay smoke: the whole session replayed; older calls folded");
+
+    // pi draws images only on a terminal it believes shows them; tmux strips the image data,
+    // but the rows, the click and the viewer are pi's own.
+    const protocol = process.env.PI_IMAGE_PROTOCOL;
+    process.env.PI_IMAGE_PROTOCOL = "kitty";
+    try {
+      const viewerAnsi = join(out, "viewer.ans");
+      const closedAnsi = join(out, "viewer-closed.ans");
+      // At 100x40 the last image fills rows 15 to 32 of the final screen. One replay, two pauses:
+      // the click and ←, then Escape. A capture at the stop before it does not replay on; its
+      // actions follow the earlier ones.
+      const options = parseOptions([
+        IMAGES,
+        "--width",
+        "100",
+        "--height",
+        "40",
+        "--click-row",
+        "20",
+        "--key",
+        "left",
+        "--ansi",
+        viewerAnsi,
+      ]);
+      options.captures = [
+        ...capturesOf(options),
+        { until: options.until, actions: [{ kind: "key", key: "\x1b" }], ansi: closedAnsi },
+      ];
+      await replay(options);
+      const viewer = plain(readFileSync(viewerAnsi, "utf8"));
+      assert(
+        viewer.includes("1 of 2 · read · shots/one.png · ← → switch images · esc closes"),
+        `a click on the last image should open the viewer, and left should step to the first\n${viewer}`,
+      );
+      const closed = plain(readFileSync(closedAnsi, "utf8"));
+      assert(!closed.includes("switch images"), `escape should close the viewer\n${closed}`);
+      console.log("replay smoke: a click opened the image viewer; left stepped back, escape closed it");
+    } finally {
+      if (protocol === undefined) delete process.env.PI_IMAGE_PROTOCOL;
+      else process.env.PI_IMAGE_PROTOCOL = protocol;
+    }
   } finally {
     rmSync(out, { recursive: true, force: true });
   }

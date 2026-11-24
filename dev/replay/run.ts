@@ -90,6 +90,8 @@ Replays a recorded pi session in pi, offline, and captures the screen.
   --hover TEXT         after the pause, move the mouse over the one row with TEXT
   --click TEXT         after the pause, click the one row with TEXT
                        (TEXT on no row, or on more than one, is an error listing them)
+  --click-row N        after the pause, click screen row N (1-based), in the middle of the pane
+  --key KEY            after the pause, press KEY: left, right, up, down, escape, enter, or one character
   --scroll N           after the pause, turn the mouse wheel N notches up (negative: down)
   --settle MS          virtual time the clock runs after the pause and after each action,
                        before it holds for the capture (default 200)
@@ -106,7 +108,21 @@ Replays a recorded pi session in pi, offline, and captures the screen.
 
 With no output option, writes a PNG and the ANSI text under tmp/replay-out/.`;
 
-export type Action = { kind: "hover" | "click"; text: string } | { kind: "scroll"; lines: number };
+export type Action =
+  | { kind: "hover" | "click"; text: string }
+  | { kind: "clickRow"; row: number }
+  | { kind: "key"; key: string }
+  | { kind: "scroll"; lines: number };
+
+/** What `--key` sends for a named key. */
+const KEYS: Record<string, string> = {
+  left: "\x1b[D",
+  right: "\x1b[C",
+  up: "\x1b[A",
+  down: "\x1b[B",
+  escape: "\x1b",
+  enter: "\r",
+};
 
 /** A point to pause at, what to do there, and where to save the screen. */
 export interface Capture {
@@ -241,6 +257,20 @@ export function parseOptions(argv: string[]): Options {
       case "--click":
         options.actions.push({ kind: flag.slice(2) as "hover" | "click", text: value() });
         break;
+      case "--click-row": {
+        const row = Number(value());
+        if (!Number.isInteger(row) || row < 1) throw new Error(`${flag} needs a row number from 1`);
+        options.actions.push({ kind: "clickRow", row });
+        break;
+      }
+      case "--key": {
+        const key = value();
+        const sent = KEYS[key] ?? key;
+        if (!KEYS[key] && [...key].length !== 1)
+          throw new Error(`${flag} is ${Object.keys(KEYS).join(", ")} or one character`);
+        options.actions.push({ kind: "key", key: sent });
+        break;
+      }
       case "--scroll":
         {
           const raw = value();
@@ -454,6 +484,8 @@ export async function replay(options: Options): Promise<{ outputs: string[]; eve
     `PI_CODING_AGENT_DIR=${agent}`,
     "PI_OFFLINE=1",
     "PI_SKIP_VERSION_CHECK=1",
+    // pi draws images only on a terminal it believes shows them; tmux never says so.
+    ...(process.env.PI_IMAGE_PROTOCOL ? [`PI_IMAGE_PROTOCOL=${process.env.PI_IMAGE_PROTOCOL}`] : []),
     node,
     "--import",
     join(import.meta.dir, "clock-preload.ts"),
@@ -537,6 +569,7 @@ export async function replay(options: Options): Promise<{ outputs: string[]; eve
     return last;
   };
   let mice = 0;
+  let keys = 0;
   /**
    * Sends one mouse report and waits until pi has read it, then runs the clock `ms` and holds.
    * One report at a time: pi reads each in a read of its own, whatever the machine's timing.
@@ -545,8 +578,16 @@ export async function replay(options: Options): Promise<{ outputs: string[]; eve
     mouse(...report);
     mice += 1;
     const before = count("advanced");
-    command({ type: "advance", ms, mice });
+    command({ type: "advance", ms, mice, keys });
     await until(() => count("advanced") > before, "pi to read the mouse");
+  };
+  /** Sends a key's bytes and waits until pi has read them, then runs the clock `ms` and holds. */
+  const press = async (ms: number, sent: string) => {
+    tmux("send-keys", "-l", "-t", SESSION, sent);
+    keys += sent.length;
+    const before = count("advanced");
+    command({ type: "advance", ms, mice, keys });
+    await until(() => count("advanced") > before, "pi to read the key");
   };
 
   const outputs: string[] = [];
@@ -600,6 +641,18 @@ export async function replay(options: Options): Promise<{ outputs: string[]; eve
               Math.ceil(options.width / 2),
               Math.ceil(options.height / 2),
             );
+          final = await steady();
+          continue;
+        }
+        if (action.kind === "key") {
+          await press(options.settleMs, action.key);
+          final = await steady();
+          continue;
+        }
+        if (action.kind === "clickRow") {
+          const column = Math.ceil(options.width / 2);
+          await act(0, 0, column, action.row);
+          await act(options.settleMs, 0, column, action.row, true);
           final = await steady();
           continue;
         }

@@ -71,14 +71,24 @@ export interface ReplayConfig {
 /** What the driver asks of the replay, one JSON line each in `<control>/commands.jsonl`. */
 export type Command =
   | { type: "go" }
-  /** Once pi has read `mice` mouse sequences since go, run the clock `ms` further and hold. */
-  | { type: "advance"; ms: number; mice: number }
+  /**
+   * Once pi has read `mice` mouse sequences and `keys` bytes of other input since go, run the
+   * clock `ms` further and hold.
+   */
+  | { type: "advance"; ms: number; mice: number; keys?: number }
   | { type: "resume"; until: string };
 
 /** SGR mouse reports in terminal input. */
+// oxlint-disable-next-line no-control-regex -- the report starts with ESC
+const MOUSE_REPORT = /\x1b\[<\d+;\d+;\d+[Mm]/g;
+
 export function countMice(input: string): number {
-  // oxlint-disable-next-line no-control-regex -- the report starts with ESC
-  return input.match(/\x1b\[<\d+;\d+;\d+[Mm]/g)?.length ?? 0;
+  return input.match(MOUSE_REPORT)?.length ?? 0;
+}
+
+/** Bytes of terminal input that are not mouse reports: the keys the driver sent. */
+export function keyBytes(input: string): number {
+  return input.replace(MOUSE_REPORT, "").length;
 }
 
 export const PROVIDER = "replay";
@@ -488,10 +498,13 @@ export default function replayExtension(pi: Pi): void {
 
   /** Reads the driver's commands until `go`, then keeps following them in the background. */
   let mice = 0;
+  let keys = 0;
   const follow = async (control: string): Promise<void> => {
-    // Alongside pi's own reader: the mouse reports the driver sends, counted.
+    // Alongside pi's own reader: the mouse reports and the key bytes the driver sends, counted.
     process.stdin.on("data", (data: Buffer | string) => {
-      mice += countMice(data.toString());
+      const text = data.toString();
+      mice += countMice(text);
+      keys += keyBytes(text);
     });
     const path = join(control, "commands.jsonl");
     let read = 0;
@@ -509,6 +522,7 @@ export default function replayExtension(pi: Pi): void {
     };
     while ((await next()).type !== "go");
     mice = 0;
+    keys = 0;
     replay.begin();
     if (clock && !clock.go(config.clock ?? "fast"))
       replay.report({ type: "warning", text: "pi took longer to start than the clock allows: the replay may vary" });
@@ -516,7 +530,7 @@ export default function replayExtension(pi: Pi): void {
       for (;;) {
         const command = await next();
         if (command.type === "advance") {
-          while (mice < command.mice) await sleep(5);
+          while (mice < command.mice || keys < (command.keys ?? 0)) await sleep(5);
           await clock?.hold(command.ms);
           replay.report({ type: "advanced", mice, at: clock?.now() ?? 0 });
         } else if (command.type === "resume") {

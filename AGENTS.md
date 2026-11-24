@@ -10,7 +10,7 @@ bun run ds           # regenerate the golden fixtures
 bun run ds:show read # print cards whose id contains "read" as ANSI (--width N, --theme dark|light, --ascii)
 bun run e2e          # real pi in tmux, offline scripted sessions, then the replay smoke (needs tmux, agg, ffmpeg; run outside the sandbox)
 bun run replay -- <session.jsonl> --list                      # a recorded session's numbered turns, messages and tool calls
-bun run replay -- <session.jsonl> --until message:7@50% --shot out.png   # replay offline in pi, pause, capture (--gif, --ansi, --click TEXT)
+bun run replay -- <session.jsonl> --until message:7@50% --shot out.png   # replay offline in pi, pause, capture (--gif, --ansi, --click TEXT, --click-row N, --key KEY)
 bun run states       # key UI states from real replays into docs/states/ (PNG + ANSI, mosaic, index); about a minute; needs tmux, agg, ffmpeg, magick, outside the sandbox
 bun run states:check # render the states into a scratch directory and list every file that differs from docs/states/
 ```
