@@ -10,7 +10,10 @@ export function createPiKit(
 ): RenderKit {
   type Palette = RenderTheme["colors"];
   const code = new WeakMap<object, { palette: Palette; chars: number; rows: Map<string, string[]> }>();
-  const markdown = new WeakMap<object, { source: string; palette: Palette; component: Tui.Markdown }>();
+  const markdown = new WeakMap<
+    object,
+    { source: string; palette: Palette; token: string; italic: boolean; component: Tui.Markdown }
+  >();
   return {
     truncateToWidth: tui.truncateToWidth,
     wrap: tui.wrapTextWithAnsi,
@@ -36,16 +39,21 @@ export function createPiKit(
       cache.chars += source.length;
       return rows;
     },
-    markdown(source, width, theme, owner) {
+    markdown(source, width, theme, owner, style) {
       const palette = theme.colors;
+      // A thought is italic `thinkingText`; a summary is plain `text`, so a style belongs in the key.
+      const token = style?.token ?? "thinkingText";
+      const italic = style?.italic ?? true;
       let cached = owner && markdown.get(owner);
-      if (!cached || cached.palette !== palette) {
+      if (!cached || cached.palette !== palette || cached.token !== token || cached.italic !== italic) {
         cached = {
           source,
           palette,
+          token,
+          italic,
           component: new tui.Markdown(source, 0, 0, coding.getMarkdownTheme(), {
-            color: (text) => theme.fg("thinkingText", text),
-            italic: true,
+            color: (text) => theme.fg(token, text),
+            italic,
           }),
         };
         if (owner) markdown.set(owner, cached);

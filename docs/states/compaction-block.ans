@@ -1,0 +1,24 @@
+
+[38;2;167;152;215m▸[39m [1m[38;2;222;224;225mcompaction[0m [38;2;126;136;142m·[39m [38;2;167;152;215m128.4k tokens[39m  
+    [1m[38;2;205;154;34mSession so far[0m            
+    [1m[38;2;222;224;225mDone.[0m[38;2;222;224;225m Split the ladder's regressions out of the render tests: [38;2;167;152;215mdetail.test.ts[38;2;222;224;225m holds the fourteen distance cases,[39m     
+    [3m[38;2;126;136;142m⋮ 5 more lines[0m            
+
+ [38;2;126;136;142mSession compacted 1 time[39m     
+
+[48;2;52;56;58m [38;2;222;224;225mGood. What does the transcript do with that summary?[39m                                                                   
+
+[49m It reads as a block: the glyph, the label, the 128.4k tokens it replaced, and the summary's opening rows. A click      
+ opens the rest.              
+
+
+
+
+
+
+
+[38;2;97;133;204m────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+[7m[39m [0m                             
+[38;2;97;133;204m────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+[38;2;126;136;142m~/acme-app[39m                    
+[38;2;126;136;142m↑3.4k ↓74 0.0%/100M (auto)                                                                   claude-synthetic-1 • medium

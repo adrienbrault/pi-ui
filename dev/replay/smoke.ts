@@ -15,6 +15,8 @@ const FIXTURE = join(import.meta.dir, "fixtures", "synthetic.jsonl");
 const IMAGES = join(import.meta.dir, "fixtures", "images.jsonl");
 /** Three `todo` calls, so the panel has a step to run and one to finish. */
 const TODOS = join(import.meta.dir, "fixtures", "todos.jsonl");
+/** A session compacted once, then resumed: the summary block sits in its history. */
+const COMPACT = join(import.meta.dir, "fixtures", "compact.jsonl");
 const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47];
 
 function assert(condition: unknown, message: string): asserts condition {
@@ -131,6 +133,22 @@ export async function replaySmoke(): Promise<void> {
       `the running todo's row should carry the spinner and what it is doing\n${todosView}`,
     );
     console.log("replay smoke: the todo rows and the panel above the editor came from pi-ui");
+
+    // A compaction in the loaded history: pi's own component, laid out in our rows.
+    const compactAnsi = join(out, "compact.ans");
+    await replay(
+      parseOptions([COMPACT, "--width", "100", "--height", "24", "--until", "turn:2", "--ansi", compactAnsi]),
+    );
+    const compactView = plain(readFileSync(compactAnsi, "utf8"));
+    assert(
+      compactView.includes("▸ compaction · 128.4k tokens"),
+      `a compaction should lead with its label and the count it replaced\n${compactView}`,
+    );
+    assert(
+      compactView.includes("    Session so far") && /⋮ \d+ more lines/.test(compactView),
+      `the summary's head should show, the rest counted\n${compactView}`,
+    );
+    console.log("replay smoke: the compaction in the history is pi-ui's block");
   } finally {
     rmSync(out, { recursive: true, force: true });
   }

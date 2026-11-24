@@ -202,6 +202,18 @@ A delegated child's row: its last message as the body, the tokens it spent in th
 
 ![Subagent, done](subagent-done.png)
 
+## Compaction in the transcript
+
+A compaction reads as a block: the label, the 128.4k tokens it replaced, the summary's opening rows, and a notice for the rest.
+
+![Compaction in the transcript](compaction-block.png)
+
+## Compaction opened
+
+A click opens the whole summary in Markdown, without pi's band or its expand hint.
+
+![Compaction opened](compaction-opened.png)
+
 ## Script, done
 
 A codemode row: the script's first statement names it, the calls it made lead its output, and a failed call keeps its own mark.

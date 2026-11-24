@@ -34,6 +34,8 @@ const ASK = join(import.meta.dir, "fixtures", "ask.jsonl");
 const SUBAGENT = join(import.meta.dir, "fixtures", "subagent.jsonl");
 /** A script and a tool lookup: the two tools the taxonomy used to leave alone. */
 const SCRIPT = join(import.meta.dir, "fixtures", "script.jsonl");
+/** A session compacted once and resumed: the summary sits in the loaded history. */
+const COMPACT = join(import.meta.dir, "fixtures", "compact.jsonl");
 
 export interface Run {
   id: string;
@@ -76,6 +78,9 @@ const todos: Run = { id: "todos", session: TODOS, height: 34 };
 const ask: Run = { id: "ask", session: ASK, height: 34 };
 const subagent: Run = { id: "subagent", session: SUBAGENT, height: 30 };
 const script: Run = { id: "script", session: SCRIPT, height: 30 };
+const compact: Run = { id: "compact", session: COMPACT, height: 24 };
+/** Tall enough that an opened summary keeps the header above it in view. */
+const compactOpen: Run = { id: "compact-open", session: COMPACT, height: 42 };
 
 const hover = (text: string): Action => ({ kind: "hover", text });
 const click = (text: string): Action => ({ kind: "click", text });
@@ -339,6 +344,22 @@ export const STATES: State[] = [
       "A delegated child's row: its last message as the body, the tokens it spent in the header, and its tool and turn counts under it.",
     run: subagent,
     until: "tool:1:end",
+  },
+  {
+    id: "compaction-block",
+    title: "Compaction in the transcript",
+    description:
+      "A compaction reads as a block: the label, the 128.4k tokens it replaced, the summary's opening rows, and a notice for the rest.",
+    run: compact,
+    until: "turn:2",
+  },
+  {
+    id: "compaction-opened",
+    title: "Compaction opened",
+    description: "A click opens the whole summary in Markdown, without pi's band or its expand hint.",
+    run: compactOpen,
+    until: "turn:2",
+    actions: [click("▸ compaction")],
   },
   {
     id: "codemode-done",

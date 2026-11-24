@@ -40,6 +40,7 @@ import { boundedPatch } from "../packages/pi-ui/extensions/changes.ts";
 import { renderTodosPanel, type TodoItem } from "../packages/pi-ui/render/todos.ts";
 import { restyleUserMessage } from "../packages/pi-ui/extensions/user-message.ts";
 import { noticeLines } from "../packages/pi-ui/extensions/subagent-notice.ts";
+import { compactSummaryBlock } from "../packages/pi-ui/extensions/summary-block.ts";
 import type { PiInstall } from "./lib/pi.ts";
 import { stack } from "./lib/surface.ts";
 import {
@@ -663,6 +664,62 @@ const userMessage = (ctx: RenderCtx, text: string) => {
   return component;
 };
 
+/** A compaction's summary, as pi stores it: Markdown, headings and lists. */
+const COMPACTION_SUMMARY = [
+  "## Session so far",
+  "",
+  "**Done.** The todo panel, the ask block, subagent rows, hover, and scripts.",
+  "",
+  "- rows: todos, ask, subagent",
+  "- hover lights any title",
+  "- codemode calls are rows under the script",
+  "",
+  "**Next.** Claim compaction and branch summaries; the chrome phase after that.",
+].join("\n");
+
+/** A branch summary: the abandoned path's account, with no count to lead with. */
+const BRANCH_SUMMARY = [
+  "**Branch Summary**",
+  "",
+  "The abandoned path tried a columnar group row and a per-call fold plan.",
+  "",
+  "**Learned.** Columns only pay off with equal-length cells; a per-call plan doubled the fold",
+  "bookkeeping.",
+  "",
+  "**Kept.** The group row's segment grammar, and the plan per run.",
+].join("\n");
+
+/**
+ * pi's own summary component, patched by the module the live session patches it with. The
+ * message is the shape pi's factories build: the component is read, not reimplemented.
+ */
+const summaryComponent = (ctx: RenderCtx, kind: "compaction" | "branch", summary: string) => {
+  const { coding } = ctx.pi.modules;
+  const message =
+    kind === "compaction"
+      ? { role: "compactionSummary", tokensBefore: 128_412, summary, timestamp: 1 }
+      : { role: "branchSummary", fromId: "root", summary, timestamp: 1 };
+  const Component =
+    kind === "compaction" ? coding.CompactionSummaryMessageComponent : coding.BranchSummaryMessageComponent;
+  const component = new Component(message, coding.getMarkdownTheme(), 1);
+  compactSummaryBlock(component, ours(ctx));
+  return component;
+};
+
+/**
+ * A summary's rows. The first paint settles whether a click reveals anything, so a hovered
+ * frame moves the pointer over a block that already knows it can open.
+ */
+const summaryRows = (
+  ctx: RenderCtx,
+  component: { render: (width: number) => string[]; handleMouse?: unknown },
+  hovered = false,
+) => {
+  component.render(ctx.width);
+  if (hovered) (component.handleMouse as (event: { type: string }) => unknown)({ type: "move" });
+  return component.render(ctx.width);
+};
+
 const oursEntries: EntryDef[] = [
   {
     id: "ours.user",
@@ -684,6 +741,50 @@ const oursEntries: EntryDef[] = [
           userMessage(ctx, "Review the fold planner.\n\n- keep failures visible\n- one summary per run").render(
             ctx.width,
           ),
+      },
+    ],
+  },
+  {
+    id: "ours.summary",
+    title: "Compaction and branch",
+    group: "transcript",
+    variant: "ours",
+    description:
+      "pi's summary blocks as blocks: a glyph, the label, the one count pi records, and the summary's opening rows in Markdown. A click opens the rest; a branch summary has no count to show. A boundary, so it never ages.",
+    states: [
+      {
+        id: "compaction",
+        label: "compaction",
+        note: "the head of the summary, the rest counted",
+        render: (ctx) => summaryRows(ctx, summaryComponent(ctx, "compaction", COMPACTION_SUMMARY)),
+      },
+      {
+        id: "opened",
+        label: "opened",
+        note: "the whole summary, no notice",
+        render: (ctx) => {
+          const component = summaryComponent(ctx, "compaction", COMPACTION_SUMMARY);
+          component.setExpanded(true);
+          return summaryRows(ctx, component);
+        },
+      },
+      {
+        id: "hovered",
+        label: "hovered",
+        note: "a click opens it: the count and the notice light",
+        render: (ctx) => summaryRows(ctx, summaryComponent(ctx, "compaction", COMPACTION_SUMMARY), true),
+      },
+      {
+        id: "branch",
+        label: "branch summary",
+        note: "no count: pi's context message keeps only the text",
+        render: (ctx) => summaryRows(ctx, summaryComponent(ctx, "branch", BRANCH_SUMMARY)),
+      },
+      {
+        id: "short",
+        label: "nothing to open",
+        note: "inert: no notice, no click",
+        render: (ctx) => summaryRows(ctx, summaryComponent(ctx, "branch", "Branch switched to the fold planner.")),
       },
     ],
   },

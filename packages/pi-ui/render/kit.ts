@@ -9,6 +9,12 @@ export interface ComponentLike {
   invalidate(): void;
 }
 
+/** How a Markdown body paints: a thought is italic `thinkingText`, a summary plain `text`. */
+export interface MarkdownStyle {
+  token?: string;
+  italic?: boolean;
+}
+
 export interface RenderKit {
   /** ANSI-aware truncation with an ellipsis. */
   truncateToWidth(line: string, width: number, ellipsis?: string): string;
@@ -18,7 +24,7 @@ export interface RenderKit {
   visibleWidth(text: string): number;
   languageFromPath?(path: string): string | undefined;
   highlight?(source: string, language: string, theme: RenderTheme, owner?: object): string[];
-  markdown?(source: string, width: number, theme: RenderTheme, owner?: object): string[];
+  markdown?(source: string, width: number, theme: RenderTheme, owner?: object, style?: MarkdownStyle): string[];
   /** Wrap a width-dependent line builder as a pi-tui Component. */
   component(build: (width: number) => string[]): ComponentLike;
 }

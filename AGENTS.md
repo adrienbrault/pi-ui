@@ -49,6 +49,7 @@ Breaking any of these is a design regression, not a style preference.
 ## Gotchas
 
 - **Theme init order.** pi's theme needs `initTheme('dark')` and a `Theme` instance installed before any component renders; see `design-system/lib/theme.ts`.
+- **Built-in roles are not custom messages.** `registerMessageRenderer` only sees messages an extension sends. A user prompt, a compaction and a branch summary are pi's own components and are claimed by patching `render`/`handleMouse` in the tree walk (`extensions/summary-block.ts`), the same way thinking blocks and tool rows are.
 - **Per-message thinking tails** require walking the TUI tree and calling `AssistantMessageComponent.setHideThinkingBlock()` / `setHiddenThinkingLabel()`. pi's own `setHiddenThinkingLabel` on `ctx.ui` is global-only.
 - **Grouping needs a spacer fix.** pi tool rows emit a leading `Spacer(1)`; a group row must neutralise it rather than delete real layout children.
 - **Replays run on a virtual clock.** `dev/replay/clock-preload.ts` replaces every timer and clock in the replayed pi process, so a capture is the same bytes on every run. Time stands still while a real request is in flight and while the replay holds at a stop; a capture that differs between two runs means something still reads real time or real I/O order. After a UI change, `bun run states` and commit `docs/states/` with it; `states:check` shows what changed.

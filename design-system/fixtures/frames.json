@@ -4661,6 +4661,920 @@
       ]
     }
   },
+  "ours.summary": {
+    "compaction/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask",
+        "    \u001b[38;2;126;136;142m⋮ 9 more lines\u001b[39m"
+      ]
+    },
+    "compaction/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m>\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask",
+        "    \u001b[38;2;126;136;142m: 9 more lines\u001b[39m"
+      ]
+    },
+    "compaction/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows,",
+        "    \u001b[38;2;126;136;142m⋮ 6 more lines\u001b[39m"
+      ]
+    },
+    "compaction/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m>\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows,",
+        "    \u001b[38;2;126;136;142m: 6 more lines\u001b[39m"
+      ]
+    },
+    "compaction/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;126;136;142m⋮ 4 more lines\u001b[39m"
+      ]
+    },
+    "compaction/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m>\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;126;136;142m: 4 more lines\u001b[39m"
+      ]
+    },
+    "compaction/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;126;136;142m⋮ 4 more lines\u001b[39m"
+      ]
+    },
+    "compaction/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m>\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;126;136;142m: 4 more lines\u001b[39m"
+      ]
+    },
+    "compaction/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;126;136;142m⋮ 4 more lines\u001b[39m"
+      ]
+    },
+    "compaction/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m>\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;126;136;142m: 4 more lines\u001b[39m"
+      ]
+    },
+    "opened/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▾\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    ",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask",
+        "    \u001b[38;2;222;224;225mblock, subagent rows, hover, and",
+        "    \u001b[38;2;222;224;225mscripts.\u001b[39m",
+        "    ",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mrows: todos, ask, subagent\u001b[39m",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mhover lights any title\u001b[39m",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mcodemode calls are rows under the",
+        "      \u001b[38;2;222;224;225mscript\u001b[39m",
+        "    ",
+        "    \u001b[38;2;222;224;225mNext.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m Claim compaction and branch",
+        "    \u001b[38;2;222;224;225msummaries; the chrome phase after",
+        "    \u001b[38;2;222;224;225mthat.\u001b[39m"
+      ]
+    },
+    "opened/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215mv\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    ",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask",
+        "    \u001b[38;2;222;224;225mblock, subagent rows, hover, and",
+        "    \u001b[38;2;222;224;225mscripts.\u001b[39m",
+        "    ",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mrows: todos, ask, subagent\u001b[39m",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mhover lights any title\u001b[39m",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mcodemode calls are rows under the",
+        "      \u001b[38;2;222;224;225mscript\u001b[39m",
+        "    ",
+        "    \u001b[38;2;222;224;225mNext.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m Claim compaction and branch",
+        "    \u001b[38;2;222;224;225msummaries; the chrome phase after",
+        "    \u001b[38;2;222;224;225mthat.\u001b[39m"
+      ]
+    },
+    "opened/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▾\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    ",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows,",
+        "    \u001b[38;2;222;224;225mhover, and scripts.\u001b[39m",
+        "    ",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mrows: todos, ask, subagent\u001b[39m",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mhover lights any title\u001b[39m",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mcodemode calls are rows under the script\u001b[39m",
+        "    ",
+        "    \u001b[38;2;222;224;225mNext.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m Claim compaction and branch summaries; the chrome",
+        "    \u001b[38;2;222;224;225mphase after that.\u001b[39m"
+      ]
+    },
+    "opened/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215mv\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    ",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows,",
+        "    \u001b[38;2;222;224;225mhover, and scripts.\u001b[39m",
+        "    ",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mrows: todos, ask, subagent\u001b[39m",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mhover lights any title\u001b[39m",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mcodemode calls are rows under the script\u001b[39m",
+        "    ",
+        "    \u001b[38;2;222;224;225mNext.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m Claim compaction and branch summaries; the chrome",
+        "    \u001b[38;2;222;224;225mphase after that.\u001b[39m"
+      ]
+    },
+    "opened/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▾\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    ",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    ",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mrows: todos, ask, subagent\u001b[39m",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mhover lights any title\u001b[39m",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mcodemode calls are rows under the script\u001b[39m",
+        "    ",
+        "    \u001b[38;2;222;224;225mNext.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m Claim compaction and branch summaries; the chrome phase after that.\u001b[39m"
+      ]
+    },
+    "opened/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215mv\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    ",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    ",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mrows: todos, ask, subagent\u001b[39m",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mhover lights any title\u001b[39m",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mcodemode calls are rows under the script\u001b[39m",
+        "    ",
+        "    \u001b[38;2;222;224;225mNext.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m Claim compaction and branch summaries; the chrome phase after that.\u001b[39m"
+      ]
+    },
+    "opened/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▾\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    ",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    ",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mrows: todos, ask, subagent\u001b[39m",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mhover lights any title\u001b[39m",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mcodemode calls are rows under the script\u001b[39m",
+        "    ",
+        "    \u001b[38;2;222;224;225mNext.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m Claim compaction and branch summaries; the chrome phase after that.\u001b[39m"
+      ]
+    },
+    "opened/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215mv\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    ",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    ",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mrows: todos, ask, subagent\u001b[39m",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mhover lights any title\u001b[39m",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mcodemode calls are rows under the script\u001b[39m",
+        "    ",
+        "    \u001b[38;2;222;224;225mNext.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m Claim compaction and branch summaries; the chrome phase after that.\u001b[39m"
+      ]
+    },
+    "opened/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▾\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    ",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    ",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mrows: todos, ask, subagent\u001b[39m",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mhover lights any title\u001b[39m",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mcodemode calls are rows under the script\u001b[39m",
+        "    ",
+        "    \u001b[38;2;222;224;225mNext.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m Claim compaction and branch summaries; the chrome phase after that.\u001b[39m"
+      ]
+    },
+    "opened/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215mv\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    ",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    ",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mrows: todos, ask, subagent\u001b[39m",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mhover lights any title\u001b[39m",
+        "    \u001b[38;2;167;152;215m- \u001b[39m\u001b[38;2;222;224;225mcodemode calls are rows under the script\u001b[39m",
+        "    ",
+        "    \u001b[38;2;222;224;225mNext.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m Claim compaction and branch summaries; the chrome phase after that.\u001b[39m"
+      ]
+    },
+    "hovered/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;222;224;225m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask",
+        "    \u001b[38;2;222;224;225m⋮ 9 more lines\u001b[39m"
+      ]
+    },
+    "hovered/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m>\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;222;224;225m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask",
+        "    \u001b[38;2;222;224;225m: 9 more lines\u001b[39m"
+      ]
+    },
+    "hovered/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;222;224;225m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows,",
+        "    \u001b[38;2;222;224;225m⋮ 6 more lines\u001b[39m"
+      ]
+    },
+    "hovered/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m>\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;222;224;225m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows,",
+        "    \u001b[38;2;222;224;225m: 6 more lines\u001b[39m"
+      ]
+    },
+    "hovered/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;222;224;225m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;222;224;225m⋮ 4 more lines\u001b[39m"
+      ]
+    },
+    "hovered/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m>\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;222;224;225m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;222;224;225m: 4 more lines\u001b[39m"
+      ]
+    },
+    "hovered/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;222;224;225m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;222;224;225m⋮ 4 more lines\u001b[39m"
+      ]
+    },
+    "hovered/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m>\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;222;224;225m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;222;224;225m: 4 more lines\u001b[39m"
+      ]
+    },
+    "hovered/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;222;224;225m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;222;224;225m⋮ 4 more lines\u001b[39m"
+      ]
+    },
+    "hovered/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m>\u001b[39m \u001b[38;2;222;224;225m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;222;224;225m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;205;154;34mSession so far\u001b[39m",
+        "    \u001b[38;2;222;224;225mDone.\u001b[39m\u001b[38;2;222;224;225m\u001b[38;2;222;224;225m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;222;224;225m: 4 more lines\u001b[39m"
+      ]
+    },
+    "branch/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;222;224;225mBranch Summary\u001b[39m",
+        "    \u001b[38;2;222;224;225mThe abandoned path tried a columnar",
+        "    \u001b[38;2;126;136;142m⋮ 7 more lines\u001b[39m"
+      ]
+    },
+    "branch/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m>\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;222;224;225mBranch Summary\u001b[39m",
+        "    \u001b[38;2;222;224;225mThe abandoned path tried a columnar",
+        "    \u001b[38;2;126;136;142m: 7 more lines\u001b[39m"
+      ]
+    },
+    "branch/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;222;224;225mBranch Summary\u001b[39m",
+        "    \u001b[38;2;222;224;225mThe abandoned path tried a columnar group row and a",
+        "    \u001b[38;2;126;136;142m⋮ 6 more lines\u001b[39m"
+      ]
+    },
+    "branch/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m>\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;222;224;225mBranch Summary\u001b[39m",
+        "    \u001b[38;2;222;224;225mThe abandoned path tried a columnar group row and a",
+        "    \u001b[38;2;126;136;142m: 6 more lines\u001b[39m"
+      ]
+    },
+    "branch/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;222;224;225mBranch Summary\u001b[39m",
+        "    \u001b[38;2;222;224;225mThe abandoned path tried a columnar group row and a per-call fold plan.\u001b[39m",
+        "    \u001b[38;2;126;136;142m⋮ 4 more lines\u001b[39m"
+      ]
+    },
+    "branch/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m>\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;222;224;225mBranch Summary\u001b[39m",
+        "    \u001b[38;2;222;224;225mThe abandoned path tried a columnar group row and a per-call fold plan.\u001b[39m",
+        "    \u001b[38;2;126;136;142m: 4 more lines\u001b[39m"
+      ]
+    },
+    "branch/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;222;224;225mBranch Summary\u001b[39m",
+        "    \u001b[38;2;222;224;225mThe abandoned path tried a columnar group row and a per-call fold plan.\u001b[39m",
+        "    \u001b[38;2;126;136;142m⋮ 3 more lines\u001b[39m"
+      ]
+    },
+    "branch/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m>\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;222;224;225mBranch Summary\u001b[39m",
+        "    \u001b[38;2;222;224;225mThe abandoned path tried a columnar group row and a per-call fold plan.\u001b[39m",
+        "    \u001b[38;2;126;136;142m: 3 more lines\u001b[39m"
+      ]
+    },
+    "branch/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;222;224;225mBranch Summary\u001b[39m",
+        "    \u001b[38;2;222;224;225mThe abandoned path tried a columnar group row and a per-call fold plan.\u001b[39m",
+        "    \u001b[38;2;126;136;142m⋮ 3 more lines\u001b[39m"
+      ]
+    },
+    "branch/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m>\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;222;224;225mBranch Summary\u001b[39m",
+        "    \u001b[38;2;222;224;225mThe abandoned path tried a columnar group row and a per-call fold plan.\u001b[39m",
+        "    \u001b[38;2;126;136;142m: 3 more lines\u001b[39m"
+      ]
+    },
+    "short/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;222;224;225mBranch switched to the fold",
+        "    \u001b[38;2;222;224;225mplanner.\u001b[39m"
+      ]
+    },
+    "short/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m>\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;222;224;225mBranch switched to the fold",
+        "    \u001b[38;2;222;224;225mplanner.\u001b[39m"
+      ]
+    },
+    "short/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;222;224;225mBranch switched to the fold planner.\u001b[39m"
+      ]
+    },
+    "short/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m>\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;222;224;225mBranch switched to the fold planner.\u001b[39m"
+      ]
+    },
+    "short/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;222;224;225mBranch switched to the fold planner.\u001b[39m"
+      ]
+    },
+    "short/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m>\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;222;224;225mBranch switched to the fold planner.\u001b[39m"
+      ]
+    },
+    "short/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;222;224;225mBranch switched to the fold planner.\u001b[39m"
+      ]
+    },
+    "short/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m>\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;222;224;225mBranch switched to the fold planner.\u001b[39m"
+      ]
+    },
+    "short/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m▸\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;222;224;225mBranch switched to the fold planner.\u001b[39m"
+      ]
+    },
+    "short/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m>\u001b[39m \u001b[38;2;222;224;225m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;222;224;225mBranch switched to the fold planner.\u001b[39m"
+      ]
+    },
+    "compaction/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask",
+        "    \u001b[38;2;135;144;149m⋮ 9 more lines\u001b[39m"
+      ]
+    },
+    "compaction/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m>\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask",
+        "    \u001b[38;2;135;144;149m: 9 more lines\u001b[39m"
+      ]
+    },
+    "compaction/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows,",
+        "    \u001b[38;2;135;144;149m⋮ 6 more lines\u001b[39m"
+      ]
+    },
+    "compaction/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m>\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows,",
+        "    \u001b[38;2;135;144;149m: 6 more lines\u001b[39m"
+      ]
+    },
+    "compaction/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;135;144;149m⋮ 4 more lines\u001b[39m"
+      ]
+    },
+    "compaction/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m>\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;135;144;149m: 4 more lines\u001b[39m"
+      ]
+    },
+    "compaction/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;135;144;149m⋮ 4 more lines\u001b[39m"
+      ]
+    },
+    "compaction/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m>\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;135;144;149m: 4 more lines\u001b[39m"
+      ]
+    },
+    "compaction/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;135;144;149m⋮ 4 more lines\u001b[39m"
+      ]
+    },
+    "compaction/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m>\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;135;144;149m: 4 more lines\u001b[39m"
+      ]
+    },
+    "opened/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▾\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    ",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask",
+        "    \u001b[38;2;59;63;65mblock, subagent rows, hover, and",
+        "    \u001b[38;2;59;63;65mscripts.\u001b[39m",
+        "    ",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mrows: todos, ask, subagent\u001b[39m",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mhover lights any title\u001b[39m",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mcodemode calls are rows under the",
+        "      \u001b[38;2;59;63;65mscript\u001b[39m",
+        "    ",
+        "    \u001b[38;2;59;63;65mNext.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m Claim compaction and branch",
+        "    \u001b[38;2;59;63;65msummaries; the chrome phase after",
+        "    \u001b[38;2;59;63;65mthat.\u001b[39m"
+      ]
+    },
+    "opened/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180mv\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    ",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask",
+        "    \u001b[38;2;59;63;65mblock, subagent rows, hover, and",
+        "    \u001b[38;2;59;63;65mscripts.\u001b[39m",
+        "    ",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mrows: todos, ask, subagent\u001b[39m",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mhover lights any title\u001b[39m",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mcodemode calls are rows under the",
+        "      \u001b[38;2;59;63;65mscript\u001b[39m",
+        "    ",
+        "    \u001b[38;2;59;63;65mNext.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m Claim compaction and branch",
+        "    \u001b[38;2;59;63;65msummaries; the chrome phase after",
+        "    \u001b[38;2;59;63;65mthat.\u001b[39m"
+      ]
+    },
+    "opened/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▾\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    ",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows,",
+        "    \u001b[38;2;59;63;65mhover, and scripts.\u001b[39m",
+        "    ",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mrows: todos, ask, subagent\u001b[39m",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mhover lights any title\u001b[39m",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mcodemode calls are rows under the script\u001b[39m",
+        "    ",
+        "    \u001b[38;2;59;63;65mNext.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m Claim compaction and branch summaries; the chrome",
+        "    \u001b[38;2;59;63;65mphase after that.\u001b[39m"
+      ]
+    },
+    "opened/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180mv\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    ",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows,",
+        "    \u001b[38;2;59;63;65mhover, and scripts.\u001b[39m",
+        "    ",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mrows: todos, ask, subagent\u001b[39m",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mhover lights any title\u001b[39m",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mcodemode calls are rows under the script\u001b[39m",
+        "    ",
+        "    \u001b[38;2;59;63;65mNext.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m Claim compaction and branch summaries; the chrome",
+        "    \u001b[38;2;59;63;65mphase after that.\u001b[39m"
+      ]
+    },
+    "opened/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▾\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    ",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    ",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mrows: todos, ask, subagent\u001b[39m",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mhover lights any title\u001b[39m",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mcodemode calls are rows under the script\u001b[39m",
+        "    ",
+        "    \u001b[38;2;59;63;65mNext.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m Claim compaction and branch summaries; the chrome phase after that.\u001b[39m"
+      ]
+    },
+    "opened/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180mv\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    ",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    ",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mrows: todos, ask, subagent\u001b[39m",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mhover lights any title\u001b[39m",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mcodemode calls are rows under the script\u001b[39m",
+        "    ",
+        "    \u001b[38;2;59;63;65mNext.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m Claim compaction and branch summaries; the chrome phase after that.\u001b[39m"
+      ]
+    },
+    "opened/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▾\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    ",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    ",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mrows: todos, ask, subagent\u001b[39m",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mhover lights any title\u001b[39m",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mcodemode calls are rows under the script\u001b[39m",
+        "    ",
+        "    \u001b[38;2;59;63;65mNext.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m Claim compaction and branch summaries; the chrome phase after that.\u001b[39m"
+      ]
+    },
+    "opened/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180mv\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    ",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    ",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mrows: todos, ask, subagent\u001b[39m",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mhover lights any title\u001b[39m",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mcodemode calls are rows under the script\u001b[39m",
+        "    ",
+        "    \u001b[38;2;59;63;65mNext.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m Claim compaction and branch summaries; the chrome phase after that.\u001b[39m"
+      ]
+    },
+    "opened/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▾\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    ",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    ",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mrows: todos, ask, subagent\u001b[39m",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mhover lights any title\u001b[39m",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mcodemode calls are rows under the script\u001b[39m",
+        "    ",
+        "    \u001b[38;2;59;63;65mNext.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m Claim compaction and branch summaries; the chrome phase after that.\u001b[39m"
+      ]
+    },
+    "opened/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180mv\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    ",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    ",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mrows: todos, ask, subagent\u001b[39m",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mhover lights any title\u001b[39m",
+        "    \u001b[38;2;116;89;180m- \u001b[39m\u001b[38;2;59;63;65mcodemode calls are rows under the script\u001b[39m",
+        "    ",
+        "    \u001b[38;2;59;63;65mNext.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m Claim compaction and branch summaries; the chrome phase after that.\u001b[39m"
+      ]
+    },
+    "hovered/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;59;63;65m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask",
+        "    \u001b[38;2;59;63;65m⋮ 9 more lines\u001b[39m"
+      ]
+    },
+    "hovered/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m>\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;59;63;65m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask",
+        "    \u001b[38;2;59;63;65m: 9 more lines\u001b[39m"
+      ]
+    },
+    "hovered/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;59;63;65m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows,",
+        "    \u001b[38;2;59;63;65m⋮ 6 more lines\u001b[39m"
+      ]
+    },
+    "hovered/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m>\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;59;63;65m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows,",
+        "    \u001b[38;2;59;63;65m: 6 more lines\u001b[39m"
+      ]
+    },
+    "hovered/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;59;63;65m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;59;63;65m⋮ 4 more lines\u001b[39m"
+      ]
+    },
+    "hovered/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m>\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;59;63;65m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;59;63;65m: 4 more lines\u001b[39m"
+      ]
+    },
+    "hovered/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;59;63;65m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;59;63;65m⋮ 4 more lines\u001b[39m"
+      ]
+    },
+    "hovered/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m>\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;59;63;65m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;59;63;65m: 4 more lines\u001b[39m"
+      ]
+    },
+    "hovered/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;59;63;65m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;59;63;65m⋮ 4 more lines\u001b[39m"
+      ]
+    },
+    "hovered/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m>\u001b[39m \u001b[38;2;59;63;65m\u001b[1mcompaction\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;59;63;65m128.4k tokens\u001b[39m",
+        "    \u001b[38;2;143;104;2mSession so far\u001b[39m",
+        "    \u001b[38;2;59;63;65mDone.\u001b[39m\u001b[38;2;59;63;65m\u001b[38;2;59;63;65m The todo panel, the ask block, subagent rows, hover, and scripts.\u001b[39m",
+        "    \u001b[38;2;59;63;65m: 4 more lines\u001b[39m"
+      ]
+    },
+    "branch/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;59;63;65mBranch Summary\u001b[39m",
+        "    \u001b[38;2;59;63;65mThe abandoned path tried a columnar",
+        "    \u001b[38;2;135;144;149m⋮ 7 more lines\u001b[39m"
+      ]
+    },
+    "branch/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m>\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;59;63;65mBranch Summary\u001b[39m",
+        "    \u001b[38;2;59;63;65mThe abandoned path tried a columnar",
+        "    \u001b[38;2;135;144;149m: 7 more lines\u001b[39m"
+      ]
+    },
+    "branch/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;59;63;65mBranch Summary\u001b[39m",
+        "    \u001b[38;2;59;63;65mThe abandoned path tried a columnar group row and a",
+        "    \u001b[38;2;135;144;149m⋮ 6 more lines\u001b[39m"
+      ]
+    },
+    "branch/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m>\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;59;63;65mBranch Summary\u001b[39m",
+        "    \u001b[38;2;59;63;65mThe abandoned path tried a columnar group row and a",
+        "    \u001b[38;2;135;144;149m: 6 more lines\u001b[39m"
+      ]
+    },
+    "branch/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;59;63;65mBranch Summary\u001b[39m",
+        "    \u001b[38;2;59;63;65mThe abandoned path tried a columnar group row and a per-call fold plan.\u001b[39m",
+        "    \u001b[38;2;135;144;149m⋮ 4 more lines\u001b[39m"
+      ]
+    },
+    "branch/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m>\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;59;63;65mBranch Summary\u001b[39m",
+        "    \u001b[38;2;59;63;65mThe abandoned path tried a columnar group row and a per-call fold plan.\u001b[39m",
+        "    \u001b[38;2;135;144;149m: 4 more lines\u001b[39m"
+      ]
+    },
+    "branch/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;59;63;65mBranch Summary\u001b[39m",
+        "    \u001b[38;2;59;63;65mThe abandoned path tried a columnar group row and a per-call fold plan.\u001b[39m",
+        "    \u001b[38;2;135;144;149m⋮ 3 more lines\u001b[39m"
+      ]
+    },
+    "branch/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m>\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;59;63;65mBranch Summary\u001b[39m",
+        "    \u001b[38;2;59;63;65mThe abandoned path tried a columnar group row and a per-call fold plan.\u001b[39m",
+        "    \u001b[38;2;135;144;149m: 3 more lines\u001b[39m"
+      ]
+    },
+    "branch/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;59;63;65mBranch Summary\u001b[39m",
+        "    \u001b[38;2;59;63;65mThe abandoned path tried a columnar group row and a per-call fold plan.\u001b[39m",
+        "    \u001b[38;2;135;144;149m⋮ 3 more lines\u001b[39m"
+      ]
+    },
+    "branch/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m>\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;59;63;65mBranch Summary\u001b[39m",
+        "    \u001b[38;2;59;63;65mThe abandoned path tried a columnar group row and a per-call fold plan.\u001b[39m",
+        "    \u001b[38;2;135;144;149m: 3 more lines\u001b[39m"
+      ]
+    },
+    "short/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;59;63;65mBranch switched to the fold",
+        "    \u001b[38;2;59;63;65mplanner.\u001b[39m"
+      ]
+    },
+    "short/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m>\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;59;63;65mBranch switched to the fold",
+        "    \u001b[38;2;59;63;65mplanner.\u001b[39m"
+      ]
+    },
+    "short/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;59;63;65mBranch switched to the fold planner.\u001b[39m"
+      ]
+    },
+    "short/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m>\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;59;63;65mBranch switched to the fold planner.\u001b[39m"
+      ]
+    },
+    "short/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;59;63;65mBranch switched to the fold planner.\u001b[39m"
+      ]
+    },
+    "short/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m>\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;59;63;65mBranch switched to the fold planner.\u001b[39m"
+      ]
+    },
+    "short/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;59;63;65mBranch switched to the fold planner.\u001b[39m"
+      ]
+    },
+    "short/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m>\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;59;63;65mBranch switched to the fold planner.\u001b[39m"
+      ]
+    },
+    "short/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m▸\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;59;63;65mBranch switched to the fold planner.\u001b[39m"
+      ]
+    },
+    "short/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m>\u001b[39m \u001b[38;2;59;63;65m\u001b[1mbranch\u001b[22m\u001b[39m",
+        "    \u001b[38;2;59;63;65mBranch switched to the fold planner.\u001b[39m"
+      ]
+    }
+  },
   "ours.thinking": {
     "streaming/dark/40/unicode": {
       "lines": [

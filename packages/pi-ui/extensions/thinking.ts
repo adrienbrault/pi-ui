@@ -74,6 +74,7 @@ import {
 } from "./viewport.ts";
 import { installThinkingClock, recordedThinkingMs, thinkingTime, type TimedMessage } from "./thinking-time.ts";
 import { claimHover, clearHover, onSpacerMouse, releaseHover } from "./hover.ts";
+import { compactSummaryBlock, isSummaryComponent } from "./summary-block.ts";
 import { restyleUserMessage } from "./user-message.ts";
 import {
   advanceFade,
@@ -764,6 +765,12 @@ function patchTree(
       restyleUserMessage(component, theme);
       blocks.push({ kind: "user" });
       owners.push(undefined);
+      continue;
+    }
+    if (isSummaryComponent(component)) {
+      // A compaction or branch summary is a boundary, not a block in the decaying run: it is
+      // weighed by no distance, so it never ages its neighbours.
+      compactSummaryBlock(component, { kit: KIT, theme, glyphs: GLYPHS, owner: component });
       continue;
     }
     if (isToolComponent(component)) {
