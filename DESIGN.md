@@ -115,6 +115,7 @@ Rules:
 - Long shell commands truncate in the middle, keeping the opening verb and the
   end target; paths keep their basename instead.
 - A user message keeps its own rows only, on the neutral `toolPendingBg` instead of `userMessageBg`: no padding row above or below it (`extensions/user-message.ts`).
+- An ask's row is the question it asked, not a tool's output: the header names the question by its own `header`, else by the question, else by how many there were (`● ask · Next action`, `● ask · 2 questions`), and the body carries the answer with a `✓`. Unanswered, or opened, the body is the options it offered: the chosen ones checked, each trade-off on a dim row under its label, wrapping when the block is open; several questions name themselves by header before their answer. A dismissed prompt reads `cancelled` and nothing else, and the arguments the model wrote as options never show — the rows read what the call asked and what came back, from the result's `details.answers`.
 
 ## The todos panel
 

@@ -20,9 +20,18 @@ import { installThroughput } from "./throughput.ts";
 import { KIT } from "./kit.ts";
 import { cutMark, type RenderTheme } from "../render/kit.ts";
 import { homedir } from "node:os";
-import { callTokens, ownsTool, toolMeta, toolTokenCounts, type SessionPlace } from "../render/tools.ts";
+import {
+  askedAnswers,
+  callTokens,
+  ownsTool,
+  toolMeta,
+  toolTokenCounts,
+  type AskedAnswer,
+  type SessionPlace,
+} from "../render/tools.ts";
 import { nonEmptyLineCount } from "../render/text.ts";
 import {
+  askOpensUp,
   previewLineCount,
   previewText,
   leavingRow,
@@ -113,6 +122,9 @@ interface BlockRecord {
   changes?: FileChanges;
   /** pi has drawn the call's result: from then on the result's component carries the body. */
   resultShown?: boolean;
+  /** What an `ask_user_question` call came back with, and whether the user dismissed it. */
+  answers?: AskedAnswer[];
+  cancelled?: boolean;
 }
 
 const records = new Map<string | object, BlockRecord>();
@@ -257,6 +269,8 @@ function inputFor(record: BlockRecord): ToolRowInput {
     ...(typeof record.key === "string" ? ratesFor?.(record.key) : undefined),
     error: record.error,
     ...(record.changes ? { changes: record.changes } : {}),
+    ...(record.answers ? { answers: record.answers } : {}),
+    ...(record.cancelled ? { cancelled: true } : {}),
     durationMs: clock ? performance.now() - clock.startedAt : record.durationMs,
     frame: frame(),
   };
@@ -362,6 +376,7 @@ function canOpen(record: BlockRecord, input: ToolRowInput, layout: ReturnType<ty
     !!record.commandClipped ||
     layout.omission !== undefined ||
     layout.clipped ||
+    askOpensUp(input) ||
     actionFor(record.expansion, previewLineCount(input), levelOf(record)) !== null
   );
 }
@@ -557,6 +572,15 @@ const resolver: ToolRendererResolver = (toolName, next) => {
         content: result.content,
       });
       const record = syncRecord(ctx, toolName, ctx.args, outputText(toolName, ctx.isError, result), inputTokens);
+      record.changes = recordedChanges(result.details);
+      // An ask's rows read the answers from the details; its content text is pi's summary of them.
+      if (toolMeta(toolName).cls === "ask") {
+        const asked = askedAnswers(result.details);
+        if (asked) {
+          record.answers = asked.answers;
+          record.cancelled = asked.cancelled;
+        }
+      }
       record.changes = recordedChanges(result.details);
       record.resultShown = true;
       if (record.group || toolName === "write") return emptyComponent();

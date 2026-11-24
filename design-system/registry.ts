@@ -300,6 +300,59 @@ const todoRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
   ...overrides,
 });
 
+/**
+ * The question the screenshot carried: four trades off against each other. The descriptions are
+ * the ones the model wrote; the chosen label keeps the `(Recommended)` the tool adds.
+ */
+const ASK_QUESTIONS = [
+  {
+    question: "What should I start with?",
+    header: "Next action",
+    options: [
+      {
+        label: "Renumber, rebase, push both PRs (Recommended)",
+        description:
+          "ADR 0005 → 0006, rebase this branch and adrien/template-checks onto main 0b2444bdf, force-with-lease push #1148 then #1160. Clears the collision and the player-seek flake; nothing moves in src/.",
+      },
+      {
+        label: "Renumber and push #1148 only",
+        description: "Fix the ADR number and refresh #1148, leaving #1160 on its old base until you want it rebased.",
+      },
+      {
+        label: "Start migration step 2",
+        description:
+          "Leave CI/git chores and begin <twig:PageForm> and <twig:PostForm confirm>, migrating collection/edit.html.twig and Tag/rename.html.twig as the examples.",
+      },
+      {
+        label: "Start migration step 3",
+        description:
+          "The scripted moves and renames (~300 files, one commit per module). The ADR wants this merged on a day few PRs are open.",
+      },
+    ],
+  },
+];
+
+/** Two questions in one prompt: each names itself in the body, and the title counts them. */
+const ASK_PAIR = [
+  ASK_QUESTIONS[0]!,
+  {
+    question: "How should the migration land?",
+    header: "Delivery",
+    options: [{ label: "One commit per module" }, { label: "One branch per module" }],
+  },
+];
+
+/** An ask's row: the question it asked, and the answer it came back with. */
+const askRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
+  name: "ask_user_question",
+  args: { questions: ASK_QUESTIONS },
+  status: "success",
+  level: 0,
+  output: "User has answered your questions: …",
+  answers: [{ questionIndex: 0, answer: ASK_QUESTIONS[0]!.options[0]!.label }],
+  ...overrides,
+});
+
 /** The panel's sample list: a finished step, the running one, and what is left. */
 const TODO_SAMPLE: TodoItem[] = [
   { id: 1, text: "Commit A: fix — install the image viewer", status: "completed" },
@@ -1027,6 +1080,42 @@ const oursEntries: EntryDef[] = [
           title: "complete #9",
           output: "",
           error: "#9 not found",
+        }),
+      ),
+    ],
+  },
+  {
+    id: "ours.ask",
+    title: "ask row",
+    group: "tools",
+    variant: "ours",
+    description:
+      "A question prompt's row in pi-ui's vocabulary: the question as the title, the answer checked under it, and, opened or unanswered, the options with their trade-offs.",
+    states: [
+      levelState("l0", "answered L0", 0, () => askRow()),
+      levelState("aged", "aged L3", 3, () => askRow()),
+      levelState("pending", "unanswered", 0, () => askRow({ status: "pending", output: "", answers: undefined })),
+      levelState("multi", "two questions", 0, () =>
+        askRow({
+          args: { questions: ASK_PAIR },
+          answers: [
+            { questionIndex: 0, answer: ASK_QUESTIONS[0]!.options[0]!.label },
+            { questionIndex: 1, answer: "One commit per module" },
+          ],
+        }),
+      ),
+      levelState(
+        "opened",
+        "opened, the options",
+        0,
+        () => askRow({ expanded: true, full: true }),
+        "every option it offered, the chosen one checked and each trade-off under its label",
+      ),
+      levelState("cancelled", "cancelled", 0, () =>
+        askRow({
+          output: "User cancelled the questions before answering.",
+          answers: [],
+          cancelled: true,
         }),
       ),
     ],

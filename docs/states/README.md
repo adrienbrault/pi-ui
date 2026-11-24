@@ -177,3 +177,15 @@ The session's todo list above the editor: a count, its bar, the running step's s
 After a step completes its row dims to a check and the bar fills a cell.
 
 ![Todos, one step done](todos-completed.png)
+
+## Ask, answered
+
+A question prompt's row: the question as its title, and the answer it came back with checked under it.
+
+![Ask, answered](ask-answered.png)
+
+## Ask, opened
+
+Opening the row lists every option it offered, the chosen one checked, each trade-off under its label.
+
+![Ask, opened](ask-opened.png)

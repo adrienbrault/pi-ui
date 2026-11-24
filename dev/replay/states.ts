@@ -28,6 +28,8 @@ const DEMO = join(import.meta.dir, "sessions", "deepseek-review.jsonl");
 const CHANGES = join(import.meta.dir, "fixtures", "file-changes.jsonl");
 const PROMPTS = join(import.meta.dir, "fixtures", "two-prompts.jsonl");
 const TODOS = join(import.meta.dir, "fixtures", "todos.jsonl");
+/** One question prompt, answered with its first option. */
+const ASK = join(import.meta.dir, "fixtures", "ask.jsonl");
 
 export interface Run {
   id: string;
@@ -67,6 +69,7 @@ const narrow: Run = { id: "narrow", session: DEMO, width: 70 };
 // Its own run: a pause in the middle of a message would shift the rates of that message's later states.
 const writing: Run = { id: "writing", session: DEMO };
 const todos: Run = { id: "todos", session: TODOS, height: 34 };
+const ask: Run = { id: "ask", session: ASK, height: 34 };
 
 const hover = (text: string): Action => ({ kind: "hover", text });
 const click = (text: string): Action => ({ kind: "click", text });
@@ -296,6 +299,23 @@ export const STATES: State[] = [
     description: "After a step completes its row dims to a check and the bar fills a cell.",
     run: todos,
     until: "tool:4:end",
+  },
+  {
+    id: "ask-answered",
+    title: "Ask, answered",
+    description:
+      "A question prompt's row: the question as its title, and the answer it came back with checked under it.",
+    run: ask,
+    until: "tool:1:end",
+  },
+  {
+    id: "ask-opened",
+    title: "Ask, opened",
+    description:
+      "Opening the row lists every option it offered, the chosen one checked, each trade-off under its label.",
+    run: ask,
+    until: "tool:1:end",
+    actions: [click("Renumber, rebase, push both PRs")],
   },
 ];
 

@@ -12,6 +12,7 @@ export type ToolClass =
   | "shell"
   | "web"
   | "todo"
+  | "ask"
   | "mcp"
   | "code"
   | "generic";
@@ -42,6 +43,7 @@ const META: Record<string, ToolMeta> = {
   codemode: { cls: "code", label: "codemode", trend: "tail" },
   tool_search: { cls: "code", label: "tool_search", trend: "head" },
   todo: { cls: "todo", label: "todo", trend: "head" },
+  ask_user_question: { cls: "ask", label: "ask", trend: "head" },
 };
 
 /** `mcp__server__tool` -> `server/tool`. */
@@ -62,13 +64,81 @@ export function toolMeta(name: string): ToolMeta {
  * Whether pi-ui renders this tool's rows. Every classified tool and every MCP
  * tool is owned, so it can fold with its peers. The `code` class is not: its
  * nested-call rollup does not exist yet, so those tools keep their own renderer.
- * Unknown tools (pi-code's subagent, question prompt, …) are always left alone.
+ * Unknown tools (pi-code's subagent, …) are always left alone.
  */
 export function ownsTool(name: string): boolean {
   if (name.startsWith("mcp__")) return true;
   return Object.hasOwn(META, name) && META[name]!.cls !== "code";
 }
 
+/** One option of a question: the label a user picks, and the trade-off the model wrote under it. */
+export interface AskedOption {
+  label: string;
+  description?: string;
+}
+
+/** One question of an `ask_user_question` call, as the model wrote it. */
+export interface AskedQuestion {
+  question: string;
+  /** A short name for the question, shown where a title has no room for it. */
+  header?: string;
+  options: AskedOption[];
+  multiSelect?: boolean;
+}
+
+/** An answer the tool came back with, from its result's `details.answers`. */
+export interface AskedAnswer {
+  questionIndex: number;
+  answer: string;
+}
+
+/** Every question a call asks, as the model wrote it; anything else is ignored. */
+export function askedQuestions(args: Record<string, unknown> = {}): AskedQuestion[] {
+  const raw = args.questions;
+  if (!Array.isArray(raw)) return [];
+  return raw.flatMap((entry): AskedQuestion[] => {
+    if (!entry || typeof entry !== "object") return [];
+    const question = entry as Record<string, unknown>;
+    if (typeof question.question !== "string") return [];
+    const options = Array.isArray(question.options)
+      ? question.options.flatMap((option): AskedOption[] => {
+          if (!option || typeof option !== "object") return [];
+          const label = (option as { label?: unknown }).label;
+          if (typeof label !== "string") return [];
+          const description = (option as { description?: unknown }).description;
+          return [{ label, ...(typeof description === "string" ? { description } : {}) }];
+        })
+      : [];
+    return [
+      {
+        question: question.question.replace(/\s+/g, " ").trim(),
+        ...(typeof question.header === "string" ? { header: question.header } : {}),
+        options,
+        ...(question.multiSelect === true ? { multiSelect: true } : {}),
+      },
+    ];
+  });
+}
+
+/**
+ * The answers a result's `details` carry, and whether the user cancelled. Undefined when the
+ * details are not a question prompt's: no tool needs to say which one it is.
+ */
+export function askedAnswers(details: unknown): { answers: AskedAnswer[]; cancelled: boolean } | undefined {
+  if (!details || typeof details !== "object") return undefined;
+  const held = details as { answers?: unknown; cancelled?: unknown };
+  if (!Array.isArray(held.answers)) return undefined;
+  const answers = held.answers.flatMap((entry): AskedAnswer[] => {
+    if (!entry || typeof entry !== "object") return [];
+    const answer = entry as { answer?: unknown; questionIndex?: unknown };
+    if (typeof answer.answer !== "string") return [];
+    const questionIndex = typeof answer.questionIndex === "number" ? answer.questionIndex : 0;
+    return [{ questionIndex, answer: answer.answer }];
+  });
+  return { answers, cancelled: held.cancelled === true };
+}
+
+/**
 /** Keys that identify a call when we know nothing else about the tool. */
 const DETAIL_KEYS = ["command", "query", "sql", "pattern", "prompt", "task", "url", "path", "file_path"];
 
@@ -120,6 +190,13 @@ export function describeCall(
   place: SessionPlace = {},
 ): { title: string; meta: ToolMeta } {
   const meta = toolMeta(name);
+  // An ask's title names the question: its header, the question itself, or how many there are.
+  if (meta.cls === "ask") {
+    const questions = askedQuestions(args);
+    const first = questions[0];
+    const title = questions.length > 1 ? `${questions.length} questions` : ((first?.header || first?.question) ?? "");
+    return { title, meta };
+  }
   // A todo call's title is what it does to which row: `start #2`.
   if (meta.cls === "todo") {
     const action = typeof args.action === "string" ? args.action : "";
@@ -258,6 +335,8 @@ export function groupNoun(cls: GroupClass): string {
       return "tool";
     case "todo":
       return "todo";
+    case "ask":
+      return "question";
     case "thinking":
       return "thought";
   }
@@ -298,6 +377,8 @@ export function groupVerb(cls: GroupClass, count: number, durationMs?: number): 
       return `called ${things}`;
     case "todo":
       return `updated ${things}`;
+    case "ask":
+      return `asked ${things}`;
     case "code":
       return `ran ${things}`;
     case "thinking":

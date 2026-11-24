@@ -35,6 +35,7 @@ import {
 } from "./text.ts";
 import { highlightShellLines, shellView, type ShellLine, type ShellView } from "./shell-output.ts";
 import {
+  askedQuestions,
   describeCall,
   formatRate,
   HEADER_MARGIN,
@@ -43,6 +44,7 @@ import {
   toolMeta,
   toolTokenLabel,
   sessionCommand,
+  type AskedAnswer,
   type SessionPlace,
   type TokenRates,
 } from "./tools.ts";
@@ -82,6 +84,10 @@ export interface ToolRowInput extends TokenRates, SessionPlace {
   columnLabels?: ColumnLabels;
   /** Files a shell command created, changed or deleted in its git work tree, shown after its output. */
   changes?: FileChanges;
+  /** What an `ask_user_question` call came back with, from its result's details. */
+  answers?: AskedAnswer[];
+  /** The user dismissed the question prompt without answering. */
+  cancelled?: boolean;
 }
 
 /** A file a shell command changed, as the extension recorded it on the tool result. */
@@ -713,14 +719,93 @@ function takesRow(line: ShellLine, opened = false): boolean {
  * shell command's output gives no row (a blank line after grep's prefix, a `--` where the file
  * changes). More than the level's budget means the preview hides some.
  */
+/** Whether opening an ask reveals rows its closed body never shows: the question, its options, their trade-offs. */
+export function askOpensUp(input: ToolRowInput): boolean {
+  const opened = askRows({ ...input, expanded: true, full: true });
+  const closed = askRows(input);
+  return !!opened && opened.length > (closed?.length ?? 0);
+}
+
 export function previewLineCount(input: ToolRowInput): number {
   const raw = previewText(input);
   const text = cleanOutput(raw);
   const files = changeRows(input.changes).length;
+  // An ask's rows are the answers it carries, or the options it offered; its output text is pi's
+  // summary of them, which the rows replace.
+  const ask = askRows(input);
+  // An ask opens onto its question and every option with its trade-off: that is what a click reveals.
+  if (ask) return (askRows({ ...input, expanded: true, full: true })?.length ?? ask.length) + files;
   // A diff's rows are its lines and the dividers between hunks; an edit's headers take none.
   if (isDiff(input, text)) return diffRows(logicalLines(text), input.name === "edit").length + files;
   const view = shellViewOf(input, text);
   return (view ? view.lines.filter((line) => takesRow(line)).length : nonEmptyLineCount(raw)) + files;
+}
+
+/** Whether an answer names this option: the whole answer, or one label of a multi-select. */
+function picked(label: string, answer: string): boolean {
+  return label === answer || answer.split(", ").includes(label);
+}
+
+/**
+ * An ask's body, in pi-ui's vocabulary: the answer it came back with (`✓ Renumber, rebase, push
+ * both PRs`). Opened, or before it is answered, the options it offered, the chosen one checked
+ * and every trade-off under its label. Several questions name themselves, by header or question.
+ */
+function askRows(input: ToolRowInput, api?: RenderApi): Selected[] | undefined {
+  if (input.error || toolMeta(input.name).cls !== "ask") return undefined;
+  const questions = askedQuestions(input.args);
+  if (!questions.length) return undefined;
+  const { theme, glyphs } = api ?? {};
+  const check = glyphs?.done ?? "✓";
+  // A dismissed prompt says so and nothing else: the options were not chosen, they were refused.
+  if (input.cancelled) return [{ line: "cancelled", ...(theme && { styled: theme.fg("dim", "cancelled") }) }];
+  const answered = input.answers ?? [];
+  const opened = !!(input.expanded || input.full);
+  const several = questions.length > 1;
+  const rows: Selected[] = [];
+  const answerRow = (name: string, answer: string): Selected => ({
+    line: `${check} ${name}${answer}`,
+    ...(theme && {
+      styled: `${theme.fg("success", check)} ${theme.fg("dim", name)}${theme.fg("text", answer)}`,
+    }),
+  });
+  questions.forEach((question, index) => {
+    const answer = answered.find((entry) => entry.questionIndex === index)?.answer;
+    const name = several ? `${question.header || question.question}: ` : "";
+    // Unopened, the answer is the row's evidence: the question it answered and the options wait a click.
+    if (!opened) {
+      if (answer !== undefined) {
+        rows.push(answerRow(name, answer));
+        return;
+      }
+      for (const option of question.options) {
+        rows.push({ line: `  ${option.label}`, ...(theme && { styled: theme.fg("muted", `  ${option.label}`) }) });
+      }
+      return;
+    }
+    // Opened: the question in full, then every option it offered with the trade-off the model wrote.
+    const asked = `${several ? name : ""}${question.question}`;
+    rows.push({ line: asked, ...(theme && { styled: theme.fg("dim", asked) }) });
+    for (const option of question.options) {
+      const hit = answer !== undefined && picked(option.label, answer);
+      const mark = hit ? check : " ";
+      rows.push({
+        line: `${mark} ${option.label}`,
+        ...(theme && {
+          styled: `${hit ? theme.fg("success", check) : " "} ${theme.fg(hit ? "success" : "muted", option.label)}`,
+        }),
+      });
+      if (option.description) {
+        const line = `  ${option.description}`;
+        rows.push({ line, ...(theme && { styled: theme.fg("dim", line) }) });
+      }
+    }
+    // A typed answer is no option's label: it keeps a row of its own, under the list.
+    if (answer !== undefined && !question.options.some((option) => picked(option.label, answer))) {
+      rows.push(answerRow(name, answer));
+    }
+  });
+  return rows.length ? rows : undefined;
 }
 
 /** Whether a body reads as a diff: an edit's patch, or a shell command's output that is one. */
@@ -1053,8 +1138,10 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number,
 
   const meta = toolMeta(input.name);
   // Before its first output, a call shows what the model is writing into its arguments.
-  const call = streamingCallRows(api, input, hiddenTitle);
-  const text = call ? "" : cleanOutput(input.error ? errorDetail(input, meta) : previewText(input));
+  // An ask reads its questions, not the arguments it is written with, answered or still pending.
+  const ask = askRows(input, api);
+  const call = ask ? undefined : streamingCallRows(api, input, hiddenTitle);
+  const text = call || ask ? "" : cleanOutput(input.error ? errorDetail(input, meta) : previewText(input));
   // A hashline read numbers each line before its code; the strip happens before the body reads the
   // text, so highlighting, counts and cuts all see the code alone.
   const plain = input.name === "read" && !input.error ? dropReadAnchors(text, firstLine(input, text)) : text;
@@ -1071,6 +1158,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number,
   // in the file. An opened block shows the file as it is, blank lines included.
   const start = diff ? undefined : firstLine(input, text);
   const lines: Selected[] =
+    ask ??
     call ??
     shell?.lines ??
     source.flatMap((line, raw) =>

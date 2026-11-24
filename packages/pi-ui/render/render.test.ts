@@ -28,6 +28,7 @@ import { groupSegments, renderGroupMember, renderGroupRow } from "./group-row.ts
 import {
   leavingRow,
   previewBar,
+  askOpensUp,
   previewLineCount,
   previewText,
   renderToolRow,
@@ -583,6 +584,111 @@ describe("hashline anchors", () => {
 
   test("a hashline diff that only adds rows still reads as a diff", () => {
     expect(editBody([" 12#VR:keep", "+13#VR:added"].join("\n"))).toEqual(["    12   keep", "    13  +added"]);
+  });
+});
+
+describe("ask rows", () => {
+  const questions = [
+    {
+      question: "What should I start with?",
+      header: "Next action",
+      options: [
+        { label: "Renumber, rebase, push both PRs", description: "Clear the collision; nothing moves in src/." },
+        { label: "Renumber and push #1148 only" },
+        { label: "Start migration step 2" },
+      ],
+    },
+  ];
+  const ask = (extra: Partial<ToolRowInput> = {}) =>
+    renderToolRow(api, {
+      name: "ask_user_question",
+      status: "success",
+      level: 0,
+      args: { questions },
+      ...extra,
+    });
+  const body = (extra: Partial<ToolRowInput> = {}, width = 80) =>
+    ask(extra)
+      .render(width)
+      .slice(1)
+      .map((row) => row.trimEnd());
+
+  test("the header names the question by its header, or counts several", () => {
+    expect(describeCall("ask_user_question", { questions })).toMatchObject({ title: "Next action" });
+    expect(describeCall("ask_user_question", { questions: [{ question: "Pick one" }] })).toMatchObject({
+      title: "Pick one",
+    });
+    expect(describeCall("ask_user_question", { questions: [questions[0]!, questions[0]!] })).toMatchObject({
+      title: "2 questions",
+    });
+    expect(toolMeta("ask_user_question")).toMatchObject({ cls: "ask", label: "ask" });
+    expect(groupVerb("ask", 2)).toBe("asked 2 questions");
+  });
+
+  test("an answered ask shows the answer it came back with, checked", () => {
+    expect(body({ answers: [{ questionIndex: 0, answer: "Renumber, rebase, push both PRs" }] })).toEqual([
+      "    ✓ Renumber, rebase, push both PRs",
+    ]);
+  });
+
+  test("an unanswered ask lists the options it offered, without a mark", () => {
+    expect(body({ status: "pending", output: "" })).toEqual([
+      "      Renumber, rebase, push both PRs",
+      "      Renumber and push #1148 only",
+      "      Start migration step 2",
+    ]);
+  });
+
+  test("opened, every option is listed with its trade-off under it", () => {
+    const rows = body({
+      expanded: true,
+      full: true,
+      answers: [{ questionIndex: 0, answer: "Start migration step 2" }],
+    });
+    // Opening adds the question in full and the trade-off each option was weighed against.
+    expect(rows).toEqual([
+      "    What should I start with?",
+      "      Renumber, rebase, push both PRs",
+      "      Clear the collision; nothing moves in src/.",
+      "      Renumber and push #1148 only",
+      "    ✓ Start migration step 2",
+    ]);
+  });
+
+  test("a click opens an ask however short: its options are not its preview", () => {
+    const answered = { name: "ask_user_question", status: "success" as const, level: 0 as const };
+    const answers = [{ questionIndex: 0, answer: "Start migration step 2" }];
+    expect(askOpensUp({ ...answered, args: { questions }, answers })).toBe(true);
+    expect(askOpensUp({ ...answered, status: "pending", args: { questions } })).toBe(true);
+    expect(askOpensUp({ ...answered, args: { questions }, cancelled: true })).toBe(false);
+    expect(askOpensUp({ ...answered, args: {} })).toBe(false);
+  });
+
+  test("several questions name themselves in the body", () => {
+    expect(
+      body({
+        args: {
+          questions: [
+            questions[0]!,
+            { question: "How should it land?", header: "Delivery", options: [{ label: "One commit per module" }] },
+          ],
+        },
+        answers: [
+          { questionIndex: 0, answer: "Renumber, rebase, push both PRs" },
+          { questionIndex: 1, answer: "One commit per module" },
+        ],
+      }),
+    ).toEqual(["    ✓ Next action: Renumber, rebase, push both PRs", "    ✓ Delivery: One commit per module"]);
+  });
+
+  test("a typed answer keeps a row under the options it did not name", () => {
+    expect(body({ answers: [{ questionIndex: 0, answer: "Neither: split the PR" }] })).toEqual([
+      "    ✓ Neither: split the PR",
+    ]);
+  });
+
+  test("a dismissed prompt says so, and nothing else", () => {
+    expect(body({ cancelled: true, answers: [] })).toEqual(["    cancelled"]);
   });
 });
 
