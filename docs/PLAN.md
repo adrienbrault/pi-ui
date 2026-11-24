@@ -26,7 +26,7 @@ Make a long agentic session readable at a glance without losing the live detail:
 
 - Per-thinking-block LLM summaries. Parked: the machinery to generate them is orthogonal to rendering; revisit after the decay engine ships.
 - Mouse-driven drag/selection changes beyond existing click-to-expand.
-- Reimplementing pi-code's todo/subagent tools in v1 (they come with the standalone chrome phase).
+- Reimplementing pi-code's todo/subagent tools in v1 (they come with the standalone chrome phase). Landed anyway, because their rows are the transcript's: the `todo` list's panel, `ask_user_question`, and `subagent`'s rows and completion notice are pi-ui's now.
 
 ## What pi actually allows (verified against 1.5.x)
 
@@ -128,7 +128,7 @@ Segments join into one sentence in encounter order, the first capitalised. A seg
 The standalone build owns chrome, so v1 must not double-install with pi-open-tui. Detection rules:
 
 - If pi-open-tui's footer/editor is detected, warn and leave it alone until its features are disabled (or offer a `/pi-ui takeover` command).
-- pi-code's renderers (todo, question, subagent) are left untouched; the decorator only touches tool rows it owns. It owns every tool in the taxonomy above except the code class, plus every `mcp__*` tool (`ownsTool` in `render/tools.ts`, the single source). Any other tool keeps its own renderer and ends a fold group.
+- pi-code's renderers (todo, question, subagent) are left untouched; the decorator only touches tool rows it owns — though pi-ui now owns those three tools' rows as well (see the non-goals note). It owns every tool in the taxonomy above except the code class, plus every `mcp__*` tool (`ownsTool` in `render/tools.ts`, the single source). Any other tool keeps its own renderer and ends a fold group.
 - Two copies of `pi-coding-agent` would break `instanceof`; the decorator duck-types (as pi-open-tui does) and probes methods before wrapping.
 
 #### Edge cases to handle explicitly
@@ -179,5 +179,5 @@ pi-ui/
 ## Open questions
 
 - Package name and branding.
-- Whether "ours" absorbs pi-code's todo/subagent/tool renderers by import or reimplementation in P4.
+- ~~Whether "ours" absorbs pi-code's todo/subagent/tool renderers by import or reimplementation in P4.~~ Answered: reimplementation, in the render layer (`render/todos.ts`, `render/tools.ts`, `render/tool-row.ts`) with thin extensions (`extensions/todos.ts`, `extensions/subagent-notice.ts`).
 - Whether to expose the decay curve as a setting (`/pi-ui decay 7,5,3,1`) or keep it fixed for v1. For now the tail budget, the blocks per step, the fold distance and the forming size are constants in `render/detail.ts`; a setting should arrive as explicit parameters with its own design, including the floor a separate fold distance needs.

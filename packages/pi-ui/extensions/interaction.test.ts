@@ -350,7 +350,7 @@ const SLOW_ROW_MS = 480;
 describe("tool renderers", () => {
   test("leaves unowned tools to the next resolver", () => {
     const base = { renderShell: "default" };
-    for (const name of ["subagent", "codemode", "tool_search", "web", "fetch"]) {
+    for (const name of ["codemode", "tool_search", "web", "fetch", "unclassified_tool"]) {
       expect(resolver()(name, () => base)).toBe(base);
     }
   });
@@ -374,6 +374,7 @@ describe("tool renderers", () => {
       "fetch_content",
       "todo",
       "ask_user_question",
+      "subagent",
       "mcp__memory__search",
     ]) {
       expect(resolver()(name, () => base)).not.toBe(base);

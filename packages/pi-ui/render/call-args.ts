@@ -5,6 +5,7 @@
  * - an edit: its replacements as they are written, each `oldText` as removed lines, then its
  *   `newText` as added lines;
  * - a shell command too long or too tall for its header: the whole command;
+ * - a subagent: the brief it was handed, as the model writes it;
  * - any other call: every argument its one-line title does not show, one field after another.
  *
  * Pure: it reads the partial arguments pi passes and returns plain text. Arguments arrive
@@ -22,6 +23,8 @@ export interface StreamedEdit {
 
 export type CallView =
   | { kind: "edit"; path?: string; edits: StreamedEdit[] }
+  /** One argument's text as written, with no field name: a brief, not a command. */
+  | { kind: "text"; text: string }
   | { kind: "command"; command: string }
   | { kind: "fields"; fields: Array<{ key: string; value: string }> };
 
@@ -70,6 +73,11 @@ function fieldText(value: unknown): string {
  */
 export function callView(name: string, args: Record<string, unknown> = {}, hiddenTitle?: string): CallView | undefined {
   if (toolMeta(name).cls === "shell") return hiddenTitle ? { kind: "command", command: hiddenTitle } : undefined;
+  // A subagent's brief is the row's evidence; the rest of its arguments are the header's business.
+  if (toolMeta(name).cls === "subagent") {
+    const brief = args.task ?? args.prompt;
+    if (typeof brief === "string" && brief.trim()) return { kind: "text", text: brief };
+  }
   if (name === "edit") {
     const edits = streamedEdits(args);
     if (edits) {

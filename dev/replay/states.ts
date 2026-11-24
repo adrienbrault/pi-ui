@@ -30,6 +30,8 @@ const PROMPTS = join(import.meta.dir, "fixtures", "two-prompts.jsonl");
 const TODOS = join(import.meta.dir, "fixtures", "todos.jsonl");
 /** One question prompt, answered with its first option. */
 const ASK = join(import.meta.dir, "fixtures", "ask.jsonl");
+/** One delegated child: its brief, its answer, and what it spent. */
+const SUBAGENT = join(import.meta.dir, "fixtures", "subagent.jsonl");
 
 export interface Run {
   id: string;
@@ -70,6 +72,7 @@ const narrow: Run = { id: "narrow", session: DEMO, width: 70 };
 const writing: Run = { id: "writing", session: DEMO };
 const todos: Run = { id: "todos", session: TODOS, height: 34 };
 const ask: Run = { id: "ask", session: ASK, height: 34 };
+const subagent: Run = { id: "subagent", session: SUBAGENT, height: 30 };
 
 const hover = (text: string): Action => ({ kind: "hover", text });
 const click = (text: string): Action => ({ kind: "click", text });
@@ -316,6 +319,14 @@ export const STATES: State[] = [
     run: ask,
     until: "tool:1:end",
     actions: [click("Renumber, rebase, push both PRs")],
+  },
+  {
+    id: "subagent-done",
+    title: "Subagent, done",
+    description:
+      "A delegated child's row: its last message as the body, the tokens it spent in the header, and its tool and turn counts under it.",
+    run: subagent,
+    until: "tool:1:end",
   },
 ];
 

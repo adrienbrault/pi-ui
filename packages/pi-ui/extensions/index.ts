@@ -25,8 +25,10 @@ import {
   callTokens,
   ownsTool,
   toolMeta,
+  subagentRun,
   toolTokenCounts,
   type AskedAnswer,
+  type SubagentRun,
   type SessionPlace,
 } from "../render/tools.ts";
 import { nonEmptyLineCount } from "../render/text.ts";
@@ -61,6 +63,7 @@ import {
 } from "./fold.ts";
 import { claimHover, releaseHover } from "./hover.ts";
 import { installImageViewer } from "./image-viewer.ts";
+import { installSubagentNotice } from "./subagent-notice.ts";
 import { installTodos } from "./todos.ts";
 import { expandedRegions, hoveredRegions, paintBar, paintMarker, styleBarCell } from "./viewport.ts";
 import { fadeLine, paintLeaving, toolFade } from "./fade.ts";
@@ -125,6 +128,8 @@ interface BlockRecord {
   /** What an `ask_user_question` call came back with, and whether the user dismissed it. */
   answers?: AskedAnswer[];
   cancelled?: boolean;
+  /** The child a `subagent` call ran, recorded on its result. */
+  subagent?: SubagentRun;
 }
 
 const records = new Map<string | object, BlockRecord>();
@@ -264,14 +269,16 @@ function inputFor(record: BlockRecord): ToolRowInput {
     expanded: record.expansion === 1,
     full: record.expansion === 1,
     output: record.output,
-    inputTokens: record.inputTokens,
-    outputTokens: record.outputTokens,
+    // A subagent's header counts its child's tokens, not the call's arguments.
+    inputTokens: record.subagent?.inputTokens ?? record.inputTokens,
+    outputTokens: record.subagent?.outputTokens ?? record.outputTokens,
     ...(typeof record.key === "string" ? ratesFor?.(record.key) : undefined),
     error: record.error,
     ...(record.changes ? { changes: record.changes } : {}),
     ...(record.answers ? { answers: record.answers } : {}),
     ...(record.cancelled ? { cancelled: true } : {}),
-    durationMs: clock ? performance.now() - clock.startedAt : record.durationMs,
+    ...(record.subagent ? { subagent: record.subagent } : {}),
+    durationMs: clock ? performance.now() - clock.startedAt : (record.subagent?.durationMs ?? record.durationMs),
     frame: frame(),
   };
 }
@@ -571,7 +578,11 @@ const resolver: ToolRendererResolver = (toolName, next) => {
         timestamp: 0,
         content: result.content,
       });
-      const record = syncRecord(ctx, toolName, ctx.args, outputText(toolName, ctx.isError, result), inputTokens);
+      // A subagent's body is its child's last message, not pi-subagents' launch or mission notice.
+      const run = toolMeta(toolName).cls === "subagent" ? subagentRun(result.details) : undefined;
+      const output = run && !ctx.isError ? (run.output ?? "") : outputText(toolName, ctx.isError, result);
+      const record = syncRecord(ctx, toolName, ctx.args, output, inputTokens);
+      if (run) record.subagent = run;
       record.changes = recordedChanges(result.details);
       // An ask's rows read the answers from the details; its content text is pi's summary of them.
       if (toolMeta(toolName).cls === "ask") {
@@ -603,6 +614,7 @@ export default function piUi(pi: ExtensionAPI): void {
   installThinkingRenderer(pi);
   installFileChanges(pi);
   installImageViewer(pi);
+  installSubagentNotice(pi);
   installTodos(pi);
   ratesFor = installThroughput(pi, (id) => records.get(id)?.invalidate());
 

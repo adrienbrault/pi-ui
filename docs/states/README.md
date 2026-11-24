@@ -189,3 +189,9 @@ A question prompt's row: the question as its title, and the answer it came back 
 Opening the row lists every option it offered, the chosen one checked, each trade-off under its label.
 
 ![Ask, opened](ask-opened.png)
+
+## Subagent, done
+
+A delegated child's row: its last message as the body, the tokens it spent in the header, and its tool and turn counts under it.
+
+![Subagent, done](subagent-done.png)

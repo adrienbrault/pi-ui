@@ -13,6 +13,7 @@ export type ToolClass =
   | "web"
   | "todo"
   | "ask"
+  | "subagent"
   | "mcp"
   | "code"
   | "generic";
@@ -44,6 +45,7 @@ const META: Record<string, ToolMeta> = {
   tool_search: { cls: "code", label: "tool_search", trend: "head" },
   todo: { cls: "todo", label: "todo", trend: "head" },
   ask_user_question: { cls: "ask", label: "ask", trend: "head" },
+  subagent: { cls: "subagent", label: "subagent", trend: "head" },
 };
 
 /** `mcp__server__tool` -> `server/tool`. */
@@ -138,6 +140,67 @@ export function askedAnswers(details: unknown): { answers: AskedAnswer[]; cancel
   return { answers, cancelled: held.cancelled === true };
 }
 
+/** One child's run, as a `subagent` result's `details` reported it. */
+export interface SubagentRun {
+  /** The child the details name. */
+  agent?: string;
+  /** `single`, `workflow`, `management`, …: only a run has one worth reading. */
+  mode?: string;
+  /** The child's last message: what it came back with. */
+  output?: string;
+  toolCount?: number;
+  turns?: number;
+  /** The child's own tokens: what it sent and what it returned, not the call's arguments. */
+  inputTokens?: number;
+  outputTokens?: number;
+  durationMs?: number;
+  /** The child's exit code, when it did not finish cleanly. */
+  exitCode?: number;
+  stopped?: boolean;
+  /** The run's acceptance check did not pass its criteria. */
+  rejected?: boolean;
+  /** A background run's id: the call returned while the child kept going. */
+  asyncId?: string;
+}
+
+const asRecord = (value: unknown): Record<string, unknown> =>
+  value && typeof value === "object" ? (value as Record<string, unknown>) : {};
+
+const asNumber = (value: unknown): number | undefined => (typeof value === "number" ? value : undefined);
+
+/**
+ * The run a `subagent` result's `details` describe, or undefined when they describe something
+ * else: a management action (`action: "models"`) answers with text and has no run behind it.
+ */
+export function subagentRun(details: unknown): SubagentRun | undefined {
+  if (!details || typeof details !== "object") return undefined;
+  const held = details as Record<string, unknown>;
+  const asyncId = typeof held.asyncId === "string" ? held.asyncId : undefined;
+  const runs = Array.isArray(held.results) ? held.results : [];
+  const first = runs[0] === undefined ? undefined : asRecord(runs[0]);
+  if (!first && !asyncId) return undefined;
+  const usage = asRecord(first?.usage);
+  const progress = asRecord(first?.progressSummary ?? first?.progress);
+  const accepted = asRecord(first?.acceptance);
+  const input = asNumber(usage.input);
+  const output = asNumber(usage.output);
+  const final = typeof first?.finalOutput === "string" ? first.finalOutput.trim() : undefined;
+  return {
+    agent: typeof first?.agent === "string" ? first.agent : undefined,
+    mode: typeof held.mode === "string" ? held.mode : undefined,
+    ...(final ? { output: final } : {}),
+    toolCount: asNumber(progress.toolCount),
+    turns: asNumber(usage.turns),
+    inputTokens: input,
+    outputTokens: output,
+    durationMs: asNumber(progress.durationMs),
+    exitCode: asNumber(first?.exitCode),
+    ...(first?.stopped === true ? { stopped: true } : {}),
+    ...(accepted.status === "rejected" ? { rejected: true } : {}),
+    asyncId,
+  };
+}
+
 /**
 /** Keys that identify a call when we know nothing else about the tool. */
 const DETAIL_KEYS = ["command", "query", "sql", "pattern", "prompt", "task", "url", "path", "file_path"];
@@ -195,6 +258,20 @@ export function describeCall(
     const questions = askedQuestions(args);
     const first = questions[0];
     const title = questions.length > 1 ? `${questions.length} questions` : ((first?.header || first?.question) ?? "");
+    return { title, meta };
+  }
+  // A subagent call's title names the child it runs, or the workflow, or the management action.
+  if (meta.cls === "subagent") {
+    const agent = typeof args.agent === "string" ? args.agent.trim() : "";
+    const action = typeof args.action === "string" ? args.action.trim() : "";
+    const workflow = args.workflow;
+    const title = action
+      ? [action, agent].filter(Boolean).join(" ")
+      : workflow === undefined || workflow === false
+        ? agent
+        : workflow === true || workflow === "true"
+          ? "workflow (reply block)"
+          : `workflow ${String(workflow)}`;
     return { title, meta };
   }
   // A todo call's title is what it does to which row: `start #2`.
@@ -337,6 +414,8 @@ export function groupNoun(cls: GroupClass): string {
       return "todo";
     case "ask":
       return "question";
+    case "subagent":
+      return "subagent";
     case "thinking":
       return "thought";
   }
@@ -379,6 +458,8 @@ export function groupVerb(cls: GroupClass, count: number, durationMs?: number): 
       return `updated ${things}`;
     case "ask":
       return `asked ${things}`;
+    case "subagent":
+      return `ran ${things}`;
     case "code":
       return `ran ${things}`;
     case "thinking":

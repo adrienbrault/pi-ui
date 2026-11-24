@@ -46,6 +46,7 @@ import {
   sessionCommand,
   type AskedAnswer,
   type SessionPlace,
+  type SubagentRun,
   type TokenRates,
 } from "./tools.ts";
 
@@ -88,6 +89,8 @@ export interface ToolRowInput extends TokenRates, SessionPlace {
   answers?: AskedAnswer[];
   /** The user dismissed the question prompt without answering. */
   cancelled?: boolean;
+  /** The child a `subagent` call ran, as its result's details reported it. */
+  subagent?: SubagentRun;
 }
 
 /** A file a shell command changed, as the extension recorded it on the tool result. */
@@ -301,6 +304,8 @@ function streamingCallRows(api: RenderApi, input: ToolRowInput, hiddenTitle?: st
   if (!view) return undefined;
   const { kit, theme } = api;
   if (view.kind === "command") return view.command.split("\n").map((line) => ({ line, tone: "accent" as const }));
+  if (view.kind === "text")
+    return view.text.split("\n").map((line) => ({ line, styled: line ? theme.fg("muted", line) : line }));
   if (view.kind === "fields") {
     const keyWidth = Math.max(...view.fields.map((field) => field.key.length));
     return view.fields.flatMap(({ key, value }) =>
@@ -355,7 +360,10 @@ export function styleMetric(theme: RenderTheme, label: string, marks: TokenMarks
 
 /** A tool row's cells in its group's table: its call is model output, its result model input. */
 export function toolRowCells(input: ToolRowInput): MemberCells {
-  const { outputTokens, inputTokens } = toolTokenCounts(input);
+  const counts = toolTokenCounts(input);
+  // A subagent's cells count its child's tokens: what it sent and returned, not the call's brief.
+  const outputTokens = input.subagent?.outputTokens ?? counts.outputTokens;
+  const inputTokens = input.subagent?.inputTokens ?? counts.inputTokens;
   return {
     label: toolLabel(input.name),
     outValue: formatRate(outputTokens),
@@ -376,8 +384,17 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, rowWidth: number
   const label = toolLabel(input.name);
   const title = oneLine(input.title ?? describeCall(input.name, input.args, input).title);
   const summary = input.summary === undefined ? undefined : oneLine(input.summary);
+  // A subagent's header counts its child's tokens: what it sent and returned, not the call's brief.
   const { outputTokens, inputTokens } = toolTokenCounts(input);
-  const tokens = toolTokenLabel(outputTokens, inputTokens, input, glyphs);
+  const spent = input.subagent;
+  // A subagent's tokens are its child's: a rate measured on the call that launched it would be a
+  // different quantity wearing the same marks.
+  const tokens = toolTokenLabel(
+    spent?.outputTokens ?? outputTokens,
+    spent?.inputTokens ?? inputTokens,
+    spent ? {} : input,
+    glyphs,
+  );
 
   const sep = ` ${theme.fg("dim", glyphs.dot)} `;
   const mark = cutMark(theme);
@@ -726,19 +743,51 @@ export function askOpensUp(input: ToolRowInput): boolean {
   return !!opened && opened.length > (closed?.length ?? 0);
 }
 
+/**
+ * The row under a subagent's body: what the child spent (`3 tools · 2 turns`) and, when its
+ * acceptance check did not pass, that it did not. A background run that returned while the
+ * child kept going says so instead, with the run's id.
+ */
+function subagentFooterRows(input: ToolRowInput, api?: RenderApi): Selected[] {
+  const run = input.subagent;
+  if (!run || input.error) return [];
+  const { theme } = api ?? {};
+  const dim = (line: string, styled: string): Selected => ({ line, ...(theme && { styled }) });
+  if (run.asyncId && !input.output?.trim()) {
+    const line = `detached · run ${run.asyncId.slice(0, 8)}`;
+    return [dim(line, theme ? theme.fg("dim", line) : line)];
+  }
+  const spent = [
+    run.toolCount ? `${run.toolCount} ${run.toolCount === 1 ? "tool" : "tools"}` : "",
+    run.turns ? `${run.turns} ${run.turns === 1 ? "turn" : "turns"}` : "",
+  ].filter(Boolean);
+  const rows: Selected[] = [];
+  if (spent.length) {
+    const line = spent.join(" · ");
+    rows.push(dim(line, theme ? theme.fg("dim", line) : line));
+  }
+  if (run.rejected) {
+    const line = "acceptance rejected";
+    rows.push(dim(line, theme ? theme.fg("warning", line) : line));
+  }
+  return rows;
+}
+
 export function previewLineCount(input: ToolRowInput): number {
   const raw = previewText(input);
   const text = cleanOutput(raw);
   const files = changeRows(input.changes).length;
+  // A subagent's own line, which its body keeps whatever its output does.
+  const footer = subagentFooterRows(input).length;
   // An ask's rows are the answers it carries, or the options it offered; its output text is pi's
   // summary of them, which the rows replace.
   const ask = askRows(input);
   // An ask opens onto its question and every option with its trade-off: that is what a click reveals.
-  if (ask) return (askRows({ ...input, expanded: true, full: true })?.length ?? ask.length) + files;
+  if (ask) return (askRows({ ...input, expanded: true, full: true })?.length ?? ask.length) + files + footer;
   // A diff's rows are its lines and the dividers between hunks; an edit's headers take none.
   if (isDiff(input, text)) return diffRows(logicalLines(text), input.name === "edit").length + files;
   const view = shellViewOf(input, text);
-  return (view ? view.lines.filter((line) => takesRow(line)).length : nonEmptyLineCount(raw)) + files;
+  return (view ? view.lines.filter((line) => takesRow(line)).length : nonEmptyLineCount(raw)) + files + footer;
 }
 
 /** Whether an answer names this option: the whole answer, or one label of a multi-select. */
@@ -1141,7 +1190,20 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number,
   // An ask reads its questions, not the arguments it is written with, answered or still pending.
   const ask = askRows(input, api);
   const call = ask ? undefined : streamingCallRows(api, input, hiddenTitle);
-  const text = call || ask ? "" : cleanOutput(input.error ? errorDetail(input, meta) : previewText(input));
+  // A background run's brief is the row's evidence once the call has returned: the launch notice
+  // pi-subagents writes says only that the child kept going.
+  const run = input.subagent;
+  const brief = run && !input.output?.trim() ? (input.args?.task ?? input.args?.prompt) : undefined;
+  const text =
+    call || ask
+      ? ""
+      : cleanOutput(
+          input.error
+            ? errorDetail(input, meta)
+            : typeof brief === "string" && brief.trim()
+              ? brief
+              : previewText(input),
+        );
   // A hashline read numbers each line before its code; the strip happens before the body reads the
   // text, so highlighting, counts and cuts all see the code alone.
   const plain = input.name === "read" && !input.error ? dropReadAnchors(text, firstLine(input, text)) : text;
@@ -1180,7 +1242,9 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number,
     return (code: string) => highlight(code, fileLanguage, theme);
   };
   const changed = call ? [] : changeRows(input.changes, fileHighlight);
-  if (lines.length === 0 && changed.length === 0) return empty;
+  // A subagent's own line: what its child spent, or that it is still going without the call.
+  const footer = input.error ? [] : subagentFooterRows(input, api);
+  if (lines.length === 0 && changed.length === 0 && footer.length === 0) return empty;
   // The lines pi's read left in the file: a notice on the last row, which the code may not take.
   // It gives way when the rows left would hold a notice and no line of code.
   const remaining = input.name === "read" && !input.error ? splitReadTrailer(input.output ?? "").remaining : undefined;
@@ -1224,8 +1288,13 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number,
    * The output and the changed files share the budget. When both cannot fit, the files take the
    * larger half, the output at least one row, and either gives the other what it does not use.
    */
+  // The footer is one or two rows and always last: it says what the output cannot.
   const select = (show: number): Selected[] => {
-    if (!files.length) return selectOutput(show);
+    const room = Math.max(0, show - footer.length);
+    return [...selectFiles(room), ...footer];
+  };
+  const selectFiles = (show: number): Selected[] => {
+    if (!files.length) return show > 0 ? selectOutput(show) : [];
     if (outputRows + files.length <= show) return [...selectOutput(outputRows), ...files];
     const share = Math.min(outputRows, Math.max(1, show - files.length, Math.floor(show / 2)));
     const output = share > 0 ? selectOutput(share) : [];
@@ -1344,7 +1413,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number,
   };
 
   // A notice counts against the budget: total body rows never exceed it.
-  const show = Math.min(budget, outputRows + files.length);
+  const show = Math.min(budget, outputRows + files.length + footer.length);
   let selected = select(show);
   let items = layout(selected);
   if (wrapLines && rowCount(items) > budget) {

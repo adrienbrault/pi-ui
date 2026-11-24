@@ -692,6 +692,67 @@ describe("ask rows", () => {
   });
 });
 
+describe("subagent rows", () => {
+  const TASK = "Read the three layout files and say which one owns the panel's column widths.";
+  const base = {
+    name: "subagent",
+    args: { agent: "scout", task: TASK },
+    status: "success" as const,
+    level: 0 as const,
+  };
+  const body = (extra: Partial<ToolRowInput> = {}, width = 80) =>
+    renderToolRow(api, { ...base, ...extra })
+      .render(width)
+      .slice(1)
+      .map((row) => row.trimEnd());
+
+  test("the header names the child the call ran", () => {
+    expect(describeCall("subagent", { agent: "scout", task: TASK })).toMatchObject({ title: "scout" });
+    expect(describeCall("subagent", { agent: "scout", action: "status" })).toMatchObject({ title: "status scout" });
+    expect(describeCall("subagent", { workflow: true })).toMatchObject({ title: "workflow (reply block)" });
+    expect(toolMeta("subagent")).toMatchObject({ cls: "subagent", label: "subagent" });
+    expect(groupVerb("subagent", 2)).toBe("ran 2 subagents");
+  });
+
+  test("before the call returns, the brief is what the row shows", () => {
+    const rows = body({ status: "pending" }, 200);
+    expect(rows).toEqual([`    ${TASK}`]);
+  });
+
+  test("its last message is the body, with what the child spent under it", () => {
+    const rows = body({
+      output: "The panel's widths live in columns.ts, not layout.ts.",
+      subagent: { outputTokens: 41, inputTokens: 4400, toolCount: 3, turns: 2, durationMs: 24_000 },
+    });
+    expect(rows).toEqual(["    The panel's widths live in columns.ts, not layout.ts.", "    3 tools · 2 turns"]);
+  });
+
+  test("a run that came back without its child says so, with the run's id", () => {
+    const rows = body(
+      {
+        output: "",
+        subagent: { asyncId: "49de7dd6-380e-4b11-98c5-b2c1cdd37a8c" },
+      },
+      200,
+    );
+    expect(rows).toEqual([`    ${TASK}`, "    detached · run 49de7dd6"]);
+  });
+
+  test("an acceptance check that did not pass says so, under what the child spent", () => {
+    const rows = body({
+      output: "Done.",
+      subagent: { outputTokens: 28, inputTokens: 4367, toolCount: 0, turns: 1, rejected: true },
+    });
+    expect(rows).toEqual(["    Done.", "    1 turn", "    acceptance rejected"]);
+  });
+
+  test("what a child spent overrides the call's own token counts in the header", () => {
+    const header = toolHeader(api, { ...base, subagent: { inputTokens: 4400, outputTokens: 41 } }, 80);
+    expect(header.line).toContain("↑4.4k");
+    expect(header.line).toContain("↓41");
+  });
+});
+
 describe("files a shell command changed", () => {
   const changes: FileChanges = {
     files: [

@@ -38,6 +38,7 @@ import {
 import { boundedPatch } from "../packages/pi-ui/extensions/changes.ts";
 import { renderTodosPanel, type TodoItem } from "../packages/pi-ui/render/todos.ts";
 import { restyleUserMessage } from "../packages/pi-ui/extensions/user-message.ts";
+import { noticeLines } from "../packages/pi-ui/extensions/subagent-notice.ts";
 import type { PiInstall } from "./lib/pi.ts";
 import { stack } from "./lib/surface.ts";
 import {
@@ -352,6 +353,32 @@ const askRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
   answers: [{ questionIndex: 0, answer: ASK_QUESTIONS[0]!.options[0]!.label }],
   ...overrides,
 });
+
+/** A delegated child's brief: what the model handed it, as the call is written. */
+const SUBAGENT_BRIEF = "Read the three layout files and say which one owns the panel's column widths.";
+
+/** What the child came back with: its last message, which is the row's body. */
+const SUBAGENT_ANSWER = [
+  "The panel's widths live in columns.ts: `memberColumns` measures them and `metricColumns` writes them.",
+  "layout.ts only places blocks, so a change there would not move a column.",
+].join("\n");
+
+/** A subagent's row: the child it ran, its last message, and what it spent doing it. */
+const subagentRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
+  name: "subagent",
+  args: { agent: "scout", task: SUBAGENT_BRIEF },
+  status: "success",
+  level: 0,
+  output: SUBAGENT_ANSWER,
+  subagent: { inputTokens: 4400, outputTokens: 41, toolCount: 3, turns: 2, durationMs: 24_000 },
+  ...overrides,
+});
+
+/** A background run's completion notice: pi-subagents' custom message, in pi-ui's rows. */
+const SUBAGENT_NOTICE = {
+  content: SUBAGENT_ANSWER,
+  details: { runs: [{ agent: "scout", status: "completed" }] },
+};
 
 /** The panel's sample list: a finished step, the running one, and what is left. */
 const TODO_SAMPLE: TodoItem[] = [
@@ -1118,6 +1145,43 @@ const oursEntries: EntryDef[] = [
           cancelled: true,
         }),
       ),
+    ],
+  },
+  {
+    id: "ours.subagent",
+    title: "subagent row",
+    group: "tools",
+    variant: "ours",
+    description:
+      "A delegated child's row: the brief it was handed while the call is written, its last message when it lands, and what it spent under it.",
+    states: [
+      levelState("l0", "done L0", 0, () => subagentRow()),
+      levelState("aged", "aged L3", 3, () => subagentRow()),
+      levelState("brief", "brief streaming", 0, () =>
+        subagentRow({ status: "pending", output: "", subagent: undefined }),
+      ),
+      levelState(
+        "async",
+        "background run",
+        0,
+        () =>
+          subagentRow({
+            output: "",
+            subagent: { asyncId: "49de7dd6-380e-4b11-98c5-b2c1cdd37a8c" },
+          }),
+        "the call returned while the child kept going",
+      ),
+      levelState("rejected", "acceptance rejected", 0, () =>
+        subagentRow({
+          output: "Renamed the module; two imports still point at the old name.",
+          subagent: { inputTokens: 8200, outputTokens: 96, toolCount: 5, turns: 3, rejected: true },
+        }),
+      ),
+      {
+        id: "notice",
+        label: "completion notice",
+        render: (ctx) => noticeLines(ctx.kit, ctx.theme, SUBAGENT_NOTICE, ctx.width, true),
+      },
     ],
   },
 ];
