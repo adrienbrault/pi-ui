@@ -20,4 +20,11 @@ describe("centering an image", () => {
   test("an escape takes no column: the row is placed by what it draws", () => {
     expect(centerImage(["\x1b[31mab\x1b[0m"], 6, 1)).toEqual(["  \x1b[31mab\x1b[0m"]);
   });
+
+  test("an image is placed by the columns its escape names, not by what the string measures", () => {
+    const kitty = "\x1b_Ga=T,f=100,q=2,C=1,c=40;AAAA\x1b\\";
+    expect(centerImage(["", "", kitty], 100, 3)).toEqual([" ".repeat(30), " ".repeat(30), " ".repeat(30) + kitty]);
+    const iterm = "\x1b[2A\x1b]1337;File=inline=1;size=4;width=40:AAAA\x07";
+    expect(centerImage([iterm], 100, 1)).toEqual([" ".repeat(30) + iterm]);
+  });
 });
