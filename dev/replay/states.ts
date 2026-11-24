@@ -36,6 +36,8 @@ const SUBAGENT = join(import.meta.dir, "fixtures", "subagent.jsonl");
 const SCRIPT = join(import.meta.dir, "fixtures", "script.jsonl");
 /** A session compacted once and resumed: the summary sits in the loaded history. */
 const COMPACT = join(import.meta.dir, "fixtures", "compact.jsonl");
+/** One run long enough to push its prompt above the transcript at this height. */
+const PIN = join(import.meta.dir, "fixtures", "prompt-pin.jsonl");
 
 export interface Run {
   id: string;
@@ -81,6 +83,9 @@ const script: Run = { id: "script", session: SCRIPT, height: 30 };
 const compact: Run = { id: "compact", session: COMPACT, height: 24 };
 /** Tall enough that an opened summary keeps the header above it in view. */
 const compactOpen: Run = { id: "compact-open", session: COMPACT, height: 42 };
+const pin: Run = { id: "pin", session: PIN, height: 22 };
+// Its own run: the scroll would otherwise outlast the state before it.
+const pinBack: Run = { id: "pin-back", session: PIN, height: 22 };
 
 const hover = (text: string): Action => ({ kind: "hover", text });
 const click = (text: string): Action => ({ kind: "click", text });
@@ -360,6 +365,21 @@ export const STATES: State[] = [
     run: compactOpen,
     until: "turn:2",
     actions: [click("▸ compaction")],
+  },
+  {
+    id: "prompt-pinned",
+    title: "Prompt pinned",
+    description: "The last prompt, scrolled out of the transcript, sits on one banded row at the top of the screen.",
+    run: pin,
+    until: "end",
+  },
+  {
+    id: "prompt-back-in-view",
+    title: "Prompt back in view",
+    description: "Scrolled back up to the prompt itself, the pinned row is gone: the prompt is never on screen twice.",
+    run: pinBack,
+    until: "end",
+    actions: [{ kind: "scroll", lines: 30 }],
   },
   {
     id: "codemode-done",

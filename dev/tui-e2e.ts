@@ -39,7 +39,7 @@ const ROOT = join(import.meta.dir, "..");
 const SOCKET = `pi-ui-e2e-${process.pid}`;
 const SESSION = "pi-ui-e2e";
 const WIDTH = 140;
-const { tmux, capture, watch, waitFor, mouse } = tmuxSession(SOCKET, SESSION);
+const { tmux, capture, captureStyled, watch, waitFor, mouse } = tmuxSession(SOCKET, SESSION);
 
 const NUMBER_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
 const numberWord = (count: number): string => NUMBER_WORDS[count] ?? String(count);
@@ -207,11 +207,14 @@ async function openHistory(sessionPath: string, height: number): Promise<void> {
   await waitFor("Transcript continuation 109");
   const entries = (await Bun.file(sessionPath).text()).trim().split("\n").map((line) => JSON.parse(line));
   const prompt = entries.find((entry) => entry.message?.role === "user").message.content[0].text;
-  for (let step = 0; step < entries.length && !capture().includes(prompt); step++) {
+  // pi-ui pins the newest prompt to the top of the screen while it is out of view, so its text is
+  // on screen even then; the transcript's own message is the row that leaves the marker off.
+  const promptMessage = (pane: string) => pane.split("\n").some((line) => line.includes(prompt) && !line.startsWith("❯"));
+  for (let step = 0; step < entries.length && !promptMessage(capture()); step++) {
     tmux("send-keys", "-t", SESSION, "C-Up");
     await Bun.sleep(80);
   }
-  await waitFor(prompt, 5000, (pane) => !/[│┃]$/m.test(pane));
+  await waitFor(prompt, 5000, (pane) => promptMessage(pane) && !/[│┃]$/m.test(pane));
 }
 
 /** The oldest of FOLD_DISTANCE calls sits on the last standalone level, the newest is live. */
@@ -713,6 +716,32 @@ async function thinkingScenario(sessionPath: string): Promise<void> {
 }
 
 /** A live bash that writes two files in a git work tree shows their diffs and records them on its result. */
+/**
+ * The last prompt pins to the top of the screen once it has scrolled out of the transcript, and
+ * leaves as soon as the message itself is back on screen: one row, on the prompt's own band.
+ */
+async function pinnedScenario(sessionPath: string): Promise<void> {
+  start(sessionPath, 24);
+  const entries = (await Bun.file(sessionPath).text()).trim().split("\n").map((line) => JSON.parse(line));
+  const prompt = entries.find((entry) => entry.message?.role === "user").message.content[0].text;
+  let pane = await waitFor(prompt, 15_000, (screen) => screen.split("\n")[0]?.startsWith("❯"));
+  assert(pane.split("\n")[0]?.includes(prompt), `following the end, the prompt should sit at the top\n${pane}`);
+  assert(pane.split("\n").filter((line) => line.includes(prompt)).length === 1, `the pinned prompt should not repeat\n${pane}`);
+  const firstRow = captureStyled().split("\n")[0] ?? "";
+  assert(
+    backgrounds(firstRow).every((cell) => cell !== undefined),
+    `the pinned row should paint the prompt's band across the pane\n${firstRow}`,
+  );
+  // Scrolled back, the message is on screen and the row is gone.
+  for (let step = 0; step < 20 && !pane.split("\n").some((line) => line.includes(prompt) && !line.startsWith("❯")); step++) {
+    tmux("send-keys", "-t", SESSION, "C-Up");
+    await Bun.sleep(80);
+    pane = capture();
+  }
+  pane = await waitFor(prompt, 5000, (screen) => screen.split("\n").some((line) => line.includes(prompt) && !line.startsWith("❯")) && !/[│┃]$/m.test(screen));
+  assert(!pane.split("\n")[0]?.startsWith("❯"), `a prompt back in view should not stay pinned\n${pane}`);
+}
+
 async function bashChangesScenario(dir: string): Promise<void> {
   const repo = join(dir, "repo");
   mkdirSync(repo);
@@ -880,6 +909,12 @@ ${visible}`);
     tmux("kill-server");
     await bashChangesScenario(dir);
     console.log("bash changes ok: a live bash's file diffs show under its output and are recorded on its result");
+
+    tmux("kill-server");
+    const pinned = join(dir, "pinned.jsonl");
+    fixture(pinned, 3);
+    await pinnedScenario(pinned);
+    console.log("pinned prompt ok: the last prompt sits on one row at the top until it is scrolled back into view");
 
     tmux("kill-server");
     await replaySmoke();

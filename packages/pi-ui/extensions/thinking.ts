@@ -75,6 +75,7 @@ import {
 import { installThinkingClock, recordedThinkingMs, thinkingTime, type TimedMessage } from "./thinking-time.ts";
 import { claimHover, clearHover, onSpacerMouse, releaseHover } from "./hover.ts";
 import { compactSummaryBlock, isSummaryComponent } from "./summary-block.ts";
+import { notePromptComponent } from "./pinned-prompt.ts";
 import { restyleUserMessage } from "./user-message.ts";
 import {
   advanceFade,
@@ -763,6 +764,7 @@ function patchTree(
   for (const component of ordered) {
     if (isUserComponent(component)) {
       restyleUserMessage(component, theme);
+      notePromptComponent(component);
       blocks.push({ kind: "user" });
       owners.push(undefined);
       continue;

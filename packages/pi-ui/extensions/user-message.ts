@@ -4,9 +4,9 @@
  * `toolPendingBg`, so the prompt reads as a quiet band rather than a coloured box.
  */
 
-import type { RenderTheme } from "../render/kit.ts";
+import { PROMPT_BG, type RenderTheme } from "../render/kit.ts";
 
-export const USER_MESSAGE_BG = "toolPendingBg";
+export const USER_MESSAGE_BG = PROMPT_BG;
 
 interface MarkdownLike {
   paddingY: number;

@@ -1,5 +1,5 @@
-    [38;2;157;165;169m--- powershell 1694213[39m    
-    [38;2;157;165;169mrShellConfig(),suffix=win32.basename(shellConfig.shell).toLowerCase()==="powershell.exe"&&!command.endsWith("`")[1m[38;2;222;224;225m … [0m 
+[38;2;167;152;215m[48;2;52;56;58m❯ [38;2;222;224;225mreview this repo, and also write/update .md and .js files within /tmp for demo[39m                                        
+[49m    [38;2;157;165;169mrShellConfig(),suffix=win32.basename(shellConfig.shell).toLowerCase()==="powershell.exe"&&!command.endsWith("`")[1m[38;2;222;224;225m … [0m 
 
 [38;2;167;152;215m✻[39m [1m[38;2;222;224;225mthink[0m                                                                                              [38;2;105;173;208m↓[38;2;222;224;225m39[38;2;157;165;169m @ [38;2;222;224;225m72[38;2;157;165;169m/s[39m [38;2;126;136;142m·[39m [38;2;222;224;225m525[38;2;157;165;169mms[39m 
     [3m[38;2;150;160;164mCodemode is a builtin extension, not builtin tool. The tool name may be provided by codemode extension. Let's[0m       

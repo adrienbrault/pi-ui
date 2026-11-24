@@ -4661,6 +4661,308 @@
       ]
     }
   },
+  "ours.prompt-pin": {
+    "cut/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m❯ \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mSplit the ladder's regressions out \u001b[0m\u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;52;56;58m\u001b[49m"
+      ]
+    },
+    "cut/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m> \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mSplit the ladder's regressions out \u001b[0m\u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;52;56;58m\u001b[49m"
+      ]
+    },
+    "cut/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m❯ \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mSplit the ladder's regressions out of the render tests,\u001b[0m\u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;52;56;58m\u001b[49m"
+      ]
+    },
+    "cut/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m> \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mSplit the ladder's regressions out of the render tests,\u001b[0m\u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;52;56;58m\u001b[49m"
+      ]
+    },
+    "cut/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m❯ \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mSplit the ladder's regressions out of the render tests, then say what still\u001b[0m\u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;52;56;58m\u001b[49m"
+      ]
+    },
+    "cut/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m> \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mSplit the ladder's regressions out of the render tests, then say what still\u001b[0m\u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;52;56;58m\u001b[49m"
+      ]
+    },
+    "cut/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m❯ \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mSplit the ladder's regressions out of the render tests, then say what still fails, and keep the\u001b[0m\u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;52;56;58m\u001b[49m"
+      ]
+    },
+    "cut/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m> \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mSplit the ladder's regressions out of the render tests, then say what still fails, and keep the\u001b[0m\u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;52;56;58m\u001b[49m"
+      ]
+    },
+    "cut/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m❯ \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mSplit the ladder's regressions out of the render tests, then say what still fails, and keep the fold planner's test\u001b[0m\u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;52;56;58m\u001b[49m"
+      ]
+    },
+    "cut/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m> \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mSplit the ladder's regressions out of the render tests, then say what still fails, and keep the fold planner's test\u001b[0m\u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;52;56;58m\u001b[49m"
+      ]
+    },
+    "whole/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m❯ \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mTrack the panel work.\u001b[49m\u001b[39m\u001b[48;2;52;56;58m                 \u001b[49m"
+      ]
+    },
+    "whole/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m> \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mTrack the panel work.\u001b[49m\u001b[39m\u001b[48;2;52;56;58m                 \u001b[49m"
+      ]
+    },
+    "whole/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m❯ \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mTrack the panel work.\u001b[49m\u001b[39m\u001b[48;2;52;56;58m                                     \u001b[49m"
+      ]
+    },
+    "whole/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m> \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mTrack the panel work.\u001b[49m\u001b[39m\u001b[48;2;52;56;58m                                     \u001b[49m"
+      ]
+    },
+    "whole/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m❯ \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mTrack the panel work.\u001b[49m\u001b[39m\u001b[48;2;52;56;58m                                                         \u001b[49m"
+      ]
+    },
+    "whole/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m> \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mTrack the panel work.\u001b[49m\u001b[39m\u001b[48;2;52;56;58m                                                         \u001b[49m"
+      ]
+    },
+    "whole/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m❯ \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mTrack the panel work.\u001b[49m\u001b[39m\u001b[48;2;52;56;58m                                                                             \u001b[49m"
+      ]
+    },
+    "whole/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m> \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mTrack the panel work.\u001b[49m\u001b[39m\u001b[48;2;52;56;58m                                                                             \u001b[49m"
+      ]
+    },
+    "whole/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m❯ \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mTrack the panel work.\u001b[49m\u001b[39m\u001b[48;2;52;56;58m                                                                                                 \u001b[49m"
+      ]
+    },
+    "whole/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m> \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mTrack the panel work.\u001b[49m\u001b[39m\u001b[48;2;52;56;58m                                                                                                 \u001b[49m"
+      ]
+    },
+    "multiline/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m❯ \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mReview the fold planner. - keep fai\u001b[0m\u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;52;56;58m\u001b[49m"
+      ]
+    },
+    "multiline/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m> \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mReview the fold planner. - keep fai\u001b[0m\u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;52;56;58m\u001b[49m"
+      ]
+    },
+    "multiline/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m❯ \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mReview the fold planner. - keep failures visible - one \u001b[0m\u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;52;56;58m\u001b[49m"
+      ]
+    },
+    "multiline/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m> \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mReview the fold planner. - keep failures visible - one \u001b[0m\u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;52;56;58m\u001b[49m"
+      ]
+    },
+    "multiline/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m❯ \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mReview the fold planner. - keep failures visible - one summary per run\u001b[49m\u001b[39m\u001b[48;2;52;56;58m        \u001b[49m"
+      ]
+    },
+    "multiline/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m> \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mReview the fold planner. - keep failures visible - one summary per run\u001b[49m\u001b[39m\u001b[48;2;52;56;58m        \u001b[49m"
+      ]
+    },
+    "multiline/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m❯ \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mReview the fold planner. - keep failures visible - one summary per run\u001b[49m\u001b[39m\u001b[48;2;52;56;58m                            \u001b[49m"
+      ]
+    },
+    "multiline/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m> \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mReview the fold planner. - keep failures visible - one summary per run\u001b[49m\u001b[39m\u001b[48;2;52;56;58m                            \u001b[49m"
+      ]
+    },
+    "multiline/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m❯ \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mReview the fold planner. - keep failures visible - one summary per run\u001b[49m\u001b[39m\u001b[48;2;52;56;58m                                                \u001b[49m"
+      ]
+    },
+    "multiline/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m\u001b[48;2;52;56;58m> \u001b[49m\u001b[39m\u001b[38;2;222;224;225m\u001b[48;2;52;56;58mReview the fold planner. - keep failures visible - one summary per run\u001b[49m\u001b[39m\u001b[48;2;52;56;58m                                                \u001b[49m"
+      ]
+    },
+    "cut/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m❯ \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mSplit the ladder's regressions out \u001b[0m\u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;228;229;230m\u001b[49m"
+      ]
+    },
+    "cut/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m> \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mSplit the ladder's regressions out \u001b[0m\u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;228;229;230m\u001b[49m"
+      ]
+    },
+    "cut/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m❯ \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mSplit the ladder's regressions out of the render tests,\u001b[0m\u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;228;229;230m\u001b[49m"
+      ]
+    },
+    "cut/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m> \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mSplit the ladder's regressions out of the render tests,\u001b[0m\u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;228;229;230m\u001b[49m"
+      ]
+    },
+    "cut/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m❯ \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mSplit the ladder's regressions out of the render tests, then say what still\u001b[0m\u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;228;229;230m\u001b[49m"
+      ]
+    },
+    "cut/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m> \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mSplit the ladder's regressions out of the render tests, then say what still\u001b[0m\u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;228;229;230m\u001b[49m"
+      ]
+    },
+    "cut/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m❯ \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mSplit the ladder's regressions out of the render tests, then say what still fails, and keep the\u001b[0m\u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;228;229;230m\u001b[49m"
+      ]
+    },
+    "cut/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m> \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mSplit the ladder's regressions out of the render tests, then say what still fails, and keep the\u001b[0m\u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;228;229;230m\u001b[49m"
+      ]
+    },
+    "cut/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m❯ \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mSplit the ladder's regressions out of the render tests, then say what still fails, and keep the fold planner's test\u001b[0m\u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;228;229;230m\u001b[49m"
+      ]
+    },
+    "cut/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m> \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mSplit the ladder's regressions out of the render tests, then say what still fails, and keep the fold planner's test\u001b[0m\u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;228;229;230m\u001b[49m"
+      ]
+    },
+    "whole/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m❯ \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mTrack the panel work.\u001b[49m\u001b[39m\u001b[48;2;228;229;230m                 \u001b[49m"
+      ]
+    },
+    "whole/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m> \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mTrack the panel work.\u001b[49m\u001b[39m\u001b[48;2;228;229;230m                 \u001b[49m"
+      ]
+    },
+    "whole/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m❯ \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mTrack the panel work.\u001b[49m\u001b[39m\u001b[48;2;228;229;230m                                     \u001b[49m"
+      ]
+    },
+    "whole/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m> \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mTrack the panel work.\u001b[49m\u001b[39m\u001b[48;2;228;229;230m                                     \u001b[49m"
+      ]
+    },
+    "whole/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m❯ \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mTrack the panel work.\u001b[49m\u001b[39m\u001b[48;2;228;229;230m                                                         \u001b[49m"
+      ]
+    },
+    "whole/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m> \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mTrack the panel work.\u001b[49m\u001b[39m\u001b[48;2;228;229;230m                                                         \u001b[49m"
+      ]
+    },
+    "whole/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m❯ \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mTrack the panel work.\u001b[49m\u001b[39m\u001b[48;2;228;229;230m                                                                             \u001b[49m"
+      ]
+    },
+    "whole/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m> \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mTrack the panel work.\u001b[49m\u001b[39m\u001b[48;2;228;229;230m                                                                             \u001b[49m"
+      ]
+    },
+    "whole/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m❯ \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mTrack the panel work.\u001b[49m\u001b[39m\u001b[48;2;228;229;230m                                                                                                 \u001b[49m"
+      ]
+    },
+    "whole/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m> \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mTrack the panel work.\u001b[49m\u001b[39m\u001b[48;2;228;229;230m                                                                                                 \u001b[49m"
+      ]
+    },
+    "multiline/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m❯ \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mReview the fold planner. - keep fai\u001b[0m\u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;228;229;230m\u001b[49m"
+      ]
+    },
+    "multiline/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m> \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mReview the fold planner. - keep fai\u001b[0m\u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;228;229;230m\u001b[49m"
+      ]
+    },
+    "multiline/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m❯ \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mReview the fold planner. - keep failures visible - one \u001b[0m\u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;228;229;230m\u001b[49m"
+      ]
+    },
+    "multiline/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m> \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mReview the fold planner. - keep failures visible - one \u001b[0m\u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230m\u001b[1m … \u001b[22m\u001b[49m\u001b[39m\u001b[48;2;228;229;230m\u001b[49m"
+      ]
+    },
+    "multiline/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m❯ \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mReview the fold planner. - keep failures visible - one summary per run\u001b[49m\u001b[39m\u001b[48;2;228;229;230m        \u001b[49m"
+      ]
+    },
+    "multiline/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m> \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mReview the fold planner. - keep failures visible - one summary per run\u001b[49m\u001b[39m\u001b[48;2;228;229;230m        \u001b[49m"
+      ]
+    },
+    "multiline/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m❯ \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mReview the fold planner. - keep failures visible - one summary per run\u001b[49m\u001b[39m\u001b[48;2;228;229;230m                            \u001b[49m"
+      ]
+    },
+    "multiline/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m> \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mReview the fold planner. - keep failures visible - one summary per run\u001b[49m\u001b[39m\u001b[48;2;228;229;230m                            \u001b[49m"
+      ]
+    },
+    "multiline/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m❯ \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mReview the fold planner. - keep failures visible - one summary per run\u001b[49m\u001b[39m\u001b[48;2;228;229;230m                                                \u001b[49m"
+      ]
+    },
+    "multiline/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m\u001b[48;2;228;229;230m> \u001b[49m\u001b[39m\u001b[38;2;59;63;65m\u001b[48;2;228;229;230mReview the fold planner. - keep failures visible - one summary per run\u001b[49m\u001b[39m\u001b[48;2;228;229;230m                                                \u001b[49m"
+      ]
+    }
+  },
   "ours.summary": {
     "compaction/dark/40/unicode": {
       "lines": [

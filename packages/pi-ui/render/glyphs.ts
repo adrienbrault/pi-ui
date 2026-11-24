@@ -26,6 +26,8 @@ export interface GlyphSet {
   /** A todo panel's progress bar: a filled cell and an empty one. */
   barFill: string;
   barEmpty: string;
+  /** A prompt's marker, where the composer starts: the pinned last prompt leads with it. */
+  prompt: string;
 }
 
 /** What token numbers are written with: the two marks and the separator dot. */
@@ -49,6 +51,7 @@ export const UNICODE_GLYPHS: GlyphSet = {
   done: "✓",
   barFill: "▰",
   barEmpty: "▱",
+  prompt: "❯",
 };
 
 export const ASCII_GLYPHS: GlyphSet = {
@@ -69,6 +72,7 @@ export const ASCII_GLYPHS: GlyphSet = {
   done: "x",
   barFill: "#",
   barEmpty: "-",
+  prompt: ">",
 };
 
 export const NERD_GLYPHS: GlyphSet = {
@@ -89,6 +93,7 @@ export const NERD_GLYPHS: GlyphSet = {
   done: "✓",
   barFill: "█",
   barEmpty: "░",
+  prompt: "❯",
 };
 
 export type GlyphMode = "unicode" | "ascii" | "nerd";

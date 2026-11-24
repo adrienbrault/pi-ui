@@ -131,6 +131,15 @@ The session's todo list sits above the editor as an extension widget, in pi-ui's
 
 `todo` is a pi-ui tool class of its own: its rows carry pi-ui's header (`● todo · start #2`, the action and the row it names), age and fold like their peers, and its group segment reads `updated 2 todos`.
 
+## The pinned prompt
+
+The last prompt stays readable while it is out of view: when the newest user message has scrolled above the transcript, pi-ui puts it back on one row at the top of the screen, and takes the row away as soon as the message is visible again (`render/pinned-prompt.ts`, `extensions/pinned-prompt.ts`). The prompt is never on screen twice.
+
+- The row is the prompt's own vocabulary: the marker a prompt starts with (`❯`), its text in `text`, and the neutral `toolPendingBg` band the submitted prompt sits on, all the way across the pane. A prompt too long for one row keeps its opening and ends on the cut mark; a multi-line prompt reads as one line, its lines in order; a pane narrower than the marker and the mark shows the marker cut and nothing else.
+- It lives on the layout's own stack, above the transcript's scroll view, never in the dock: it keeps its row while the transcript scrolls under it, and the transcript shows one row less while the row is there.
+- "Above the viewport" is read where the transcript can be measured — the scroll view's viewport height, offset and content height, against the row the user message ends on, found in the content lines the scroll view already rendered — not from a box nothing renders, and without rendering a child twice. Following the end, more rows below than a pane's worth is above; scrolled back, the offset says it directly. A prompt read back into view drops the row, and a transcript shorter than its pane pins nothing.
+- Regular mode scrolls the terminal itself, where nothing can be pinned to the top of the screen: the row is left out rather than faked in the dock.
+
 ## Width and glyphs
 
 - Measure with `visibleWidth`/`truncateToWidth`; never `String.length`.

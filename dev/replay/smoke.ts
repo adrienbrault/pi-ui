@@ -17,6 +17,8 @@ const IMAGES = join(import.meta.dir, "fixtures", "images.jsonl");
 const TODOS = join(import.meta.dir, "fixtures", "todos.jsonl");
 /** A session compacted once, then resumed: the summary block sits in its history. */
 const COMPACT = join(import.meta.dir, "fixtures", "compact.jsonl");
+/** One run long enough to push its prompt above the transcript at the height used here. */
+const PIN = join(import.meta.dir, "fixtures", "prompt-pin.jsonl");
 const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47];
 
 function assert(condition: unknown, message: string): asserts condition {
@@ -149,6 +151,26 @@ export async function replaySmoke(): Promise<void> {
       `the summary's head should show, the rest counted\n${compactView}`,
     );
     console.log("replay smoke: the compaction in the history is pi-ui's block");
+
+    // The last prompt, pinned: the row exists only while the prompt is out of view, so the prompt
+    // is on screen once either way — pinned at the top, or as the transcript's own message.
+    const promptText = "Split the ladder's regressions out of the render tests, then say what still fails.";
+    const pinAnsi = join(out, "pin.ans");
+    await replay(parseOptions([PIN, "--width", "100", "--height", "22", "--until", "end", "--ansi", pinAnsi]));
+    const pinView = plain(readFileSync(pinAnsi, "utf8"));
+    assert(/^❯ Split the ladder's regressions/m.test(pinView), `the prompt should be pinned\n${pinView}`);
+    assert(
+      pinView.split(promptText).length === 2,
+      `the pinned prompt should not repeat a prompt that is still in the transcript\n${pinView}`,
+    );
+    const earlyAnsi = join(out, "pin-early.ans");
+    await replay(
+      parseOptions([PIN, "--width", "100", "--height", "22", "--until", "tool:1:start", "--ansi", earlyAnsi]),
+    );
+    const earlyView = plain(readFileSync(earlyAnsi, "utf8"));
+    assert(!/^❯ /m.test(earlyView), `a prompt still in view should not be pinned\n${earlyView}`);
+    assert(earlyView.includes(promptText.slice(0, 40)), `the prompt itself should be on screen\n${earlyView}`);
+    console.log("replay smoke: the last prompt pins to the top only while it is out of view");
   } finally {
     rmSync(out, { recursive: true, force: true });
   }

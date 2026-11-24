@@ -71,6 +71,7 @@ import { installTodos } from "./todos.ts";
 import { expandedRegions, hoveredRegions, paintBar, paintMarker, styleBarCell } from "./viewport.ts";
 import { fadeLine, paintLeaving, toolFade } from "./fade.ts";
 import { installThinkingRenderer, scheduleThinkingFold } from "./thinking.ts";
+import { installPinnedPrompt } from "./pinned-prompt.ts";
 import { installFileChanges, recordedChanges } from "./changes.ts";
 
 /**
@@ -623,6 +624,7 @@ export default function piUi(pi: ExtensionAPI): void {
   pi.registerToolRenderer(resolver);
   registerMemberCells("tool", toolMemberCells);
   installThinkingRenderer(pi);
+  installPinnedPrompt(pi);
   installFileChanges(pi);
   installImageViewer(pi);
   installSubagentNotice(pi);

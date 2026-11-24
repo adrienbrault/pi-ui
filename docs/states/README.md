@@ -214,6 +214,18 @@ A click opens the whole summary in Markdown, without pi's band or its expand hin
 
 ![Compaction opened](compaction-opened.png)
 
+## Prompt pinned
+
+The last prompt, scrolled out of the transcript, sits on one banded row at the top of the screen.
+
+![Prompt pinned](prompt-pinned.png)
+
+## Prompt back in view
+
+Scrolled back up to the prompt itself, the pinned row is gone: the prompt is never on screen twice.
+
+![Prompt back in view](prompt-back-in-view.png)
+
 ## Script, done
 
 A codemode row: the script's first statement names it, the calls it made lead its output, and a failed call keeps its own mark.

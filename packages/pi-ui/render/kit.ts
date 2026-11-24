@@ -62,6 +62,9 @@ export function omissionStyle(theme: RenderTheme, label: string, lit = false): s
   return theme.italic(theme.fg(lit ? "text" : "dim", label));
 }
 
+/** The neutral band a prompt reads on: neither work nor output, the surface around both. */
+export const PROMPT_BG = "toolPendingBg";
+
 /** Body text starts one two-column step past the heading label, leaving room for content on narrow screens. */
 export function blockBodyIndent(width: number): string {
   return "    ".slice(0, Math.max(0, width - 1));

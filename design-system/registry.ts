@@ -41,6 +41,7 @@ import { renderTodosPanel, type TodoItem } from "../packages/pi-ui/render/todos.
 import { restyleUserMessage } from "../packages/pi-ui/extensions/user-message.ts";
 import { noticeLines } from "../packages/pi-ui/extensions/subagent-notice.ts";
 import { compactSummaryBlock } from "../packages/pi-ui/extensions/summary-block.ts";
+import { renderPinnedPrompt } from "../packages/pi-ui/render/pinned-prompt.ts";
 import type { PiInstall } from "./lib/pi.ts";
 import { stack } from "./lib/surface.ts";
 import {
@@ -741,6 +742,42 @@ const oursEntries: EntryDef[] = [
           userMessage(ctx, "Review the fold planner.\n\n- keep failures visible\n- one summary per run").render(
             ctx.width,
           ),
+      },
+    ],
+  },
+  {
+    id: "ours.prompt-pin",
+    title: "Pinned prompt",
+    group: "transcript",
+    variant: "ours",
+    description:
+      "The last prompt while it has scrolled out of the transcript: one banded row at the top of the screen, the same marker and text as the prompt itself, cut at its end. The row exists only while the prompt is above the viewport — never twice on screen.",
+    states: [
+      {
+        id: "cut",
+        label: "long prompt",
+        note: "keeps its opening, ends on the cut mark",
+        render: (ctx) =>
+          renderPinnedPrompt(ours(ctx), {
+            text: "Split the ladder's regressions out of the render tests, then say what still fails, and keep the fold planner's tests where they are.",
+            width: ctx.width,
+          }),
+      },
+      {
+        id: "whole",
+        label: "short prompt",
+        note: "fits: no cut, the band still runs the pane",
+        render: (ctx) => renderPinnedPrompt(ours(ctx), { text: "Track the panel work.", width: ctx.width }),
+      },
+      {
+        id: "multiline",
+        label: "multi-line prompt",
+        note: "one row, its lines in order",
+        render: (ctx) =>
+          renderPinnedPrompt(ours(ctx), {
+            text: "Review the fold planner.\n\n- keep failures visible\n- one summary per run",
+            width: ctx.width,
+          }),
       },
     ],
   },
