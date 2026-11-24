@@ -349,9 +349,8 @@ function headerRows(record: BlockRecord, theme: Theme): Component {
     const input = inputFor(record);
     let header = toolHeader(api, input, width);
     record.commandClipped = !!header.hiddenTitle;
-    // Hovering a block a click would open or close lights its clipped title.
-    if (record.hover && (record.expansion === 1 || record.commandClipped || record.expandRow !== undefined))
-      header = toolHeader(api, { ...input, lit: true }, width);
+    // Hovering a block lights its title, whole or cut, whether or not a click would open it.
+    if (record.hover) header = toolHeader(api, { ...input, lit: true }, width);
     // A clipped command with no output has no body rows to carry the bar: its header takes one filled cell.
     const silent = nonEmptyLineCount(previewText(record)) === 0 && !record.changes;
     if (record.hover && !record.expansion && record.commandClipped && silent)
@@ -402,9 +401,8 @@ function bodyRows(record: BlockRecord, theme: Theme, includeHeader: boolean): Co
     // A row drawn with its header (write) has no header component to record a clipped title.
     if (includeHeader) record.commandClipped = !!layout.hiddenTitle;
     const open = record.expansion === 1;
-    // Hovering a block a click would open or close lights its notices: what the click reveals.
-    if (record.hover && (open || canOpen(record, input, layout)))
-      layout = toolRowLayout(owned, { ...input, lit: true }, width);
+    // Hovering lights the row: its title, and the notices a click would open.
+    if (record.hover) layout = toolRowLayout(owned, { ...input, lit: true }, width);
     let rows = layout.rows.slice(includeHeader ? 0 : 1);
     if (open) return rows;
     // A step down fades the row the next level drops, found by the renderer.
@@ -458,13 +456,11 @@ function memberLines(member: BlockRecord, theme: Theme, width: number): string[]
       if (member.expansion === 0) {
         const header = toolHeader(api, input, innerWidth);
         member.commandClipped = !!header.hiddenTitle;
-        // Hovering a member a click would open lights its clipped title.
-        if (member.hover && canCycle(member)) return [toolHeader(api, { ...input, lit: true }, innerWidth).line];
+        // Hovering lights the member's row, title included, whether or not a click would open it.
+        if (member.hover) return [toolHeader(api, { ...input, lit: true }, innerWidth).line];
         return [header.line];
       }
-      return renderToolRow({ ...api, owner: member }, { ...input, lit: !!member.hover && canCycle(member) }).render(
-        innerWidth,
-      );
+      return renderToolRow({ ...api, owner: member }, { ...input, lit: !!member.hover }).render(innerWidth);
     },
     cutMark(api.theme),
   );

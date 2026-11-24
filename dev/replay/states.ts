@@ -289,6 +289,15 @@ export const STATES: State[] = [
     until: "tool:28:end",
   },
   {
+    id: "todo-hovered",
+    title: "Todo row under the mouse",
+    description:
+      "Hovering a todo row lights its title: `add` takes the text colour, and the panel above the editor shows what it added.",
+    run: todos,
+    until: "tool:1:end",
+    actions: [hover("● todo · add")],
+  },
+  {
     id: "todos-panel",
     title: "Todos panel",
     description:

@@ -1519,7 +1519,7 @@ describe("omission notices", () => {
     expect(thought.split("\n").find((line) => line.includes("more lines"))).toContain("<text>");
   });
 
-  test("a lit header turns its clipped title the text colour and keeps the cut mark", () => {
+  test("a lit header turns its title the text colour, cut or whole, and keeps the cut mark", () => {
     // The `text` colour shows as upper case, so the widths stay true; the cut mark is styled apart.
     const tokens = {
       ...api,
@@ -1531,8 +1531,14 @@ describe("omission notices", () => {
     // The command's two kept ends turn the text colour; the cut mark stays as it is.
     expect(bash(true)).toMatch(/PRINTF[^a-z]* … [^a-z]*DONE/);
     expect(bash(false)).toMatch(/printf.* … .*done/);
-    // A title shown whole does not change.
-    expect(bash(true, 200)).toContain(printf);
+    // A title shown whole lights too: the pointer's feedback does not wait for a cut.
+    expect(bash(true, 200)).toContain(printf.toUpperCase());
+    expect(bash(false, 200)).toContain(printf);
+    // A short title takes the light as well: a todo's `add` would otherwise never change.
+    const add = (lit: boolean) =>
+      toolHeader(tokens, { name: "todo", status: "success", level: 0, args: { action: "add" }, lit }, 60).line;
+    expect(add(true)).toMatch(/ADD/);
+    expect(add(false)).toMatch(/add/);
     // A path cut on the left lights its kept end.
     const path = "packages/pi-ui/extensions/some/deeply/nested/folder/file.ts";
     const read = toolHeader(tokens, { name: "read", status: "success", level: 0, args: { path }, lit: true }, 50).line;

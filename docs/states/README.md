@@ -166,6 +166,12 @@ A 70-column terminal: headers shorten their commands and wrap thoughts to fit.
 
 ![Narrow terminal](narrow-width.png)
 
+## Todo row under the mouse
+
+Hovering a todo row lights its title: `add` takes the text colour, and the panel above the editor shows what it added.
+
+![Todo row under the mouse](todo-hovered.png)
+
 ## Todos panel
 
 The session's todo list above the editor: a count, its bar, the running step's spinner, and the #ids the transcript's todo calls share.

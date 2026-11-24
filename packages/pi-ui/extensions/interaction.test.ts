@@ -500,7 +500,7 @@ describe("tool renderers", () => {
     expect(body.render(80).some((line) => line.includes("more lines"))).toBe(false);
   });
 
-  test("hovering a block that can open lights its clipped title, without a background", () => {
+  test("hovering a block lights its title, cut or whole, without a background", () => {
     // The `text` colour shows as upper case.
     const tokens = { ...barred, fg: (token: string, text: string) => (token === "text" ? text.toUpperCase() : text) };
     const tool = resolver()("bash", () => undefined) as Renderers;
@@ -512,8 +512,9 @@ describe("tool renderers", () => {
     header.handleMouse?.(move());
     expect(header.render(50)[0]).toContain("PRINTF");
     expect(header.render(50)[0]).toContain(" … ");
-    // A title shown whole does not change.
-    expect(header.render(200)[0]).toContain(command);
+    // A title shown whole lights too: the room it has makes no difference.
+    expect(header.render(200)[0]).toContain(command.toUpperCase());
+    expect(header.render(200)[0]).not.toContain("\u2026");
   });
 
   test("a one-cell hover bar carries no position, so it lights in the hovered colours", () => {

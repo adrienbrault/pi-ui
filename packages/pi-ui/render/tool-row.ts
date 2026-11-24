@@ -398,6 +398,9 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, rowWidth: number
 
   const sep = ` ${theme.fg("dim", glyphs.dot)} `;
   const mark = cutMark(theme);
+  // Hovering lights a row's title, whatever its row shows: the pointer's feedback, not a hint that
+  // a click would reveal the title. A cut title keeps the same light, and its mark stays.
+  const tone = input.lit ? "text" : "accent";
   // The verb is the headline: bold it through `style` so it survives headless
   // rendering, where chalk's bold turns itself off without a terminal.
   // As a group member, the label fills its column so every member's description starts together.
@@ -406,7 +409,7 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, rowWidth: number
 
   let pieces: HeaderPiece[] = [];
   // MCP labels already read `server/tool`; repeating it as the title is noise.
-  if (title && title !== label) pieces.push({ kind: "title", text: theme.fg("accent", title) });
+  if (title && title !== label) pieces.push({ kind: "title", text: theme.fg(tone, title) });
   if (summary) pieces.push({ kind: "summary", text: theme.fg("dim", summary) });
   // As a group member, tokens, rates and duration fill the group's columns as one piece, or,
   // when the group's rows are too narrow for the table, leave the row to its description.
@@ -483,8 +486,6 @@ export function toolHeader(api: RenderApi, input: ToolRowInput, rowWidth: number
     : truncated
       ? title
       : undefined;
-  // Hovering a block that can open or close lights its clipped title, foreground only: the cut mark stays.
-  const tone = input.lit ? "text" : "accent";
   /** Opened: the title's rows after the header, each starting in `column`. */
   let continuation: { column: number; rows: string[] } | undefined;
   if (titlePiece && hiddenTitle && (input.expanded || input.full)) {
