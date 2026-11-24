@@ -52,6 +52,7 @@ Breaking any of these is a design regression, not a style preference.
 - **Per-message thinking tails** require walking the TUI tree and calling `AssistantMessageComponent.setHideThinkingBlock()` / `setHiddenThinkingLabel()`. pi's own `setHiddenThinkingLabel` on `ctx.ui` is global-only.
 - **Grouping needs a spacer fix.** pi tool rows emit a leading `Spacer(1)`; a group row must neutralise it rather than delete real layout children.
 - **Replays run on a virtual clock.** `dev/replay/clock-preload.ts` replaces every timer and clock in the replayed pi process, so a capture is the same bytes on every run. Time stands still while a real request is in flight and while the replay holds at a stop; a capture that differs between two runs means something still reads real time or real I/O order. After a UI change, `bun run states` and commit `docs/states/` with it; `states:check` shows what changed.
+- **Images never reach a capture.** tmux strips the graphics escapes that `PI_IMAGE_PROTOCOL` makes pi draw, so a state or a GIF keeps a tool row's blank rows and the viewer's caption, never the image: `bun run states` cannot show one. Verify an image change by hand, or through the replay smoke's caption assertions.
 - **Bun, not npm.** `bun.lock` is tracked; `bun.lockb` is ignored. Scripts assume Bun's runtime.
 
 ## Adding a component
