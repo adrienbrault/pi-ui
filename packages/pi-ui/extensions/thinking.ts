@@ -27,7 +27,9 @@ import { glyphsFor } from "../render/glyphs.ts";
 import { renderGroupMember, renderGroupRow } from "../render/group-row.ts";
 import { KIT } from "./kit.ts";
 import { cutMark, type RenderTheme } from "../render/kit.ts";
-import { estimatedTokens, toolMeta } from "../render/tools.ts";
+import { toolLabel } from "../render/tool-row.ts";
+import { describeCall, estimatedTokens, toolMeta } from "../render/tools.ts";
+import { isViewerImage, openImageViewer, type ViewerImage } from "./image-viewer.ts";
 import {
   composeThinkingLabel,
   THINKING_LABEL,
@@ -117,6 +119,7 @@ interface ToolComponentLike extends Partial<Component> {
   selfRenderContainer?: Parameters<typeof insideExpanded>[0];
   toolCallId?: string;
   toolName?: string;
+  args?: Record<string, unknown>;
   rendererState?: unknown;
   result?: { timestamp?: number };
   invalidate?: () => void;
@@ -551,6 +554,42 @@ function isToolComponent(component: unknown): component is ToolComponentLike {
 
 const compactToolShells = new WeakSet<ToolComponentLike>();
 const sizedImages = new WeakSet<object>();
+/** Rows each image and image spacer drew at its last render. */
+const drawnRows = new WeakMap<object, number>();
+/** Where a tool row's images sit among the rows pi drew for it, before any row is skipped. */
+const imageSpans = new WeakMap<object, Array<{ start: number; end: number; image: object }>>();
+/** The tool rows of the transcript in visual order, from the last walk: the viewer steps through their images. */
+let toolRowsInOrder: ToolComponentLike[] = [];
+
+/** The images pi drew at the end of a row's `rows`: each after its spacer, the last image last. */
+export function spansOf(
+  component: ToolComponentLike,
+  rows: number,
+): Array<{ start: number; end: number; image: object }> {
+  const spans: Array<{ start: number; end: number; image: object }> = [];
+  let end = rows;
+  const images = component.imageComponents ?? [];
+  for (let index = images.length - 1; index >= 0; index--) {
+    const image = images[index];
+    if (!image || typeof image !== "object") continue;
+    const drawn = drawnRows.get(image) ?? 0;
+    if (drawn) spans.unshift({ start: end - drawn, end, image });
+    end -= drawn;
+    const spacer = component.imageSpacers?.[index];
+    if (spacer && typeof spacer === "object") end -= drawnRows.get(spacer) ?? 0;
+  }
+  return spans;
+}
+
+/** Every image of the transcript's tool rows, in visual order, named by its tool and title. */
+function sessionImages(): ViewerImage[] {
+  return toolRowsInOrder.flatMap((component) => {
+    const name = component.toolName ?? "";
+    const title = describeCall(name, component.args ?? {}).title;
+    const label = title ? `${toolLabel(name)} · ${title}` : toolLabel(name);
+    return (component.imageComponents ?? []).filter(isViewerImage).map((source) => ({ source, label }));
+  });
+}
 
 function isImageLike(value: unknown): value is ImageLike {
   const candidate = value as Partial<ImageLike> | undefined;
@@ -590,9 +629,9 @@ export function sizeImages(
         full = { width, rows: render.call(this, width).length };
       }
       const rows = rowsFor(full.rows);
-      if (rows === 0) return [];
-      apply(rows < full.rows ? rows : undefined);
-      return render.call(this, width);
+      const lines = rows === 0 ? [] : (apply(rows < full.rows ? rows : undefined), render.call(this, width));
+      drawnRows.set(image, lines.length);
+      return lines;
     };
   }
   for (const spacer of component.imageSpacers ?? []) {
@@ -601,7 +640,9 @@ export function sizeImages(
     sizedImages.add(candidate);
     const render = candidate.render;
     candidate.render = function (width) {
-      return folded() ? [] : render.call(this, width);
+      const lines = folded() ? [] : render.call(this, width);
+      drawnRows.set(candidate, lines.length);
+      return lines;
     };
   }
 }
@@ -631,11 +672,22 @@ function compactToolMember(component: ToolComponentLike, key: string, theme: Ren
       return { level: plan?.level ?? 0, open: toolExpanded(key), folded: !!plan?.group || plan?.mode === "hidden" };
     });
     const lines = render.call(this, width);
+    imageSpans.set(component, spansOf(component, lines.length));
     const plan = toolPlan(key);
     skippedSpacer = plan?.mode === "hidden" && plan.group?.open === true && lines[0] === "";
     return skippedSpacer ? lines.slice(1) : paintFold(lines, theme, component);
   };
   component.handleMouse = function (event) {
+    // A click on an image opens it in the viewer, with the session's other images a key away.
+    if (event.type === "click" && event.button === "left") {
+      const row = event.y + (skippedSpacer ? 1 : 0);
+      const span = imageSpans.get(component)?.find((part) => row >= part.start && row < part.end);
+      if (span) {
+        const images = sessionImages();
+        const start = images.findIndex((entry) => entry.source === span.image);
+        if (start >= 0 && openImageViewer(images, start)) return { handled: true, render: false };
+      }
+    }
     if (!skippedSpacer && event.y === 0) {
       const hit = onSpacerMouse(event);
       if (hit) return hit;
@@ -701,6 +753,7 @@ function patchTree(
     const children = (component as ContainerLike).children;
     if (Array.isArray(children)) queue.push(...children);
   }
+  toolRowsInOrder = ordered.filter(isToolComponent);
 
   const history = offscreenHistory(root);
   // Visual order: the blocks the distance rule weighs, and the units among them.
