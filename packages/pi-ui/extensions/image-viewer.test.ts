@@ -16,8 +16,61 @@ class FakeImage {
   }
 }
 
+/** The viewer's component, as the fake UI hands it out. */
+interface FakeView {
+  render(width: number): string[];
+  handleInput(data: string): void;
+  handleMouse(event: unknown): unknown;
+}
+
 const LEFT = "\x1b[D";
 const RIGHT = "\x1b[C";
+
+/**
+ * A UI whose `custom` keeps the viewer's factory, so a test can call it: the viewer installs
+ * itself on `session_start`, and every open asks the UI for one component.
+ */
+function fakeUi() {
+  const state: { factory?: (...args: any[]) => FakeView; resolve?: () => void } = {};
+  installImageViewer({
+    on: (_event: string, handler: (event: unknown, ctx: unknown) => void) =>
+      handler(
+        {},
+        {
+          hasUI: true,
+          mode: "tui",
+          ui: {
+            custom: (make: (...args: any[]) => FakeView) => {
+              state.factory = make;
+              return new Promise<void>((resolve) => {
+                state.resolve = resolve;
+              });
+            },
+          },
+        },
+      ),
+  } as never);
+  return state;
+}
+
+/** Open the viewer on `images[start]`, and report whether its `done` ran. */
+function openView(state: ReturnType<typeof fakeUi>, images: ViewerImage[], start: number) {
+  state.factory = undefined;
+  state.resolve = undefined;
+  expect(openImageViewer(images, start)).toBe(true);
+  let closed = false;
+  const done = () => {
+    closed = true;
+    state.resolve?.();
+  };
+  const view = state.factory!(
+    { terminal: { rows: 40 }, requestRender: () => {} },
+    { fg: (_token: string, text: string) => text },
+    {},
+    done,
+  );
+  return { view, closed: () => closed };
+}
 
 describe("image viewer", () => {
   test("arrows step through the images and stop at either end; escape, enter and q close", () => {
@@ -29,55 +82,44 @@ describe("image viewer", () => {
     expect(viewerStep("x", 1, 3)).toBeUndefined();
   });
 
-  test("it opens on the clicked image, large, under a caption, and the arrows switch images", async () => {
-    let factory: ((...args: any[]) => any) | undefined;
-    let closed = false;
-    installImageViewer({
-      on: (_event: string, handler: (event: unknown, ctx: unknown) => void) =>
-        handler(
-          {},
-          {
-            hasUI: true,
-            mode: "tui",
-            ui: {
-              custom: (make: (...args: any[]) => any) => {
-                factory = make;
-                return new Promise<void>((resolve) => {
-                  (globalThis as { closeViewer?: () => void }).closeViewer = resolve;
-                });
-              },
-            },
-          },
-        ),
-    } as never);
+  test("it opens on the clicked image, large and centred, under a caption; the arrows switch images", async () => {
+    const state = fakeUi();
     const images: ViewerImage[] = [
       { source: new FakeImage("one", "image/png"), label: "read · a.png" },
       { source: new FakeImage("two", "image/png"), label: "read · b.png" },
     ];
-    expect(openImageViewer(images, 1)).toBe(true);
+    const { view } = openView(state, images, 1);
     // A second click while it is open does not open another.
     expect(openImageViewer(images, 0)).toBe(false);
-    const view = factory!(
-      { terminal: { rows: 40 }, requestRender: () => {} },
-      { fg: (_token: string, text: string) => text },
-      {},
-      () => {
-        closed = true;
-        (globalThis as { closeViewer?: () => void }).closeViewer?.();
-      },
-    );
-    const rows = view.render(100) as string[];
-    expect(rows[0]).toBe("2 of 2 · read · b.png · ← → switch images · esc closes");
-    expect(rows[1]).toBe("<two>");
-    // The terminal's rows less pi's chrome and the caption: far taller than a tool row's image.
-    expect(rows).toHaveLength(1 + 32 + 1);
+    const rows = view.render(100);
+    expect(rows[0]).toBe("2 of 2 · read · b.png · ← → switch images · click or esc closes");
+    // At 100 columns a five-cell image starts 47 columns in; the image fills the rows the caption leaves.
+    expect(rows[1]).toBe(`${" ".repeat(47)}<two>`);
+    expect(rows).toHaveLength(1 + 32);
     view.handleInput(LEFT);
-    expect((view.render(100) as string[])[1]).toBe("<one>");
+    expect(view.render(100)[1]).toBe(`${" ".repeat(47)}<one>`);
+    // Closing frees the viewer for the next click.
     view.handleInput("\x1b");
-    expect(closed).toBe(true);
     await Bun.sleep(0);
-    expect(openImageViewer(images, 0)).toBe(true);
-    (globalThis as { closeViewer?: () => void }).closeViewer?.();
+  });
+
+  test("escape closes the viewer, and a click anywhere in it does too", async () => {
+    const state = fakeUi();
+    const images: ViewerImage[] = [{ source: new FakeImage("one", "image/png"), label: "read · a.png" }];
+    const byEscape = openView(state, images, 0);
+    expect(byEscape.view.render(100)[0]).toBe("1 of 1 · read · a.png · click or esc closes");
+    byEscape.view.handleInput("\x1b");
+    expect(byEscape.closed()).toBe(true);
+    await Bun.sleep(0);
+    const byClick = openView(state, images, 0);
+    // On the image, beside it or on the caption: while the frame is open it owns every row.
+    expect(byClick.view.handleMouse({ type: "move", button: "left", x: 50, y: 8 })).toBeUndefined();
+    expect(byClick.closed()).toBe(false);
+    expect(byClick.view.handleMouse({ type: "click", button: "left", x: 50, y: 8 })).toEqual({
+      handled: true,
+      render: false,
+    });
+    expect(byClick.closed()).toBe(true);
     await Bun.sleep(0);
   });
 

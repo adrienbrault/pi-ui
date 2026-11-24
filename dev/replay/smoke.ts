@@ -64,9 +64,11 @@ export async function replaySmoke(): Promise<void> {
     try {
       const viewerAnsi = join(out, "viewer.ans");
       const closedAnsi = join(out, "viewer-closed.ans");
-      // At 100x40 the last image fills rows 15 to 32 of the final screen. One replay, two pauses:
-      // the click and ←, then Escape. A capture at the stop before it does not replay on; its
-      // actions follow the earlier ones.
+      const reopenedAnsi = join(out, "viewer-reopened.ans");
+      const clickedAnsi = join(out, "viewer-clicked.ans");
+      // At 100x40 the last image fills rows 15 to 32 of the final screen. One replay, four pauses:
+      // the click and ←, then Escape, then a click to open it again, then a click inside it. A
+      // capture at the stop before it does not replay on; its actions follow the earlier ones.
       const options = parseOptions([
         IMAGES,
         "--width",
@@ -80,19 +82,35 @@ export async function replaySmoke(): Promise<void> {
         "--ansi",
         viewerAnsi,
       ]);
+      const escape = { kind: "key", key: "\x1b" } as const;
+      const openAgain = { kind: "clickRow", row: 20 } as const;
+      // Row 12 is inside the frame: below the caption, over the image.
+      const clickInside = { kind: "clickRow", row: 12 } as const;
       options.captures = [
         ...capturesOf(options),
-        { until: options.until, actions: [{ kind: "key", key: "\x1b" }], ansi: closedAnsi },
+        { until: options.until, actions: [escape], ansi: closedAnsi },
+        { until: options.until, actions: [escape, openAgain], ansi: reopenedAnsi },
+        { until: options.until, actions: [escape, openAgain, clickInside], ansi: clickedAnsi },
       ];
       await replay(options);
+      const caption = "1 of 2 · read · shots/one.png · ← → switch images";
+      // A later click opens the image under the pointer, which is the last one: the frame's keys are
+      // what every open and close shares.
+      const open = "← → switch images";
       const viewer = plain(readFileSync(viewerAnsi, "utf8"));
       assert(
-        viewer.includes("1 of 2 · read · shots/one.png · ← → switch images · esc closes"),
+        viewer.includes(caption),
         `a click on the last image should open the viewer, and left should step to the first\n${viewer}`,
       );
       const closed = plain(readFileSync(closedAnsi, "utf8"));
-      assert(!closed.includes("switch images"), `escape should close the viewer\n${closed}`);
-      console.log("replay smoke: a click opened the image viewer; left stepped back, escape closed it");
+      assert(!closed.includes(open), `escape should close the viewer\n${closed}`);
+      const reopened = plain(readFileSync(reopenedAnsi, "utf8"));
+      assert(reopened.includes(open), `a click on the image should open it again after a close\n${reopened}`);
+      const clicked = plain(readFileSync(clickedAnsi, "utf8"));
+      assert(!clicked.includes(open), `a click inside the viewer should close it as escape does\n${clicked}`);
+      console.log(
+        "replay smoke: a click opened the image viewer; left stepped back; escape and a click inside it closed",
+      );
     } finally {
       if (protocol === undefined) delete process.env.PI_IMAGE_PROTOCOL;
       else process.env.PI_IMAGE_PROTOCOL = protocol;

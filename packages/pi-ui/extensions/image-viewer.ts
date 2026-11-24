@@ -1,14 +1,15 @@
 /**
- * The image viewer: a click on an image in a tool row opens it large, below the transcript, and
- * the left and right arrows step through every image of the session's tool results in transcript
- * order. Escape, Enter or q close it.
+ * The image viewer: a click on an image in a tool row opens it large, centred, below the transcript,
+ * and the left and right arrows step through every image of the session's tool results in
+ * transcript order. A click anywhere in it, Escape, Enter or q close it.
  *
  * The viewer draws each image with the constructor of the image pi drew, so it uses pi's copy of
  * pi-tui: its terminal capabilities and cell size, not a second copy's guesses.
  */
 
-import { matchesKey } from "@earendil-works/pi-tui";
+import { matchesKey, type TuiMouseEvent, type TuiMouseEventResult } from "@earendil-works/pi-tui";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { centerImage } from "../render/image-view.ts";
 
 /** pi-tui's Image, as far as the viewer uses it. */
 export interface SourceImage {
@@ -85,7 +86,7 @@ export function openImageViewer(images: ViewerImage[], start: number): boolean {
           const terminalRows = (tui as { terminal?: { rows?: number } }).terminal?.rows ?? 40;
           const height = Math.max(4, terminalRows - VIEWER_MARGIN_ROWS - VIEWER_CHROME_ROWS);
           const caption = `${index + 1} of ${images.length} · ${images[index]!.label}`;
-          const keys = images.length > 1 ? "← → switch images · esc closes" : "esc closes";
+          const keys = images.length > 1 ? "← → switch images · click or esc closes" : "click or esc closes";
           const head = theme.fg("dim", `${caption} · ${keys}`);
           const image = imageAt(index);
           if (!image) return [head, ""];
@@ -94,7 +95,9 @@ export function openImageViewer(images: ViewerImage[], start: number): boolean {
             image.options = size;
             image.invalidate?.();
           }
-          return [head, ...image.render(width), ""];
+          // The caption keeps the top row and the image takes the middle of the rest, so a small
+          // screenshot sits centred and a tall one fills the room.
+          return [head, ...centerImage(image.render(width), width, height)];
         },
         handleInput(data: string): void {
           const step = viewerStep(data, index, images.length);
@@ -103,6 +106,12 @@ export function openImageViewer(images: ViewerImage[], start: number): boolean {
             index = step;
             tui.requestRender();
           }
+        },
+        /** Every click in the frame closes it: on the image, beside it, or on the caption. */
+        handleMouse(event: TuiMouseEvent): TuiMouseEventResult | undefined {
+          if (event.type !== "click") return undefined;
+          done();
+          return { handled: true, render: false };
         },
         invalidate(): void {
           for (const image of copies.values()) image?.invalidate?.();
