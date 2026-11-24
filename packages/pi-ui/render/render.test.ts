@@ -549,6 +549,43 @@ describe("diff line numbers", () => {
   });
 });
 
+/** A read as pi-hashline-edit answers it: the anchor an edit needs, before the code. */
+const anchoredRead = (hashes: string[], from = 1) =>
+  hashes.map((hash, index) => `${from + index}#${hash}:line ${from + index}`).join("\n");
+
+describe("hashline anchors", () => {
+  test("a read drops the anchor standing where the gutter already numbers the line", () => {
+    expect(
+      readRow(anchoredRead(["ZP", "MQ", "VR"]))
+        .render(80)
+        .slice(1),
+    ).toEqual(["    1  line 1", "    2  line 2", "    3  line 3"]);
+  });
+
+  test("a read keeps the code around a line that only looks like an anchor", () => {
+    expect(readRow("7#ZP:line").render(80).slice(1)).toEqual(["    1  7#ZP:line"]);
+    expect(readRow("1#ZPQMVR:line").render(80).slice(1)).toEqual(["    1  1#ZPQMVR:line"]);
+  });
+
+  test("a read from an offset drops anchors that start there", () => {
+    expect(
+      readRow(anchoredRead(["ZP", "MQ"], 400), { offset: 400 })
+        .render(80)
+        .slice(1),
+    ).toEqual(["    400  line 400", "    401  line 401"]);
+  });
+
+  test("a hashline diff numbers its rows and lines their code up with the anchored ones", () => {
+    const diff = ["    ...", " 12#VR:keep", "-13    gone", "+13#VR:added", " 14#BX:more"].join("\n");
+    // A gap before the first row separates nothing, so it stays a row no longer.
+    expect(editBody(diff)).toEqual(["    12   keep", "    13  -gone", "    13  +added", "    14   more"]);
+  });
+
+  test("a hashline diff that only adds rows still reads as a diff", () => {
+    expect(editBody([" 12#VR:keep", "+13#VR:added"].join("\n"))).toEqual(["    12   keep", "    13  +added"]);
+  });
+});
+
 describe("files a shell command changed", () => {
   const changes: FileChanges = {
     files: [

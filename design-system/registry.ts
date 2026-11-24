@@ -43,6 +43,8 @@ import { stack } from "./lib/surface.ts";
 import {
   EDIT_DIFF,
   FILE_TEXT,
+  HASHLINE_DIFF,
+  HASHLINE_READ,
   MCP_OUTPUT,
   SHELL_GREP,
   SHELL_LONG,
@@ -696,6 +698,13 @@ const oursEntries: EntryDef[] = [
       levelState("l2", "aged L2", 2, () => readRow()),
       levelState("l3", "aged L3", 3, () => readRow()),
       levelState(
+        "hashline",
+        "hashline anchors",
+        0,
+        () => readRow({ output: HASHLINE_READ }),
+        "pi-hashline-edit numbers every line `12#AB:` so the model can edit by anchor; the gutter numbers the lines already, so a read body drops them",
+      ),
+      levelState(
         "range",
         "range from offset 95",
         0,
@@ -862,6 +871,13 @@ const oursEntries: EntryDef[] = [
       levelState("l0", "success L0", 0, () => editRow()),
       levelState("l1", "aged L1", 1, () => editRow()),
       levelState("l3", "aged L3", 3, () => editRow()),
+      levelState(
+        "hashline",
+        "hashline diff",
+        0,
+        () => editRow({ output: HASHLINE_DIFF, summary: "+2 −1" }),
+        "pi-hashline-edit anchors the lines its diff keeps and numbers the removed ones; the anchors never reach the row",
+      ),
       levelState("error", "error", 0, () =>
         editRow({ status: "error", error: "old_string not found", output: "", summary: "" }),
       ),

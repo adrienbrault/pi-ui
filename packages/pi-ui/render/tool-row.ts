@@ -645,6 +645,22 @@ function firstLine(input: ToolRowInput, text: string): number | undefined {
   return Number.isFinite(offset) && offset >= 1 ? Math.trunc(offset) : 1;
 }
 
+/**
+ * pi-hashline-edit answers a read with `12#AB:code` lines: anchors for the model to edit by, in
+ * the column the gutter numbers already. A read body drops them; a line whose number disagrees
+ * with its place is not an anchor and stays as it came.
+ */
+function dropReadAnchors(text: string, start: number | undefined): string {
+  if (start === undefined) return text;
+  return text
+    .split("\n")
+    .map((line, index) => {
+      const match = READ_ANCHOR.exec(line);
+      return match && Number(match[1]) === start + index ? line.slice(match[0].length) : line;
+    })
+    .join("\n");
+}
+
 /** Structured JSON results use pi's JSON grammar. */
 function jsonLanguage(text: string): string | undefined {
   if (!/^\s*[[{]/.test(text)) return undefined;
@@ -714,7 +730,9 @@ function isDiff(input: ToolRowInput, text: string): boolean {
     !input.error &&
     // A write previews the file it wrote: its `-`/`+` lines are content, not changes.
     ((DIFF_HINT.test(text) && (cls === "edit" || cls === "shell")) ||
-      (input.name === "edit" && /^[+-] *\d+ /m.test(text)))
+      (input.name === "edit" && /^[+-] *\d+ /m.test(text)) ||
+      // A hashline diff anchors the lines it keeps; its removed ones carry only a number.
+      (input.name === "edit" && ANCHORED_DIFF.test(text)))
   );
 }
 
@@ -766,6 +784,16 @@ function withPaths(selected: Selected[]): Selected[] {
 
 const HUNK = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/;
 const NUMBERED_ROW = /^[ +-] *(\d+) /;
+/**
+ * pi-hashline-edit's anchors: a 16-letter alphabet (no hex digits, no confusable letters, no
+ * vowels) of 2 to 4 characters between `#` and `:`, so a read line and a numbered diff row both
+ * carry the line number the gutter draws. Matching one is not proof of content: only a number
+ * that agrees with the line's place makes a read line an anchor.
+ */
+const ANCHOR_HASH = "[ZPMQVRWSNKTXJBYH]{2,4}";
+const READ_ANCHOR = new RegExp(`^(\\d+)#${ANCHOR_HASH}:`);
+const ANCHOR_ROW = new RegExp(`^([ +-])(\\d+)#(${ANCHOR_HASH}):(.*)$`);
+const ANCHORED_DIFF = new RegExp(`^[ +-]\\d+#${ANCHOR_HASH}:`, "m");
 
 /** A patch line's role, read from where it sits: a hunk's lines are counted from its header. */
 type DiffKind = "header" | "hunk" | "add" | "del" | "context" | "meta";
@@ -787,6 +815,13 @@ const DIFF_HEADER =
 /** pi's display diff marks the unchanged lines it skips with an indented `...`. */
 const DISPLAY_GAP = /^ +\.\.\.$/;
 
+/** Drop the padding a hashline diff writes where a kept row would carry `#AB:`. */
+function dropPad(code: string, pad: number): string {
+  let cut = 0;
+  while (cut < pad && code[cut] === " ") cut++;
+  return code.slice(cut);
+}
+
 /**
  * Each patch line's role and number. A unified patch counts from its hunk headers, so a hunk ends
  * when both its sides are counted: a removed line reading `--- x` (`-- x` in SQL or Lua) is a line
@@ -795,12 +830,28 @@ const DISPLAY_GAP = /^ +\.\.\.$/;
 function parseDiff(lines: string[], numbered: boolean): DiffLine[] {
   let hunk = 0;
   if (numbered) {
+    // A hashline diff pads the rows it cannot anchor out to an anchor's `#AB:`, so its code starts
+    // in the same column on every row; the anchored rows measure that width.
+    const first = lines.map((line) => ANCHOR_ROW.exec(line)).find((match) => match !== null);
+    const pad = first ? (first[3]?.length ?? 0) + 2 : 0;
     return lines.map((line): DiffLine => {
       if (DISPLAY_GAP.test(line)) return { kind: "hunk", line, code: line, hunk: ++hunk };
+      const anchored = ANCHOR_ROW.exec(line);
+      if (anchored) {
+        const kind = line[0] === "+" ? "add" : line[0] === "-" ? "del" : "context";
+        return { kind, line, code: anchored[4] ?? "", number: Number(anchored[2]), hunk };
+      }
       const match = NUMBERED_ROW.exec(line);
       if (!match) return { kind: "meta", line, code: line, hunk };
       const kind = line[0] === "+" ? "add" : line[0] === "-" ? "del" : "context";
-      return { kind, line, code: line.replace(NUMBERED_ROW, ""), number: Number(match[1]), hunk };
+      // The number row's own space and the rest of the anchor's width.
+      return {
+        kind,
+        line,
+        code: dropPad(line.replace(NUMBERED_ROW, ""), pad ? pad - 1 : 0),
+        number: Number(match[1]),
+        hunk,
+      };
     });
   }
   let oldLine = 0;
@@ -1004,7 +1055,10 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number,
   // Before its first output, a call shows what the model is writing into its arguments.
   const call = streamingCallRows(api, input, hiddenTitle);
   const text = call ? "" : cleanOutput(input.error ? errorDetail(input, meta) : previewText(input));
-  const source = logicalLines(text);
+  // A hashline read numbers each line before its code; the strip happens before the body reads the
+  // text, so highlighting, counts and cuts all see the code alone.
+  const plain = input.name === "read" && !input.error ? dropReadAnchors(text, firstLine(input, text)) : text;
+  const source = logicalLines(plain);
   const diff = !call && isDiff(input, text);
   const shell = !call && !input.error && !diff ? shellRows(api, input, text) : undefined;
   // Bound grammar work on oversized tool results. pi reads normally stop at 50 KiB.
@@ -1012,7 +1066,7 @@ function body(api: RenderApi, input: ToolRowInput, width: number, total: number,
     !shell && !input.error && (!diff || input.name === "edit") && text.length <= MAX_FORMAT_CHARS && kit.highlight
       ? outputLanguage(input, text, kit)
       : undefined;
-  const styledSource = language && !diff ? kit.highlight?.(text, language, theme, api.owner) : undefined;
+  const styledSource = language && !diff ? kit.highlight?.(plain, language, theme, api.owner) : undefined;
   // In a preview, blank lines carry no evidence and take no row, but every line keeps its number
   // in the file. An opened block shows the file as it is, blank lines included.
   const start = diff ? undefined : firstLine(input, text);

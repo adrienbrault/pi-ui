@@ -143,3 +143,24 @@ export const MCP_OUTPUT = ["memory: 3 facts stored", "keys: onboarding, deploy, 
 export const cwd = "/repo";
 export const readPath = "src/core/session.ts";
 export const editPath = "extensions/pi-ui/decorator.ts";
+
+/** A read as pi-hashline-edit answers it: every line carries `LINE#HASH:` for the model to edit by. */
+export const HASHLINE_READ = [
+  "export interface SessionStore {",
+  "  load(id: string): Promise<Session>;",
+  "  save(session: Session): Promise<void>;",
+  "  entries(id: string): AsyncIterable<Entry>;",
+  "}",
+]
+  .map((line, index) => `${index + 1}#${["ZP", "MQ", "VR", "WS", "NK"][index]}:${line}`)
+  .join("\n");
+
+/** An edit's diff as pi-hashline-edit answers it: kept lines anchored, removed ones numbered only. */
+export const HASHLINE_DIFF = [
+  "    ...",
+  " 12#VR:export function decorate(component: ComponentLike): ComponentLike {",
+  "-13    return component;",
+  "+13#VR:export function decorate(component: ComponentLike, options: DecoratorOptions): ComponentLike {",
+  "+14#BX:  return compose(component, options.width, options.level);",
+  "    ...",
+].join("\n");
