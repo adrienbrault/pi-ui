@@ -13,6 +13,8 @@ import { capturesOf, parseOptions, replay } from "./run.ts";
 const FIXTURE = join(import.meta.dir, "fixtures", "synthetic.jsonl");
 /** Two `read` calls on PNGs: the image viewer's session. */
 const IMAGES = join(import.meta.dir, "fixtures", "images.jsonl");
+/** Three `todo` calls, so the panel has a step to run and one to finish. */
+const TODOS = join(import.meta.dir, "fixtures", "todos.jsonl");
 const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47];
 
 function assert(condition: unknown, message: string): asserts condition {
@@ -95,6 +97,22 @@ export async function replaySmoke(): Promise<void> {
       if (protocol === undefined) delete process.env.PI_IMAGE_PROTOCOL;
       else process.env.PI_IMAGE_PROTOCOL = protocol;
     }
+
+    // A recorded todo list: pi-ui owns the `todo` rows and draws the list above the editor.
+    const todosAnsi = join(out, "todos.ans");
+    await replay(
+      parseOptions([TODOS, "--width", "100", "--height", "34", "--until", "tool:3:end", "--ansi", todosAnsi]),
+    );
+    const todosView = plain(readFileSync(todosAnsi, "utf8"));
+    assert(todosView.includes("● todo · add"), `pi-ui should render the todo rows\n${todosView}`);
+    assert(todosView.includes("● todo · start #2"), `a started todo's header should name its row\n${todosView}`);
+    assert(todosView.includes("● Todos 0/2  ▱▱"), `the panel should count the work\n${todosView}`);
+    assert(todosView.includes("  ○ #1 Read the layout"), `a pending todo keeps its row and id\n${todosView}`);
+    assert(
+      /^ {2}\S #2 Write the panel \(Writing the panel renderer\)/m.test(todosView),
+      `the running todo's row should carry the spinner and what it is doing\n${todosView}`,
+    );
+    console.log("replay smoke: the todo rows and the panel above the editor came from pi-ui");
   } finally {
     rmSync(out, { recursive: true, force: true });
   }

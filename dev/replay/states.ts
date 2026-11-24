@@ -27,6 +27,7 @@ export const OUT = join(ROOT, "docs", "states");
 const DEMO = join(import.meta.dir, "sessions", "deepseek-review.jsonl");
 const CHANGES = join(import.meta.dir, "fixtures", "file-changes.jsonl");
 const PROMPTS = join(import.meta.dir, "fixtures", "two-prompts.jsonl");
+const TODOS = join(import.meta.dir, "fixtures", "todos.jsonl");
 
 export interface Run {
   id: string;
@@ -65,6 +66,7 @@ const light: Run = { id: "light", session: DEMO, theme: "light" };
 const narrow: Run = { id: "narrow", session: DEMO, width: 70 };
 // Its own run: a pause in the middle of a message would shift the rates of that message's later states.
 const writing: Run = { id: "writing", session: DEMO };
+const todos: Run = { id: "todos", session: TODOS, height: 34 };
 
 const hover = (text: string): Action => ({ kind: "hover", text });
 const click = (text: string): Action => ({ kind: "click", text });
@@ -279,6 +281,21 @@ export const STATES: State[] = [
     description: "A 70-column terminal: headers shorten their commands and wrap thoughts to fit.",
     run: narrow,
     until: "tool:28:end",
+  },
+  {
+    id: "todos-panel",
+    title: "Todos panel",
+    description:
+      "The session's todo list above the editor: a count, its bar, the running step's spinner, and the #ids the transcript's todo calls share.",
+    run: todos,
+    until: "tool:3:end",
+  },
+  {
+    id: "todos-completed",
+    title: "Todos, one step done",
+    description: "After a step completes its row dims to a check and the bar fills a cell.",
+    run: todos,
+    until: "tool:4:end",
   },
 ];
 

@@ -165,3 +165,15 @@ The same session in pi's light theme.
 A 70-column terminal: headers shorten their commands and wrap thoughts to fit.
 
 ![Narrow terminal](narrow-width.png)
+
+## Todos panel
+
+The session's todo list above the editor: a count, its bar, the running step's spinner, and the #ids the transcript's todo calls share.
+
+![Todos panel](todos-panel.png)
+
+## Todos, one step done
+
+After a step completes its row dims to a check and the bar fills a cell.
+
+![Todos, one step done](todos-completed.png)

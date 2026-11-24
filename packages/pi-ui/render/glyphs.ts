@@ -19,6 +19,11 @@ export interface GlyphSet {
   input: string;
   output: string;
   spinner: readonly string[];
+  /** A finished todo: a check; ASCII writes `x`, as a checklist's `[x]` does. */
+  done: string;
+  /** A todo panel's progress bar: a filled cell and an empty one. */
+  barFill: string;
+  barEmpty: string;
 }
 
 /** What token numbers are written with: the two marks and the separator dot. */
@@ -38,6 +43,9 @@ export const UNICODE_GLYPHS: GlyphSet = {
   input: "↑",
   output: "↓",
   spinner: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"],
+  done: "✓",
+  barFill: "▰",
+  barEmpty: "▱",
 };
 
 export const ASCII_GLYPHS: GlyphSet = {
@@ -54,6 +62,9 @@ export const ASCII_GLYPHS: GlyphSet = {
   input: "in ",
   output: "out ",
   spinner: ["-", "\\", "|", "/"],
+  done: "x",
+  barFill: "#",
+  barEmpty: "-",
 };
 
 export const NERD_GLYPHS: GlyphSet = {
@@ -70,6 +81,9 @@ export const NERD_GLYPHS: GlyphSet = {
   input: "↑",
   output: "↓",
   spinner: ["󰪚", "󰪛", "󰪜", "󰪝"],
+  done: "✓",
+  barFill: "█",
+  barEmpty: "░",
 };
 
 export type GlyphMode = "unicode" | "ascii" | "nerd";

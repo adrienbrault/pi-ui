@@ -36,6 +36,7 @@ import {
   toolTokenLabel,
 } from "../packages/pi-ui/render/tools.ts";
 import { boundedPatch } from "../packages/pi-ui/extensions/changes.ts";
+import { renderTodosPanel, type TodoItem } from "../packages/pi-ui/render/todos.ts";
 import { restyleUserMessage } from "../packages/pi-ui/extensions/user-message.ts";
 import type { PiInstall } from "./lib/pi.ts";
 import { stack } from "./lib/surface.ts";
@@ -55,7 +56,7 @@ import {
 } from "./fixtures-data.ts";
 
 export type Variant = "base" | "ours";
-export type Group = "transcript" | "tools" | "thinking" | "groups" | "glyphs" | "scenarios";
+export type Group = "transcript" | "tools" | "thinking" | "groups" | "todos" | "glyphs" | "scenarios";
 
 export interface RenderCtx {
   pi: PiInstall;
@@ -285,6 +286,52 @@ const ours = (ctx: RenderCtx) => ({
   theme: ctx.theme,
   glyphs: ctx.glyphs,
 });
+
+/** A todo call's row: the action and its row, then what the list says of it. */
+const todoRow = (overrides: Partial<ToolRowInput> = {}): ToolRowInput => ({
+  name: "todo",
+  args: { action: "start", id: 2 },
+  status: "success",
+  level: 0,
+  title: "start #2",
+  output: "Started #2: Committing the replay harness",
+  ...overrides,
+});
+
+/** The panel's sample list: a finished step, the running one, and what is left. */
+const TODO_SAMPLE: TodoItem[] = [
+  { id: 1, text: "Commit A: fix — install the image viewer", status: "completed" },
+  {
+    id: 2,
+    text: "Committing the replay harness",
+    status: "in_progress",
+    activeForm: "Committing the replay harness",
+  },
+  { id: 3, text: "Commit C: docs gotcha — images never reach a capture", status: "pending" },
+  { id: 4, text: "Re-run full gate + e2e, push, report SHAs", status: "pending" },
+];
+
+/** The active form says more than the todo's own words. */
+const TODO_ACTIVE_FORM: TodoItem[] = [
+  { id: 1, text: "Write the panel renderer", status: "in_progress", activeForm: "Writing the panel renderer" },
+  { id: 2, text: "Wire it above the editor", status: "pending" },
+];
+
+/** Fifteen steps: past the panel's budget, so the completed rows leave first. */
+const TODO_MANY: TodoItem[] = [
+  ...TODO_SAMPLE,
+  ...Array.from(
+    { length: 11 },
+    (_, index): TodoItem => ({
+      id: 5 + index,
+      text: `Step ${5 + index}: the rest of the long job`,
+      status: "pending",
+    }),
+  ),
+];
+
+/** Every step finished: the panel's one line. */
+const TODO_DONE: TodoItem[] = TODO_SAMPLE.map((todo) => ({ ...todo, status: "completed" }));
 
 // ---------------------------------------------------------------------------
 // Base pi
@@ -903,6 +950,69 @@ const oursEntries: EntryDef[] = [
             ]),
           }).render(ctx.width),
       },
+    ],
+  },
+  {
+    id: "ours.todos",
+    title: "Todos panel",
+    group: "todos",
+    variant: "ours",
+    description:
+      "The session's todo list above the editor: a count, its bar, and ids that match the transcript. Over the panel's budget the work keeps its rows and the finished ones are counted into one notice.",
+    states: [
+      {
+        id: "live",
+        label: "live",
+        note: "one done, one running, two pending",
+        frames: 10,
+        render: (ctx, frame) => renderTodosPanel(ours(ctx), () => ({ todos: TODO_SAMPLE, frame })).render(ctx.width),
+      },
+      {
+        id: "active-form",
+        label: "active form says more",
+        render: (ctx) => renderTodosPanel(ours(ctx), () => ({ todos: TODO_ACTIVE_FORM, frame: 0 })).render(ctx.width),
+      },
+      {
+        id: "over-budget",
+        label: "fifteen steps",
+        note: "the heading and notice stay inside the ten lines",
+        render: (ctx) => renderTodosPanel(ours(ctx), () => ({ todos: TODO_MANY, frame: 0 })).render(ctx.width),
+      },
+      {
+        id: "done",
+        label: "all done",
+        note: "one line",
+        render: (ctx) => renderTodosPanel(ours(ctx), () => ({ todos: TODO_DONE, frame: 0 })).render(ctx.width),
+      },
+      {
+        id: "narrow",
+        label: "narrow",
+        render: (ctx) => renderTodosPanel(ours(ctx), () => ({ todos: TODO_SAMPLE, frame: 0 })).render(36),
+      },
+    ],
+  },
+  {
+    id: "ours.todo",
+    title: "todo row",
+    group: "tools",
+    variant: "ours",
+    description:
+      "A todo call's row: what it does to which row, with the list's confirmation under it; aged rows keep the header alone.",
+    states: [
+      levelState("l0", "start L0", 0, () => todoRow()),
+      levelState("aged", "aged L3", 3, () => todoRow()),
+      levelState("add", "add", 0, () =>
+        todoRow({ args: { action: "add" }, title: "add", output: "Added todo #5: Render the panel" }),
+      ),
+      levelState("failed", "not found", 0, () =>
+        todoRow({
+          status: "error",
+          args: { action: "complete", id: 9 },
+          title: "complete #9",
+          output: "",
+          error: "#9 not found",
+        }),
+      ),
     ],
   },
 ];

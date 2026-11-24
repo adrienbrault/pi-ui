@@ -12191,6 +12191,1370 @@
       ]
     }
   },
+  "ours.todos": {
+    "live/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/4\u001b[39m  \u001b[38;2;104;183;141m▰\u001b[39m\u001b[38;2;126;136;142m▱▱▱\u001b[39m",
+        "  \u001b[38;2;104;183;141m✓\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;126;136;142mCommit A: fix — install the imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — images n\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push, re\u001b[0m…\u001b[0m"
+      ]
+    },
+    "live/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m*\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/4\u001b[39m  \u001b[38;2;104;183;141m#\u001b[39m\u001b[38;2;126;136;142m---\u001b[39m",
+        "  \u001b[38;2;104;183;141mx\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;126;136;142mCommit A: fix — install the imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — images n\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push, re\u001b[0m…\u001b[0m"
+      ]
+    },
+    "live/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/4\u001b[39m  \u001b[38;2;104;183;141m▰\u001b[39m\u001b[38;2;126;136;142m▱▱▱\u001b[39m",
+        "  \u001b[38;2;104;183;141m✓\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;126;136;142mCommit A: fix — install the image viewer\u001b[39m",
+        "  \u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push, report SHAs\u001b[39m"
+      ]
+    },
+    "live/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m*\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/4\u001b[39m  \u001b[38;2;104;183;141m#\u001b[39m\u001b[38;2;126;136;142m---\u001b[39m",
+        "  \u001b[38;2;104;183;141mx\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;126;136;142mCommit A: fix — install the image viewer\u001b[39m",
+        "  \u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push, report SHAs\u001b[39m"
+      ]
+    },
+    "live/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/4\u001b[39m  \u001b[38;2;104;183;141m▰\u001b[39m\u001b[38;2;126;136;142m▱▱▱\u001b[39m",
+        "  \u001b[38;2;104;183;141m✓\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;126;136;142mCommit A: fix — install the image viewer\u001b[39m",
+        "  \u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push, report SHAs\u001b[39m"
+      ]
+    },
+    "live/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m*\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/4\u001b[39m  \u001b[38;2;104;183;141m#\u001b[39m\u001b[38;2;126;136;142m---\u001b[39m",
+        "  \u001b[38;2;104;183;141mx\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;126;136;142mCommit A: fix — install the image viewer\u001b[39m",
+        "  \u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push, report SHAs\u001b[39m"
+      ]
+    },
+    "live/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/4\u001b[39m  \u001b[38;2;104;183;141m▰\u001b[39m\u001b[38;2;126;136;142m▱▱▱\u001b[39m",
+        "  \u001b[38;2;104;183;141m✓\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;126;136;142mCommit A: fix — install the image viewer\u001b[39m",
+        "  \u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push, report SHAs\u001b[39m"
+      ]
+    },
+    "live/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m*\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/4\u001b[39m  \u001b[38;2;104;183;141m#\u001b[39m\u001b[38;2;126;136;142m---\u001b[39m",
+        "  \u001b[38;2;104;183;141mx\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;126;136;142mCommit A: fix — install the image viewer\u001b[39m",
+        "  \u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push, report SHAs\u001b[39m"
+      ]
+    },
+    "live/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/4\u001b[39m  \u001b[38;2;104;183;141m▰\u001b[39m\u001b[38;2;126;136;142m▱▱▱\u001b[39m",
+        "  \u001b[38;2;104;183;141m✓\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;126;136;142mCommit A: fix — install the image viewer\u001b[39m",
+        "  \u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push, report SHAs\u001b[39m"
+      ]
+    },
+    "live/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m*\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/4\u001b[39m  \u001b[38;2;104;183;141m#\u001b[39m\u001b[38;2;126;136;142m---\u001b[39m",
+        "  \u001b[38;2;104;183;141mx\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;126;136;142mCommit A: fix — install the image viewer\u001b[39m",
+        "  \u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push, report SHAs\u001b[39m"
+      ]
+    },
+    "active-form/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m0/2\u001b[39m  \u001b[38;2;104;183;141m\u001b[39m\u001b[38;2;126;136;142m▱▱\u001b[39m",
+        "  \u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;222;224;225mWrite the panel renderer\u001b[39m \u001b[38;2;126;136;142m(Writin\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;157;165;169mWire it above the editor\u001b[39m"
+      ]
+    },
+    "active-form/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m*\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m0/2\u001b[39m  \u001b[38;2;104;183;141m\u001b[39m\u001b[38;2;126;136;142m--\u001b[39m",
+        "  \u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;222;224;225mWrite the panel renderer\u001b[39m \u001b[38;2;126;136;142m(Writin\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;157;165;169mWire it above the editor\u001b[39m"
+      ]
+    },
+    "active-form/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m0/2\u001b[39m  \u001b[38;2;104;183;141m\u001b[39m\u001b[38;2;126;136;142m▱▱\u001b[39m",
+        "  \u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;222;224;225mWrite the panel renderer\u001b[39m \u001b[38;2;126;136;142m(Writing the panel renderer)\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;157;165;169mWire it above the editor\u001b[39m"
+      ]
+    },
+    "active-form/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m*\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m0/2\u001b[39m  \u001b[38;2;104;183;141m\u001b[39m\u001b[38;2;126;136;142m--\u001b[39m",
+        "  \u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;222;224;225mWrite the panel renderer\u001b[39m \u001b[38;2;126;136;142m(Writing the panel renderer)\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;157;165;169mWire it above the editor\u001b[39m"
+      ]
+    },
+    "active-form/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m0/2\u001b[39m  \u001b[38;2;104;183;141m\u001b[39m\u001b[38;2;126;136;142m▱▱\u001b[39m",
+        "  \u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;222;224;225mWrite the panel renderer\u001b[39m \u001b[38;2;126;136;142m(Writing the panel renderer)\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;157;165;169mWire it above the editor\u001b[39m"
+      ]
+    },
+    "active-form/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m*\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m0/2\u001b[39m  \u001b[38;2;104;183;141m\u001b[39m\u001b[38;2;126;136;142m--\u001b[39m",
+        "  \u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;222;224;225mWrite the panel renderer\u001b[39m \u001b[38;2;126;136;142m(Writing the panel renderer)\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;157;165;169mWire it above the editor\u001b[39m"
+      ]
+    },
+    "active-form/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m0/2\u001b[39m  \u001b[38;2;104;183;141m\u001b[39m\u001b[38;2;126;136;142m▱▱\u001b[39m",
+        "  \u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;222;224;225mWrite the panel renderer\u001b[39m \u001b[38;2;126;136;142m(Writing the panel renderer)\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;157;165;169mWire it above the editor\u001b[39m"
+      ]
+    },
+    "active-form/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m*\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m0/2\u001b[39m  \u001b[38;2;104;183;141m\u001b[39m\u001b[38;2;126;136;142m--\u001b[39m",
+        "  \u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;222;224;225mWrite the panel renderer\u001b[39m \u001b[38;2;126;136;142m(Writing the panel renderer)\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;157;165;169mWire it above the editor\u001b[39m"
+      ]
+    },
+    "active-form/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m0/2\u001b[39m  \u001b[38;2;104;183;141m\u001b[39m\u001b[38;2;126;136;142m▱▱\u001b[39m",
+        "  \u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;222;224;225mWrite the panel renderer\u001b[39m \u001b[38;2;126;136;142m(Writing the panel renderer)\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;157;165;169mWire it above the editor\u001b[39m"
+      ]
+    },
+    "active-form/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m*\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m0/2\u001b[39m  \u001b[38;2;104;183;141m\u001b[39m\u001b[38;2;126;136;142m--\u001b[39m",
+        "  \u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;222;224;225mWrite the panel renderer\u001b[39m \u001b[38;2;126;136;142m(Writing the panel renderer)\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;157;165;169mWire it above the editor\u001b[39m"
+      ]
+    },
+    "over-budget/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/15\u001b[39m  \u001b[38;2;104;183;141m▰\u001b[39m\u001b[38;2;126;136;142m▱▱▱▱▱▱▱\u001b[39m",
+        "  \u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — images n\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push, re\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#5\u001b[39m \u001b[38;2;157;165;169mStep 5: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#6\u001b[39m \u001b[38;2;157;165;169mStep 6: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#7\u001b[39m \u001b[38;2;157;165;169mStep 7: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#8\u001b[39m \u001b[38;2;157;165;169mStep 8: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#9\u001b[39m \u001b[38;2;157;165;169mStep 9: the rest of the long job\u001b[39m",
+        "\u001b[3m\u001b[38;2;126;136;142m⋮ 7 more · 1 completed, 6 pending\u001b[39m\u001b[23m"
+      ]
+    },
+    "over-budget/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m*\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/15\u001b[39m  \u001b[38;2;104;183;141m#\u001b[39m\u001b[38;2;126;136;142m-------\u001b[39m",
+        "  \u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — images n\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push, re\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#5\u001b[39m \u001b[38;2;157;165;169mStep 5: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#6\u001b[39m \u001b[38;2;157;165;169mStep 6: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#7\u001b[39m \u001b[38;2;157;165;169mStep 7: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#8\u001b[39m \u001b[38;2;157;165;169mStep 8: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#9\u001b[39m \u001b[38;2;157;165;169mStep 9: the rest of the long job\u001b[39m",
+        "\u001b[3m\u001b[38;2;126;136;142m: 7 more · 1 completed, 6 pending\u001b[39m\u001b[23m"
+      ]
+    },
+    "over-budget/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/15\u001b[39m  \u001b[38;2;104;183;141m▰\u001b[39m\u001b[38;2;126;136;142m▱▱▱▱▱▱▱\u001b[39m",
+        "  \u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push, report SHAs\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#5\u001b[39m \u001b[38;2;157;165;169mStep 5: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#6\u001b[39m \u001b[38;2;157;165;169mStep 6: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#7\u001b[39m \u001b[38;2;157;165;169mStep 7: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#8\u001b[39m \u001b[38;2;157;165;169mStep 8: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#9\u001b[39m \u001b[38;2;157;165;169mStep 9: the rest of the long job\u001b[39m",
+        "\u001b[3m\u001b[38;2;126;136;142m⋮ 7 more · 1 completed, 6 pending\u001b[39m\u001b[23m"
+      ]
+    },
+    "over-budget/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m*\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/15\u001b[39m  \u001b[38;2;104;183;141m#\u001b[39m\u001b[38;2;126;136;142m-------\u001b[39m",
+        "  \u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push, report SHAs\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#5\u001b[39m \u001b[38;2;157;165;169mStep 5: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#6\u001b[39m \u001b[38;2;157;165;169mStep 6: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#7\u001b[39m \u001b[38;2;157;165;169mStep 7: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#8\u001b[39m \u001b[38;2;157;165;169mStep 8: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#9\u001b[39m \u001b[38;2;157;165;169mStep 9: the rest of the long job\u001b[39m",
+        "\u001b[3m\u001b[38;2;126;136;142m: 7 more · 1 completed, 6 pending\u001b[39m\u001b[23m"
+      ]
+    },
+    "over-budget/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/15\u001b[39m  \u001b[38;2;104;183;141m▰\u001b[39m\u001b[38;2;126;136;142m▱▱▱▱▱▱▱\u001b[39m",
+        "  \u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push, report SHAs\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#5\u001b[39m \u001b[38;2;157;165;169mStep 5: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#6\u001b[39m \u001b[38;2;157;165;169mStep 6: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#7\u001b[39m \u001b[38;2;157;165;169mStep 7: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#8\u001b[39m \u001b[38;2;157;165;169mStep 8: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#9\u001b[39m \u001b[38;2;157;165;169mStep 9: the rest of the long job\u001b[39m",
+        "\u001b[3m\u001b[38;2;126;136;142m⋮ 7 more · 1 completed, 6 pending\u001b[39m\u001b[23m"
+      ]
+    },
+    "over-budget/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m*\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/15\u001b[39m  \u001b[38;2;104;183;141m#\u001b[39m\u001b[38;2;126;136;142m-------\u001b[39m",
+        "  \u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push, report SHAs\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#5\u001b[39m \u001b[38;2;157;165;169mStep 5: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#6\u001b[39m \u001b[38;2;157;165;169mStep 6: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#7\u001b[39m \u001b[38;2;157;165;169mStep 7: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#8\u001b[39m \u001b[38;2;157;165;169mStep 8: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#9\u001b[39m \u001b[38;2;157;165;169mStep 9: the rest of the long job\u001b[39m",
+        "\u001b[3m\u001b[38;2;126;136;142m: 7 more · 1 completed, 6 pending\u001b[39m\u001b[23m"
+      ]
+    },
+    "over-budget/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/15\u001b[39m  \u001b[38;2;104;183;141m▰\u001b[39m\u001b[38;2;126;136;142m▱▱▱▱▱▱▱\u001b[39m",
+        "  \u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push, report SHAs\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#5\u001b[39m \u001b[38;2;157;165;169mStep 5: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#6\u001b[39m \u001b[38;2;157;165;169mStep 6: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#7\u001b[39m \u001b[38;2;157;165;169mStep 7: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#8\u001b[39m \u001b[38;2;157;165;169mStep 8: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#9\u001b[39m \u001b[38;2;157;165;169mStep 9: the rest of the long job\u001b[39m",
+        "\u001b[3m\u001b[38;2;126;136;142m⋮ 7 more · 1 completed, 6 pending\u001b[39m\u001b[23m"
+      ]
+    },
+    "over-budget/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m*\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/15\u001b[39m  \u001b[38;2;104;183;141m#\u001b[39m\u001b[38;2;126;136;142m-------\u001b[39m",
+        "  \u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push, report SHAs\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#5\u001b[39m \u001b[38;2;157;165;169mStep 5: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#6\u001b[39m \u001b[38;2;157;165;169mStep 6: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#7\u001b[39m \u001b[38;2;157;165;169mStep 7: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#8\u001b[39m \u001b[38;2;157;165;169mStep 8: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#9\u001b[39m \u001b[38;2;157;165;169mStep 9: the rest of the long job\u001b[39m",
+        "\u001b[3m\u001b[38;2;126;136;142m: 7 more · 1 completed, 6 pending\u001b[39m\u001b[23m"
+      ]
+    },
+    "over-budget/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/15\u001b[39m  \u001b[38;2;104;183;141m▰\u001b[39m\u001b[38;2;126;136;142m▱▱▱▱▱▱▱\u001b[39m",
+        "  \u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push, report SHAs\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#5\u001b[39m \u001b[38;2;157;165;169mStep 5: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#6\u001b[39m \u001b[38;2;157;165;169mStep 6: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#7\u001b[39m \u001b[38;2;157;165;169mStep 7: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#8\u001b[39m \u001b[38;2;157;165;169mStep 8: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#9\u001b[39m \u001b[38;2;157;165;169mStep 9: the rest of the long job\u001b[39m",
+        "\u001b[3m\u001b[38;2;126;136;142m⋮ 7 more · 1 completed, 6 pending\u001b[39m\u001b[23m"
+      ]
+    },
+    "over-budget/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m*\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/15\u001b[39m  \u001b[38;2;104;183;141m#\u001b[39m\u001b[38;2;126;136;142m-------\u001b[39m",
+        "  \u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push, report SHAs\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#5\u001b[39m \u001b[38;2;157;165;169mStep 5: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#6\u001b[39m \u001b[38;2;157;165;169mStep 6: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#7\u001b[39m \u001b[38;2;157;165;169mStep 7: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#8\u001b[39m \u001b[38;2;157;165;169mStep 8: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#9\u001b[39m \u001b[38;2;157;165;169mStep 9: the rest of the long job\u001b[39m",
+        "\u001b[3m\u001b[38;2;126;136;142m: 7 more · 1 completed, 6 pending\u001b[39m\u001b[23m"
+      ]
+    },
+    "done/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142mTodos 4/4 · done\u001b[39m"
+      ]
+    },
+    "done/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142mTodos 4/4 · done\u001b[39m"
+      ]
+    },
+    "done/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142mTodos 4/4 · done\u001b[39m"
+      ]
+    },
+    "done/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142mTodos 4/4 · done\u001b[39m"
+      ]
+    },
+    "done/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142mTodos 4/4 · done\u001b[39m"
+      ]
+    },
+    "done/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142mTodos 4/4 · done\u001b[39m"
+      ]
+    },
+    "done/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142mTodos 4/4 · done\u001b[39m"
+      ]
+    },
+    "done/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142mTodos 4/4 · done\u001b[39m"
+      ]
+    },
+    "done/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142mTodos 4/4 · done\u001b[39m"
+      ]
+    },
+    "done/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142mTodos 4/4 · done\u001b[39m"
+      ]
+    },
+    "narrow/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/4\u001b[39m  \u001b[38;2;104;183;141m▰\u001b[39m\u001b[38;2;126;136;142m▱▱▱\u001b[39m",
+        "  \u001b[38;2;104;183;141m✓\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;126;136;142mCommit A: fix — install the \u001b[0m…\u001b[0m",
+        "  \u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push\u001b[0m…\u001b[0m"
+      ]
+    },
+    "narrow/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m*\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/4\u001b[39m  \u001b[38;2;104;183;141m#\u001b[39m\u001b[38;2;126;136;142m---\u001b[39m",
+        "  \u001b[38;2;104;183;141mx\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;126;136;142mCommit A: fix — install the \u001b[0m…\u001b[0m",
+        "  \u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push\u001b[0m…\u001b[0m"
+      ]
+    },
+    "narrow/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/4\u001b[39m  \u001b[38;2;104;183;141m▰\u001b[39m\u001b[38;2;126;136;142m▱▱▱\u001b[39m",
+        "  \u001b[38;2;104;183;141m✓\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;126;136;142mCommit A: fix — install the \u001b[0m…\u001b[0m",
+        "  \u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push\u001b[0m…\u001b[0m"
+      ]
+    },
+    "narrow/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m*\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/4\u001b[39m  \u001b[38;2;104;183;141m#\u001b[39m\u001b[38;2;126;136;142m---\u001b[39m",
+        "  \u001b[38;2;104;183;141mx\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;126;136;142mCommit A: fix — install the \u001b[0m…\u001b[0m",
+        "  \u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push\u001b[0m…\u001b[0m"
+      ]
+    },
+    "narrow/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/4\u001b[39m  \u001b[38;2;104;183;141m▰\u001b[39m\u001b[38;2;126;136;142m▱▱▱\u001b[39m",
+        "  \u001b[38;2;104;183;141m✓\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;126;136;142mCommit A: fix — install the \u001b[0m…\u001b[0m",
+        "  \u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push\u001b[0m…\u001b[0m"
+      ]
+    },
+    "narrow/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m*\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/4\u001b[39m  \u001b[38;2;104;183;141m#\u001b[39m\u001b[38;2;126;136;142m---\u001b[39m",
+        "  \u001b[38;2;104;183;141mx\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;126;136;142mCommit A: fix — install the \u001b[0m…\u001b[0m",
+        "  \u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push\u001b[0m…\u001b[0m"
+      ]
+    },
+    "narrow/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/4\u001b[39m  \u001b[38;2;104;183;141m▰\u001b[39m\u001b[38;2;126;136;142m▱▱▱\u001b[39m",
+        "  \u001b[38;2;104;183;141m✓\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;126;136;142mCommit A: fix — install the \u001b[0m…\u001b[0m",
+        "  \u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push\u001b[0m…\u001b[0m"
+      ]
+    },
+    "narrow/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m*\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/4\u001b[39m  \u001b[38;2;104;183;141m#\u001b[39m\u001b[38;2;126;136;142m---\u001b[39m",
+        "  \u001b[38;2;104;183;141mx\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;126;136;142mCommit A: fix — install the \u001b[0m…\u001b[0m",
+        "  \u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push\u001b[0m…\u001b[0m"
+      ]
+    },
+    "narrow/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;167;152;215m●\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/4\u001b[39m  \u001b[38;2;104;183;141m▰\u001b[39m\u001b[38;2;126;136;142m▱▱▱\u001b[39m",
+        "  \u001b[38;2;104;183;141m✓\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;126;136;142mCommit A: fix — install the \u001b[0m…\u001b[0m",
+        "  \u001b[38;2;167;152;215m⠋\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;126;136;142m○\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push\u001b[0m…\u001b[0m"
+      ]
+    },
+    "narrow/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;167;152;215m*\u001b[39m \u001b[38;2;167;152;215mTodos\u001b[39m \u001b[38;2;157;165;169m1/4\u001b[39m  \u001b[38;2;104;183;141m#\u001b[39m\u001b[38;2;126;136;142m---\u001b[39m",
+        "  \u001b[38;2;104;183;141mx\u001b[39m \u001b[38;2;126;136;142m#1\u001b[39m \u001b[38;2;126;136;142mCommit A: fix — install the \u001b[0m…\u001b[0m",
+        "  \u001b[38;2;167;152;215m-\u001b[39m \u001b[38;2;126;136;142m#2\u001b[39m \u001b[38;2;222;224;225mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#3\u001b[39m \u001b[38;2;157;165;169mCommit C: docs gotcha — imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;126;136;142mo\u001b[39m \u001b[38;2;126;136;142m#4\u001b[39m \u001b[38;2;157;165;169mRe-run full gate + e2e, push\u001b[0m…\u001b[0m"
+      ]
+    },
+    "live/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/4\u001b[39m  \u001b[38;2;51;126;88m▰\u001b[39m\u001b[38;2;135;144;149m▱▱▱\u001b[39m",
+        "  \u001b[38;2;51;126;88m✓\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;135;144;149mCommit A: fix — install the imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — images n\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push, re\u001b[0m…\u001b[0m"
+      ]
+    },
+    "live/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m*\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/4\u001b[39m  \u001b[38;2;51;126;88m#\u001b[39m\u001b[38;2;135;144;149m---\u001b[39m",
+        "  \u001b[38;2;51;126;88mx\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;135;144;149mCommit A: fix — install the imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — images n\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push, re\u001b[0m…\u001b[0m"
+      ]
+    },
+    "live/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/4\u001b[39m  \u001b[38;2;51;126;88m▰\u001b[39m\u001b[38;2;135;144;149m▱▱▱\u001b[39m",
+        "  \u001b[38;2;51;126;88m✓\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;135;144;149mCommit A: fix — install the image viewer\u001b[39m",
+        "  \u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push, report SHAs\u001b[39m"
+      ]
+    },
+    "live/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m*\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/4\u001b[39m  \u001b[38;2;51;126;88m#\u001b[39m\u001b[38;2;135;144;149m---\u001b[39m",
+        "  \u001b[38;2;51;126;88mx\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;135;144;149mCommit A: fix — install the image viewer\u001b[39m",
+        "  \u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push, report SHAs\u001b[39m"
+      ]
+    },
+    "live/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/4\u001b[39m  \u001b[38;2;51;126;88m▰\u001b[39m\u001b[38;2;135;144;149m▱▱▱\u001b[39m",
+        "  \u001b[38;2;51;126;88m✓\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;135;144;149mCommit A: fix — install the image viewer\u001b[39m",
+        "  \u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push, report SHAs\u001b[39m"
+      ]
+    },
+    "live/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m*\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/4\u001b[39m  \u001b[38;2;51;126;88m#\u001b[39m\u001b[38;2;135;144;149m---\u001b[39m",
+        "  \u001b[38;2;51;126;88mx\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;135;144;149mCommit A: fix — install the image viewer\u001b[39m",
+        "  \u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push, report SHAs\u001b[39m"
+      ]
+    },
+    "live/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/4\u001b[39m  \u001b[38;2;51;126;88m▰\u001b[39m\u001b[38;2;135;144;149m▱▱▱\u001b[39m",
+        "  \u001b[38;2;51;126;88m✓\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;135;144;149mCommit A: fix — install the image viewer\u001b[39m",
+        "  \u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push, report SHAs\u001b[39m"
+      ]
+    },
+    "live/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m*\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/4\u001b[39m  \u001b[38;2;51;126;88m#\u001b[39m\u001b[38;2;135;144;149m---\u001b[39m",
+        "  \u001b[38;2;51;126;88mx\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;135;144;149mCommit A: fix — install the image viewer\u001b[39m",
+        "  \u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push, report SHAs\u001b[39m"
+      ]
+    },
+    "live/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/4\u001b[39m  \u001b[38;2;51;126;88m▰\u001b[39m\u001b[38;2;135;144;149m▱▱▱\u001b[39m",
+        "  \u001b[38;2;51;126;88m✓\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;135;144;149mCommit A: fix — install the image viewer\u001b[39m",
+        "  \u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push, report SHAs\u001b[39m"
+      ]
+    },
+    "live/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m*\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/4\u001b[39m  \u001b[38;2;51;126;88m#\u001b[39m\u001b[38;2;135;144;149m---\u001b[39m",
+        "  \u001b[38;2;51;126;88mx\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;135;144;149mCommit A: fix — install the image viewer\u001b[39m",
+        "  \u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push, report SHAs\u001b[39m"
+      ]
+    },
+    "active-form/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m0/2\u001b[39m  \u001b[38;2;51;126;88m\u001b[39m\u001b[38;2;135;144;149m▱▱\u001b[39m",
+        "  \u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;59;63;65mWrite the panel renderer\u001b[39m \u001b[38;2;135;144;149m(Writin\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;103;113;118mWire it above the editor\u001b[39m"
+      ]
+    },
+    "active-form/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m*\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m0/2\u001b[39m  \u001b[38;2;51;126;88m\u001b[39m\u001b[38;2;135;144;149m--\u001b[39m",
+        "  \u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;59;63;65mWrite the panel renderer\u001b[39m \u001b[38;2;135;144;149m(Writin\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;103;113;118mWire it above the editor\u001b[39m"
+      ]
+    },
+    "active-form/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m0/2\u001b[39m  \u001b[38;2;51;126;88m\u001b[39m\u001b[38;2;135;144;149m▱▱\u001b[39m",
+        "  \u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;59;63;65mWrite the panel renderer\u001b[39m \u001b[38;2;135;144;149m(Writing the panel renderer)\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;103;113;118mWire it above the editor\u001b[39m"
+      ]
+    },
+    "active-form/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m*\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m0/2\u001b[39m  \u001b[38;2;51;126;88m\u001b[39m\u001b[38;2;135;144;149m--\u001b[39m",
+        "  \u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;59;63;65mWrite the panel renderer\u001b[39m \u001b[38;2;135;144;149m(Writing the panel renderer)\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;103;113;118mWire it above the editor\u001b[39m"
+      ]
+    },
+    "active-form/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m0/2\u001b[39m  \u001b[38;2;51;126;88m\u001b[39m\u001b[38;2;135;144;149m▱▱\u001b[39m",
+        "  \u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;59;63;65mWrite the panel renderer\u001b[39m \u001b[38;2;135;144;149m(Writing the panel renderer)\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;103;113;118mWire it above the editor\u001b[39m"
+      ]
+    },
+    "active-form/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m*\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m0/2\u001b[39m  \u001b[38;2;51;126;88m\u001b[39m\u001b[38;2;135;144;149m--\u001b[39m",
+        "  \u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;59;63;65mWrite the panel renderer\u001b[39m \u001b[38;2;135;144;149m(Writing the panel renderer)\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;103;113;118mWire it above the editor\u001b[39m"
+      ]
+    },
+    "active-form/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m0/2\u001b[39m  \u001b[38;2;51;126;88m\u001b[39m\u001b[38;2;135;144;149m▱▱\u001b[39m",
+        "  \u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;59;63;65mWrite the panel renderer\u001b[39m \u001b[38;2;135;144;149m(Writing the panel renderer)\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;103;113;118mWire it above the editor\u001b[39m"
+      ]
+    },
+    "active-form/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m*\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m0/2\u001b[39m  \u001b[38;2;51;126;88m\u001b[39m\u001b[38;2;135;144;149m--\u001b[39m",
+        "  \u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;59;63;65mWrite the panel renderer\u001b[39m \u001b[38;2;135;144;149m(Writing the panel renderer)\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;103;113;118mWire it above the editor\u001b[39m"
+      ]
+    },
+    "active-form/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m0/2\u001b[39m  \u001b[38;2;51;126;88m\u001b[39m\u001b[38;2;135;144;149m▱▱\u001b[39m",
+        "  \u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;59;63;65mWrite the panel renderer\u001b[39m \u001b[38;2;135;144;149m(Writing the panel renderer)\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;103;113;118mWire it above the editor\u001b[39m"
+      ]
+    },
+    "active-form/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m*\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m0/2\u001b[39m  \u001b[38;2;51;126;88m\u001b[39m\u001b[38;2;135;144;149m--\u001b[39m",
+        "  \u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;59;63;65mWrite the panel renderer\u001b[39m \u001b[38;2;135;144;149m(Writing the panel renderer)\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;103;113;118mWire it above the editor\u001b[39m"
+      ]
+    },
+    "over-budget/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/15\u001b[39m  \u001b[38;2;51;126;88m▰\u001b[39m\u001b[38;2;135;144;149m▱▱▱▱▱▱▱\u001b[39m",
+        "  \u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — images n\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push, re\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#5\u001b[39m \u001b[38;2;103;113;118mStep 5: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#6\u001b[39m \u001b[38;2;103;113;118mStep 6: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#7\u001b[39m \u001b[38;2;103;113;118mStep 7: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#8\u001b[39m \u001b[38;2;103;113;118mStep 8: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#9\u001b[39m \u001b[38;2;103;113;118mStep 9: the rest of the long job\u001b[39m",
+        "\u001b[3m\u001b[38;2;135;144;149m⋮ 7 more · 1 completed, 6 pending\u001b[39m\u001b[23m"
+      ]
+    },
+    "over-budget/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m*\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/15\u001b[39m  \u001b[38;2;51;126;88m#\u001b[39m\u001b[38;2;135;144;149m-------\u001b[39m",
+        "  \u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — images n\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push, re\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#5\u001b[39m \u001b[38;2;103;113;118mStep 5: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#6\u001b[39m \u001b[38;2;103;113;118mStep 6: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#7\u001b[39m \u001b[38;2;103;113;118mStep 7: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#8\u001b[39m \u001b[38;2;103;113;118mStep 8: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#9\u001b[39m \u001b[38;2;103;113;118mStep 9: the rest of the long job\u001b[39m",
+        "\u001b[3m\u001b[38;2;135;144;149m: 7 more · 1 completed, 6 pending\u001b[39m\u001b[23m"
+      ]
+    },
+    "over-budget/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/15\u001b[39m  \u001b[38;2;51;126;88m▰\u001b[39m\u001b[38;2;135;144;149m▱▱▱▱▱▱▱\u001b[39m",
+        "  \u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push, report SHAs\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#5\u001b[39m \u001b[38;2;103;113;118mStep 5: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#6\u001b[39m \u001b[38;2;103;113;118mStep 6: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#7\u001b[39m \u001b[38;2;103;113;118mStep 7: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#8\u001b[39m \u001b[38;2;103;113;118mStep 8: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#9\u001b[39m \u001b[38;2;103;113;118mStep 9: the rest of the long job\u001b[39m",
+        "\u001b[3m\u001b[38;2;135;144;149m⋮ 7 more · 1 completed, 6 pending\u001b[39m\u001b[23m"
+      ]
+    },
+    "over-budget/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m*\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/15\u001b[39m  \u001b[38;2;51;126;88m#\u001b[39m\u001b[38;2;135;144;149m-------\u001b[39m",
+        "  \u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push, report SHAs\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#5\u001b[39m \u001b[38;2;103;113;118mStep 5: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#6\u001b[39m \u001b[38;2;103;113;118mStep 6: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#7\u001b[39m \u001b[38;2;103;113;118mStep 7: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#8\u001b[39m \u001b[38;2;103;113;118mStep 8: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#9\u001b[39m \u001b[38;2;103;113;118mStep 9: the rest of the long job\u001b[39m",
+        "\u001b[3m\u001b[38;2;135;144;149m: 7 more · 1 completed, 6 pending\u001b[39m\u001b[23m"
+      ]
+    },
+    "over-budget/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/15\u001b[39m  \u001b[38;2;51;126;88m▰\u001b[39m\u001b[38;2;135;144;149m▱▱▱▱▱▱▱\u001b[39m",
+        "  \u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push, report SHAs\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#5\u001b[39m \u001b[38;2;103;113;118mStep 5: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#6\u001b[39m \u001b[38;2;103;113;118mStep 6: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#7\u001b[39m \u001b[38;2;103;113;118mStep 7: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#8\u001b[39m \u001b[38;2;103;113;118mStep 8: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#9\u001b[39m \u001b[38;2;103;113;118mStep 9: the rest of the long job\u001b[39m",
+        "\u001b[3m\u001b[38;2;135;144;149m⋮ 7 more · 1 completed, 6 pending\u001b[39m\u001b[23m"
+      ]
+    },
+    "over-budget/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m*\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/15\u001b[39m  \u001b[38;2;51;126;88m#\u001b[39m\u001b[38;2;135;144;149m-------\u001b[39m",
+        "  \u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push, report SHAs\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#5\u001b[39m \u001b[38;2;103;113;118mStep 5: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#6\u001b[39m \u001b[38;2;103;113;118mStep 6: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#7\u001b[39m \u001b[38;2;103;113;118mStep 7: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#8\u001b[39m \u001b[38;2;103;113;118mStep 8: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#9\u001b[39m \u001b[38;2;103;113;118mStep 9: the rest of the long job\u001b[39m",
+        "\u001b[3m\u001b[38;2;135;144;149m: 7 more · 1 completed, 6 pending\u001b[39m\u001b[23m"
+      ]
+    },
+    "over-budget/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/15\u001b[39m  \u001b[38;2;51;126;88m▰\u001b[39m\u001b[38;2;135;144;149m▱▱▱▱▱▱▱\u001b[39m",
+        "  \u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push, report SHAs\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#5\u001b[39m \u001b[38;2;103;113;118mStep 5: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#6\u001b[39m \u001b[38;2;103;113;118mStep 6: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#7\u001b[39m \u001b[38;2;103;113;118mStep 7: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#8\u001b[39m \u001b[38;2;103;113;118mStep 8: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#9\u001b[39m \u001b[38;2;103;113;118mStep 9: the rest of the long job\u001b[39m",
+        "\u001b[3m\u001b[38;2;135;144;149m⋮ 7 more · 1 completed, 6 pending\u001b[39m\u001b[23m"
+      ]
+    },
+    "over-budget/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m*\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/15\u001b[39m  \u001b[38;2;51;126;88m#\u001b[39m\u001b[38;2;135;144;149m-------\u001b[39m",
+        "  \u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push, report SHAs\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#5\u001b[39m \u001b[38;2;103;113;118mStep 5: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#6\u001b[39m \u001b[38;2;103;113;118mStep 6: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#7\u001b[39m \u001b[38;2;103;113;118mStep 7: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#8\u001b[39m \u001b[38;2;103;113;118mStep 8: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#9\u001b[39m \u001b[38;2;103;113;118mStep 9: the rest of the long job\u001b[39m",
+        "\u001b[3m\u001b[38;2;135;144;149m: 7 more · 1 completed, 6 pending\u001b[39m\u001b[23m"
+      ]
+    },
+    "over-budget/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/15\u001b[39m  \u001b[38;2;51;126;88m▰\u001b[39m\u001b[38;2;135;144;149m▱▱▱▱▱▱▱\u001b[39m",
+        "  \u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push, report SHAs\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#5\u001b[39m \u001b[38;2;103;113;118mStep 5: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#6\u001b[39m \u001b[38;2;103;113;118mStep 6: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#7\u001b[39m \u001b[38;2;103;113;118mStep 7: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#8\u001b[39m \u001b[38;2;103;113;118mStep 8: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#9\u001b[39m \u001b[38;2;103;113;118mStep 9: the rest of the long job\u001b[39m",
+        "\u001b[3m\u001b[38;2;135;144;149m⋮ 7 more · 1 completed, 6 pending\u001b[39m\u001b[23m"
+      ]
+    },
+    "over-budget/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m*\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/15\u001b[39m  \u001b[38;2;51;126;88m#\u001b[39m\u001b[38;2;135;144;149m-------\u001b[39m",
+        "  \u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — images never reach a capture\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push, report SHAs\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#5\u001b[39m \u001b[38;2;103;113;118mStep 5: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#6\u001b[39m \u001b[38;2;103;113;118mStep 6: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#7\u001b[39m \u001b[38;2;103;113;118mStep 7: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#8\u001b[39m \u001b[38;2;103;113;118mStep 8: the rest of the long job\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#9\u001b[39m \u001b[38;2;103;113;118mStep 9: the rest of the long job\u001b[39m",
+        "\u001b[3m\u001b[38;2;135;144;149m: 7 more · 1 completed, 6 pending\u001b[39m\u001b[23m"
+      ]
+    },
+    "done/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149mTodos 4/4 · done\u001b[39m"
+      ]
+    },
+    "done/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149mTodos 4/4 · done\u001b[39m"
+      ]
+    },
+    "done/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149mTodos 4/4 · done\u001b[39m"
+      ]
+    },
+    "done/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149mTodos 4/4 · done\u001b[39m"
+      ]
+    },
+    "done/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149mTodos 4/4 · done\u001b[39m"
+      ]
+    },
+    "done/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149mTodos 4/4 · done\u001b[39m"
+      ]
+    },
+    "done/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149mTodos 4/4 · done\u001b[39m"
+      ]
+    },
+    "done/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149mTodos 4/4 · done\u001b[39m"
+      ]
+    },
+    "done/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149mTodos 4/4 · done\u001b[39m"
+      ]
+    },
+    "done/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149mTodos 4/4 · done\u001b[39m"
+      ]
+    },
+    "narrow/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/4\u001b[39m  \u001b[38;2;51;126;88m▰\u001b[39m\u001b[38;2;135;144;149m▱▱▱\u001b[39m",
+        "  \u001b[38;2;51;126;88m✓\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;135;144;149mCommit A: fix — install the \u001b[0m…\u001b[0m",
+        "  \u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push\u001b[0m…\u001b[0m"
+      ]
+    },
+    "narrow/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m*\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/4\u001b[39m  \u001b[38;2;51;126;88m#\u001b[39m\u001b[38;2;135;144;149m---\u001b[39m",
+        "  \u001b[38;2;51;126;88mx\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;135;144;149mCommit A: fix — install the \u001b[0m…\u001b[0m",
+        "  \u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push\u001b[0m…\u001b[0m"
+      ]
+    },
+    "narrow/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/4\u001b[39m  \u001b[38;2;51;126;88m▰\u001b[39m\u001b[38;2;135;144;149m▱▱▱\u001b[39m",
+        "  \u001b[38;2;51;126;88m✓\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;135;144;149mCommit A: fix — install the \u001b[0m…\u001b[0m",
+        "  \u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push\u001b[0m…\u001b[0m"
+      ]
+    },
+    "narrow/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m*\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/4\u001b[39m  \u001b[38;2;51;126;88m#\u001b[39m\u001b[38;2;135;144;149m---\u001b[39m",
+        "  \u001b[38;2;51;126;88mx\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;135;144;149mCommit A: fix — install the \u001b[0m…\u001b[0m",
+        "  \u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push\u001b[0m…\u001b[0m"
+      ]
+    },
+    "narrow/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/4\u001b[39m  \u001b[38;2;51;126;88m▰\u001b[39m\u001b[38;2;135;144;149m▱▱▱\u001b[39m",
+        "  \u001b[38;2;51;126;88m✓\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;135;144;149mCommit A: fix — install the \u001b[0m…\u001b[0m",
+        "  \u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push\u001b[0m…\u001b[0m"
+      ]
+    },
+    "narrow/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m*\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/4\u001b[39m  \u001b[38;2;51;126;88m#\u001b[39m\u001b[38;2;135;144;149m---\u001b[39m",
+        "  \u001b[38;2;51;126;88mx\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;135;144;149mCommit A: fix — install the \u001b[0m…\u001b[0m",
+        "  \u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push\u001b[0m…\u001b[0m"
+      ]
+    },
+    "narrow/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/4\u001b[39m  \u001b[38;2;51;126;88m▰\u001b[39m\u001b[38;2;135;144;149m▱▱▱\u001b[39m",
+        "  \u001b[38;2;51;126;88m✓\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;135;144;149mCommit A: fix — install the \u001b[0m…\u001b[0m",
+        "  \u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push\u001b[0m…\u001b[0m"
+      ]
+    },
+    "narrow/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m*\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/4\u001b[39m  \u001b[38;2;51;126;88m#\u001b[39m\u001b[38;2;135;144;149m---\u001b[39m",
+        "  \u001b[38;2;51;126;88mx\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;135;144;149mCommit A: fix — install the \u001b[0m…\u001b[0m",
+        "  \u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push\u001b[0m…\u001b[0m"
+      ]
+    },
+    "narrow/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;116;89;180m●\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/4\u001b[39m  \u001b[38;2;51;126;88m▰\u001b[39m\u001b[38;2;135;144;149m▱▱▱\u001b[39m",
+        "  \u001b[38;2;51;126;88m✓\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;135;144;149mCommit A: fix — install the \u001b[0m…\u001b[0m",
+        "  \u001b[38;2;116;89;180m⠋\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;135;144;149m○\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push\u001b[0m…\u001b[0m"
+      ]
+    },
+    "narrow/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;116;89;180m*\u001b[39m \u001b[38;2;116;89;180mTodos\u001b[39m \u001b[38;2;103;113;118m1/4\u001b[39m  \u001b[38;2;51;126;88m#\u001b[39m\u001b[38;2;135;144;149m---\u001b[39m",
+        "  \u001b[38;2;51;126;88mx\u001b[39m \u001b[38;2;135;144;149m#1\u001b[39m \u001b[38;2;135;144;149mCommit A: fix — install the \u001b[0m…\u001b[0m",
+        "  \u001b[38;2;116;89;180m-\u001b[39m \u001b[38;2;135;144;149m#2\u001b[39m \u001b[38;2;59;63;65mCommitting the replay harness\u001b[39m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#3\u001b[39m \u001b[38;2;103;113;118mCommit C: docs gotcha — imag\u001b[0m…\u001b[0m",
+        "  \u001b[38;2;135;144;149mo\u001b[39m \u001b[38;2;135;144;149m#4\u001b[39m \u001b[38;2;103;113;118mRe-run full gate + e2e, push\u001b[0m…\u001b[0m"
+      ]
+    }
+  },
+  "ours.todo": {
+    "l0/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mstart #2\u001b[39m              \u001b[38;2;167;152;215m↑\u001b[39m\u001b[38;2;222;224;225m11\u001b[39m\u001b[38;2;157;165;169m · \u001b[39m\u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169mStarted #2: Committing the repla\u001b[0m\u001b[38;2;222;224;225m\u001b[1m … \u001b[22m\u001b[39m\u001b[0m\u001b[39m"
+      ]
+    },
+    "l0/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;104;183;141m*\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mstart #2\u001b[39m         \u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m11\u001b[39m\u001b[38;2;157;165;169m . \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169mStarted #2: Committing the repla\u001b[0m\u001b[38;2;222;224;225m\u001b[1m … \u001b[22m\u001b[39m\u001b[0m\u001b[39m"
+      ]
+    },
+    "l0/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mstart #2\u001b[39m                                  \u001b[38;2;167;152;215m↑\u001b[39m\u001b[38;2;222;224;225m11\u001b[39m\u001b[38;2;157;165;169m · \u001b[39m\u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "l0/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;104;183;141m*\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mstart #2\u001b[39m                             \u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m11\u001b[39m\u001b[38;2;157;165;169m . \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "l0/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mstart #2\u001b[39m                                                      \u001b[38;2;167;152;215m↑\u001b[39m\u001b[38;2;222;224;225m11\u001b[39m\u001b[38;2;157;165;169m · \u001b[39m\u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "l0/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;104;183;141m*\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mstart #2\u001b[39m                                                 \u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m11\u001b[39m\u001b[38;2;157;165;169m . \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "l0/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mstart #2\u001b[39m                                                                          \u001b[38;2;167;152;215m↑\u001b[39m\u001b[38;2;222;224;225m11\u001b[39m\u001b[38;2;157;165;169m · \u001b[39m\u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "l0/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;104;183;141m*\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mstart #2\u001b[39m                                                                     \u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m11\u001b[39m\u001b[38;2;157;165;169m . \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "l0/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mstart #2\u001b[39m                                                                                              \u001b[38;2;167;152;215m↑\u001b[39m\u001b[38;2;222;224;225m11\u001b[39m\u001b[38;2;157;165;169m · \u001b[39m\u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "l0/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;104;183;141m*\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mstart #2\u001b[39m                                                                                         \u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m11\u001b[39m\u001b[38;2;157;165;169m . \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "aged/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mstart #2\u001b[39m              \u001b[38;2;167;152;215m↑\u001b[39m\u001b[38;2;222;224;225m11\u001b[39m\u001b[38;2;157;165;169m · \u001b[39m\u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169mStarted #2: Committing the repla\u001b[0m\u001b[38;2;222;224;225m\u001b[1m … \u001b[22m\u001b[39m\u001b[0m\u001b[39m"
+      ]
+    },
+    "aged/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;104;183;141m*\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mstart #2\u001b[39m         \u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m11\u001b[39m\u001b[38;2;157;165;169m . \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169mStarted #2: Committing the repla\u001b[0m\u001b[38;2;222;224;225m\u001b[1m … \u001b[22m\u001b[39m\u001b[0m\u001b[39m"
+      ]
+    },
+    "aged/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mstart #2\u001b[39m                                  \u001b[38;2;167;152;215m↑\u001b[39m\u001b[38;2;222;224;225m11\u001b[39m\u001b[38;2;157;165;169m · \u001b[39m\u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "aged/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;104;183;141m*\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mstart #2\u001b[39m                             \u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m11\u001b[39m\u001b[38;2;157;165;169m . \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "aged/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mstart #2\u001b[39m                                                      \u001b[38;2;167;152;215m↑\u001b[39m\u001b[38;2;222;224;225m11\u001b[39m\u001b[38;2;157;165;169m · \u001b[39m\u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "aged/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;104;183;141m*\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mstart #2\u001b[39m                                                 \u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m11\u001b[39m\u001b[38;2;157;165;169m . \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "aged/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mstart #2\u001b[39m                                                                          \u001b[38;2;167;152;215m↑\u001b[39m\u001b[38;2;222;224;225m11\u001b[39m\u001b[38;2;157;165;169m · \u001b[39m\u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "aged/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;104;183;141m*\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mstart #2\u001b[39m                                                                     \u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m11\u001b[39m\u001b[38;2;157;165;169m . \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "aged/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mstart #2\u001b[39m                                                                                              \u001b[38;2;167;152;215m↑\u001b[39m\u001b[38;2;222;224;225m11\u001b[39m\u001b[38;2;157;165;169m · \u001b[39m\u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "aged/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;104;183;141m*\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mstart #2\u001b[39m                                                                                         \u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m11\u001b[39m\u001b[38;2;157;165;169m . \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "add/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215madd\u001b[39m                    \u001b[38;2;167;152;215m↑\u001b[39m\u001b[38;2;222;224;225m8\u001b[39m\u001b[38;2;157;165;169m · \u001b[39m\u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m5\u001b[39m",
+        "    \u001b[38;2;157;165;169mAdded todo #5: Render the panel\u001b[39m"
+      ]
+    },
+    "add/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;104;183;141m*\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215madd\u001b[39m               \u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m8\u001b[39m\u001b[38;2;157;165;169m . \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m5\u001b[39m",
+        "    \u001b[38;2;157;165;169mAdded todo #5: Render the panel\u001b[39m"
+      ]
+    },
+    "add/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215madd\u001b[39m                                        \u001b[38;2;167;152;215m↑\u001b[39m\u001b[38;2;222;224;225m8\u001b[39m\u001b[38;2;157;165;169m · \u001b[39m\u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m5\u001b[39m",
+        "    \u001b[38;2;157;165;169mAdded todo #5: Render the panel\u001b[39m"
+      ]
+    },
+    "add/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;104;183;141m*\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215madd\u001b[39m                                   \u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m8\u001b[39m\u001b[38;2;157;165;169m . \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m5\u001b[39m",
+        "    \u001b[38;2;157;165;169mAdded todo #5: Render the panel\u001b[39m"
+      ]
+    },
+    "add/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215madd\u001b[39m                                                            \u001b[38;2;167;152;215m↑\u001b[39m\u001b[38;2;222;224;225m8\u001b[39m\u001b[38;2;157;165;169m · \u001b[39m\u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m5\u001b[39m",
+        "    \u001b[38;2;157;165;169mAdded todo #5: Render the panel\u001b[39m"
+      ]
+    },
+    "add/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;104;183;141m*\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215madd\u001b[39m                                                       \u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m8\u001b[39m\u001b[38;2;157;165;169m . \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m5\u001b[39m",
+        "    \u001b[38;2;157;165;169mAdded todo #5: Render the panel\u001b[39m"
+      ]
+    },
+    "add/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215madd\u001b[39m                                                                                \u001b[38;2;167;152;215m↑\u001b[39m\u001b[38;2;222;224;225m8\u001b[39m\u001b[38;2;157;165;169m · \u001b[39m\u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m5\u001b[39m",
+        "    \u001b[38;2;157;165;169mAdded todo #5: Render the panel\u001b[39m"
+      ]
+    },
+    "add/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;104;183;141m*\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215madd\u001b[39m                                                                           \u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m8\u001b[39m\u001b[38;2;157;165;169m . \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m5\u001b[39m",
+        "    \u001b[38;2;157;165;169mAdded todo #5: Render the panel\u001b[39m"
+      ]
+    },
+    "add/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;104;183;141m●\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215madd\u001b[39m                                                                                                    \u001b[38;2;167;152;215m↑\u001b[39m\u001b[38;2;222;224;225m8\u001b[39m\u001b[38;2;157;165;169m · \u001b[39m\u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m5\u001b[39m",
+        "    \u001b[38;2;157;165;169mAdded todo #5: Render the panel\u001b[39m"
+      ]
+    },
+    "add/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;104;183;141m*\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215madd\u001b[39m                                                                                               \u001b[38;2;167;152;215min\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m8\u001b[39m\u001b[38;2;157;165;169m . \u001b[39m\u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m5\u001b[39m",
+        "    \u001b[38;2;157;165;169mAdded todo #5: Render the panel\u001b[39m"
+      ]
+    },
+    "failed/dark/40/unicode": {
+      "lines": [
+        "\u001b[38;2;234;127;129m✗\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mcomplete #9\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;234;127;129m#9 not found\u001b[39m",
+        "    \u001b[38;2;157;165;169m#9 not found\u001b[39m"
+      ]
+    },
+    "failed/dark/40/ascii": {
+      "lines": [
+        "\u001b[38;2;234;127;129mx\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mcomplete #9\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;234;127;129m#9 not found\u001b[39m",
+        "    \u001b[38;2;157;165;169m#9 not found\u001b[39m"
+      ]
+    },
+    "failed/dark/60/unicode": {
+      "lines": [
+        "\u001b[38;2;234;127;129m✗\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mcomplete #9\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;234;127;129m#9 not found\u001b[39m                      \u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169m#9 not found\u001b[39m"
+      ]
+    },
+    "failed/dark/60/ascii": {
+      "lines": [
+        "\u001b[38;2;234;127;129mx\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mcomplete #9\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;234;127;129m#9 not found\u001b[39m                   \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169m#9 not found\u001b[39m"
+      ]
+    },
+    "failed/dark/80/unicode": {
+      "lines": [
+        "\u001b[38;2;234;127;129m✗\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mcomplete #9\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;234;127;129m#9 not found\u001b[39m                                          \u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169m#9 not found\u001b[39m"
+      ]
+    },
+    "failed/dark/80/ascii": {
+      "lines": [
+        "\u001b[38;2;234;127;129mx\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mcomplete #9\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;234;127;129m#9 not found\u001b[39m                                       \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169m#9 not found\u001b[39m"
+      ]
+    },
+    "failed/dark/100/unicode": {
+      "lines": [
+        "\u001b[38;2;234;127;129m✗\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mcomplete #9\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;234;127;129m#9 not found\u001b[39m                                                              \u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169m#9 not found\u001b[39m"
+      ]
+    },
+    "failed/dark/100/ascii": {
+      "lines": [
+        "\u001b[38;2;234;127;129mx\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mcomplete #9\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;234;127;129m#9 not found\u001b[39m                                                           \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169m#9 not found\u001b[39m"
+      ]
+    },
+    "failed/dark/120/unicode": {
+      "lines": [
+        "\u001b[38;2;234;127;129m✗\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;167;152;215mcomplete #9\u001b[39m \u001b[38;2;126;136;142m·\u001b[39m \u001b[38;2;234;127;129m#9 not found\u001b[39m                                                                                  \u001b[38;2;105;173;208m↓\u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169m#9 not found\u001b[39m"
+      ]
+    },
+    "failed/dark/120/ascii": {
+      "lines": [
+        "\u001b[38;2;234;127;129mx\u001b[39m \u001b[38;2;222;224;225m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;167;152;215mcomplete #9\u001b[39m \u001b[38;2;126;136;142m.\u001b[39m \u001b[38;2;234;127;129m#9 not found\u001b[39m                                                                               \u001b[38;2;105;173;208mout\u001b[39m\u001b[38;2;157;165;169m \u001b[39m\u001b[38;2;222;224;225m8\u001b[39m",
+        "    \u001b[38;2;157;165;169m#9 not found\u001b[39m"
+      ]
+    },
+    "l0/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;51;126;88m●\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mstart #2\u001b[39m              \u001b[38;2;116;89;180m↑\u001b[39m\u001b[38;2;59;63;65m11\u001b[39m\u001b[38;2;103;113;118m · \u001b[39m\u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118mStarted #2: Committing the repla\u001b[0m\u001b[38;2;59;63;65m\u001b[1m … \u001b[22m\u001b[39m\u001b[0m\u001b[39m"
+      ]
+    },
+    "l0/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;51;126;88m*\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mstart #2\u001b[39m         \u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m11\u001b[39m\u001b[38;2;103;113;118m . \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118mStarted #2: Committing the repla\u001b[0m\u001b[38;2;59;63;65m\u001b[1m … \u001b[22m\u001b[39m\u001b[0m\u001b[39m"
+      ]
+    },
+    "l0/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;51;126;88m●\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mstart #2\u001b[39m                                  \u001b[38;2;116;89;180m↑\u001b[39m\u001b[38;2;59;63;65m11\u001b[39m\u001b[38;2;103;113;118m · \u001b[39m\u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "l0/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;51;126;88m*\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mstart #2\u001b[39m                             \u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m11\u001b[39m\u001b[38;2;103;113;118m . \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "l0/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;51;126;88m●\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mstart #2\u001b[39m                                                      \u001b[38;2;116;89;180m↑\u001b[39m\u001b[38;2;59;63;65m11\u001b[39m\u001b[38;2;103;113;118m · \u001b[39m\u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "l0/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;51;126;88m*\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mstart #2\u001b[39m                                                 \u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m11\u001b[39m\u001b[38;2;103;113;118m . \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "l0/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;51;126;88m●\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mstart #2\u001b[39m                                                                          \u001b[38;2;116;89;180m↑\u001b[39m\u001b[38;2;59;63;65m11\u001b[39m\u001b[38;2;103;113;118m · \u001b[39m\u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "l0/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;51;126;88m*\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mstart #2\u001b[39m                                                                     \u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m11\u001b[39m\u001b[38;2;103;113;118m . \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "l0/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;51;126;88m●\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mstart #2\u001b[39m                                                                                              \u001b[38;2;116;89;180m↑\u001b[39m\u001b[38;2;59;63;65m11\u001b[39m\u001b[38;2;103;113;118m · \u001b[39m\u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "l0/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;51;126;88m*\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mstart #2\u001b[39m                                                                                         \u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m11\u001b[39m\u001b[38;2;103;113;118m . \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "aged/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;51;126;88m●\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mstart #2\u001b[39m              \u001b[38;2;116;89;180m↑\u001b[39m\u001b[38;2;59;63;65m11\u001b[39m\u001b[38;2;103;113;118m · \u001b[39m\u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118mStarted #2: Committing the repla\u001b[0m\u001b[38;2;59;63;65m\u001b[1m … \u001b[22m\u001b[39m\u001b[0m\u001b[39m"
+      ]
+    },
+    "aged/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;51;126;88m*\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mstart #2\u001b[39m         \u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m11\u001b[39m\u001b[38;2;103;113;118m . \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118mStarted #2: Committing the repla\u001b[0m\u001b[38;2;59;63;65m\u001b[1m … \u001b[22m\u001b[39m\u001b[0m\u001b[39m"
+      ]
+    },
+    "aged/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;51;126;88m●\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mstart #2\u001b[39m                                  \u001b[38;2;116;89;180m↑\u001b[39m\u001b[38;2;59;63;65m11\u001b[39m\u001b[38;2;103;113;118m · \u001b[39m\u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "aged/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;51;126;88m*\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mstart #2\u001b[39m                             \u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m11\u001b[39m\u001b[38;2;103;113;118m . \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "aged/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;51;126;88m●\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mstart #2\u001b[39m                                                      \u001b[38;2;116;89;180m↑\u001b[39m\u001b[38;2;59;63;65m11\u001b[39m\u001b[38;2;103;113;118m · \u001b[39m\u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "aged/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;51;126;88m*\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mstart #2\u001b[39m                                                 \u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m11\u001b[39m\u001b[38;2;103;113;118m . \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "aged/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;51;126;88m●\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mstart #2\u001b[39m                                                                          \u001b[38;2;116;89;180m↑\u001b[39m\u001b[38;2;59;63;65m11\u001b[39m\u001b[38;2;103;113;118m · \u001b[39m\u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "aged/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;51;126;88m*\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mstart #2\u001b[39m                                                                     \u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m11\u001b[39m\u001b[38;2;103;113;118m . \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "aged/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;51;126;88m●\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mstart #2\u001b[39m                                                                                              \u001b[38;2;116;89;180m↑\u001b[39m\u001b[38;2;59;63;65m11\u001b[39m\u001b[38;2;103;113;118m · \u001b[39m\u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "aged/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;51;126;88m*\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mstart #2\u001b[39m                                                                                         \u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m11\u001b[39m\u001b[38;2;103;113;118m . \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118mStarted #2: Committing the replay harness\u001b[39m"
+      ]
+    },
+    "add/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;51;126;88m●\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180madd\u001b[39m                    \u001b[38;2;116;89;180m↑\u001b[39m\u001b[38;2;59;63;65m8\u001b[39m\u001b[38;2;103;113;118m · \u001b[39m\u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m5\u001b[39m",
+        "    \u001b[38;2;103;113;118mAdded todo #5: Render the panel\u001b[39m"
+      ]
+    },
+    "add/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;51;126;88m*\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180madd\u001b[39m               \u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m8\u001b[39m\u001b[38;2;103;113;118m . \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m5\u001b[39m",
+        "    \u001b[38;2;103;113;118mAdded todo #5: Render the panel\u001b[39m"
+      ]
+    },
+    "add/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;51;126;88m●\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180madd\u001b[39m                                        \u001b[38;2;116;89;180m↑\u001b[39m\u001b[38;2;59;63;65m8\u001b[39m\u001b[38;2;103;113;118m · \u001b[39m\u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m5\u001b[39m",
+        "    \u001b[38;2;103;113;118mAdded todo #5: Render the panel\u001b[39m"
+      ]
+    },
+    "add/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;51;126;88m*\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180madd\u001b[39m                                   \u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m8\u001b[39m\u001b[38;2;103;113;118m . \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m5\u001b[39m",
+        "    \u001b[38;2;103;113;118mAdded todo #5: Render the panel\u001b[39m"
+      ]
+    },
+    "add/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;51;126;88m●\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180madd\u001b[39m                                                            \u001b[38;2;116;89;180m↑\u001b[39m\u001b[38;2;59;63;65m8\u001b[39m\u001b[38;2;103;113;118m · \u001b[39m\u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m5\u001b[39m",
+        "    \u001b[38;2;103;113;118mAdded todo #5: Render the panel\u001b[39m"
+      ]
+    },
+    "add/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;51;126;88m*\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180madd\u001b[39m                                                       \u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m8\u001b[39m\u001b[38;2;103;113;118m . \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m5\u001b[39m",
+        "    \u001b[38;2;103;113;118mAdded todo #5: Render the panel\u001b[39m"
+      ]
+    },
+    "add/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;51;126;88m●\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180madd\u001b[39m                                                                                \u001b[38;2;116;89;180m↑\u001b[39m\u001b[38;2;59;63;65m8\u001b[39m\u001b[38;2;103;113;118m · \u001b[39m\u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m5\u001b[39m",
+        "    \u001b[38;2;103;113;118mAdded todo #5: Render the panel\u001b[39m"
+      ]
+    },
+    "add/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;51;126;88m*\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180madd\u001b[39m                                                                           \u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m8\u001b[39m\u001b[38;2;103;113;118m . \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m5\u001b[39m",
+        "    \u001b[38;2;103;113;118mAdded todo #5: Render the panel\u001b[39m"
+      ]
+    },
+    "add/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;51;126;88m●\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180madd\u001b[39m                                                                                                    \u001b[38;2;116;89;180m↑\u001b[39m\u001b[38;2;59;63;65m8\u001b[39m\u001b[38;2;103;113;118m · \u001b[39m\u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m5\u001b[39m",
+        "    \u001b[38;2;103;113;118mAdded todo #5: Render the panel\u001b[39m"
+      ]
+    },
+    "add/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;51;126;88m*\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180madd\u001b[39m                                                                                               \u001b[38;2;116;89;180min\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m8\u001b[39m\u001b[38;2;103;113;118m . \u001b[39m\u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m5\u001b[39m",
+        "    \u001b[38;2;103;113;118mAdded todo #5: Render the panel\u001b[39m"
+      ]
+    },
+    "failed/light/40/unicode": {
+      "lines": [
+        "\u001b[38;2;200;37;61m✗\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mcomplete #9\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;200;37;61m#9 not found\u001b[39m",
+        "    \u001b[38;2;103;113;118m#9 not found\u001b[39m"
+      ]
+    },
+    "failed/light/40/ascii": {
+      "lines": [
+        "\u001b[38;2;200;37;61mx\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mcomplete #9\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;200;37;61m#9 not found\u001b[39m",
+        "    \u001b[38;2;103;113;118m#9 not found\u001b[39m"
+      ]
+    },
+    "failed/light/60/unicode": {
+      "lines": [
+        "\u001b[38;2;200;37;61m✗\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mcomplete #9\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;200;37;61m#9 not found\u001b[39m                      \u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118m#9 not found\u001b[39m"
+      ]
+    },
+    "failed/light/60/ascii": {
+      "lines": [
+        "\u001b[38;2;200;37;61mx\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mcomplete #9\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;200;37;61m#9 not found\u001b[39m                   \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118m#9 not found\u001b[39m"
+      ]
+    },
+    "failed/light/80/unicode": {
+      "lines": [
+        "\u001b[38;2;200;37;61m✗\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mcomplete #9\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;200;37;61m#9 not found\u001b[39m                                          \u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118m#9 not found\u001b[39m"
+      ]
+    },
+    "failed/light/80/ascii": {
+      "lines": [
+        "\u001b[38;2;200;37;61mx\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mcomplete #9\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;200;37;61m#9 not found\u001b[39m                                       \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118m#9 not found\u001b[39m"
+      ]
+    },
+    "failed/light/100/unicode": {
+      "lines": [
+        "\u001b[38;2;200;37;61m✗\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mcomplete #9\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;200;37;61m#9 not found\u001b[39m                                                              \u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118m#9 not found\u001b[39m"
+      ]
+    },
+    "failed/light/100/ascii": {
+      "lines": [
+        "\u001b[38;2;200;37;61mx\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mcomplete #9\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;200;37;61m#9 not found\u001b[39m                                                           \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118m#9 not found\u001b[39m"
+      ]
+    },
+    "failed/light/120/unicode": {
+      "lines": [
+        "\u001b[38;2;200;37;61m✗\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;116;89;180mcomplete #9\u001b[39m \u001b[38;2;135;144;149m·\u001b[39m \u001b[38;2;200;37;61m#9 not found\u001b[39m                                                                                  \u001b[38;2;47;120;153m↓\u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118m#9 not found\u001b[39m"
+      ]
+    },
+    "failed/light/120/ascii": {
+      "lines": [
+        "\u001b[38;2;200;37;61mx\u001b[39m \u001b[38;2;59;63;65m\u001b[1mtodo\u001b[22m\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;116;89;180mcomplete #9\u001b[39m \u001b[38;2;135;144;149m.\u001b[39m \u001b[38;2;200;37;61m#9 not found\u001b[39m                                                                               \u001b[38;2;47;120;153mout\u001b[39m\u001b[38;2;103;113;118m \u001b[39m\u001b[38;2;59;63;65m8\u001b[39m",
+        "    \u001b[38;2;103;113;118m#9 not found\u001b[39m"
+      ]
+    }
+  },
   "scenario.decay": {
     "d0/dark/40/unicode": {
       "lines": [

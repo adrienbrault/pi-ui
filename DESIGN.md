@@ -115,6 +115,17 @@ Rules:
   end target; paths keep their basename instead.
 - A user message keeps its own rows only, on the neutral `toolPendingBg` instead of `userMessageBg`: no padding row above or below it (`extensions/user-message.ts`).
 
+## The todos panel
+
+The session's todo list sits above the editor as an extension widget, in pi-ui's vocabulary (`render/todos.ts`, `extensions/todos.ts`). It is read from pi-code's `todo` tool, which owns the list: the whole list rides every result's `details`, and when the list changes, or the session resumes, the panel redraws it. A session that has never used the tool shows no panel, and the key is left alone.
+
+- The heading counts the work and draws its share: `● Todos 1/4` then a bar with one cell per todo, never more than 8 cells, filled for the finished share. `●` and the word take `accent` while anything is unfinished; a finished list collapses to one dim line, `○ Todos 4/4 · done`.
+- A row per todo keeps the `#id` the transcript's todo calls name. Finished rows dim to a check (`✓`, `x` in ASCII), the running one carries the spinner frame and its text; when the tool's active form says more than the todo's words, it follows in `dim` parentheses. Pending rows read `muted`.
+- The panel takes at most 10 lines, its heading, rows and any omission notice together. Over that, finished rows leave first, then the pending tail, and one `⋮ N more · 2 completed, 1 pending` notice counts what is left out, inside the budget.
+- The spinner frame is the repaint pi is already making: reading the clock at render time, never a timer of pi-ui's own. Nothing about the panel repaints on its own.
+
+`todo` is a pi-ui tool class of its own: its rows carry pi-ui's header (`● todo · start #2`, the action and the row it names), age and fold like their peers, and its group segment reads `updated 2 todos`.
+
 ## Width and glyphs
 
 - Measure with `visibleWidth`/`truncateToWidth`; never `String.length`.

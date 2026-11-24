@@ -52,6 +52,7 @@ import {
 } from "./fold.ts";
 import { claimHover, releaseHover } from "./hover.ts";
 import { installImageViewer } from "./image-viewer.ts";
+import { installTodos } from "./todos.ts";
 import { expandedRegions, hoveredRegions, paintBar, paintMarker, styleBarCell } from "./viewport.ts";
 import { fadeLine, paintLeaving, toolFade } from "./fade.ts";
 import { installThinkingRenderer, scheduleThinkingFold } from "./thinking.ts";
@@ -578,6 +579,7 @@ export default function piUi(pi: ExtensionAPI): void {
   installThinkingRenderer(pi);
   installFileChanges(pi);
   installImageViewer(pi);
+  installTodos(pi);
   ratesFor = installThroughput(pi, (id) => records.get(id)?.invalidate());
 
   pi.on("tool_execution_start", (event, ctx) => {

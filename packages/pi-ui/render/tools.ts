@@ -3,7 +3,18 @@
 import { UNICODE_GLYPHS, type TokenMarks } from "./glyphs.ts";
 import { formatDuration } from "./text.ts";
 
-export type ToolClass = "read" | "list" | "search" | "write" | "edit" | "shell" | "web" | "mcp" | "code" | "generic";
+export type ToolClass =
+  | "read"
+  | "list"
+  | "search"
+  | "write"
+  | "edit"
+  | "shell"
+  | "web"
+  | "todo"
+  | "mcp"
+  | "code"
+  | "generic";
 
 export type Trend = "head" | "tail";
 
@@ -30,6 +41,7 @@ const META: Record<string, ToolMeta> = {
   fetch_content: { cls: "web", label: "fetch", trend: "head" },
   codemode: { cls: "code", label: "codemode", trend: "tail" },
   tool_search: { cls: "code", label: "tool_search", trend: "head" },
+  todo: { cls: "todo", label: "todo", trend: "head" },
 };
 
 /** `mcp__server__tool` -> `server/tool`. */
@@ -50,7 +62,7 @@ export function toolMeta(name: string): ToolMeta {
  * Whether pi-ui renders this tool's rows. Every classified tool and every MCP
  * tool is owned, so it can fold with its peers. The `code` class is not: its
  * nested-call rollup does not exist yet, so those tools keep their own renderer.
- * Unknown tools (pi-code's todo, subagent, …) are always left alone.
+ * Unknown tools (pi-code's subagent, question prompt, …) are always left alone.
  */
 export function ownsTool(name: string): boolean {
   if (name.startsWith("mcp__")) return true;
@@ -108,6 +120,12 @@ export function describeCall(
   place: SessionPlace = {},
 ): { title: string; meta: ToolMeta } {
   const meta = toolMeta(name);
+  // A todo call's title is what it does to which row: `start #2`.
+  if (meta.cls === "todo") {
+    const action = typeof args.action === "string" ? args.action : "";
+    const id = typeof args.id === "number" ? `#${args.id}` : "";
+    return { title: [action, id].filter(Boolean).join(" "), meta };
+  }
   const key = titleKey(name, args);
   if (key !== undefined) {
     const value = args[key];
@@ -238,6 +256,8 @@ export function groupNoun(cls: GroupClass): string {
       return "script";
     case "generic":
       return "tool";
+    case "todo":
+      return "todo";
     case "thinking":
       return "thought";
   }
@@ -276,6 +296,8 @@ export function groupVerb(cls: GroupClass, count: number, durationMs?: number): 
     case "mcp":
     case "generic":
       return `called ${things}`;
+    case "todo":
+      return `updated ${things}`;
     case "code":
       return `ran ${things}`;
     case "thinking":

@@ -16,6 +16,7 @@ import {
   HEADER_MARGIN,
   MIN_RATE_TOKENS,
   mcpLabel,
+  describeCall,
   sessionCommand,
   sessionPath,
   toolMeta,
@@ -48,6 +49,7 @@ import { blockDistances, type PlanBlock } from "./layout.ts";
 import { advanceTailWindow, isDropping, planTailWindow } from "./window.ts";
 import { cutMark, type RenderKit, type RenderTheme } from "./kit.ts";
 import { columnLabelRows, memberColumns, metricColumns } from "./columns.ts";
+import { TODOS_PANEL_LINES, todoBar, todosLines, type TodoItem } from "./todos.ts";
 
 function wrapPlain(text: string, width: number): string[] {
   const rows: string[] = [];
@@ -2051,5 +2053,114 @@ describe("image rows by detail level", () => {
   test("every older level keeps the image at least as small as the one before", () => {
     const rows = [0, 1, 2, 3, 4, 5, 6, 7].map((level) => imageRowsFor(27, level as 0, false, false));
     expect(rows.every((value, index) => index === 0 || value <= rows[index - 1]!)).toBe(true);
+  });
+});
+
+/** A todo as the panel's tests build them. */
+const todo = (id: number, status: TodoItem["status"], text = `todo ${id}`, activeForm?: string): TodoItem => ({
+  id,
+  text,
+  status,
+  ...(activeForm ? { activeForm } : {}),
+});
+const todoLines = (todos: TodoItem[], width = 80, frame = 0) => todosLines(api, { todos, frame }, width);
+const manyTodos = (count: number, status: TodoItem["status"] = "pending") =>
+  Array.from({ length: count }, (_, index) => todo(index + 1, status));
+
+describe("todos panel", () => {
+  test("the heading counts the work and draws its share, and a row per todo keeps the ids", () => {
+    const rows = todoLines([todo(1, "completed"), todo(2, "in_progress"), todo(3, "pending"), todo(4, "pending")]);
+    expect(rows[0]).toBe("● Todos 1/4  ▰▱▱▱");
+    expect(rows[1]).toBe("  ✓ #1 todo 1");
+    // The spinner frame is an input: fixtures pin one, pi's repaints move it.
+    expect(rows[2]).toBe("  ⠋ #2 todo 2");
+    expect(todoLines([todo(2, "in_progress")], 80, 3)[0]).toBe("● Todos 0/1  ▱");
+    expect(todoLines([todo(2, "in_progress")], 80, 3)[1]).toBe("  ⠸ #2 todo 2");
+  });
+
+  test("the active form shows beside the todo only when it says more", () => {
+    expect(todoLines([todo(2, "in_progress", "Write the renderer", "Writing the renderer")])[1]).toBe(
+      "  ⠋ #2 Write the renderer (Writing the renderer)",
+    );
+    expect(todoLines([todo(2, "in_progress", "Write the renderer", "Write the renderer")])[1]).toBe(
+      "  ⠋ #2 Write the renderer",
+    );
+  });
+
+  test("a finished list keeps one line", () => {
+    expect(todoLines([todo(1, "completed"), todo(2, "completed")])).toEqual(["○ Todos 2/2 · done"]);
+  });
+
+  test("the bar fills a cell per todo, and no more than eight cells", () => {
+    expect([todoBar(0, 4), todoBar(1, 4), todoBar(2, 4), todoBar(4, 4)]).toEqual([
+      { filled: 0, cells: 4 },
+      { filled: 1, cells: 4 },
+      { filled: 2, cells: 4 },
+      { filled: 4, cells: 4 },
+    ]);
+    expect(todoBar(10, 20)).toEqual({ filled: 4, cells: 8 });
+  });
+
+  test("a list over the budget keeps the work's rows and counts the rest inside the budget", () => {
+    const pending = todoLines(manyTodos(15));
+    expect(pending).toHaveLength(TODOS_PANEL_LINES);
+    expect(pending.at(-1)).toBe("⋮ 7 more · 7 pending");
+    expect(pending.slice(1, -1)).toHaveLength(8);
+
+    // Finished work leaves first: the heading already counts it.
+    const mixed = todoLines([
+      todo(1, "completed", "finished one"),
+      todo(2, "completed", "finished two"),
+      ...manyTodos(13).map((item) => ({ ...item, id: item.id + 2 })),
+    ]);
+    expect(mixed).toHaveLength(TODOS_PANEL_LINES);
+    expect(mixed.some((line) => line.includes("finished"))).toBe(false);
+    expect(mixed.at(-1)).toBe("⋮ 7 more · 2 completed, 5 pending");
+  });
+
+  test("a list that fits shows every row, however many it is under the budget", () => {
+    const rows = todoLines(manyTodos(TODOS_PANEL_LINES - 1));
+    expect(rows).toHaveLength(TODOS_PANEL_LINES);
+    expect(rows.at(-1)).toBe("  ○ #9 todo 9");
+  });
+
+  test("a narrow panel cuts every line to the width", () => {
+    const rows = todoLines([todo(1, "completed", "a long todo's words that will not fit"), todo(2, "pending")], 24);
+    expect(rows.every((line) => line.length <= 24)).toBe(true);
+    expect(rows[1]).toContain("…");
+  });
+
+  test("the ascii glyph set keeps every row's meaning", () => {
+    const ascii = { ...api, glyphs: glyphsFor("ascii") };
+    const rows = todosLines(ascii, { todos: [todo(1, "completed"), todo(2, "pending")], frame: 0 }, 80);
+    expect(rows[0]).toBe("* Todos 1/2  #-");
+    expect(rows[1]).toBe("  x #1 todo 1");
+    expect(rows[2]).toBe("  o #2 todo 2");
+  });
+
+  test("a session with no todos draws nothing, so the caller leaves any panel alone", () => {
+    expect(todoLines([])).toEqual([]);
+  });
+});
+
+describe("todo rows", () => {
+  test("the title names the action and its row; the class joins the group vocabulary", () => {
+    expect(describeCall("todo", { action: "start", id: 2 }).title).toBe("start #2");
+    expect(describeCall("todo", { action: "add" }).title).toBe("add");
+    expect(toolMeta("todo").cls).toBe("todo");
+    expect(groupNoun("todo")).toBe("todo");
+    expect(groupVerb("todo", 2)).toBe("updated 2 todos");
+  });
+
+  test("the row keeps pi-ui's header and puts the list's confirmation under it", () => {
+    const rows = renderToolRow(api, {
+      name: "todo",
+      args: { action: "start", id: 2 },
+      status: "success",
+      level: 0,
+      output: "Started #2: Committing the replay harness",
+    }).render(80);
+    expect(rows[0]).toStartWith("● todo · start #2");
+    expect(rows[1]).toBe("    Started #2: Committing the replay harness");
   });
 });
